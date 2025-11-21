@@ -1,0 +1,124 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+* {
+  scroll-behavior: smooth;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+
+/* Define your custom design tokens */
+@theme {
+  /* Primary */
+  --color-primary-100: #ffaeab;
+  --color-primary-200: #fe5c57;
+  --color-primary-300: #fe1f18;
+  --color-primary-400: #d60801;
+  --color-primary-500: #970501;
+  --color-primary-10:  #fe5c57;
+
+  /* Secondary */
+  --color-secondary-100: #a2b6f8;
+  --color-secondary-200: #456df1;
+  --color-secondary-300: #1244eb;
+  --color-secondary-400: #0e35b6;
+  --color-secondary-500: #0a2682;
+  --color-secondary-10:  #456df1;
+
+  /* neut */
+  --color-neut-100:  #ffffff;
+  --color-neut-200:  #d2c9c9;
+  --color-neut-300:  #af8d8a;
+  --color-neut-400:  #8a584e;
+  --color-neut-500:  #553a27;
+  --color-neut-600:  #273012;
+  --color-neut-700:  #19592c;
+  --color-neut-800:  #24a96f;
+  --color-neut-900:  #49e4b1;
+  --color-neut-1000: #99f6dc;
+  --color-neut-10:   #99f6dc;
+
+  /* hot */
+  --color-hot-100: #fb3748;
+  --color-hot-200: #d00416;
+  --color-hot-10:  #fb3748;
+
+  /* Yellow */
+  --color-yellow-100: #ffdb43;
+  --color-yellow-200: #dfb400;
+  --color-yellow-10:  #ffdb43;
+
+  /* Green */
+  --color-green-100: #84ebb4;
+  --color-green-200: #1fc16b;
+  --color-green-10:  #1fc16b;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+
+.animate-marquee {
+  animation: marquee 12s linear infinite;
+  white-space: nowrap;
+}
+
+
+.bg-lines {
+  background-color: #fafafa;
+  /* background-image: linear-gradient(#1a2238 0.1px, transparent 1px), linear-gradient(90deg, #1a2238 1px, transparent 1px); */
+  background-image: linear-gradient(#4441 0.1px, transparent 0.8px),
+    linear-gradient(90deg, #44444411 0.15px, transparent 0.8px);
+  background-size: 20px 25px;
+}
+body {
+  background: #FAFAFA;
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+
+
+.flex-center {
+  @apply flex items-center justify-center;
+}
+
+.flex-between {
+  @apply flex items-center justify-between;
+}
+
+.flex-around {
+  @apply flex items-center justify-around;
+}
+
+.text-gray {
+  color: #1d1d1d;
+}
+
+.btn {
+  @apply px-7 py-3 md:px-8 lg:px-16 md:py-2.5 rounded-md md:text-[1em] max-md:text-xs md:leading-6 font-semibold transition;
+
+}
+
+
+/* navbar onScroll */
+.scrolled {
+  @apply fixed  w-[100hw] -ml-6 px-6 shadow bg-white top-0 z-[1000] sm:py-1.5 md:py-3 py-4;
+}
+
+.input {
+  @apply bg-[#F5F5F5] border-[0.5px] border-[#99999966] text-[#444] w-full rounded px-3 py-2.5 focus:outline-none focus:ring-0  focus:border-[#99999966]
+}
+
+button {
+  @apply cursor-pointer
+}
