@@ -1,42 +1,59 @@
 "use client";
 
-import { Bell, SquarePen, Menu, X } from "lucide-react";
+import { Bell, Menu, X } from "lucide-react";
 
 import React, { useState } from "react";
 import Image from "next/image";
 import SideBar from "./SideBar";
-import { useModal } from "@/components/GlobalModal";
-import DraftList from "./DraftList";
+import { CiSearch } from "react-icons/ci";
+// import { useModal } from "@/components/GlobalModal";
 
 const TopBar = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
-  const { open, close } = useModal();
-  return (
-    <div className="w-full py-4  px-7 flex-between border shadow-2xl border-b border-gray-200">
-      <h3 className="font-mono">Hello Peace,</h3>
+  // const { open, close } = useModal();
 
-      <div className="flex items-center gap-5 md:gap-7">
-        <button onClick={() => open(<DraftList onClose={close} />)}>
-          <SquarePen className="text-sm text-gray-700" size={20} />
+  return (
+    <div className="w-full py-6 px-4 md:px-7 flex items-center justify-between border-b border-gray-200 bg-white">
+      {/* Search Bar */}
+      <div className="flex items-center gap-2 bg-[#FAFAFA] border border-gray-200 shadow-2xs rounded-full px-3 py-3 flex-1 max-w-md">
+        <CiSearch  className="text-secondary-100" size={28} />
+        <input
+          type="text"
+          placeholder="Search"
+          className="bg-transparent outline-none  text-sm text-gray-600 placeholder:text-gray-400 w-full"
+        />
+      </div>
+
+      {/* Right Side Icons */}
+      <div className="flex items-center gap-4 md:gap-5">
+        <button className="max-md:hidden">
+          <Bell className="text-gray-700" size={20} />
         </button>
 
-        <Bell className="text-sm text-gray-700 cursor-pointer" size={21} />
-        <Image
-          src={"/images/avatar.png"}
-          className="max-md:hidden"
-          alt="avatar"
-          width={30}
-          height={30}
-        />
+        {/* Avatar with Name */}
+        <div className="flex items-center gap-2 max-md:hidden">
+          <Image
+            src={"/images/avatar.png"}
+            alt="avatar"
+            width={32}
+            height={32}
+            className="rounded-full"
+          />
+          <div className="flex flex-col">
+            <span className="text-sm font-medium text-secondary-100">Favour</span>
+            <span className="text-xs text-dark">Admin</span>
+          </div>
+        </div>
 
+        {/* Mobile Menu Button */}
         <button
-          className=" rounded-md   md:hidden"
+          className="md:hidden"
           onClick={() => setIsNavOpen(!isNavOpen)}
         >
           {isNavOpen ? (
-            <X className="text-sm text-primary-500" size={25} />
+            <X className="text-gray-700" size={24} />
           ) : (
-            <Menu className="text-sm text-gray-700" size={21} />
+            <Menu className="text-gray-700" size={24} />
           )}
         </button>
 
@@ -45,7 +62,6 @@ const TopBar = () => {
             className="fixed top-0 left-0 h-screen z-[99999] w-full"
             onClose={() => setIsNavOpen(false)}
           />
-          //   </div>
         )}
       </div>
     </div>

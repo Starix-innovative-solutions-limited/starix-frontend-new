@@ -1,13 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useState } from "react";
 import { sidebarLinks } from "@/constant/index";
 import Link from "next/link";
 import Image from "next/image";
-import { HiChevronDoubleLeft, HiChevronDoubleRight, HiX } from "react-icons/hi";
+import { HiX } from "react-icons/hi";
 import { LogOut } from "lucide-react";
 import LogoutModal from "./LogoutModal";
 import { useModal } from "../GlobalModal";
+import { LuPanelLeftClose, LuPanelRightClose } from "react-icons/lu";
 
 interface SideBarProps {
   className?: string;
@@ -45,15 +47,14 @@ const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
 
   return (
     <aside
-      className={` md:px-2 lg:px-4 xl:px-7 bg-[#0A2682] border-r h-screen w-fit ${
-        collapsed ? "pr-4" : "pr-14"
-      } py-8 flex flex-col items-between gap-6 ${className && className} `}
+      className={` md:px-2 lg:px-4 xl:px-7 bg-white shadow h-screen w-fit ${collapsed ? "pr-4" : "pr-14"
+        } py-8 flex flex-col items-between gap-6 ${className && className} `}
     >
       <div className="flex flex-col gap-6 grow">
         <div className="flex-between">
           <span className="bg-white  rounded-md w-fit">
             <Image
-              src="/images/logo.png"
+              src="/logo.png"
               alt="Starix-logo"
               width={100}
               height={25}
@@ -63,17 +64,15 @@ const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
 
           <button onClick={() => setCollapsed(!collapsed)}>
             {collapsed ? (
-              <HiChevronDoubleRight
+              <LuPanelRightClose
                 size={24}
-                color="#fafafa"
+                color="#040136"
                 className="max-md:hidden"
               />
             ) : (
-              <HiChevronDoubleLeft
-                size={24}
-                color="#fafafa"
-                className="max-md:hidden"
-              />
+              <LuPanelLeftClose size={24}
+                color="#040136"
+                className="max-md:hidden" />
             )}
           </button>
           <HiX
@@ -84,45 +83,39 @@ const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
           />
         </div>
         <div className="space-y-6 mt-7">
-          {Object.entries(sidebarLinks).map(([section, links]) => (
-            <div key={section}>
-              <h2 className="text-xs font-semibold text-gray-500 uppercase mb-2">
-                {section}
-              </h2>
-              <ul className="space-y-6">
-                {links.map(({ label, icon: Icon, href }) => (
-                  <li
-                    key={label}
-                    onClick={() => {
-                      setActive(label);
-                      onClose?.();
-                    }}
+          <ul className="space-y-8">
+            {sidebarLinks.map((items: any, i: number) => (
+
+
+              <li
+                key={i}
+                onClick={() => {
+                  setActive(items?.label);
+                  onClose?.();
+                }}
+              >
+                <Link
+                  href={`${items?.href}`}
+                  // href={""}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-black/50  ${active === items?.label ? "text-secondary-100" : "text-dark "
+                    }`}
+                >
+                  {items?.icon && React.createElement(items.icon, {
+                    className: ` ${collapsed ? "text-xl" : "text-lg"} ${active === items?.label ? "text-secondary-100" : "text-dark"}`
+                  })}
+
+                  <span
+                    className={` ${active == items?.label && "text-secondary-100"
+                      } ${collapsed && "md:hidden"} text-nowrap`}
                   >
-                    <Link
-                      href={`${href}`}
-                      // href={""}
-                      className={`flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-black/50 text-white ${
-                        active === label && "bg-white text-secondary-500"
-                      }`}
-                    >
-                      <Icon
-                        className={`text-lg ${
-                          collapsed ? "text-xl" : "text-lg"
-                        } ${active == label && "text-secondary-500"}`}
-                      />
-                      <span
-                        className={` ${
-                          active == label && "text-secondary-500"
-                        } ${collapsed && "md:hidden"} text-nowrap`}
-                      >
-                        {label}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+                    {items?.label}
+                  </span>
+                </Link>
+              </li>
+
+            ))}
+          </ul>
+
         </div>
       </div>
 

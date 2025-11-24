@@ -1,11 +1,5 @@
-import { 
-  MdDashboard, 
-  MdAddCircle, 
-  MdBarChart, 
-  MdPayment, 
-  MdSettings, 
-  MdHelpCenter, 
-  MdFeedback 
+import {
+  MdMailOutline,
 } from "react-icons/md";
 import {
   Facebook,
@@ -17,9 +11,9 @@ import {
   Download,
 } from "lucide-react";
 
-
 import { Variants } from "framer-motion";
-
+import { HiUserGroup, HiUser } from "react-icons/hi";
+import { IoHome, IoSearch, IoStatsChart } from "react-icons/io5";
 
 type Creator = {
   name: string;
@@ -35,48 +29,42 @@ type Creator = {
   };
 };
 
-export const sidebarLinks = {
-  menu: [
-    {
-      label: "Dashboard",
-      icon: MdDashboard,
-      href: "/dashboard",
+export const sidebarLinks = [
+  {
+    label: "Home",
+    icon: IoHome,
+    href: "/",
+  },
+  {
+    label: "Challenges",
+    icon: IoSearch,
+    href: "/challenges",
+    badge: {
+      hug: 102,
+      flag: 26,
     },
-    {
-      label: "Create Challenge",
-      icon: MdAddCircle,
-      href: "/create-challenge",
-    },
-    {
-      label: "Analytics & Reporting",
-      icon: MdBarChart,
-      href: "/analytics",
-    },
-    {
-      label: "Billing & Payments",
-      icon: MdPayment,
-      href: "/payment",
-    },
-  ],
-  other: [
-    {
-      label: "Settings",
-      icon: MdSettings,
-      href: "/settings",
-    },
-    {
-      label: "Help Center",
-      icon: MdHelpCenter,
-      href: "/support",
-    },
-    {
-      label: "Feedback",
-      icon: MdFeedback,
-      href: "/feedback",
-    },
-  ],
-};
-
+  },
+  {
+    label: "Creator Circles",
+    icon: HiUserGroup,
+    href: "/creator-circles",
+  },
+  {
+    label: "Creator Incubator",
+    icon: MdMailOutline,
+    href: "/creator-incubator",
+  },
+  {
+    label: "Analytics",
+    icon: IoStatsChart,
+    href: "/analytics",
+  },
+  {
+    label: "Profile",
+    icon: HiUser,
+    href: "/profile",
+  },
+];
 
 export const categories = [
   "Beauty & Personal Care",
@@ -108,41 +96,71 @@ export const categories = [
 ];
 
 export const challenges = [
-    { name: 'Paulo pily', status: 'Active', submissions: 500, engagements: '8,000', budget: '#150,00' },
-    { name: 'Paulo pily', status: 'Active', submissions: 500, engagements: '8,000', budget: '#150,00' },
-    { name: 'Paulo pily', status: 'Active', submissions: 500, engagements: '8,000', budget: '#150,00' },
-    { name: 'Paulo pily', status: 'Active', submissions: 500, engagements: '8,000', budget: '#150,00' },
-    { name: 'Malonu', status: 'Closed', submissions: 500, engagements: '8,000', budget: '#150,00' }
-  ];
+  {
+    name: "Paulo pily",
+    status: "Active",
+    submissions: 500,
+    engagements: "8,000",
+    budget: "#150,00",
+  },
+  {
+    name: "Paulo pily",
+    status: "Active",
+    submissions: 500,
+    engagements: "8,000",
+    budget: "#150,00",
+  },
+  {
+    name: "Paulo pily",
+    status: "Active",
+    submissions: 500,
+    engagements: "8,000",
+    budget: "#150,00",
+  },
+  {
+    name: "Paulo pily",
+    status: "Active",
+    submissions: 500,
+    engagements: "8,000",
+    budget: "#150,00",
+  },
+  {
+    name: "Malonu",
+    status: "Closed",
+    submissions: 500,
+    engagements: "8,000",
+    budget: "#150,00",
+  },
+];
 
-export  const activities = [
-    { text: '- Food Entry: 5 new submissions', time: '2 mins ago' },
-    { text: '- Paulo pily: 3 submissions awaiting review', time: '2 mins ago' },
-    { text: '- Fashion Haul: 8 creators joined challenge today', time: '2 mins ago' },
-    { text: '- Paulo pily: Challenge ends in 2 days', time: '2 mins ago' }
-  ];
-
+export const activities = [
+  { text: "- Food Entry: 5 new submissions", time: "2 mins ago" },
+  { text: "- Paulo pily: 3 submissions awaiting review", time: "2 mins ago" },
+  {
+    text: "- Fashion Haul: 8 creators joined challenge today",
+    time: "2 mins ago",
+  },
+  { text: "- Paulo pily: Challenge ends in 2 days", time: "2 mins ago" },
+];
 
 export const faqCards = [
-    {
-      title: "Getting Started",
-      icon: "/images/faq1.png",
-      gradient: "bg-gradient-to-br from-pink-100 to-blue-100",
-    },
-    {
-      title: "Troubleshooting",
-      icon: "/images/faq2.png",
-      
-      gradient: "bg-gradient-to-br from-blue-100 to-purple-100",
-    },
-    {
-      title: "Expert Zone",
-     icon: "/images/faq3.png",
-      gradient: "bg-gradient-to-br from-orange-100 to-yellow-100",
-    },
-  ];
+  {
+    title: "Getting Started",
+    icon: "/images/faq1.png",
+    gradient: "bg-gradient-to-br from-pink-100 to-blue-100",
+  },
+  {
+    title: "Troubleshooting",
+    icon: "/images/faq2.png",
 
-
+    gradient: "bg-gradient-to-br from-blue-100 to-purple-100",
+  },
+  {
+    title: "Expert Zone",
+    icon: "/images/faq3.png",
+    gradient: "bg-gradient-to-br from-orange-100 to-yellow-100",
+  },
+];
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -195,7 +213,6 @@ const tableRowVariants: Variants = {
   }),
 };
 
-
 export const variants = {
   containerVariants,
   itemVariants,
@@ -203,202 +220,200 @@ export const variants = {
   tableRowVariants,
 };
 
-
-
-export  const creators: Creator[] = [
-    {
-      name: "Jane Doe",
-      submission: "12 submissions",
-      rank: 1,
-      metrics: {
-        facebook: { value: 2000, label: "Likes" },
-        twitter: { value: 1800, label: "Tweets" },
-        instagram: { value: 2400, label: "Hearts" },
-        linkedin: { value: 900, label: "Shares" },
-        tiktok: { value: 3000, label: "Views" },
-        youtube: { value: 1200, label: "Subs" },
-      },
+export const creators: Creator[] = [
+  {
+    name: "Jane Doe",
+    submission: "12 submissions",
+    rank: 1,
+    metrics: {
+      facebook: { value: 2000, label: "Likes" },
+      twitter: { value: 1800, label: "Tweets" },
+      instagram: { value: 2400, label: "Hearts" },
+      linkedin: { value: 900, label: "Shares" },
+      tiktok: { value: 3000, label: "Views" },
+      youtube: { value: 1200, label: "Subs" },
     },
-    {
-      name: "John Smith",
-      submission: "8 submissions",
-      rank: 2,
-      metrics: {
-        facebook: { value: 1500, label: "Likes" },
-        twitter: { value: 1000, label: "Tweets" },
-        instagram: { value: 1300, label: "Hearts" },
-        linkedin: { value: 600, label: "Shares" },
-        tiktok: { value: 2500, label: "Views" },
-        youtube: { value: 800, label: "Subs" },
-      },
+  },
+  {
+    name: "John Smith",
+    submission: "8 submissions",
+    rank: 2,
+    metrics: {
+      facebook: { value: 1500, label: "Likes" },
+      twitter: { value: 1000, label: "Tweets" },
+      instagram: { value: 1300, label: "Hearts" },
+      linkedin: { value: 600, label: "Shares" },
+      tiktok: { value: 2500, label: "Views" },
+      youtube: { value: 800, label: "Subs" },
     },
-    {
-      name: "Amaka Johnson",
-      submission: "10 submissions",
-      rank: 3,
-      metrics: {
-        facebook: { value: 1700, label: "Likes" },
-        twitter: { value: 900, label: "Tweets" },
-        instagram: { value: 2100, label: "Hearts" },
-        linkedin: { value: 850, label: "Shares" },
-        tiktok: { value: 2700, label: "Views" },
-        youtube: { value: 950, label: "Subs" },
-      },
+  },
+  {
+    name: "Amaka Johnson",
+    submission: "10 submissions",
+    rank: 3,
+    metrics: {
+      facebook: { value: 1700, label: "Likes" },
+      twitter: { value: 900, label: "Tweets" },
+      instagram: { value: 2100, label: "Hearts" },
+      linkedin: { value: 850, label: "Shares" },
+      tiktok: { value: 2700, label: "Views" },
+      youtube: { value: 950, label: "Subs" },
     },
-    {
-      name: "Michael Lee",
-      submission: "14 submissions",
-      rank: 4,
-      metrics: {
-        facebook: { value: 2500, label: "Likes" },
-        twitter: { value: 2200, label: "Tweets" },
-        instagram: { value: 2800, label: "Hearts" },
-        linkedin: { value: 1100, label: "Shares" },
-        tiktok: { value: 3300, label: "Views" },
-        youtube: { value: 1400, label: "Subs" },
-      },
+  },
+  {
+    name: "Michael Lee",
+    submission: "14 submissions",
+    rank: 4,
+    metrics: {
+      facebook: { value: 2500, label: "Likes" },
+      twitter: { value: 2200, label: "Tweets" },
+      instagram: { value: 2800, label: "Hearts" },
+      linkedin: { value: 1100, label: "Shares" },
+      tiktok: { value: 3300, label: "Views" },
+      youtube: { value: 1400, label: "Subs" },
     },
-    {
-      name: "Sophia Brown",
-      submission: "6 submissions",
-      rank: 5,
-      metrics: {
-        facebook: { value: 1100, label: "Likes" },
-        twitter: { value: 850, label: "Tweets" },
-        instagram: { value: 1600, label: "Hearts" },
-        linkedin: { value: 500, label: "Shares" },
-        tiktok: { value: 2200, label: "Views" },
-        youtube: { value: 700, label: "Subs" },
-      },
+  },
+  {
+    name: "Sophia Brown",
+    submission: "6 submissions",
+    rank: 5,
+    metrics: {
+      facebook: { value: 1100, label: "Likes" },
+      twitter: { value: 850, label: "Tweets" },
+      instagram: { value: 1600, label: "Hearts" },
+      linkedin: { value: 500, label: "Shares" },
+      tiktok: { value: 2200, label: "Views" },
+      youtube: { value: 700, label: "Subs" },
     },
-    {
-      name: "Emeka Obi",
-      submission: "11 submissions",
-      rank: 6,
-      metrics: {
-        facebook: { value: 1900, label: "Likes" },
-        twitter: { value: 1750, label: "Tweets" },
-        instagram: { value: 2300, label: "Hearts" },
-        linkedin: { value: 950, label: "Shares" },
-        tiktok: { value: 2600, label: "Views" },
-        youtube: { value: 1100, label: "Subs" },
-      },
+  },
+  {
+    name: "Emeka Obi",
+    submission: "11 submissions",
+    rank: 6,
+    metrics: {
+      facebook: { value: 1900, label: "Likes" },
+      twitter: { value: 1750, label: "Tweets" },
+      instagram: { value: 2300, label: "Hearts" },
+      linkedin: { value: 950, label: "Shares" },
+      tiktok: { value: 2600, label: "Views" },
+      youtube: { value: 1100, label: "Subs" },
     },
-    {
-      name: "Lisa Kim",
-      submission: "7 submissions",
-      rank: 7,
-      metrics: {
-        facebook: { value: 1300, label: "Likes" },
-        twitter: { value: 1000, label: "Tweets" },
-        instagram: { value: 1500, label: "Hearts" },
-        linkedin: { value: 600, label: "Shares" },
-        tiktok: { value: 2100, label: "Views" },
-        youtube: { value: 850, label: "Subs" },
-      },
+  },
+  {
+    name: "Lisa Kim",
+    submission: "7 submissions",
+    rank: 7,
+    metrics: {
+      facebook: { value: 1300, label: "Likes" },
+      twitter: { value: 1000, label: "Tweets" },
+      instagram: { value: 1500, label: "Hearts" },
+      linkedin: { value: 600, label: "Shares" },
+      tiktok: { value: 2100, label: "Views" },
+      youtube: { value: 850, label: "Subs" },
     },
-    {
-      name: "David Okoro",
-      submission: "5 submissions",
-      rank: 8,
-      metrics: {
-        facebook: { value: 900, label: "Likes" },
-        twitter: { value: 700, label: "Tweets" },
-        instagram: { value: 1200, label: "Hearts" },
-        linkedin: { value: 400, label: "Shares" },
-        tiktok: { value: 1800, label: "Views" },
-        youtube: { value: 600, label: "Subs" },
-      },
+  },
+  {
+    name: "David Okoro",
+    submission: "5 submissions",
+    rank: 8,
+    metrics: {
+      facebook: { value: 900, label: "Likes" },
+      twitter: { value: 700, label: "Tweets" },
+      instagram: { value: 1200, label: "Hearts" },
+      linkedin: { value: 400, label: "Shares" },
+      tiktok: { value: 1800, label: "Views" },
+      youtube: { value: 600, label: "Subs" },
     },
-    {
-      name: "Isabella Rossi",
-      submission: "13 submissions",
-      rank: 9,
-      metrics: {
-        facebook: { value: 2100, label: "Likes" },
-        twitter: { value: 1900, label: "Tweets" },
-        instagram: { value: 2600, label: "Hearts" },
-        linkedin: { value: 1000, label: "Shares" },
-        tiktok: { value: 3200, label: "Views" },
-        youtube: { value: 1500, label: "Subs" },
-      },
+  },
+  {
+    name: "Isabella Rossi",
+    submission: "13 submissions",
+    rank: 9,
+    metrics: {
+      facebook: { value: 2100, label: "Likes" },
+      twitter: { value: 1900, label: "Tweets" },
+      instagram: { value: 2600, label: "Hearts" },
+      linkedin: { value: 1000, label: "Shares" },
+      tiktok: { value: 3200, label: "Views" },
+      youtube: { value: 1500, label: "Subs" },
     },
-    {
-      name: "Olu Jacobs",
-      submission: "9 submissions",
-      rank: 10,
-      metrics: {
-        facebook: { value: 1600, label: "Likes" },
-        twitter: { value: 1300, label: "Tweets" },
-        instagram: { value: 1800, label: "Hearts" },
-        linkedin: { value: 700, label: "Shares" },
-        tiktok: { value: 2400, label: "Views" },
-        youtube: { value: 950, label: "Subs" },
-      },
+  },
+  {
+    name: "Olu Jacobs",
+    submission: "9 submissions",
+    rank: 10,
+    metrics: {
+      facebook: { value: 1600, label: "Likes" },
+      twitter: { value: 1300, label: "Tweets" },
+      instagram: { value: 1800, label: "Hearts" },
+      linkedin: { value: 700, label: "Shares" },
+      tiktok: { value: 2400, label: "Views" },
+      youtube: { value: 950, label: "Subs" },
     },
-    {
-      name: "Grace Miller",
-      submission: "4 submissions",
-      rank: 11,
-      metrics: {
-        facebook: { value: 800, label: "Likes" },
-        twitter: { value: 600, label: "Tweets" },
-        instagram: { value: 1000, label: "Hearts" },
-        linkedin: { value: 350, label: "Shares" },
-        tiktok: { value: 1600, label: "Views" },
-        youtube: { value: 500, label: "Subs" },
-      },
+  },
+  {
+    name: "Grace Miller",
+    submission: "4 submissions",
+    rank: 11,
+    metrics: {
+      facebook: { value: 800, label: "Likes" },
+      twitter: { value: 600, label: "Tweets" },
+      instagram: { value: 1000, label: "Hearts" },
+      linkedin: { value: 350, label: "Shares" },
+      tiktok: { value: 1600, label: "Views" },
+      youtube: { value: 500, label: "Subs" },
     },
-    {
-      name: "Kwame Mensah",
-      submission: "15 submissions",
-      rank: 12,
-      metrics: {
-        facebook: { value: 2300, label: "Likes" },
-        twitter: { value: 2100, label: "Tweets" },
-        instagram: { value: 2900, label: "Hearts" },
-        linkedin: { value: 1200, label: "Shares" },
-        tiktok: { value: 3500, label: "Views" },
-        youtube: { value: 1600, label: "Subs" },
-      },
+  },
+  {
+    name: "Kwame Mensah",
+    submission: "15 submissions",
+    rank: 12,
+    metrics: {
+      facebook: { value: 2300, label: "Likes" },
+      twitter: { value: 2100, label: "Tweets" },
+      instagram: { value: 2900, label: "Hearts" },
+      linkedin: { value: 1200, label: "Shares" },
+      tiktok: { value: 3500, label: "Views" },
+      youtube: { value: 1600, label: "Subs" },
     },
-    {
-      name: "Chika Eze",
-      submission: "6 submissions",
-      rank: 13,
-      metrics: {
-        facebook: { value: 1000, label: "Likes" },
-        twitter: { value: 900, label: "Tweets" },
-        instagram: { value: 1400, label: "Hearts" },
-        linkedin: { value: 500, label: "Shares" },
-        tiktok: { value: 1900, label: "Views" },
-        youtube: { value: 650, label: "Subs" },
-      },
+  },
+  {
+    name: "Chika Eze",
+    submission: "6 submissions",
+    rank: 13,
+    metrics: {
+      facebook: { value: 1000, label: "Likes" },
+      twitter: { value: 900, label: "Tweets" },
+      instagram: { value: 1400, label: "Hearts" },
+      linkedin: { value: 500, label: "Shares" },
+      tiktok: { value: 1900, label: "Views" },
+      youtube: { value: 650, label: "Subs" },
     },
-    {
-      name: "Ahmed Farouk",
-      submission: "10 submissions",
-      rank: 14,
-      metrics: {
-        facebook: { value: 1700, label: "Likes" },
-        twitter: { value: 1500, label: "Tweets" },
-        instagram: { value: 2000, label: "Hearts" },
-        linkedin: { value: 800, label: "Shares" },
-        tiktok: { value: 2500, label: "Views" },
-        youtube: { value: 1000, label: "Subs" },
-      },
+  },
+  {
+    name: "Ahmed Farouk",
+    submission: "10 submissions",
+    rank: 14,
+    metrics: {
+      facebook: { value: 1700, label: "Likes" },
+      twitter: { value: 1500, label: "Tweets" },
+      instagram: { value: 2000, label: "Hearts" },
+      linkedin: { value: 800, label: "Shares" },
+      tiktok: { value: 2500, label: "Views" },
+      youtube: { value: 1000, label: "Subs" },
     },
-    {
-      name: "Maya Torres",
-      submission: "9 submissions",
-      rank: 15,
-      metrics: {
-        facebook: { value: 1550, label: "Likes" },
-        twitter: { value: 1300, label: "Tweets" },
-        instagram: { value: 1750, label: "Hearts" },
-        linkedin: { value: 650, label: "Shares" },
-        tiktok: { value: 2100, label: "Views" },
-        youtube: { value: 900, label: "Subs" },
-      },
+  },
+  {
+    name: "Maya Torres",
+    submission: "9 submissions",
+    rank: 15,
+    metrics: {
+      facebook: { value: 1550, label: "Likes" },
+      twitter: { value: 1300, label: "Tweets" },
+      instagram: { value: 1750, label: "Hearts" },
+      linkedin: { value: 650, label: "Shares" },
+      tiktok: { value: 2100, label: "Views" },
+      youtube: { value: 900, label: "Subs" },
     },
-  ];
+  },
+];
