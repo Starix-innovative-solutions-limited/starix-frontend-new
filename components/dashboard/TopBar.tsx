@@ -6,17 +6,20 @@ import React, { useState } from "react";
 import Image from "next/image";
 import SideBar from "./SideBar";
 import { CiSearch } from "react-icons/ci";
+import Notification from "./Notification";
 // import { useModal } from "@/components/GlobalModal";
 
 const TopBar = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   // const { open, close } = useModal();
 
+  const [isOpenNotif, setIsOpenNotif] = useState<boolean>(false);
+
   return (
-    <div className="w-full py-4 px-4 md:px-14  flex items-center justify-between rounded-2xl bg-white border border-gray-200 shadow-2xs">
+    <div className="w-full py-4 px-4 md:px-14  flex items-center justify-between rounded-2xl bg-white border border-gray-200 shadow-2xs relative">
       {/* Search Bar */}
       <div className="flex items-center gap-2 bg-[#FAFAFA] border border-gray-200 shadow-2xs rounded-full px-3 py-3 flex-1 max-w-md">
-        <CiSearch  className="text-secondary-100" size={29} />
+        <CiSearch className="text-secondary-100" size={29} />
         <input
           type="text"
           placeholder="Search"
@@ -26,9 +29,12 @@ const TopBar = () => {
 
       {/* Right Side Icons */}
       <div className="flex items-center gap-4 md:gap-5">
-        <button className="max-md:hidden">
+        <button className="max-md:hidden" onClick={() => setIsOpenNotif(true)}>
           <Bell className="text-gray-700" size={26} />
         </button>
+
+
+
 
         {/* Avatar with Name */}
         <div className="flex items-center gap-4 max-md:hidden">
@@ -64,6 +70,10 @@ const TopBar = () => {
           />
         )}
       </div>
+
+      {
+        isOpenNotif && <Notification close={() => setIsOpenNotif(false)} />
+      }
     </div>
   );
 };
