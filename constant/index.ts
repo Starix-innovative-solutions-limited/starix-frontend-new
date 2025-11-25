@@ -1,6 +1,4 @@
-import {
-  MdMailOutline,
-} from "react-icons/md";
+import { MdMailOutline } from "react-icons/md";
 import {
   Facebook,
   Twitter,
@@ -13,7 +11,8 @@ import {
 
 import { Variants } from "framer-motion";
 import { HiUserGroup, HiUser } from "react-icons/hi";
-import { IoHome, IoSearch, IoStatsChart } from "react-icons/io5";
+import {  IoSearch, IoStatsChart } from "react-icons/io5";
+import { RiHome5Line } from "react-icons/ri";
 
 type Creator = {
   name: string;
@@ -32,8 +31,8 @@ type Creator = {
 export const sidebarLinks = [
   {
     label: "Home",
-    icon: IoHome,
-    href: "/",
+    icon: RiHome5Line,
+    href: "/dashboard",
   },
   {
     label: "Challenges",

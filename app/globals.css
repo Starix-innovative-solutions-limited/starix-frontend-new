@@ -22,6 +22,8 @@ html {
   --color-primary-500: #970501;
   --color-primary-10: #fe5c57;
 
+  --color-dark : #6E6E6E99;
+
   /* Secondary */
   --color-secondary-h: 243;
   --color-secondary-s: 90%;

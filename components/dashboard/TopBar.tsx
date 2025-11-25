@@ -13,10 +13,10 @@ const TopBar = () => {
   // const { open, close } = useModal();
 
   return (
-    <div className="w-full py-6 px-4 md:px-7 flex items-center justify-between border-b border-gray-200 bg-white">
+    <div className="w-full py-4 px-4 md:px-14  flex items-center justify-between rounded-2xl bg-white border border-gray-200 shadow-2xs">
       {/* Search Bar */}
       <div className="flex items-center gap-2 bg-[#FAFAFA] border border-gray-200 shadow-2xs rounded-full px-3 py-3 flex-1 max-w-md">
-        <CiSearch  className="text-secondary-100" size={28} />
+        <CiSearch  className="text-secondary-100" size={29} />
         <input
           type="text"
           placeholder="Search"
@@ -27,21 +27,21 @@ const TopBar = () => {
       {/* Right Side Icons */}
       <div className="flex items-center gap-4 md:gap-5">
         <button className="max-md:hidden">
-          <Bell className="text-gray-700" size={20} />
+          <Bell className="text-gray-700" size={26} />
         </button>
 
         {/* Avatar with Name */}
-        <div className="flex items-center gap-2 max-md:hidden">
+        <div className="flex items-center gap-4 max-md:hidden">
           <Image
-            src={"/images/avatar.png"}
+            src={"/profile.png"}
             alt="avatar"
-            width={32}
-            height={32}
-            className="rounded-full"
+            width={100}
+            height={100}
+            className="rounded-full w-12 h-12"
           />
           <div className="flex flex-col">
-            <span className="text-sm font-medium text-secondary-100">Favour</span>
-            <span className="text-xs text-dark">Admin</span>
+            <span className="text-base font-medium text-secondary-100">Favour</span>
+            <span className="text-sm text-dark -mt-1">Admin</span>
           </div>
         </div>
 

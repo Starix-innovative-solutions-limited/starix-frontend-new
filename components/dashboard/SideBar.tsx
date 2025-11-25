@@ -6,7 +6,6 @@ import { sidebarLinks } from "@/constant/index";
 import Link from "next/link";
 import Image from "next/image";
 import { HiX } from "react-icons/hi";
-import { LogOut } from "lucide-react";
 import LogoutModal from "./LogoutModal";
 import { useModal } from "../GlobalModal";
 import { LuPanelLeftClose, LuPanelRightClose } from "react-icons/lu";
@@ -17,7 +16,7 @@ interface SideBarProps {
 }
 
 const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
-  const [active, setActive] = useState<string>("Dashboard");
+  const [active, setActive] = useState<string>("Home");
 
   const [collapsed, setCollapsed] = useState<boolean>(false);
 
@@ -47,7 +46,7 @@ const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
 
   return (
     <aside
-      className={` md:px-2 lg:px-4 xl:px-7 bg-white shadow h-screen w-fit ${collapsed ? "pr-4" : "pr-14"
+      className={` md:px-2 lg:px-4 xl:px-7 bg-white shadow h-screen md:min-w-xs ${collapsed ? "pr-4" : "pr-14"
         } py-8 flex flex-col items-between gap-6 ${className && className} `}
     >
       <div className="flex flex-col gap-6 grow">
@@ -97,15 +96,15 @@ const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
                 <Link
                   href={`${items?.href}`}
                   // href={""}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-black/50  ${active === items?.label ? "text-secondary-100" : "text-dark "
+                  className={`flex items-center gap-4 px-3 py-2 rounded-lg hover:bg-black/50  ${active === items?.label ? "text-secondary-100" : "text-dark "
                     }`}
                 >
                   {items?.icon && React.createElement(items.icon, {
-                    className: ` ${collapsed ? "text-xl" : "text-lg"} ${active === items?.label ? "text-secondary-100" : "text-dark"}`
+                    className: ` ${collapsed ? "text-xl" : "text-xl"} text-[1.45rem] ${active === items?.label ? "text-secondary-100 " : "text-dark"}`
                   })}
 
                   <span
-                    className={` ${active == items?.label && "text-secondary-100"
+                    className={` text-lg md:text-xl ${active == items?.label && "text-secondary-100 font-medium"
                       } ${collapsed && "md:hidden"} text-nowrap`}
                   >
                     {items?.label}
@@ -123,8 +122,9 @@ const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
         className="flex items-center gap-3 text-white px-3"
         onClick={() => open(<LogoutModal onClose={close} />)}
       >
-        <LogOut size={20} />{" "}
-        <p className={`font-mono leading-relaxed  ${collapsed && "hidden"} `}>
+        <img src={'/logout.svg'} className="w-6.5 h-6.5" />
+        {" "}
+        <p className={`font-mono leading-relaxed text-dark  ${collapsed && "hidden"} `}>
           Logout
         </p>
       </button>
