@@ -1,0 +1,65 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React from 'react'
+import { AiOutlineClockCircle } from 'react-icons/ai'
+import { useModal } from '../GlobalModal'
+import ChallengeDetails from './creator/ChallengeDetails'
+import NewPostComponent from './creator/NewPost'
+
+interface challengeProps {
+    challenge: any,
+    index: number,
+    post?: boolean
+
+}
+
+const ChallengeCard = ({ challenge, index, post }: challengeProps) => {
+    const { open } = useModal()
+    return (
+        <div className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-4">
+                <img
+                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${index}`}
+                    alt="Brand Avatar"
+                    className="w-12 h-12 rounded-full border border-secondary-10"
+                />
+                <h3 className="text-lg font-semibold text-secondary-100">
+                    {challenge.title}
+                </h3>
+            </div>
+
+            {/* Description */}
+            <p className="text-gray-500 text-sm mb-6 leading-relaxed text-dark">
+                {challenge.description}
+            </p>
+
+            {/* Footer */}
+            <div className="flex items-center justify-between">
+                <span className="text-orange-500 font-semibold text-lg">
+                    {challenge.prize}
+                </span>
+
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1 text-gray-400 text-sm">
+                        <AiOutlineClockCircle />
+                        <span>{challenge.timeLeft}</span>
+                    </div>
+
+                    {
+                        post ? (
+                            <button className="text-[#040136B2] text-sm font-medium hover:text-gray-900 transition-colors underline" onClick={() => open(<NewPostComponent />, { position: 'center' })}>
+                                Post
+                            </button>
+                        ) : (
+                            <button className="text-[#040136B2] text-sm font-medium hover:text-gray-900 transition-colors underline" onClick={() => open(<ChallengeDetails />, { position: 'center' })}>
+                                View Details
+                            </button>
+                        )
+                    }
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export default ChallengeCard

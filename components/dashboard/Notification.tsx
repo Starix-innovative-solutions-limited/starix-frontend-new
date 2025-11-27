@@ -2,8 +2,6 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { IoClose } from 'react-icons/io5';
-
 // Mock data for the notifications
 const notificationList = [
     {
@@ -82,7 +80,7 @@ const NotificationCard = ({ notification, onMarkRead }: {
                     className="w-10 h-10 rounded-full object-cover shadow-sm"
                     src={avatarUrl}
                     alt={`${user} avatar`}
-                    onError={(e : any) => { e.target.onerror = null; e.target.src = "https://placehold.co/40x40/9ca3af/ffffff?text=?" }}
+                    onError={(e: any) => { e.target.onerror = null; e.target.src = "https://placehold.co/40x40/9ca3af/ffffff?text=?" }}
                 />
             </div>
 
@@ -104,11 +102,7 @@ const NotificationCard = ({ notification, onMarkRead }: {
     );
 };
 
-interface NotifProps {
-    close?: () => void;
-}
-
-const Notification = ({ close }: NotifProps) => {
+const Notification = () => {
 
     const [notifications, setNotifications] = useState<any>(notificationList)
 
@@ -118,13 +112,11 @@ const Notification = ({ close }: NotifProps) => {
         );
     }, []);
     return (
-        <div className='absolute top-20  right-2 z-[99999] bg-white border border-gray-200 rounded-2xl pt-3 pb-2'>
+        <div className='z-[99999] bg-white border border-gray-200 rounded-2xl pt-3 pb-2 min-w-screen md:min-w-xl '>
             <div className='relative grid place-items-center py-3 mx-5 border-b border-b-dark/40'>
                 <span className='text-center text-xl text-secondary-100'>Notification</span>
 
-                <button className='absolute right-5' onClick={close}>
-                    <IoClose size={22} />
-                </button>
+
             </div>
             {/* Notification List */}
             <div className="max-h-[60vh] overflow-y-auto divide-y divide-gray-100  overflow-x-hidden py-4 ">
