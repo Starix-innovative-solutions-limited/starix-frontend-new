@@ -2,6 +2,7 @@
 
 import { ReactNode } from "react";
 import { motion } from "framer-motion";
+import { variants } from "@/constant";
 
 interface Props {
   children: ReactNode;
@@ -21,6 +22,7 @@ export default function LinearGradientBorder({
       whileHover={{ scale: hoverScale }}
       className={`p-[1.3px] rounded-xl`}
       style={{ background: gradient }}
+      variants={variants.itemVariants}
     >
       <div className={`${className} bg-white/95 rounded-xl p-3`}>
         {children}

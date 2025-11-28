@@ -91,12 +91,12 @@ const Page = () => {
         initial="hidden"
         animate="visible"
         variants={variants?.containerVariants}
-        className="mx-auto"
+        className="mx-auto "
       >
         {/* Header */}
         <motion.div
           variants={variants?.headerVariants}
-          className="flex justify-between items-center mb-8"
+          className="flex max-md:flex-col md:justify-between md:items-center mb-3 md:mb-8 gap-3"
         >
           <motion.span
             whileHover={{ scale: 1.05 }}
@@ -145,7 +145,7 @@ const Page = () => {
             variants={container}
             initial="hidden"
             animate="show"
-            className="grid grid-cols-3 gap-6 my-5 md:my-16"
+            className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 my-5 md:my-16"
           >
 
 
@@ -172,10 +172,10 @@ const Page = () => {
           </motion.div>
 
           {/* Main Content Grid */}
-          <div className="grid grid-cols-3 gap-10 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-md:mt-20 mb-12">
             {/* Trending in Your Niche */}
-            <div className="col-span-2">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Trending in Your Niche</h2>
+            <div className="md:col-span-2">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6 max-md:mb-10">Trending in Your Niche</h2>
               <div className="grid md:grid-cols-2 gap-5">
                 {trendingInsights.map((insight, index) => {
                   const Icon = insight.icon;
@@ -208,10 +208,10 @@ const Page = () => {
             </div>
 
             {/* Top Creators */}
-            <div>
+            <div className="max-md:mt-20 w-full ">
               <h2 className="text-2xl font-bold text-gray-800 mb-6">Top Creators in Your Niche</h2>
-              <div className="bg-white rounded-2xl p-6 shadow border border-gray-100">
-                <div className="flex items-center gap-2 text-gray-500 border-b py-5 border-[#6E6E6E33] justify-center-safe">
+              <div className="bg-white rounded-2xl p-4  md:p-6 shadow border border-gray-100 w-full">
+                <div className="flex items-center gap-2 text-gray-500 border-b max-md:pt-2 py-5 border-[#6E6E6E33] justify-center-safe">
                   <Image src={'/badge.svg'} width={1000} height={1000} alt="try" className="w-8" />
                   <span className="text-base text-dark ">Weekly Leaderboard</span>
                 </div>
@@ -231,13 +231,13 @@ const Page = () => {
                       transition={{ delay: idx * 0.1 }}
                       className={`flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors border border-gray-100 ${creator.badge && "bg-[#FFF8F5]"} `}
                     >
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2 md:gap-4">
                         <span className="text-dark font-semibold w-8">{creator.rank}</span>
                         <div className="w-10 h-10 bg-gradient-to-br from-orange-300 to-pink-300 rounded-full"></div>
-                        <span className="font-medium text-gray-800">@Favvy</span>
+                        <span className="font-medium text-gray-800 max-md:text-sm">@Favvy</span>
 
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-4 md:gap-3">
                         {creator.badge && (
                           <span className="bg-[#FFDECC] text-orange-600 text-xs px-2 py-1 rounded-lg">{creator.badge}</span>
                         )}
@@ -257,7 +257,7 @@ const Page = () => {
               <button className="text-purple-600 hover:text-purple-700 font-semibold">See All</button>
             </div>
 
-            <div className="grid grid-cols-3 gap-6  md:mt-10">
+            <div className="grid  md:grid-cols-3 gap-6  my-10">
               {[1, 2, 3, 4, 5, 6].map((challenge) => (
                 <motion.div
                   key={challenge}

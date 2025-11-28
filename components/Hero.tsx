@@ -4,8 +4,8 @@ import Link from "next/link";
 
 const Hero = () => {
   return (
-    <section className="general-space  h-screen overflow-y-hidden overflow-x-hidden">
-      <div className="flex flex-col md:flex-row items-center justify-center gap-14 md:gap-18 py-14 md:py-20">
+    <section className="general-space h-screen  overflow-y-hidden overflow-x-hidden ">
+      <div className="flex flex-col md:flex-row items-center justify-center gap-14 md:gap-18 my-auto md:py-20">
         <div className="w-full flex flex-col gap-7">
           <h1 className="text-6xl max-md:text-4xl font-normal text-[#040136]">
             Empowering creators,
@@ -33,10 +33,18 @@ const Hero = () => {
           </div>
         </div>
 
+        <Image
+          src="/hero-bg.png"
+          alt="Hero Image"
+          width={500}
+          height={500} // half the height
+          className="md:hidden absolute top-20 left-0  w-full z-0 blur-sm"
+        />
 
-        <div className="w-full flex items-center relative h-screen">
 
-          <div className="flex items-center z-10 relative bg-black">
+        <div className="w-full flex items-center relative h-screen max-md:hidden">
+
+          <div className="flex items-center z-10 relative bg-black  max-md:hidden" >
             <Image
               src="/hero1.png"
               alt="Hero Image"
@@ -60,14 +68,14 @@ const Hero = () => {
             />
           </div>
 
-
           <Image
             src="/hero-bg.png"
             alt="Hero Image"
             width={500}
             height={500} // half the height
-            className=" absolute top-20 left-0  w-full z-0"
+            className="max-md:hidden absolute top-20 left-0  w-full z-0 blur-[2px]"
           />
+
         </div>
       </div>
 

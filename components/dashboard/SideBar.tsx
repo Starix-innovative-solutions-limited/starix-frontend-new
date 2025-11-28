@@ -16,7 +16,7 @@ interface SideBarProps {
 }
 
 const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
-  const [active, setActive] = useState<string>("Home");
+  const [active, setActive] = useState<number>(0);
 
   const [collapsed, setCollapsed] = useState<boolean>(false);
 
@@ -89,22 +89,22 @@ const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
               <li
                 key={i}
                 onClick={() => {
-                  setActive(items?.label);
+                  setActive(i);
                   onClose?.();
                 }}
               >
                 <Link
                   href={`${items?.href}`}
                   // href={""}
-                  className={`flex items-center gap-4 px-3 py-2 rounded-lg hover:bg-black/50  ${active === items?.label ? "text-secondary-100" : "text-dark "
+                  className={`flex items-center gap-4 px-3 py-2 rounded-lg hover:bg-black/50  ${active ===  i ? "text-secondary-100" : "text-dark "
                     }`}
                 >
                   {items?.icon && React.createElement(items.icon, {
-                    className: ` ${collapsed ? "text-xl" : "text-xl"} text-[1.45rem] ${active === items?.label ? "text-secondary-100 " : "text-dark"}`
+                    className: ` ${collapsed ? "text-xl" : "text-xl"} text-[1.45rem] ${active === i ? "text-secondary-100 " : "text-dark"}`
                   })}
 
                   <span
-                    className={` text-lg md:text-xl ${active == items?.label && "text-secondary-100 font-medium"
+                    className={` text-lg md:text-xl ${active == i && "text-secondary-100 font-medium"
                       } ${collapsed && "md:hidden"} text-nowrap`}
                   >
                     {items?.label}

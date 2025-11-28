@@ -31,16 +31,16 @@ const WhyStarix = () => {
         }
     ];
 
-    const toggleSection = (id : any) => {
+    const toggleSection = (id: any) => {
         setOpenSection(openSection === id ? null : id);
     };
     return (
-        <div className='general-space bg-[#EBEFFF] h-screen general-space'>
+        <div className='general-space bg-[#EBEFFF] min-h-screen '>
             <h3 className='text-secondary-100 text-5xl font-semibold text-center'>
                 Why Starix Works Better
             </h3>
 
-            <div className="grid grid-cols-5 gap-5 my-11">
+            <div className="max-md:flex max-md:flex-col md:grid md:grid-cols-5 gap-5 my-11">
                 <div className='bg-[#E0E7FF]  rounded-3xl p-7 col-span-2 border border-gray-100/30'>
                     <span className='bg-[#FAFAFAB2] text-[#6E6E6E99] px-3 py-2 text-md font-medium'>
                         THE PROBLEM

@@ -3,7 +3,7 @@ import React from "react";
 
 const Footer = () => {
   return (
-    <section className="flex flex-col  py-6 text-[#444444]">
+    <section className="flex flex-col  py-6 text-[#444444] general-space">
       {/* <div className="h-[50vh]"></div> */}
       <div className="flex flex-col gap-3 max-md:gap-10">
         <p className="flex-center text-xl text-[#444444] font-medium">

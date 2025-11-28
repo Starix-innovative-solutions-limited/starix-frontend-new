@@ -191,7 +191,7 @@ function ModalRoot({
               damping: 32,
               mass: 0.8,
             }}
-            className={` z-10  max-w-4xl max-md:w-full mx-auto absolute ${modalClassName} `}
+            className={` z-10  max-w-5xl max-md:max-w-[90vw] mx-auto absolute ${modalClassName} `}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}
@@ -211,7 +211,7 @@ function ModalRoot({
             <div className="relative bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden ">
               <div className="absolute inset-0 bg-gradient-to-br from-white/50 via-transparent to-transparent pointer-events-none" />
 
-              <div className="relative min-h-[30vh] max-h-[85vh] overflow-auto w-full ">
+              <div className="relative min-h-[30vh] md:max-h-[85vh] overflow-auto w-full ">
                 {content}
               </div>
             </div>

@@ -3,6 +3,8 @@ import { IoFilterOutline } from 'react-icons/io5';
 // import { useModal } from '@/components/GlobalModal';
 import ChallengeCard from '../ChallengeCard';
 import PostCard from '../PostCard';
+import { motion } from 'framer-motion';
+import { variants } from '@/constant';
 
 const ChallengeGrid = () => {
     const [activeTab, setActiveTab] = useState<number>(0);
@@ -27,10 +29,10 @@ const ChallengeGrid = () => {
     ];
 
     return (
-        <div className=" py-10 mt-5">
+        <motion.div className=" py-10 mt-5">
             {/* Tabs */}
-            <div className="flex items-center justify-between mb-8 ">
-                <div className="flex items-center gap-1 bg-white rounded-lg shadow-2xs p-2 px-4">
+            <motion.div className="flex items-center justify-between mb-8 ">
+                <div className="flex items-center gap-1 bg-white rounded-lg shadow-2xs p-2 px-4 overflow-x-scroll">
                     {tabs.map(tab => (
                         <button
                             key={tab.id}
@@ -52,10 +54,10 @@ const ChallengeGrid = () => {
                     <IoFilterOutline className="text-lg" />
                     <span className="text-sm font-medium">Filter</span>
                 </button>
-            </div>
+            </motion.div>
 
             {/* Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <motion.div variants={variants.containerVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {
                     activeTab <= 1 && (
                         <>
@@ -73,14 +75,14 @@ const ChallengeGrid = () => {
                     <>
                         {
                             challenges.slice(0, 4).map((index) => (
-                                <PostCard key={index} />
+                                <PostCard key={index} viewSubmitLink={activeTab == 2} isWin={activeTab == 4} price='$400' />
                             ))
                         }
                     </>
                 )
                 }
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 }
 

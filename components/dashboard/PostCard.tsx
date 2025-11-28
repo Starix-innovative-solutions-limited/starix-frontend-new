@@ -1,12 +1,24 @@
 import { motion } from 'framer-motion'
 import React from 'react'
 import { FaComment, FaEye, FaHeart } from 'react-icons/fa'
+import SubmitUrl from './creator/SubmitUrl'
 
-const PostCard = () => {
+import { useModal } from '../GlobalModal'
+import { variants } from '@/constant'
+
+interface PostProps {
+    viewSubmitLink?: boolean,
+    price?: string,
+    isWin?: boolean
+}
+
+const PostCard = ({ viewSubmitLink, isWin, price }: PostProps) => {
+    const { open } = useModal();
     return (
         <motion.div
             whileHover={{ y: -8 }}
-            className="bg-white rounded-xl overflow-hidden shadow-lg cursor-pointer"
+            variants={variants?.itemVariants}
+            className="bg-white rounded-xl overflow-hidden shadow-lg cursor-pointer h-fit"
         >
             <div className="relative">
                 <img
@@ -26,7 +38,7 @@ const PostCard = () => {
                 </div>
             </div>
 
-            <div className="p-4 flex items-center justify-between">
+            <div className="px-4 pt-4 flex items-center justify-between">
                 <p className="font-semibold text-gray-800 mb-3">Your Caption here</p>
                 <div className="flex items-center gap-4 text-dark">
                     <div className="flex items-center gap-1">
@@ -38,6 +50,24 @@ const PostCard = () => {
                         <span className="text-sm">10</span>
                     </div>
                 </div>
+            </div>
+
+            <div className='flex px-5 pb-4'>
+                {
+                    viewSubmitLink && (
+                        <button className="text-[#040136B2] ml-auto text-sm font-medium hover:text-gray-900 transition-colors underline" onClick={() => open(<SubmitUrl />, { position: 'center' })}>
+                            View Details
+                        </button>
+                    )
+                }
+
+                {
+                    isWin && price && (
+                        <button className="text-[#040136B2] ml-auto text-sm font-medium hover:text-gray-900 transition-colors underline" onClick={() => open(<SubmitUrl />, { position: 'center' })}>
+                            {price}
+                        </button>
+                    )
+                }
             </div>
         </motion.div>
     )

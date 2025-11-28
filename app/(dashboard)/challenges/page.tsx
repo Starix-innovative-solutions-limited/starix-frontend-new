@@ -50,7 +50,7 @@ const page = () => {
       </motion.div>
 
 
-      <div className="grid grid-cols-3 gap-6">
+      <motion.div variants={variants?.containerVariants} className="grid md:grid-cols-3 gap-3 md:gap-6">
         {
           challenges?.map((item: any, i: number) => (
             <LinearGradientBorder key={i}>
@@ -71,7 +71,7 @@ const page = () => {
             </LinearGradientBorder>
           ))
         }
-      </div>
+      </motion.div>
 
       <ChallengeGrid />
 

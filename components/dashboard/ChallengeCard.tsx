@@ -4,18 +4,20 @@ import { AiOutlineClockCircle } from 'react-icons/ai'
 import { useModal } from '../GlobalModal'
 import ChallengeDetails from './creator/ChallengeDetails'
 import NewPostComponent from './creator/NewPost'
+import { motion } from 'framer-motion'
+import { variants } from '@/constant'
 
 interface challengeProps {
     challenge: any,
     index: number,
-    post?: boolean
+    post?: boolean,
 
 }
 
 const ChallengeCard = ({ challenge, index, post }: challengeProps) => {
     const { open } = useModal()
     return (
-        <div className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
+        <motion.div variants={variants?.itemVariants} className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
             {/* Header */}
             <div className="flex items-center gap-3 mb-4">
                 <img
@@ -58,7 +60,7 @@ const ChallengeCard = ({ challenge, index, post }: challengeProps) => {
                     }
                 </div>
             </div>
-        </div>
+        </motion.div>
     )
 }
 

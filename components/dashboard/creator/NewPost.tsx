@@ -1,41 +1,48 @@
 import React, { useState } from 'react';
-import { HiOutlineDocumentAdd} from 'react-icons/hi';
 import { AiOutlineRobot } from 'react-icons/ai';
+import ImageUploader from '@/components/ImageUploader';
+// import useScreen from 'use-screen';
+
+import useBreakpoint from '@/hooks/useBreakPoint';
+
+
+
+
 
 const NewPostComponent = () => {
+    const [image, setImage] = useState<string | null>(null);
     const [caption, setCaption] = useState('');
+
+    const { isMobile } = useBreakpoint()
 
     const handlePost = () => {
         console.log('Posting:', caption);
         // Handle post logic here
     };
 
+    const handleImage = (file: File) => {
+        const url = URL.createObjectURL(file);
+        setImage(url);
+    };
+
     return (
-        <div className="bg-white rounded-lg shadow-xl w-full max-md:max-w-[80vw] md:min-w-3xl mx-auto py-5 ">
-            <div className="bg-white rounded-lg shadow-xl w-full">
+        <div className="bg-white rounded-lg shadow-xl w-full max-md:max-w-[80vw] md:min-w-3xl mx-auto py-6  h-full">
+            <div className="  w-full">
                 {/* Header */}
                 {/* <div className="flex items-center justify-between p-4 "> */}
-                    <h2 className="text-xl text-center font-semibold text-gray-800 p-4">New Post</h2>
+                <h2 className="text-xl text-center font-medium text-secondary-100 p-4">New Post</h2>
 
                 {/* </div> */}
 
                 {/* Content */}
-                <div className="flex flex-col md:flex-row">
+                <div className="grid md:grid-cols-4">
                     {/* Left side - Upload area */}
-                    <div className="flex-1 p-8  md:border-b-0">
-                        <div className="flex flex-col items-center justify-center h-full min-h-[300px] border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition cursor-pointer">
-                            <HiOutlineDocumentAdd size={64} className="text-gray-400 mb-4" />
-                            <p className="text-lg font-medium text-gray-700 mb-2">
-                                Select From Computer
-                            </p>
-                            <p className="text-sm text-gray-400">
-                                Drop or Paste File here
-                            </p>
-                        </div>
+                    <div className="flex p-6  md:border-b-0 md:col-span-2 w-auto mx-auto">
+                        <ImageUploader height={isMobile ? 230 : 300} value={image} onChange={handleImage} label='Drop or Paste File here' />
                     </div>
 
                     {/* Right side - Caption and post */}
-                    <div className="flex-1 p-6 flex flex-col">
+                    <div className="flex-1 p-6 flex flex-col col-span-2">
                         {/* User info */}
                         <div className="flex items-center gap-3 mb-4">
                             <img
@@ -43,7 +50,7 @@ const NewPostComponent = () => {
                                 alt="User"
                                 className="w-10 h-10 rounded-full object-cover"
                             />
-                            <span className="font-medium text-gray-800">Favour</span>
+                            <span className="font-semibold text-gray-800">Favour</span>
                         </div>
 
                         {/* Caption textarea */}
@@ -52,7 +59,7 @@ const NewPostComponent = () => {
                             onChange={(e) => setCaption(e.target.value)}
                             placeholder="Write caption Here"
                             maxLength={2000}
-                            className="flex-1 p-3 border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 placeholder-gray-400"
+                            className="flex-1 p-3 border border-dark rounded-lg resize-none focus:outline-none outline-0 focus:ring-2 focus:ring-dark focus:border-transparent text-gray-800 placeholder-dark"
                         />
 
                         {/* Character count */}
@@ -61,7 +68,7 @@ const NewPostComponent = () => {
                         </div>
 
                         {/* AI Summary Review */}
-                        <button className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 mt-4 mb-4">
+                        <button className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 mt-4 mb-4 underline">
                             <AiOutlineRobot size={18} />
                             <span>AI Summation Review</span>
                         </button>
