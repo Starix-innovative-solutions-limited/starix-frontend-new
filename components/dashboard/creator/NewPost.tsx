@@ -5,6 +5,9 @@ import ImageUploader from '@/components/ImageUploader';
 
 import useBreakpoint from '@/hooks/useBreakPoint';
 
+import { useModal } from '@/components/GlobalModal';
+import NextStep from '../NextStep';
+
 
 
 
@@ -17,6 +20,8 @@ const NewPostComponent = () => {
 
     const handlePost = () => {
         console.log('Posting:', caption);
+
+        open(<NextStep id={2} />)
         // Handle post logic here
     };
 
@@ -25,8 +30,10 @@ const NewPostComponent = () => {
         setImage(url);
     };
 
+    const {open} = useModal()
+
     return (
-        <div className="bg-white rounded-lg shadow-xl w-full max-md:max-w-[80vw] md:min-w-3xl mx-auto py-6  h-full">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl md:min-w-2xl py-6  h-full">
             <div className="  w-full">
                 {/* Header */}
                 {/* <div className="flex items-center justify-between p-4 "> */}

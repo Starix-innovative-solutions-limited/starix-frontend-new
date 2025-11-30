@@ -101,7 +101,7 @@ const Page = () => {
           <motion.span
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-2 py-2 text-4xl font-bold hover:bg-gray-100 transition-colors text-secondary-100 "
+            className="flex items-center gap-2 py-2 text-4xl font-normal hover:bg-gray-100 transition-colors text-secondary-100 "
           >
             Overview
           </motion.span>

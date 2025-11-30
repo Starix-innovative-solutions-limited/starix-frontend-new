@@ -17,49 +17,53 @@ interface challengeProps {
 const ChallengeCard = ({ challenge, index, post }: challengeProps) => {
     const { open } = useModal()
     return (
-        <motion.div variants={variants?.itemVariants} className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
+        <motion.div variants={variants?.itemVariants} className="bg-white rounded-xl shadow-sm px-6 py-3 hover:shadow-md transition-shadow">
             {/* Header */}
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-start gap-5 mb-4">
                 <img
                     src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${index}`}
                     alt="Brand Avatar"
                     className="w-12 h-12 rounded-full border border-secondary-10"
                 />
-                <h3 className="text-lg font-semibold text-secondary-100">
-                    {challenge.title}
-                </h3>
-            </div>
+                <div>
+                    <h3 className="text-lg font-semibold text-secondary-100">
+                        {challenge.title}
+                    </h3>
 
-            {/* Description */}
-            <p className="text-gray-500 text-sm mb-6 leading-relaxed text-dark">
-                {challenge.description}
-            </p>
 
-            {/* Footer */}
-            <div className="flex items-center justify-between">
-                <span className="text-orange-500 font-semibold text-lg">
-                    {challenge.prize}
-                </span>
+                    {/* Description */}
+                    <p className="text-gray-500 text-sm mb-6 leading-relaxed text-dark">
+                        {challenge.description}
+                    </p>
 
-                <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1 text-gray-400 text-sm">
-                        <AiOutlineClockCircle />
-                        <span>{challenge.timeLeft}</span>
+                    {/* Footer */}
+                    <div className="flex items-center justify-between">
+                        <span className="text-orange-500 font-semibold text-lg">
+                            {challenge.prize}
+                        </span>
+
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-1 text-gray-400 text-sm">
+                                <AiOutlineClockCircle />
+                                <span>{challenge.timeLeft}</span>
+                            </div>
+
+                            {
+                                post ? (
+                                    <button className="text-[#040136B2] text-sm font-medium hover:text-gray-900 transition-colors underline" onClick={() => open(<NewPostComponent />, { position: 'center' })}>
+                                        Post
+                                    </button>
+                                ) : (
+                                    <button className="text-[#040136B2] text-sm font-medium hover:text-gray-900 transition-colors underline" onClick={() => open(<ChallengeDetails />, { position: 'center' })}>
+                                        View Details
+                                    </button>
+                                )
+                            }
+                        </div>
                     </div>
-
-                    {
-                        post ? (
-                            <button className="text-[#040136B2] text-sm font-medium hover:text-gray-900 transition-colors underline" onClick={() => open(<NewPostComponent />, { position: 'center' })}>
-                                Post
-                            </button>
-                        ) : (
-                            <button className="text-[#040136B2] text-sm font-medium hover:text-gray-900 transition-colors underline" onClick={() => open(<ChallengeDetails />, { position: 'center' })}>
-                                View Details
-                            </button>
-                        )
-                    }
                 </div>
             </div>
+
         </motion.div>
     )
 }
