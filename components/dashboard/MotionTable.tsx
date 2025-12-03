@@ -2,6 +2,7 @@
 
 import { motion, Variants } from "framer-motion";
 import React from "react";
+import { BiLeftArrow, BiRightArrow } from "react-icons/bi";
 
 type MotionTableProps<T> = {
   headers: string[];
@@ -25,14 +26,14 @@ export function MotionTable<T>({
   onPageChange,
 }: MotionTableProps<T>) {
   return (
-    <div className=" overflow-y-hidden  bg-white">
+    <div className=" overflow-y-hidden  bg-white min-w-fit">
       <motion.table className="w-full ">
         {/* Table Header */}
         <motion.thead
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="bg-gray-50 border-b border-gray-200"
+          className="bg-gray-50 border-b border-dark"
         >
           <tr>
             {headers.map((header, i) => (
@@ -41,7 +42,7 @@ export function MotionTable<T>({
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 + i * 0.05 }}
-                className="py-3 px-4 text-left text-sm font-semibold text-gray-700"
+                className="py-3 px-4 text-left text-sm font-semibold text-dark min-w-fit"
               >
                 {header}
               </motion.th>
@@ -76,40 +77,42 @@ export function MotionTable<T>({
 
       {/* Pagination */}
       {totalPages && totalPages > 1 && (
-        <div className="flex items-center justify-between px-4 py-3 border border-gray-200 bg-gray-50">
-          <button
-            disabled={currentPage === 1}
-            onClick={() => onPageChange && onPageChange(currentPage! - 1)}
-            className={`px-3 py-1 text-sm font-medium rounded-md ${
-              currentPage === 1
-                ? "text-gray-400 cursor-not-allowed"
-                : "text-gray-700 hover:bg-gray-100"
-            }`}
-          >
-            Previous
-          </button>
+        <div className="flex">
+          <div className="flex items-center gap-3 px-4 py-3  bg-gray-50 ml-auto">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => onPageChange && onPageChange(currentPage! - 1)}
+              className={`px-3 py-1 text-sm font-medium rounded-md ${
+                currentPage === 1
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              <BiLeftArrow />
+            </button>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            key={currentPage}
-            className="text-sm text-gray-600"
-          >
-            Page <span className="font-medium">{currentPage}</span> of{" "}
-            <span className="font-medium">{totalPages}</span>
-          </motion.div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              key={currentPage}
+              className="text-sm text-gray-600"
+            >
+              <span className="font-medium">{currentPage}</span> of{" "}
+              <span className="font-medium">{totalPages}</span>
+            </motion.div>
 
-          <button
-            disabled={currentPage === totalPages}
-            onClick={() => onPageChange && onPageChange(currentPage! + 1)}
-            className={`px-3 py-1 text-sm font-medium rounded-md ${
-              currentPage === totalPages
-                ? "text-gray-400 cursor-not-allowed"
-                : "text-gray-700 hover:bg-gray-100"
-            }`}
-          >
-            Next
-          </button>
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => onPageChange && onPageChange(currentPage! + 1)}
+              className={`px-3 py-1 text-sm font-medium rounded-md ${
+                currentPage === totalPages
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              <BiRightArrow />
+            </button>
+          </div>
         </div>
       )}
     </div>

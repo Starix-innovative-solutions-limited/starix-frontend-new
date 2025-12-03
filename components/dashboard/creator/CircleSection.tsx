@@ -6,6 +6,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import {  FaUsers } from 'react-icons/fa';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export const CircleCard = ({ circle, index } : any) => {
 
@@ -59,7 +60,7 @@ export const CircleCard = ({ circle, index } : any) => {
 
 const CircleSection = ({ title, circles, showSeeAll = true } : any) => {
   return (
-    <div className="mb-8">
+    <Link href="/creator-circles/dashboard" className="mb-8">
       <div className="flex items-center justify-between mb-8">
         <h2 className="text-[28px]  text-secondary-100 tracking-[-0.02em]">{title}</h2>
         {showSeeAll && (
@@ -74,7 +75,7 @@ const CircleSection = ({ title, circles, showSeeAll = true } : any) => {
           <CircleCard key={circle.id} circle={circle} index={index} />
         ))}
       </div>
-    </div>
+    </Link>
   );
 };
 

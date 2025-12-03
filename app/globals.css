@@ -140,7 +140,7 @@ body {
 }
 
 .btn {
-  @apply px-6 py-4 rounded-4xl md:px-4 lg:px-16 md:py-2.5 md:text-[1em] max-md:text-xs md:leading-6 font-semibold transition;
+  @apply    px-6 py-4 rounded-4xl md:px-4 lg:px-16 md:py-2.5 md:text-[1em] max-md:text-xs md:leading-6 font-semibold transition;
 }
 
 /* navbar onScroll */

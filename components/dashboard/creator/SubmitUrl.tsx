@@ -1,8 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
 import { Plus, X } from 'lucide-react';
+import CustomInput from '@/components/CustomInput';
+import { useModal } from '@/components/GlobalModal';
+import FeedBack from '@/components/FeedBack';
 
 const SubmitUrl = ({ onSubmit = (data: any) => console.log(data) }) => {
+  const { open } = useModal()
   const [platforms, setPlatforms] = useState([
     { id: 1, platform: '', url: '' }
   ]);
@@ -28,19 +32,18 @@ const SubmitUrl = ({ onSubmit = (data: any) => console.log(data) }) => {
 
   const handleSubmit = () => {
     onSubmit(platforms);
+    open(<FeedBack  /> )
   };
 
   return (
-    <div className=" bg-gray-50 flex items-center justify-center">
+    <div className=" bg-gray-50 flex items-center justify-center md:min-w-lg">
       <div className="w-full  bg-white rounded-2xl shadow-lg p-8">
         <h2 className="text-xl text-center font-medium text-secondary-100 mb-6">Submit Url</h2>
         <div className="space-y-6">
           {platforms.map((item, index) => (
             <div key={item.id} className="space-y-4">
               <div className="flex items-center justify-between">
-                <label className="text-gray-700 text-base font-medium">
-                  What social media platform is it posted on?
-                </label>
+
                 {platforms.length > 1 && (
                   <button
                     onClick={() => removePlatform(item.id)}
@@ -51,25 +54,19 @@ const SubmitUrl = ({ onSubmit = (data: any) => console.log(data) }) => {
                 )}
               </div>
 
-              <input
+              <CustomInput 
+              label='What social media platform is it posted on?'
                 type="text"
                 placeholder="Social Media"
                 value={item.platform}
                 onChange={(e) => updatePlatform(item.id, 'platform', e.target.value)}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className='mb-5'
               />
 
+
               <div>
-                <label className="text-gray-700 text-base font-medium block mb-3">
-                  Share Post URL
-                </label>
-                <input
-                  type="url"
-                  placeholder="https://www.example.com/"
-                  value={item.url}
-                  onChange={(e) => updatePlatform(item.id, 'url', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-400 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+
+                <CustomInput label='Share Post URL' placeholder="https://www.example.com/" value={item.url} onChange={(e) => updatePlatform(item.id, 'url', e.target.value)} />
               </div>
 
               {index < platforms.length - 1 && (

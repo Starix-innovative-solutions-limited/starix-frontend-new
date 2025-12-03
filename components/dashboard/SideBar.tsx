@@ -10,6 +10,7 @@ import LogoutModal from "./LogoutModal";
 import { useModal } from "../GlobalModal";
 import { LuPanelLeftClose, LuPanelRightClose } from "react-icons/lu";
 
+
 interface SideBarProps {
   className?: string;
   onClose?: () => void;
@@ -77,11 +78,12 @@ const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
           <HiX
             onClick={onClose}
             className="md:hidden"
-            color="#fafafa"
+            // color=""
             size={25}
           />
         </div>
         <div className="space-y-6 mt-7">
+        {/* <MdClose /> */}
           <ul className="space-y-8">
             {sidebarLinks.map((items: any, i: number) => (
 
@@ -96,7 +98,7 @@ const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
                 <Link
                   href={`${items?.href}`}
                   // href={""}
-                  className={`flex items-center gap-4 px-3 py-2 rounded-lg hover:bg-black/50  ${active ===  i ? "text-secondary-100" : "text-dark "
+                  className={`flex items-center gap-4 px-3 py-2 max-md:pl-4 rounded-lg hover:bg-black/50  ${active ===  i ? "text-secondary-100" : "text-dark "
                     }`}
                 >
                   {items?.icon && React.createElement(items.icon, {
