@@ -19,8 +19,8 @@ type FormProps = {
 
 const Page = () => {
   const initialForm: FormProps = {
-    email: "oyelakinmathew73@gmail.com",
-    password: "#Oyetunji26",
+    email: "",
+    password: "",
   };
 
   // const { mutate, isSuccess, isError, error, data } = useLogin();
