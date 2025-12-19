@@ -87,7 +87,7 @@ const Page = () => {
           className="flex flex-col gap-1 mb-12"
           variants={variants?.itemVariants}
         >
-          <h3 className="font-medium text-5xl leading-9 tracking-[0.02rem]">Welcome back</h3>
+          <h3 className="font-medium text-3xl md:text-5xl leading-9 tracking-[0.02rem]">Welcome back</h3>
           {/* <p className="text-[#666666]">Login to continue</p> */}
         </motion.div>
 

@@ -27,7 +27,7 @@ const SignupForm = () => {
       exit="exit"
     >
       <motion.div className="flex flex-col gap-1 mb-6" variants={variants?.itemVariants}>
-        <h3 className="font-medium text-5xl leading-9 tracking-[0.02rem]">
+        <h3 className="font-medium text-3xl md:text-5xl leading-9 tracking-[0.02rem]">
           Create an account
         </h3>
       </motion.div>
