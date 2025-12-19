@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaTrophy } from 'react-icons/fa';
 import Image from 'next/image';
-import ViewVotes from './ViewVotes';
 import { useModal } from '@/hooks/useModal';
+import ViewVotes from '../ViewVotes';
 
 export default function CircleInfo() {
 

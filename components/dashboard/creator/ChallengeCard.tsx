@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react'
 import { AiOutlineClockCircle } from 'react-icons/ai'
-import { useModal } from '../GlobalModal'
-import ChallengeDetails from './creator/ChallengeDetails'
-import NewPostComponent from './creator/NewPost'
+
 import { motion } from 'framer-motion'
 import { variants } from '@/constant'
+import { useModal } from '@/components/GlobalModal'
+import ChallengeDetails from './ChallengeDetails'
+import NewPostComponent from './NewPost'
 
 interface challengeProps {
     challenge: any,

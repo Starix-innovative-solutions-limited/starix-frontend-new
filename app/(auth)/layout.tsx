@@ -1,77 +1,59 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { Work_Sans } from "next/font/google";
-import Image from "next/image";
-import Loader from "@/components/Loader";
 
-const workSans = Work_Sans({
+import React, { Suspense } from "react";
+import { Geist, Geist_Mono } from "next/font/google";
+import Image from "next/image";
+import AuthBg from "@/components/auth/AuthBg";
+import { useSearchParams } from "next/navigation";
+
+const geist = Geist({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-work-sans",
+  variable: "--font-geist-sans",
 });
+
+const geistMono = Geist_Mono({
+
+  subsets: ["latin"],
+
+  variable: "--font-geist-mono",
+
+});
+
+// Create a small sub-component for the dynamic background
+const DynamicAuthBg = () => {
+  const searchParams = useSearchParams();
+  const role = searchParams.get("role");
+
+  return <AuthBg brand={role === "brand"} showLabel />;
+};
 
 const AuthLayout = ({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const handleComplete = () => setIsLoading(false);
-
-    if (document.readyState === "complete") {
-      setIsLoading(false);
-    } else {
-      window.addEventListener("load", handleComplete);
-      return () => window.removeEventListener("load", handleComplete);
-    }
-  }, []);
-
-  if (isLoading) {
-    return (
-      <main
-        className={`h-screen ${workSans.variable} grid place-items-center bg-white`}
-      >
-        <Loader />
-      </main>
-    );
-  }
-
   return (
-    <main
-      className={`h-full w-full  ${workSans.variable} grid place-items-center relative`}
-    >
-      <div className="grid md:grid-cols-2 md:gap-4 md:m-5  items-center  max-w-7xl ">
-        {" "}
-        <div className="relative h-screen max-md:hidden flex items-center justify-center">
-          {" "}
-          <Image
-            src={"/images/auth/frame.png"}
-            width={550}
-            height={600}
-            alt="frame"
-            className="object-contain h-full"
-          />{" "}
-        </div>{" "}
-        <div className="py-6 flex-1 grid place-items-center-safe   overflow-x-hidden max-md:p-5 min-h-screen">
-          {children}
-          <Image
-            src={"/images/auth/TopLeft.png"}
-            width={70}
-            height={70}
-            alt="frame"
-            className="object-contain border absolute top-0 left-0 md:hidden"
-          />
+    <main className={`${geist.variable} ${geistMono.variable} md:h-screen p-7`}>
+      <div className="md:min-w-2xl xl:min-w-7xl xl:max-w-7xl mx-auto flex flex-col gap-7">
+        {/* Logo */}
+        <div className="bg-dark-navy w-fit py-3 px-2 rounded-lg shadow-2xs">
+          <Image src={"/logo-white.svg"} width={100} height={100} className="w-24" alt="Logo" priority />
+        </div>
 
-          <Image
-            src={"/images/auth/BottomRight.png"}
-            width={70}
-            height={70}
-            alt="frame"
-            className="object-contain border absolute bottom-0 right-0 md:hidden"
-          />
-        </div>{" "}
+        <div className="md:h-[86vh] grid md:grid-cols-2 gap-10 xl:gap-14 items-center overflow-hidden">
+
+          {/* Wrap only the background logic in Suspense */}
+          <Suspense fallback={<div className="bg-gray-100 animate-pulse h-full w-full rounded-3xl" />}>
+            <DynamicAuthBg />
+          </Suspense>
+
+          <div className="overflow-y-auto md:h-full hide-scrollbar">
+            {/* If your children (like signup page) also use searchParams, 
+               they should also have their own Suspense boundaries inside their files.
+            */}
+            {children}
+          </div>
+        </div>
       </div>
     </main>
   );

@@ -2,7 +2,7 @@
 "use client";
 
 import { creators } from "@/constant";
-import { MotionTable } from "./MotionTable";
+import { MotionTable } from "../MotionTable";
 import { motion } from "framer-motion";
 import {
   Facebook,

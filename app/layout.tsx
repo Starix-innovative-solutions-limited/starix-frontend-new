@@ -1,13 +1,21 @@
 import type { Metadata } from "next";
-import { Work_Sans } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import { ModalProvider } from "@/components/GlobalModal";
 import "./globals.css";
+
+import Providers from "@/utils/Providers";
+import { Toaster } from "react-hot-toast";
+
 // import AnimatedLayout from "@/components/AnimatedLayout";
 
-const workSans = Work_Sans({
+const geist = Geist({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"], // choose what you need
-  variable: "--font-work-sans", // optional CSS variable
+  variable: "--font-geist-sans",
+});
+
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
 });
 
 export const metadata: Metadata = {
@@ -22,10 +30,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={` ${workSans.variable} antialiased`}>
+      <body lang="en" className={`${geist.variable} ${geistMono.variable} antialiased`}>
         <main className="bg-bluelayer min-h-screen">
           {/* <AnimatedLayout> */}
-          <ModalProvider>{children} </ModalProvider>
+          <Providers>
+            <ModalProvider>{children} <Toaster position="top-right" /> </ModalProvider>
+          </Providers>
           {/* </AnimatedLayout> */}
         </main>
       </body>

@@ -47,7 +47,7 @@ const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
 
   return (
     <aside
-      className={` md:px-2 lg:px-4 xl:px-7 bg-white shadow h-screen md:min-w-xs ${collapsed ? "pr-4" : "pr-14"
+      className={` md:px-2 lg:px-4 xl:px-7 bg-white shadow h-screen w-fit ${collapsed ? "pr-4 md:w-fit" : "pr-14  md:min-w-2xs"
         } py-8 flex flex-col items-between gap-6 ${className && className} `}
     >
       <div className="flex flex-col gap-6 grow">
@@ -83,7 +83,7 @@ const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
           />
         </div>
         <div className="space-y-6 mt-7">
-        {/* <MdClose /> */}
+          {/* <MdClose /> */}
           <ul className="space-y-8">
             {sidebarLinks.map((items: any, i: number) => (
 
@@ -98,7 +98,7 @@ const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
                 <Link
                   href={`${items?.href}`}
                   // href={""}
-                  className={`flex items-center gap-4 px-3 py-2 max-md:pl-4 rounded-lg hover:bg-black/50  ${active ===  i ? "text-secondary-100" : "text-dark "
+                  className={`flex items-center gap-4 px-3 py-2 max-md:pl-4 rounded-lg hover:bg-black/50  ${active === i ? "text-secondary-100" : "text-dark "
                     }`}
                 >
                   {items?.icon && React.createElement(items.icon, {

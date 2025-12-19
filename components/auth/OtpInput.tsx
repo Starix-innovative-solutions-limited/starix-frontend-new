@@ -1,6 +1,7 @@
 // components/OtpInput.tsx
 "use client";
 
+
 import React, { useEffect, useRef, useState } from "react";
 
 type OtpInputProps = {
@@ -25,6 +26,30 @@ export default function OtpInput({
     return arr;
   });
 
+  const RESEND_TIME = 45;
+
+  const [secondsLeft, setSecondsLeft] = useState(RESEND_TIME);
+
+  useEffect(() => {
+    if (secondsLeft === 0) return;
+
+    const timer = setInterval(() => {
+      setSecondsLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [secondsLeft]);
+
+
+  const handleResend = () => {
+    if (secondsLeft > 0) return;
+
+    // call resend OTP API here
+    // resendOtp({ email, purpose: "email_verification" });
+
+    setSecondsLeft(RESEND_TIME);
+  };
+
   const inputsRef = useRef<Array<HTMLInputElement | null>>(
     Array(length).fill(null)
   );
@@ -48,26 +73,23 @@ export default function OtpInput({
     idx: number
   ) => {
     const raw = e.target.value;
-    // accept only digits and take last char (so typing "12" pastes second)
     const char = raw.replace(/[^0-9]/g, "");
     if (!char) return;
 
-    setInternalValue((prev) => {
-      const next = [...prev];
-      next[idx] = char.slice(-1);
-      // if user typed more than one char (e.g., mobile keyboard), spread
-      if (char.length > 1) {
-        for (let i = 1; i < char.length && idx + i < length; i++) {
-          next[idx + i] = char[i];
-        }
+    const next = [...internalValue];
+    next[idx] = char.slice(-1);
+
+    if (char.length > 1) {
+      for (let i = 1; i < char.length && idx + i < length; i++) {
+        next[idx + i] = char[i];
       }
-      const code = getCode(next);
-      onChange?.(code);
-      // focus next
-      const nextIndex = Math.min(idx + 1, length - 1);
-      setTimeout(() => inputsRef.current[nextIndex]?.focus(), 0);
-      return next;
-    });
+    }
+
+    setInternalValue(next);
+    onChange?.(getCode(next));
+
+    const nextIndex = Math.min(idx + 1, length - 1);
+    setTimeout(() => inputsRef.current[nextIndex]?.focus(), 0);
   };
 
   const handleKeyDown = (
@@ -125,25 +147,50 @@ export default function OtpInput({
   };
 
   return (
-    <div className={`flex gap-2 items-center flex-between ${className}`}>
-      {Array.from({ length }, (_, i) => (
-        <input
-          key={i}
-          ref={(el) => {
-            inputsRef.current[i] = el;
-          }}
-          inputMode="numeric"
-          pattern="[0-9]*"
-          maxLength={1}
-          value={internalValue[i] ?? ""}
-          onChange={(e) => handleChange(e, i)}
-          onKeyDown={(e) => handleKeyDown(e, i)}
-          onPaste={handlePaste}
-          disabled={disabled}
-          aria-label={`Digit ${i + 1}`}
-          className={`w-12 h-12 md:w-14 md:h-14 text-center text-lg md:text-xl rounded border-[1px] border-[#99999966] bg-[#F5F5F5] focus:outline-none focus:ring-0 focus:border-blue-500`}
-        />
-      ))}
+    <div className="flex flex-col gap-2">
+
+      <p className="text-[#000] text-xl font-light mb-2 ">Enter OTP</p>
+      <div className={`flex gap-2 items-center flex-between  ${className}`}>
+        {Array.from({ length }, (_, i) => (
+          <input
+            key={i}
+            ref={(el) => {
+              inputsRef.current[i] = el;
+            }}
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={1}
+            value={internalValue[i] ?? ""}
+            onChange={(e) => handleChange(e, i)}
+            onKeyDown={(e) => handleKeyDown(e, i)}
+            onPaste={handlePaste}
+            disabled={disabled}
+            aria-label={`Digit ${i + 1}`}
+            className={`w-12 h-12 rounded-2xl md:w-14 md:h-14 text-center text-lg md:text-xl border-[1px] border-[#99999966] bg-[#F5F5F5] focus:outline-none focus:ring-0 focus:border-blue-500`}
+          />
+        ))}
+      </div>
+      {/* < className="flex-between mt-2"> */}
+      <div className="flex-between mt-2">
+        <span className="text-dark font-light text-xl">
+          {`00:${secondsLeft.toString().padStart(2, "0")} secs left`}
+        </span>
+
+        <button
+          type="button"
+          disabled={secondsLeft > 0}
+          onClick={handleResend}
+          className={`font-light text-xl transition
+      ${secondsLeft > 0
+              ? "text-gray-400 cursor-not-allowed"
+              : "text-dark-navy hover:underline"
+            }`}
+        >
+          Resend
+        </button>
+      </div>
+
+
     </div>
   );
 }

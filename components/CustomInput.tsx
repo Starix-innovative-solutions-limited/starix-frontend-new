@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Plus, X } from "lucide-react";
 import React, { useState } from "react";
 
-type CustomInputProps = {
+type CustomInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   label?: string;
   value?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -13,6 +14,7 @@ type CustomInputProps = {
   tags?: string[]; // ✅ new: controlled tags
   setTags?: React.Dispatch<React.SetStateAction<string[]>>; // ✅ updater for tags
   suggestions?: string[]; // ✅ optional list to suggest from
+  options?: string[];
 };
 
 const CustomInput: React.FC<CustomInputProps> = ({
@@ -27,6 +29,9 @@ const CustomInput: React.FC<CustomInputProps> = ({
   tags,
   setTags,
   suggestions = [],
+  options,
+  ...rest
+
 }) => {
   const [fileName, setFileName] = useState<string>("");
   const [inputValue, setInputValue] = useState("");
@@ -37,8 +42,8 @@ const CustomInput: React.FC<CustomInputProps> = ({
       setFileName(
         multiple
           ? Array.from(e.target.files)
-              .map((f) => f.name)
-              .join(", ")
+            .map((f) => f.name)
+            .join(", ")
           : e.target.files[0]?.name || ""
       );
     }
@@ -70,7 +75,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
     <div className="my-4.5">
       <label className="flex flex-col gap-0.5">
         {label && (
-          <span className="block mb-1 font-medium text-secondary-100 text-sm">
+          <span className="block mb-1  text-black text-base tracking-normal md:text-lg font-light">
             {label}
           </span>
         )}
@@ -85,6 +90,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
               disabled={disabled}
               className="hidden"
               id={label}
+              {...rest}
             />
             <p
               className={`flex items-center gap-2 text-sm text-[#999999] bg-[#F5F5F5] border-[0.5px] border-dark/40 w-full rounded-xl px-3 py-2.5 cursor-pointer focus:outline-none focus:ring-0 focus:border-neutral-50 ${className}`}
@@ -125,6 +131,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
               type="text"
               disabled={disabled}
               className={` px-3 py-2.5 focus:outline-none focus:ring-0 focus:border-neutral-50 ${className}`}
+              {...rest}
             />
 
             {/* Suggestions */}
@@ -148,6 +155,16 @@ const CustomInput: React.FC<CustomInputProps> = ({
               </div>
             )}
           </div>
+        ) : type === "select" ? (
+          <select className={`bg-[#FFFFFF] rounded-xl border-[0.5px] text-sm border-dark/40 text-[#444] w-full px-3 py-3.5 focus:outline-none focus:ring-0 focus:border-neutral-50 ${className}`}>
+            {
+              options?.map((item) => (
+                <option key={item}>
+                  {item}
+                </option>
+              ))
+            }
+          </select>
         ) : (
           /* 🔹 Normal input */
           <input
@@ -156,7 +173,8 @@ const CustomInput: React.FC<CustomInputProps> = ({
             placeholder={placeholder}
             type={type}
             disabled={disabled}
-            className={`bg-[#FFFFFF] rounded-xl border-[0.5px] text-sm border-dark/40 text-[#444] w-full px-3 py-3.5 focus:outline-none focus:ring-0 focus:border-neutral-50 ${className}`}
+            className={`bg-[#FFFFFF] rounded-xl border-[0.5px] text-sm border-dark/40 text-[#444] w-full px-3 py-3.5 focus:outline-[0.7px]  focus:border-neutral-50 ${className}`}
+            {...rest}
           />
         )}
       </label>

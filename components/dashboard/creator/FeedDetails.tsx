@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { IoChevronBack, IoChevronForward, IoThumbsUpOutline } from 'react-icons/io5';
 import Image from 'next/image';
-import CustomInput from '../CustomInput';
 import { HiX } from 'react-icons/hi';
+import CustomInput from '@/components/CustomInput';
 
 const FeedDetails = () => {
   const [currentImage, setCurrentImage] = useState<number>(0);
@@ -64,9 +64,8 @@ const FeedDetails = () => {
                   {images.map((_, idx) => (
                     <div
                       key={idx}
-                      className={`w-2 h-2 rounded-full transition ${
-                        idx === currentImage ? 'bg-white w-6' : 'bg-white/50'
-                      }`}
+                      className={`w-2 h-2 rounded-full transition ${idx === currentImage ? 'bg-white w-6' : 'bg-white/50'
+                        }`}
                     />
                   ))}
                 </div>
@@ -78,7 +77,7 @@ const FeedDetails = () => {
             <div className="lg:w-1/3 bg-secondary-100/5 rounded-2xl shadow border border-gray-50 flex flex-col">
               <div className=" pb-2">
                 <div className="flex items-center gap-3 shadow p-6">
-                 <Image src={'/profile.png'} alt='profile' width={100} height={100} className='w-10 h-10' />
+                  <Image src={'/profile.png'} alt='profile' width={100} height={100} className='w-10 h-10' />
                   <div>
                     <h3 className="font-normal text-base text-secondary-100">Favour</h3>
                     <p className="text-sm text-dark font-light -mt-1">@favvy</p>
@@ -87,7 +86,7 @@ const FeedDetails = () => {
                 <p className="mt-4 text-secondary-100 text-xl px-6">Creators caption here</p>
               </div>
 
-              <div className={`flex-1 overflow-y-auto px-6 pt-4 bg-white rounded-t-3xl space-y-3 ${!showComment && "hidden" }  `}>
+              <div className={`flex-1 overflow-y-auto px-6 pt-4 bg-white rounded-t-3xl space-y-3 ${!showComment && "hidden"}  `}>
                 <HiX className="text-secondary-100 ml-auto cursor-pointer" onClick={() => setShowComment(false)} />
                 {comments.map((cmt, idx) => (
                   <div key={idx} className="flex gap-3">
@@ -115,12 +114,12 @@ const FeedDetails = () => {
 
               <div className="p-4 bg-white/50">
                 <div className="flex gap-2 items-center">
-                <Image src={'/profile.png'} alt='profile' width={100} height={100} className='w-8 h-8 rounded-full' />
+                  <Image src={'/profile.png'} alt='profile' width={100} height={100} className='w-8 h-8 rounded-full' />
 
                   <CustomInput type="text"
                     placeholder="Add a comment"
                     value={comment}
-                    onChange={(e) => setComment(e.target.value)} className='!rounded-full !py-2 !w-full !grow'  />
+                    onChange={(e) => setComment(e.target.value)} className='!rounded-full !py-2 !w-full !grow' />
                 </div>
               </div>
             </div>

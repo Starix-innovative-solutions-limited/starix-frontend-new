@@ -26,8 +26,8 @@ export function MotionTable<T>({
   onPageChange,
 }: MotionTableProps<T>) {
   return (
-    <div className=" overflow-y-hidden  bg-white min-w-fit">
-      <motion.table className="w-full ">
+    <div className=" overflow-y-hidden overflow-x-scroll bg-white min-w-fit w-full grow">
+      <motion.table className="min-w-[70vw]">
         {/* Table Header */}
         <motion.thead
           initial={{ opacity: 0 }}
@@ -82,11 +82,10 @@ export function MotionTable<T>({
             <button
               disabled={currentPage === 1}
               onClick={() => onPageChange && onPageChange(currentPage! - 1)}
-              className={`px-3 py-1 text-sm font-medium rounded-md ${
-                currentPage === 1
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-gray-700 hover:bg-gray-100"
-              }`}
+              className={`px-3 py-1 text-sm font-medium rounded-md ${currentPage === 1
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-gray-700 hover:bg-gray-100"
+                }`}
             >
               <BiLeftArrow />
             </button>
@@ -104,11 +103,10 @@ export function MotionTable<T>({
             <button
               disabled={currentPage === totalPages}
               onClick={() => onPageChange && onPageChange(currentPage! + 1)}
-              className={`px-3 py-1 text-sm font-medium rounded-md ${
-                currentPage === totalPages
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-gray-700 hover:bg-gray-100"
-              }`}
+              className={`px-3 py-1 text-sm font-medium rounded-md ${currentPage === totalPages
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-gray-700 hover:bg-gray-100"
+                }`}
             >
               <BiRightArrow />
             </button>

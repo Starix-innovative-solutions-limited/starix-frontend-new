@@ -2,7 +2,7 @@ import { variants } from "@/constant";
 import { motion } from "framer-motion";
 import { Info } from "lucide-react";
 import React, { useState } from "react";
-import EngagementChart from "./EngagementChart";
+import EngagementChart from "./creator/analytics/EngagementChart";
 import { MotionTable } from "./MotionTable";
 import StatCard from "./StatCard";
 
@@ -274,11 +274,10 @@ const ReportingAnalytics = () => {
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: index * 0.05 + 0.2 }}
-                    className={`inline-flex items-center gap-1 text-sm ${
-                      challenge.status === "Active"
+                    className={`inline-flex items-center gap-1 text-sm ${challenge.status === "Active"
                         ? "text-green-600"
                         : "text-red-600"
-                    }`}
+                      }`}
                   >
                     <motion.span
                       animate={{ scale: [1, 1.2, 1] }}
@@ -287,11 +286,10 @@ const ReportingAnalytics = () => {
                         repeat: Infinity,
                         repeatType: "reverse",
                       }}
-                      className={`w-2 h-2 rounded-full ${
-                        challenge.status === "Active"
+                      className={`w-2 h-2 rounded-full ${challenge.status === "Active"
                           ? "bg-green-600"
                           : "bg-red-600"
-                      }`}
+                        }`}
                     />
                     {challenge.status}
                   </motion.span>

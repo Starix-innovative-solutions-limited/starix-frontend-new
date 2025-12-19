@@ -3,7 +3,7 @@
 import { variants } from "@/constant";
 import { motion } from "framer-motion";
 import StatCard from "./StatCard";
-import CreatorLeaderboard from "./CreatorLeaderboard";
+import CreatorLeaderboard from "./creator/CreatorLeaderboard";
 
 const LeaderboardAnalytics = () => {
   return (

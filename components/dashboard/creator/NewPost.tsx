@@ -33,23 +33,23 @@ const NewPostComponent = () => {
     const {open} = useModal()
 
     return (
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl md:min-w-2xl py-6  h-full">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl md:min-w-4xl py-6  h-full">
             <div className="  w-full">
                 {/* Header */}
                 {/* <div className="flex items-center justify-between p-4 "> */}
-                <h2 className="text-xl text-center font-medium text-secondary-100 p-4">New Post</h2>
+                <h2 className="text-xl text-center font-medium text-secondary-100 px-4">New Post</h2>
 
                 {/* </div> */}
 
                 {/* Content */}
-                <div className="grid md:grid-cols-4">
+                <div className="grid md:grid-cols-5">
                     {/* Left side - Upload area */}
                     <div className="flex p-6  md:border-b-0 md:col-span-2 w-auto mx-auto">
                         <ImageUploader height={isMobile ? 230 : 300} value={image} onChange={handleImage} label='Drop or Paste File here' />
                     </div>
 
                     {/* Right side - Caption and post */}
-                    <div className="flex-1 p-6 flex flex-col col-span-2">
+                    <div className="flex-1 p-6 flex flex-col col-span-3">
                         {/* User info */}
                         <div className="flex items-center gap-3 mb-4">
                             <img
@@ -66,7 +66,7 @@ const NewPostComponent = () => {
                             onChange={(e) => setCaption(e.target.value)}
                             placeholder="Write caption Here"
                             maxLength={2000}
-                            className="flex-1 p-3 border border-dark rounded-lg resize-none focus:outline-none outline-0 focus:ring-2 focus:ring-dark focus:border-transparent text-gray-800 placeholder-dark"
+                            className="flex-1 p-3 md:min-h-[150px] lg:min-h-[200px] border border-dark rounded-lg resize-none focus:outline-none outline-0 focus:ring-2 focus:ring-dark focus:border-transparent text-gray-800 placeholder-dark"
                         />
 
                         {/* Character count */}

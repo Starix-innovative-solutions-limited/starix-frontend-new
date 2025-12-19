@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { IoFilterOutline } from 'react-icons/io5';
 // import { useModal } from '@/components/GlobalModal';
-import ChallengeCard from '../ChallengeCard';
 import PostCard from '../PostCard';
 import { motion } from 'framer-motion';
 import { variants } from '@/constant';
+import ChallengeCard from './ChallengeCard';
 
 const ChallengeGrid = () => {
     const [activeTab, setActiveTab] = useState<number>(0);
@@ -32,19 +32,20 @@ const ChallengeGrid = () => {
         <motion.div className=" py-10 mt-5">
             {/* Tabs */}
             <motion.div className="flex items-center justify-between mb-8 ">
-                <div className="flex items-center gap-1 bg-white rounded-lg shadow-2xs p-2 px-4 overflow-x-scroll">
+                <div className="flex items-center justify-between gap-1 border-b-[0.4px] border-dark p-2 px-4 max-md:overflow-x-scroll grow max-w-3xl">
                     {tabs.map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`px-5 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === tab.id
-                                ? 'bg-gray-900 text-white'
+                                ? 'text-secondary-100'
                                 : 'text-gray-600 hover:bg-gray-100'
                                 }`}
                         >
                             {tab.label}
                             {activeTab === tab.id && tab.count && (
-                                <span className="ml-2 text-xs">{tab.count}</span>
+                                <span className={`ml-2 text-xs p-1 rounded-lg ${activeTab === tab.id
+                                    ? 'bg-gray-900 text-white !text-sm font-bold' : ''} `}>{tab.count}</span>
                             )}
                         </button>
                     ))}
@@ -57,7 +58,7 @@ const ChallengeGrid = () => {
             </motion.div>
 
             {/* Grid */}
-            <motion.div variants={variants.containerVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <motion.div variants={variants.containerVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
                 {
                     activeTab <= 1 && (
                         <>

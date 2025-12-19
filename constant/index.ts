@@ -49,9 +49,9 @@ export const sidebarLinks = [
     href: "/creator-circles",
   },
   {
-    label: "Creator Incubator",
+    label: "Portfolio",
     icon: MdMailOutline,
-    href: "/creator-incubator",
+    href: "/portfolio",
   },
   {
     label: "Analytics",
@@ -171,8 +171,6 @@ const containerVariants: Variants = {
     },
   },
 };
-
-
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -418,3 +416,10 @@ export const creators: Creator[] = [
     },
   },
 ];
+
+
+export enum AuthBgEnum {
+  CREATOR = "creator",
+  BRAND = "brand",
+  None = "none"
+}

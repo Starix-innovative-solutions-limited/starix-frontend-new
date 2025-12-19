@@ -9,8 +9,10 @@ import { MdStarRate } from "react-icons/md";
 import { FaFire, FaClock, FaChartLine, FaHashtag } from 'react-icons/fa';
 import PostCard from "@/components/dashboard/PostCard";
 import WeeklyLeaderboard from "@/components/dashboard/WeeklyLeaderboard";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const Page = () => {
+  const { user } = useAuthStore()
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -85,6 +87,7 @@ const Page = () => {
       gradient: "from-cyan-100 via-blue-100 to-indigo-100"
     }
   ];
+
   return (
     <div className="min-h-screen">
 
@@ -103,9 +106,9 @@ const Page = () => {
           <motion.span
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-2 py-2 text-4xl font-normal hover:bg-gray-100 transition-colors text-secondary-100 "
+            className="flex items-center gap-2 py-2 text-2xl font-normal hover:bg-gray-100 transition-colors text-secondary-100 "
           >
-            Overview
+            Overview {user?.id}
           </motion.span>
           <div className="flex items-center space-x-5 bg-white border border-gray-200 rounded-2xl px-3 py-2">
             <motion.div
@@ -173,7 +176,7 @@ const Page = () => {
           </motion.div>
 
           {/* Main Content Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-md:mt-20 mb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 max-md:mt-20 mb-12">
             {/* Trending in Your Niche */}
             <div className="md:col-span-2">
               <h2 className="text-2xl font-bold text-gray-800 mb-6 max-md:mb-10">Trending in Your Niche</h2>
@@ -224,7 +227,7 @@ const Page = () => {
 
             <div className="grid  md:grid-cols-3 gap-6  my-10">
               {[1, 2, 3, 4, 5, 6].map((challenge) => (
-                 <PostCard key={challenge} />
+                <PostCard key={challenge} />
               ))}
             </div>
           </div>
