@@ -17,9 +17,9 @@ type FormProps = {
 
 const CreatorSignup = () => {
   const initialForm: FormProps = {
-    email: "oxgoke@gmail.com",
-    password: "#Oxgoke26",
-    displayName: "oxgok",
+    email: "",
+    password: "",
+    displayName: "",
   };
 
 
