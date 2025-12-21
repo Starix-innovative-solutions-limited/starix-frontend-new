@@ -8,7 +8,7 @@ const workSans = Work_Sans({
   variable: "--font-work-sans",
 });
 
-const DashboardLayout = ({
+const CreatorDashboardLayout = ({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -28,4 +28,4 @@ const DashboardLayout = ({
   );
 };
 
-export default DashboardLayout;
+export default CreatorDashboardLayout;

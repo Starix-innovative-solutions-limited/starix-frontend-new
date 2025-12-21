@@ -30,11 +30,11 @@ const NewPostComponent = () => {
         setImage(url);
     };
 
-    const {open} = useModal()
+    const { open } = useModal()
 
     return (
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl md:min-w-4xl py-6  h-full">
-            <div className="  w-full">
+        <div className="w-full max-w-2xl md:min-w-4xl  h-full">
+            <div className="  w-full h-full  py-8 md:p-8">
                 {/* Header */}
                 {/* <div className="flex items-center justify-between p-4 "> */}
                 <h2 className="text-xl text-center font-medium text-secondary-100 px-4">New Post</h2>

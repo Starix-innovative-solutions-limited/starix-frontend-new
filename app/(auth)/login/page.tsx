@@ -27,42 +27,47 @@ const Page = () => {
 
   const [form, setForm] = useState<FormProps | any>(initialForm);
 
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
 
-  const { mutateAsync } = useLogin();
+  const { mutateAsync, isPending } = useLogin();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); // prevent form default submit
-
-    setIsLoading(true)
 
     if (!form?.email || !form?.password) {
       console.log("Email or password is missing");
       return;
     }
 
-    await toast.promise(
-      mutateAsync({
-        email: form.email,
-        password: form.password,
-      }),
-      {
-        loading: "Signing in...",
-        success: () => {
-          setForm(initialForm); // ✅ clear form
-          router.push('/dashboard')
-          return "Signed in successfully ✅";
-        },
-        error: (err: any) => {
-          console.log("SignIn Error:", err); // ✅ log the full error object
 
-          return `Signin failed: ${err.response.data.detail}`;
-        },
-      }
-    );
+    try {
 
-    setIsLoading(false)
+      await toast.promise(
+        mutateAsync({
+          email: form.email,
+          password: form.password,
+        }),
+        {
+          loading: "Signing in...",
+          success: () => {
+            setForm(initialForm); // ✅ clear form
+            router.push('/dashboard')
+            return "Signed in successfully ✅";
+          },
+          error: (err: any) => {
+            console.log("SignIn Error:", err); // ✅ log the full error object
+            // setIsLoading(false)
+            return `Signin failed: ${err.response.data.detail}`;
+          },
+        }
+      );
+    } catch (error) {
+      // setIsLoading(false)
+      console.log(error)
+    }
+
+
   };
 
 
@@ -130,7 +135,7 @@ const Page = () => {
           className="btn bg-dark-navy !py-4 w-full text-white"
           onClick={handleSubmit}
         >
-          {isLoading ? <Loader /> : " Login"}
+          {isPending ? <Loader /> : " Login"}
         </motion.button>
 
         <motion.div

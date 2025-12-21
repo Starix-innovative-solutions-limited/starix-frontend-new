@@ -208,10 +208,10 @@ function ModalRoot({
             </motion.button>
 
             {/* Glass container */}
-            <div className="relative bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden ">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/50 via-transparent to-transparent pointer-events-none" />
+            <div className="relative bg-white/95 max-md:min-w-[85vw] backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden ">
+              <div className="absolute inset-0 px-5 pb-5 bg-gradient-to-br from-white/50 via-transparent to-transparent pointer-events-none" />
 
-              <div className="relative min-h-fit md:max-h-[85vh] overflow-auto w-full ">
+              <div className="relative min-h-fit md:max-h-[85vh] overflow-auto w-full px-5 pb-5">
                 {content}
               </div>
             </div>

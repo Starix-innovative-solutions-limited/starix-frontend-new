@@ -32,12 +32,12 @@ const SubmitUrl = ({ onSubmit = (data: any) => console.log(data) }) => {
 
   const handleSubmit = () => {
     onSubmit(platforms);
-    open(<FeedBack  /> )
+    open(<FeedBack />)
   };
 
   return (
-    <div className=" bg-gray-50 flex items-center justify-center md:min-w-lg">
-      <div className="w-full  bg-white rounded-2xl shadow-lg p-8">
+    <div className=" flex items-center justify-center md:min-w-lg">
+      <div className="w-full px-3.5 py-8 md:p-8">
         <h2 className="text-xl text-center font-medium text-secondary-100 mb-6">Submit Url</h2>
         <div className="space-y-6">
           {platforms.map((item, index) => (
@@ -54,8 +54,8 @@ const SubmitUrl = ({ onSubmit = (data: any) => console.log(data) }) => {
                 )}
               </div>
 
-              <CustomInput 
-              label='What social media platform is it posted on?'
+              <CustomInput
+                label='What social media platform is it posted on?'
                 type="text"
                 placeholder="Social Media"
                 value={item.platform}
@@ -85,7 +85,7 @@ const SubmitUrl = ({ onSubmit = (data: any) => console.log(data) }) => {
 
           <button
             onClick={handleSubmit}
-            className="w-full bg-indigo-950 text-white py-4 rounded-full text-base font-medium hover:bg-indigo-900 transition-colors mt-8"
+            className="w-full bg-dark-navy text-white py-4 rounded-full text-base font-medium hover:bg-indigo-900 transition-colors mt-8"
           >
             Submit
           </button>

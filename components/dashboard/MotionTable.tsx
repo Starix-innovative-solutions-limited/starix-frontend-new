@@ -42,7 +42,7 @@ export function MotionTable<T>({
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 + i * 0.05 }}
-                className="py-3 px-4 text-left text-sm font-semibold text-dark min-w-fit"
+                className="py-3 px-4 text-left text-sm font-light text-neut/60 min-w-fit"
               >
                 {header}
               </motion.th>

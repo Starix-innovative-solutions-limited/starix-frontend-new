@@ -10,9 +10,11 @@ import { FaFire, FaClock, FaChartLine, FaHashtag } from 'react-icons/fa';
 import PostCard from "@/components/dashboard/PostCard";
 import WeeklyLeaderboard from "@/components/dashboard/WeeklyLeaderboard";
 import { useAuthStore } from "@/store/useAuthStore";
+// import { useGetChallenges } from "@/hooks/useChallenges";
+
 
 const Page = () => {
-  const { user } = useAuthStore()
+  const { profile } = useAuthStore()
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -28,16 +30,18 @@ const Page = () => {
     show: { opacity: 1, y: 0 }
   };
 
+  // const { data: getChallenges } = useGetChallenges()
+
   const statsCards = [
     {
       label: "Starix Score:",
-      value: "150",
+      value: profile?.reputation_score,
       valueSize: "text-3xl",
       image: "/star.png"
     },
     {
       label: "Your Niche:",
-      value: "Fashion",
+      value: profile?.content_categories ? profile?.content_categories : 'nil',
       valueSize: "text-lg",
       image: "/ball.png"
     },
@@ -88,6 +92,8 @@ const Page = () => {
     }
   ];
 
+  // console.log("challenges ", getChallenges?.challenges)
+
   return (
     <div className="min-h-screen">
 
@@ -108,7 +114,7 @@ const Page = () => {
             whileTap={{ scale: 0.95 }}
             className="flex items-center gap-2 py-2 text-2xl font-normal hover:bg-gray-100 transition-colors text-secondary-100 "
           >
-            Overview {user?.id}
+            Overview
           </motion.span>
           <div className="flex items-center space-x-5 bg-white border border-gray-200 rounded-2xl px-3 py-2">
             <motion.div
@@ -124,7 +130,7 @@ const Page = () => {
             </motion.div>
 
             <span className="text-secondary-100/70">
-              LEVEL 2
+              LEVEL {profile?.reputation_score}
             </span>
 
 

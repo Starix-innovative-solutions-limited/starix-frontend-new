@@ -7,11 +7,13 @@ import Image from "next/image";
 import SideBar from "./SideBar";
 import { CiSearch } from "react-icons/ci";
 import Notification from "./Notification";
-import { useModal } from "@/components/GlobalModal";
+import { useModal } from "@/hooks/useModal";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const TopBar = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const { open } = useModal();
+  const { profile } = useAuthStore();
 
   return (
     <div className="w-full py-4 px-4 md:px-14  flex items-center justify-between rounded-2xl bg-white border border-gray-200 shadow-2xs relative max-md:gap-4">
@@ -28,13 +30,9 @@ const TopBar = () => {
       {/* Right Side Icons */}
       <div className="flex items-center gap-4 md:gap-5">
 
-
-
         <button className="max-md:hidden" onClick={() => open(<Notification />, { position: 'top-right', modalClassName: ' top-20 md:right-10' })}>
           <Bell className="text-gray-700" size={26} />
         </button>
-
-
 
 
         {/* Avatar with Name */}
@@ -47,8 +45,8 @@ const TopBar = () => {
             className="rounded-full w-12 h-12"
           />
           <div className="flex flex-col">
-            <span className="text-base font-medium text-secondary-100">Favour</span>
-            <span className="text-sm text-dark -mt-1">Admin</span>
+            <span className="text-base font-medium text-secondary-100">{profile?.display_name}</span>
+            <span className="text-sm text-dark -mt-1">Creator</span>
           </div>
         </div>
 

@@ -2,9 +2,10 @@
 "use client"
 import React, { useState } from 'react'
 import CustomInput from '@/components/CustomInput'
-import { useCreatorPayment } from '@/hooks/useCreator'
+import { useCreatorPayment, usePaymentBanks } from '@/hooks/usePayment'
 import toast from 'react-hot-toast'
 import { useAuthStore } from '@/store/useAuthStore'
+import { useModal } from '@/hooks/useModal'
 
 const EditPaymentDetails = () => {
     const initialForm = {
@@ -16,7 +17,10 @@ const EditPaymentDetails = () => {
 
     const { fetchProfile } = useAuthStore()
 
+    const { close } = useModal()
+
     const { mutateAsync: addCreatorPayment, isPending } = useCreatorPayment()
+    const { data: banks } = usePaymentBanks();
 
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -35,6 +39,7 @@ const EditPaymentDetails = () => {
                 success: () => {
                     setForm(initialForm); // ✅ clear form
                     fetchProfile()
+                    close();
                     return "Payment added successfully ✅";
 
                 },
@@ -51,20 +56,20 @@ const EditPaymentDetails = () => {
 
 
     return (
-        <div className="bg-white rounded-lg  w-full max-md:max-w-[80vw] md:min-w-lg mx-auto min-h-full flex flex-col justify-between md:max-w-2xl">
+        <div className="rounded-lg  w-full max-md:max-w-[80vw] md:min-w-lg mx-auto min-h-full flex flex-col justify-between md:max-w-2xl">
             {/* Header */}
             <h2 className="text-xl text-center font-medium text-secondary-100 p-4">Payment details</h2>
 
-            <div className="px-8 pb-8 flex flex-col gap-2">
+            <div className=" flex flex-col gap-2">
 
                 <CustomInput
                     label='Bank Code'
                     placeholder='Bank code'
                     value={form?.bank_code}
-                    onChange={(e) => setForm({ ...form, bank_code: e.target.value })}
+                    options={banks}
+                    type='select'
+                    onChange={(e: any) => setForm({ ...form, bank_code: e.target.value })}
                     className="rounded-lg"
-                    min={3}
-                    max={6}
                 />
 
                 <CustomInput

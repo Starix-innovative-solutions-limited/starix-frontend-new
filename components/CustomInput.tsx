@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Plus, X } from "lucide-react";
+import { Eye, EyeOff, Plus, X } from "lucide-react";
 import React, { useState } from "react";
 
 type CustomInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   label?: string;
   value?: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (e: any) => void;
   placeholder?: string;
   type?: string;
   disabled?: boolean;
@@ -35,6 +35,8 @@ const CustomInput: React.FC<CustomInputProps> = ({
 }) => {
   const [fileName, setFileName] = useState<string>("");
   const [inputValue, setInputValue] = useState("");
+
+  const [show, setShow] = useState(false);
 
   // Handle file input
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -156,15 +158,40 @@ const CustomInput: React.FC<CustomInputProps> = ({
             )}
           </div>
         ) : type === "select" ? (
-          <select className={`bg-[#FFFFFF] rounded-xl border-[0.5px] text-sm border-dark/40 text-[#444] w-full px-3 py-3.5 focus:outline-none focus:ring-0 focus:border-neutral-50 ${className}`}>
+          <select
+            onChange={onChange}
+            className={`bg-[#FFFFFF] rounded-xl border-[0.5px] text-sm border-dark/40 text-[#444] w-full px-3 py-3.5 focus:outline-none focus:ring-0 focus:border-neutral-50 ${className}`}
+          >
             {
-              options?.map((item) => (
-                <option key={item}>
-                  {item}
+              options?.map((item: any, i) => (
+                <option key={i} value={item?.code}>
+                  {item?.name ? item?.name : item}
                 </option>
               ))
             }
           </select>
+        ) : type === "password" ? (
+          <div className="relative">
+            <input
+              value={value}
+              onChange={onChange}
+              placeholder={placeholder}
+              type={show ? 'text' : "password"}
+              disabled={disabled}
+              className={`bg-[#FFFFFF] rounded-xl border-[0.5px] text-sm border-dark/40 text-[#444] w-full px-3 py-3.5 focus:outline-[0.7px]  focus:border-neutral-50 ${className}`}
+              {...rest}
+            />
+
+            <button
+              type="button"
+              onClick={() => setShow((prev) => !prev)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700"
+              tabIndex={-1}
+            >
+              {show ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+
+          </div>
         ) : (
           /* 🔹 Normal input */
           <input

@@ -8,7 +8,7 @@ const ChallengeDetails = () => {
     const { open } = useModal();
     return (
         <div
-            className="bg-white rounded-lg shadow-xl w-full max-md:max-w-[80vw] md:min-w-3xl mx-auto py-6  h-full"
+            className=" w-full max-md:max-w-[80vw] md:min-w-3xl mx-auto py-6  h-full"
         >
             {/* Header */}
             <h2 className="text-xl text-center font-medium text-secondary-100 p-4">Challenge details</h2>

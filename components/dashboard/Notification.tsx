@@ -112,7 +112,7 @@ const Notification = () => {
         );
     }, []);
     return (
-        <div className='z-[99999] bg-white border border-gray-200 rounded-2xl pt-3 pb-2 min-w-screen md:min-w-xl '>
+        <div className='z-[99999] rounded-2xl pt-3 pb-2 min-w-screen md:min-w-xl '>
             <div className='relative grid place-items-center py-3 mx-5 border-b border-b-dark/40'>
                 <span className='text-center text-xl text-secondary-100'>Notification</span>
 

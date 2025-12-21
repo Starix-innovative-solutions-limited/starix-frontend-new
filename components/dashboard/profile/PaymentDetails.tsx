@@ -5,12 +5,16 @@ import { BankDetails } from "@/utils/type";
 import EditPaymentDetails from "../creator/EditPaymentDetails";
 import { useModal } from "@/hooks/useModal";
 
+import { usePaymentBanks } from "@/hooks/usePayment";
+
 interface PaymentDetailsProps {
     bankDetails: BankDetails;
 }
 
 const PaymentDetails = ({ bankDetails }: PaymentDetailsProps) => {
     const { open } = useModal()
+
+    const { } = usePaymentBanks()
     return (
         <motion.div
             initial={{ opacity: 0, x: 20 }}

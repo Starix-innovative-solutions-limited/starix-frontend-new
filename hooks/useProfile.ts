@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from "@/lib/api";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 export function useCreatorProfile() {
   return useQuery({
@@ -14,5 +14,18 @@ export function useCreatorProfile() {
     enabled:
       useAuthStore?.getState().isAuthenticated &&
       !!useAuthStore.getState().token,
+  });
+}
+
+// OTP Verfication
+export function useUpdateCreatorProfile() {
+  return useMutation({
+    mutationFn: (data: any) => api.patch("/auth/profile/creator", data),
+    onSuccess: (res: any) => {
+      console.log("PROFILE UPDATE SUCCESS:", res.data);
+    },
+    onError: (err: any) => {
+      console.log("PROFILE UPDATE ERROR:", err.response?.data);
+    },
   });
 }

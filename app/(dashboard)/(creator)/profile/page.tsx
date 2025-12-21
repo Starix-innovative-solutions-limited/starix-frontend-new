@@ -13,9 +13,13 @@ import { MdStarRate } from "react-icons/md";
 import { useAuthStore } from "@/store/useAuthStore";
 import { formatMonthYear } from "@/lib/formatDate";
 import { StatItem } from "@/utils/type";
+import UpdateProfile from "@/components/dashboard/profile/UpdateProfile";
+import { useModal } from "@/hooks/useModal";
 
 export default function Page() {
   // const { data: profile, isLoading, isError } = useCreatorProfile();
+
+  const { open } = useModal()
 
   const { profile } = useAuthStore()
 
@@ -60,7 +64,9 @@ export default function Page() {
 
           </div>
           <div className="flex flex-col gap-4 md:gap-7">
-            <button className="flex items-center gap-2 px-2 py-1 max-md:w-fit max-md:ml-auto md-px-4 md:py-2 text-dark-navy/70 border border-dark-navy/50 rounded-full hover:bg-gray-50 transition">
+            <button
+              onClick={() => open(<UpdateProfile />)}
+              className="flex items-center gap-2 px-2 py-1 max-md:w-fit max-md:ml-auto md-px-4 md:py-2 text-dark-navy/70 border border-dark-navy/50 rounded-full hover:bg-gray-50 transition">
               <FiEdit2 className="max-md:text-xs text-base" />
               <span className="max-md:text-xs">Edit Profile</span>
             </button>
