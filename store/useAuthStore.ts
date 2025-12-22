@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from "@/lib/api";
-import { CreatorProfile } from "@/utils/type";
+import { BrandProfile, CreatorProfile } from "@/utils/type";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -34,7 +34,7 @@ interface AuthState {
   isAuthenticated: boolean;
   setAuth: (data: LoginResponse) => void;
   logout: () => void;
-  profile: CreatorProfile | null; // Added profile field
+  profile: CreatorProfile | BrandProfile | any | null; // Added profile field
   fetchProfile: () => void;
 }
 

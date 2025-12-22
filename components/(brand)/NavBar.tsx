@@ -38,7 +38,7 @@ const NavBar = () => {
     return (
         <nav className={`transition-all duration-300 ${scrolled
             ? "fixed top-0 left-0 right-0 z-50 bg-white shadow-md py-4"
-            : "relative py-8"
+            : "relative py-4 md:py-8"
             } max-md:border-b max-md:border-neut/20 px-6 md:px-20 lg:px-32`}
         >
             <div className=" flex items-center justify-between">

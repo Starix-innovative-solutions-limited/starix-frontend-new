@@ -53,6 +53,23 @@ export interface User {
   last_login_ip: string;
   last_login_at: string; // ISO date string
 }
+export type VerificationStatus = "verified" | "unverified" | "pending";
+export type BrandProfile = {
+  id: string;
+  brand_name: string;
+  logo_url: string | null;
+  description: string | null;
+  website: string | null;
+  contact_phone: string | null;
+  contact_address: string | null;
+  company_size: string | null;
+  industry: string;
+  verification_status: VerificationStatus;
+  created_at: string; // ISO date
+  updated_at: string; // ISO date
+  total_challenges: number;
+  user: User;
+};
 
 export interface CreatorProfile {
   display_name: string;
