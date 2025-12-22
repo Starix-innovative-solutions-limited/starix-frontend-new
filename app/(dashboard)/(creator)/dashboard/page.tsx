@@ -7,8 +7,8 @@ import Image from "next/image";
 import { variants } from "@/constant";
 import { MdStarRate } from "react-icons/md";
 import { FaFire, FaClock, FaChartLine, FaHashtag } from 'react-icons/fa';
-import PostCard from "@/components/dashboard/PostCard";
-import WeeklyLeaderboard from "@/components/dashboard/WeeklyLeaderboard";
+import PostCard from "@/components/(creator)/dashboard/PostCard";
+import WeeklyLeaderboard from "@/components/(creator)/dashboard/WeeklyLeaderboard";
 import { useAuthStore } from "@/store/useAuthStore";
 // import { useGetChallenges } from "@/hooks/useChallenges";
 

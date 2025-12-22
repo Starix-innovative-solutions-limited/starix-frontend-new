@@ -36,7 +36,7 @@ const Page = () => {
 
     const { open } = useModal()
     return (
-        <div className='section'>
+        <div className='general-space'>
 
 
             <motion.div

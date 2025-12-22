@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { MotionTable } from "@/components/dashboard";
+import { MotionTable } from "@/components/(creator)/dashboard";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { FiMoreHorizontal, FiSearch, FiFilter } from "react-icons/fi";
@@ -94,7 +94,7 @@ export default function ActiveChallenges() {
 
     return (
         <div className="">
-            <div className="mx-auto">
+            <div className="mx-auto relative">
                 {/* Search and Filter */}
                 <div className="flex items-center justify-end gap-3 mb-6">
                     <div className="relative rounded-full">

@@ -22,7 +22,7 @@ export default function OtpInput({
   className = "",
 }: OtpInputProps) {
   const [internalValue, setInternalValue] = useState<string[]>(() => {
-    const arr = Array.from({ length }, (_, i) => value[i] ?? "");
+    const arr = Array?.from({ length }, (_, i) => value[i] ?? "");
     return arr;
   });
 

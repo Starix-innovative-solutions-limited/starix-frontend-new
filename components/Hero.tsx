@@ -50,7 +50,7 @@ const Hero = () => {
               alt="Hero Image"
               width={600}
               height={600} // half the height
-              className=" absolute -left-52 w-3xl object-contain"
+              className=" absolute  w-3xl object-contain"
             />
             <Image
               src="/hero3.png"

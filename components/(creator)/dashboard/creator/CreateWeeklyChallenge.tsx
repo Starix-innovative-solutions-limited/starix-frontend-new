@@ -3,7 +3,7 @@ import React from 'react';
 
 import CustomInput from '@/components/CustomInput';
 import { useModal } from '@/components/GlobalModal';
-import FeedBack from '@/components/FeedBack';
+import FeedBack from '@/components/(creator)/dashboard/FeedBack';
 
 const CreateWeeklyChallenge = ({ onSubmit = (data: any) => console.log(data) }) => {
   const { open } = useModal()

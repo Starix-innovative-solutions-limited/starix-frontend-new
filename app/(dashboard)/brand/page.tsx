@@ -44,12 +44,12 @@ const page = () => {
                 initial="hidden"
                 animate="visible"
                 variants={variants?.containerVariants}
-                className="mx-auto section"
+                className="mx-auto general-space"
             >
                 {/* Header */}
                 <motion.div
                     variants={variants?.headerVariants}
-                    className="flex flex-col mb-3 md:mt-8 gap-6 "
+                    className="flex flex-col gap-6 "
                 >
                     <motion.span
                         whileHover={{ scale: 1.05 }}

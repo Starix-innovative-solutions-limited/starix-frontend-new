@@ -7,7 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { HiX } from "react-icons/hi";
 import LogoutModal from "./LogoutModal";
-import { useModal } from "../GlobalModal";
+import { useModal } from "../../GlobalModal";
 import { LuPanelLeftClose, LuPanelRightClose } from "react-icons/lu";
 
 

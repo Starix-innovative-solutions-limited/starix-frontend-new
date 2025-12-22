@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import CustomInput from '@/components/CustomInput';
 import { useModal } from '@/components/GlobalModal';
-import FeedBack from '@/components/FeedBack';
+import FeedBack from '@/components/(creator)/dashboard/FeedBack';
 
 const SubmitUrl = ({ onSubmit = (data: any) => console.log(data) }) => {
   const { open } = useModal()

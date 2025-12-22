@@ -6,13 +6,13 @@ import { motion } from "framer-motion";
 import { variants } from "@/constant";
 import LinearGradientBorder from "@/components/ui/LinearGradientBorder";
 import { CiCreditCard2 } from "react-icons/ci";
-import PostCard from "@/components/dashboard/PostCard";
+import PostCard from "@/components/(creator)/dashboard/PostCard";
 import { FiEdit2 } from "react-icons/fi";
 import Image from "next/image";
 import { HiOutlinePlusSm } from "react-icons/hi";
 import { useModal } from '@/hooks/useModal'
-import CreateSkills from "@/components/dashboard/creator/CreateSkills";
-import CreateProject from "@/components/dashboard/creator/CreateProject";
+import CreateSkills from "@/components/(creator)/dashboard/creator/CreateSkills";
+import CreateProject from "@/components/(creator)/dashboard/creator/CreateProject";
 import { PiLinkSimpleHorizontalThin } from "react-icons/pi";
 
 

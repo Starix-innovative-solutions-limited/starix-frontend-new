@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { variants } from "@/constant";
 import LinearGradientBorder from "@/components/ui/LinearGradientBorder";
 import { CiCreditCard2 } from "react-icons/ci";
-import ChallengeGrid from "@/components/dashboard/creator/ChallengeGrid";
+import ChallengeGrid from "@/components/(creator)/dashboard/creator/ChallengeGrid";
 
 const page = () => {
   const challenges = [

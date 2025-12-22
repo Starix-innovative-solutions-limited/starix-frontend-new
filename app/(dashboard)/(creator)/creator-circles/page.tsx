@@ -2,15 +2,15 @@
 "use client";
 
 import React from 'react';
-import CircleSection from '@/components/dashboard/creator/CircleSection';
-import WeeklyLeaderboard from '@/components/dashboard/WeeklyLeaderboard';
+import CircleSection from '@/components/(creator)/dashboard/creator/CircleSection';
+import WeeklyLeaderboard from '@/components/(creator)/dashboard/WeeklyLeaderboard';
 import { variants } from '@/constant'
 import { motion } from 'framer-motion'
 import { GoPlus } from 'react-icons/go';
 
 import { useModal } from '@/components/GlobalModal'
-import CreateCircle from '@/components/dashboard/creator/CreateCircle';
-import FeedCard from '@/components/dashboard/creator/FeedCard';
+import CreateCircle from '@/components/(creator)/dashboard/creator/CreateCircle';
+import FeedCard from '@/components/(creator)/dashboard/creator/FeedCard';
 
 
 

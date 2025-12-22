@@ -9,9 +9,9 @@ import LinearGradientBorder from "@/components/ui/LinearGradientBorder";
 import { TbBrandGoogleAnalytics } from "react-icons/tb";
 import { IoMdTime } from "react-icons/io";
 import { IoFilterOutline } from "react-icons/io5";
-import PostCard from "@/components/dashboard/PostCard";
-import EarningInsight from "@/components/dashboard/creator/analytics/EarningInsight";
-import { EngagementChart } from "@/components/dashboard";
+import PostCard from "@/components/(creator)/dashboard/PostCard";
+import EarningInsight from "@/components/(creator)/dashboard/creator/analytics/EarningInsight";
+import { EngagementChart } from "@/components/(creator)/dashboard";
 
 const Page = () => {
 

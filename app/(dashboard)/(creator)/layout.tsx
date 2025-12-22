@@ -1,6 +1,6 @@
 import React from "react";
 import { Work_Sans } from "next/font/google";
-import { SideBar, TopBar } from "@/components/dashboard";
+import { SideBar, TopBar } from "@/components/(creator)/dashboard";
 
 const workSans = Work_Sans({
   subsets: ["latin"],

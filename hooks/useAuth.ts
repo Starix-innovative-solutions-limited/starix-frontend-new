@@ -25,6 +25,7 @@ export function useLogin() {
     onSuccess: (res: any) => {
       console.log("LOGIN SUCCESS:", res.data);
       setAuth(res?.data);
+      return res?.data;
     },
   });
 }
@@ -104,7 +105,7 @@ export function useVerifyEmailOtp() {
   });
 }
 
-export function useResetPasswordWithOtp() {
+export function useResetPassword() {
   return useMutation({
     mutationFn: (data: ResetPasswordOtpPayload) =>
       api.post("/auth/otp/reset-password", data),

@@ -7,6 +7,7 @@ import Link from "next/link";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -15,62 +16,63 @@ export default function Navbar() {
     { href: "/contact", label: "Contact Us" },
   ];
 
+  // Handle scroll
   useEffect(() => {
-    const handleScroll = () => {
-      // Your onScroll logic here
-      // Example: Add a class to the navbar when scrolling down
-      const navbar = document.querySelector("#navbar");
-      if (navbar && window.scrollY > 100) {
-        navbar?.classList.remove("py-10");
-        navbar?.classList.add("scrolled");
-      } else {
-        navbar?.classList.remove("scrolled");
-        navbar?.classList.add("py-10");
-      }
+    const onScroll = () => {
+      setScrolled(window.scrollY > 100);
     };
-    window.addEventListener("scroll", handleScroll);
 
-    // Cleanup the event listener on component unmount
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   return (
     <nav
       id="navbar"
-      className="bg-transparent mx-auto flex-between w-full px-10 md:px-20 lg:px-32 py-10 fixed top-0"
+      className={`fixed top-0 w-full z-50 transition-all duration-300
+        ${scrolled ? "scrolled py-4" : "py-10"}
+        ${isOpen ? "bg-white" : "bg-transparent"}
+        px-10 md:px-20 lg:px-32 flex-between`}
     >
       {/* Logo */}
       <Image src="/logo.png" alt="Starix-logo" width={100} height={25} />
 
+      {/* Desktop Links */}
       <div className="max-md:hidden flex items-center gap-8">
         {navLinks.map((link) => (
           <Link
             key={link.href}
             href={link.href}
-            className=" text-[#6E6E6E99] hover:text-primary-400 font-medium transition-colors"
+            className="text-[#6E6E6E99] hover:text-primary-400 font-medium transition-colors"
           >
             {link.label}
           </Link>
         ))}
       </div>
 
-      {/* Desktop Nav */}
+      {/* Desktop CTA */}
       <div className="hidden md:flex items-center gap-12">
         <Link
           href="/login"
-          className="text-white ml-16 bg-secondary-300 py-2 px-4 rounded-md text-lg font-semibold flex items-center justify-center gap-3"
+          className="text-white ml-16 bg-dark-navy py-2 px-4 rounded-md text-lg font-semibold flex items-center gap-3"
         >
-          <span className="text-sm">Get Started</span> <MoveRight size={20} />
+          <span className="text-sm">Get Started</span>
+          <MoveRight size={20} />
         </Link>
       </div>
 
-
-
-
       {/* Mobile Menu Button */}
       <button
-        className="md:hidden text-neutral-700"
-        onClick={() => setIsOpen(!isOpen)}
+        className="md:hidden text-neutral-700 z-50"
+        onClick={() => setIsOpen((prev) => !prev)}
       >
         {isOpen ? (
           <Minimize2 size={22} className="text-[#444444]" />
@@ -79,41 +81,34 @@ export default function Navbar() {
         )}
       </button>
 
-      {/* Mobile Dropdown */}
+      {/* Mobile Dropdown (NO GAP) */}
       <div
-        className={`absolute top-20 left-0 w-full bg-white shadow-md flex flex-col px-8 gap-6 py-6 md:hidden z-40 transform transition-all duration-300 ease-in-out ${isOpen
-          ? "translate-y-0 opacity-100"
-          : "-translate-y-10 opacity-0 pointer-events-none"
+        className={`absolute left-0 top-full w-full bg-white shadow-md md:hidden z-40
+          transition-all duration-300 ease-in-out
+          ${isOpen
+            ? "translate-y-0 opacity-100"
+            : "-translate-y-4 opacity-0 pointer-events-none"
           }`}
       >
-        <div className="flex-around pt-7">
+        <div className="flex flex-col gap-6 p-6">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-neutral-600 hover:text-primary-400 text-right font-medium transition-colors"
+              className="text-neutral-600 hover:text-primary-400 font-medium transition-colors"
               onClick={() => setIsOpen(false)}
             >
               {link.label}
             </Link>
           ))}
-        </div>
-
-        <div className="flex items-center gap-5">
-          <Link
-            href="/"
-            className="text-white bg-secondary-10 hover:bg-secondary-100 py-2.5 px-6 rounded-md text-lg font-semibold flex items-center justify-center gap-3"
-            onClick={() => setIsOpen(false)}
-          >
-            <span className="text-sm">Sign Up.</span> <MoveRight size={20} />
-          </Link>
 
           <Link
-            href="/"
-            className="text-white bg-secondary-10 hover:bg-secondary-100 py-2.5 px-6 rounded-md text-lg font-semibold flex items-center justify-center gap-3"
+            href="/login"
+            className="text-white w-fit bg-dark-navy py-2 px-4 rounded-md text-lg font-semibold flex items-center gap-3"
             onClick={() => setIsOpen(false)}
           >
-            <span className="text-sm">Sign In.</span> <MoveRight size={20} />
+            <span className="text-sm">Get Started</span>
+            <MoveRight size={20} />
           </Link>
         </div>
       </div>

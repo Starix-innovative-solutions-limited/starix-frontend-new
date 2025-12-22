@@ -43,7 +43,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
     if (type === "file" && e.target.files) {
       setFileName(
         multiple
-          ? Array.from(e.target.files)
+          ? Array?.from(e.target.files)
             .map((f) => f.name)
             .join(", ")
           : e.target.files[0]?.name || ""

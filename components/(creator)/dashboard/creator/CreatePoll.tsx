@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Plus, X } from "lucide-react";
 import CustomInput from "@/components/CustomInput";
 import { useModal } from "@/components/GlobalModal";
-import FeedBack from "@/components/FeedBack";
+import FeedBack from "@/components/(creator)/dashboard/FeedBack";
 
 interface PollOption {
   id: number;
@@ -105,8 +105,8 @@ const CreatePoll: React.FC<CreatePollProps> = ({
           </button>
 
           <div className="flex items-center gap-2 mt-4">
-          <input type="checkbox" className="w-5 h-5 border border-dark"/>
-          <span className="text-secondary-100/70">Allow Multiple Answers.</span>
+            <input type="checkbox" className="w-5 h-5 border border-dark" />
+            <span className="text-secondary-100/70">Allow Multiple Answers.</span>
           </div>
 
           {/* Submit Button */}

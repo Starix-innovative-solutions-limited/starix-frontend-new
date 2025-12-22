@@ -15,9 +15,11 @@ const BrandDashboardLayout = ({
     children: React.ReactNode;
 }>) => {
     return (
-        <main className={` ${workSans.variable} bg-[#fafafa] h-[100vh] px-8 md:px-18 md:w-10/12 mx-auto`}>
+        <main className={` ${workSans.variable} bg-[#fafafa] h-[100vh]`}>
             <NavBar />
-            {children}
+            <div className="">
+                {children}
+            </div>
         </main>
     );
 };

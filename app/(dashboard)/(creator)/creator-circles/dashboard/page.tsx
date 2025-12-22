@@ -7,12 +7,12 @@ import { FaArrowLeft } from 'react-icons/fa6'
 import { GoPlus } from 'react-icons/go'
 import { IoEllipsisVerticalSharp } from 'react-icons/io5'
 import { useModal } from '@/hooks/useModal'
-import CircleChat from '@/components/dashboard/creator/CircleChat'
-import CreateWeeklyChallenge from '@/components/dashboard/creator/CreateWeeklyChallenge'
-import CreatePoll from '@/components/dashboard/creator/CreatePoll'
-import CircleMembers from '@/components/dashboard/creator/CircleMembers'
-import LeaveCircleModal from '@/components/dashboard/LeaveCircleModal'
-import CircleInfo from '@/components/dashboard/creator/CircleInfo'
+import CircleChat from '@/components/(creator)/dashboard/creator/CircleChat'
+import CreateWeeklyChallenge from '@/components/(creator)/dashboard/creator/CreateWeeklyChallenge'
+import CreatePoll from '@/components/(creator)/dashboard/creator/CreatePoll'
+import CircleMembers from '@/components/(creator)/dashboard/creator/CircleMembers'
+import LeaveCircleModal from '@/components/(creator)/dashboard/LeaveCircleModal'
+import CircleInfo from '@/components/(creator)/dashboard/creator/CircleInfo'
 
 
 

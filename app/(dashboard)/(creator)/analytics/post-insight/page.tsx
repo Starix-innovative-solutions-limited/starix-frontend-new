@@ -1,12 +1,12 @@
 "use client"
 
-import { EngagementChart } from '@/components/dashboard'
+import { EngagementChart } from '@/components/(creator)/dashboard'
 import { variants } from '@/constant'
 import { motion } from 'framer-motion'
 import React from 'react'
-import RouteHeader from '@/components/dashboard/RouteHeader'
-import EngagementInsight from '@/components/dashboard/creator/EngagementInsight'
-import ImageCarousel from '@/components/dashboard/creator/ImageCarousel'
+import RouteHeader from '@/components/(creator)/dashboard/RouteHeader'
+import EngagementInsight from '@/components/(creator)/dashboard/creator/EngagementInsight'
+import ImageCarousel from '@/components/(creator)/dashboard/creator/ImageCarousel'
 
 const Page = () => {
 

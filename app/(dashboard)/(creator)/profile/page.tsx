@@ -3,17 +3,17 @@
 "use client";
 
 import { motion } from "framer-motion";
-import PaymentDetails from "@/components/dashboard/profile/PaymentDetails";
-import SocialMedia from "@/components/dashboard/profile/SocialMedia";
-import AnalyticsPreview from "@/components/dashboard/profile/AnalyticsPreview";
-import PostCard from "@/components/dashboard/PostCard";
+import PaymentDetails from "@/components/(creator)/dashboard/profile/PaymentDetails";
+import SocialMedia from "@/components/(creator)/dashboard/profile/SocialMedia";
+import AnalyticsPreview from "@/components/(creator)/dashboard/profile/AnalyticsPreview";
+import PostCard from "@/components/(creator)/dashboard/PostCard";
 // import { BsStar } from "react-icons/bs";
 import { FiEdit2 } from "react-icons/fi";
 import { MdStarRate } from "react-icons/md";
 import { useAuthStore } from "@/store/useAuthStore";
 import { formatMonthYear } from "@/lib/formatDate";
 import { StatItem } from "@/utils/type";
-import UpdateProfile from "@/components/dashboard/profile/UpdateProfile";
+import UpdateProfile from "@/components/(creator)/dashboard/profile/UpdateProfile";
 import { useModal } from "@/hooks/useModal";
 
 export default function Page() {

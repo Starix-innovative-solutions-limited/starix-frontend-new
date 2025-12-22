@@ -4,9 +4,9 @@
 import { variants } from '@/constant'
 import { motion } from 'framer-motion'
 import React from 'react'
-import RouteHeader from '@/components/dashboard/RouteHeader'
-import ImageCarousel from '@/components/dashboard/creator/ImageCarousel'
-import EngagementInsight from '@/components/dashboard/creator/EngagementInsight'
+import RouteHeader from '@/components/(creator)/dashboard/RouteHeader'
+import ImageCarousel from '@/components/(creator)/dashboard/creator/ImageCarousel'
+import EngagementInsight from '@/components/(creator)/dashboard/creator/EngagementInsight'
 
 const Page = () => {
 

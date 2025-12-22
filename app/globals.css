@@ -182,7 +182,3 @@ button {
 .hide-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari */
 }
-
-.section {
-  @apply flex flex-col gap-20;
-}

@@ -4,6 +4,8 @@ import { CreatorProfile } from "@/utils/type";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+// import { useRouter } from "next/navigation";
+
 // 1. Define the User structure based on your JSON
 interface User {
   id: string;
@@ -36,6 +38,10 @@ interface AuthState {
   fetchProfile: () => void;
 }
 
+const PROFILE_ENDPOINTS: Record<string, string> = {
+  creator: "/auth/profile/creator",
+  brand: "/auth/profile/brand",
+};
 // 4. Create the store with Types
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -60,12 +66,22 @@ export const useAuthStore = create<AuthState>()(
 
       fetchProfile: async () => {
         try {
-          const { data } = await api.get("/auth/profile/creator");
+          const { userType } = get();
+
+          const endpoint = userType ? PROFILE_ENDPOINTS[userType] : null;
+
+          if (!endpoint) return;
+
+          const { data } = await api.get(endpoint);
+
           set({ profile: data });
+
           console.log("set profile in auth", data);
         } catch (error) {
-          console.error("Failed to fetch creator profile:", error);
-          // If 401, you might want to logout
+          console.error("Failed to fetch profile:", error);
+          if (error === 401) {
+            get().logout();
+          }
         }
       },
 

@@ -85,7 +85,7 @@ const WhyStarix = () => {
                         THE PROBLEM
                     </span>
 
-                    <div className='grid grid-cols-2 items-center'>
+                    <div className='grid md:grid-cols-2 items-center max-md:gap-4'>
                         <div className='flex flex-col gap-3'>
                             <h2 className='text-secondary-100 text-4xl'>Trend Intelligence</h2>
                             <p className='text-dark text-lg'>Build campaigns with real creators that aligns with your brand story.</p>

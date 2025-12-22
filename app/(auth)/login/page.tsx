@@ -50,9 +50,16 @@ const Page = () => {
         }),
         {
           loading: "Signing in...",
-          success: () => {
+          success: (res) => {
+            if (res?.data?.user_type == 'brand') {
+              router.push('/brand')
+            } else {
+              router.push('/dashboard')
+            }
             setForm(initialForm); // ✅ clear form
-            router.push('/dashboard')
+            // router.push('/dashboard')
+            // console.log("RESULT FROM LOGIN", res?.data)
+
             return "Signed in successfully ✅";
           },
           error: (err: any) => {
