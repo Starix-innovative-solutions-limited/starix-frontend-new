@@ -36,6 +36,7 @@ interface AuthState {
   logout: () => void;
   profile: CreatorProfile | BrandProfile | any | null; // Added profile field
   fetchProfile: () => void;
+  refreshToken: () => Promise<string | null>;
 }
 
 const PROFILE_ENDPOINTS: Record<string, string> = {
@@ -59,8 +60,9 @@ export const useAuthStore = create<AuthState>()(
           userType: data.user_type,
           user: data.user,
           isAuthenticated: true,
+          profile: null, // reset
         });
-        // Immediately trigger profile fetch after login
+
         get().fetchProfile();
       },
 
@@ -86,7 +88,29 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () =>
-        set({ user: null, profile: null, token: null, isAuthenticated: false }),
+        set({
+          user: null,
+          profile: null,
+          token: null,
+          userType: null,
+          isAuthenticated: false,
+        }),
+      refreshToken: async () => {
+        try {
+          const { data } = await api.post("/auth/refresh");
+
+          set({
+            token: data.access_token,
+            isAuthenticated: true,
+          });
+
+          return data.access_token;
+        } catch (error) {
+          get().logout();
+          console.error(error);
+          return null;
+        }
+      },
     }),
     { name: "creator-auth-storage" }
   )

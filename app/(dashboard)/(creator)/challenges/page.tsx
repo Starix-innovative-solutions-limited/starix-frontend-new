@@ -54,7 +54,7 @@ const page = () => {
         {
           challenges?.map((item: any, i: number) => (
             <LinearGradientBorder key={i}>
-              <div className="flex items-start justify-between py-2 px-4">
+              <div className="flex items-start justify-between py-2 px-4 h-full">
                 <div className="flex flex-col gap-2">
                   <span className="text-dark text-sm">
                     {item?.category}&nbsp;challenges

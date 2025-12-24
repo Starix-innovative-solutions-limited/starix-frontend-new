@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist } from "next/font/google";
 import { ModalProvider } from "@/components/GlobalModal";
 import "./globals.css";
 
@@ -13,10 +13,10 @@ const geist = Geist({
   variable: "--font-geist-sans",
 });
 
-const geistMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-geist-mono",
-});
+// const geistMono = Geist_Mono({
+//   subsets: ["latin"],
+//   variable: "--font-geist-mono",
+// });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -30,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body lang="en" className={`${geist.variable} ${geistMono.variable} antialiased`}>
+      <body lang="en" className={`${geist.variable} antialiased`}>
         <main className="bg-bluelayer min-h-screen">
           {/* <AnimatedLayout> */}
           <Providers>

@@ -47,7 +47,7 @@ const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
 
   return (
     <aside
-      className={` md:px-2 lg:px-4 xl:px-7 bg-white shadow h-screen w-fit ${collapsed ? "pr-4 md:w-fit" : "pr-14  md:min-w-2xs"
+      className={` md:px-2 lg:px-4 xl:px-7 bg-white h-screen w-fit ${collapsed ? "pr-4 md:w-fit" : "pr-14  md:min-w-2xs"
         } py-8 flex flex-col items-between gap-6 ${className && className} `}
     >
       <div className="flex flex-col gap-6 grow">
@@ -101,9 +101,18 @@ const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
                   className={`flex items-center gap-4 px-3 py-2 max-md:pl-4 rounded-lg hover:bg-black/50  ${active === i ? "text-secondary-100" : "text-dark "
                     }`}
                 >
-                  {items?.icon && React.createElement(items.icon, {
+                  {/* {items?.icon && React.createElement(items.icon, {
                     className: ` ${collapsed ? "text-xl" : "text-xl"} text-[1.45rem] ${active === i ? "text-secondary-100 " : "text-dark"}`
-                  })}
+                  })} */}
+
+                  <Image
+                    src={`/${items?.icon}`}
+                    alt={items?.icon}
+                    width={100}
+                    height={100}
+
+                    className={` w-6 h-6 ${collapsed ? "text-xl" : "text-xl"} text-[1.45rem] ${active === i ? "text-secondary-100 " : "text-dark"}`}
+                  />
 
                   <span
                     className={` text-lg md:text-xl ${active == i && "text-secondary-100 font-medium"

@@ -20,11 +20,13 @@ export default function LinearGradientBorder({
   return (
     <motion.div
       whileHover={{ scale: hoverScale }}
-      className={`p-[1.3px] rounded-2xl relative`}
-      style={{ background: gradient }}
+      className={`p-[1px] rounded-2xl ${className}`}
+      style={{
+        background: gradient,
+      }}
       variants={variants.itemVariants}
     >
-      <div className={`${className} bg-white rounded-2xl p-3 px-6 h-full` }>
+      <div className="bg-white  rounded-[15px] p-3 h-full w-full">
         {children}
       </div>
     </motion.div>

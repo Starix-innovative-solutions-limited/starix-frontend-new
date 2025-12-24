@@ -12,7 +12,8 @@ import Dropdown from '../../ui/Dropdown'
 import { MoreVertical } from 'lucide-react'
 import { IoCopyOutline } from 'react-icons/io5'
 import { useRouter } from 'next/navigation'
-
+import Image from 'next/image'
+import { PiEyeThin } from 'react-icons/pi'
 interface PostProps {
     viewSubmitLink?: boolean,
     price?: string,
@@ -36,10 +37,19 @@ const PostCard = ({ viewSubmitLink, isWin, price, link }: PostProps) => {
             className="bg-white  overflow-hidden cursor-pointer h-fit min-w-[350px]"
         >
             <div className='relative' >
-                <img
+                {/* <img
                     src={`https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&h=300&fit=crop`}
 
                     alt="Challenge"
+                    className="w-full h-48 object-cover"
+                    onClick={openDetails}
+                /> */}
+
+                <Image
+                    src={'/post.png'}
+                    alt='profile_pic'
+                    width={1000}
+                    height={1000}
                     className="w-full h-48 object-cover"
                     onClick={openDetails}
                 />
@@ -60,42 +70,49 @@ const PostCard = ({ viewSubmitLink, isWin, price, link }: PostProps) => {
                 </Dropdown>
                 {/* </button> */}
 
+                <div className="absolute bottom-3 left-3 bg-off-white/50 backdrop-blur-sm px-2 py-[[0.5] rounded-full flex items-center gap-2">
+                    <PiEyeThin className='text-dark-navy/70' />
+                    <span className="text-sm font-light text-dark-navy/70">3k</span>
+                </div>
+
 
 
             </div>
 
 
-            <div className="px-4 pt-4 flex items-center justify-between">
-                <p className=" text-secondary-100 text-xl mb-3" onClick={openDetails}>Your Caption here</p>
-                <div className="flex items-center gap-4 text-dark">
-                    <div className="flex items-center gap-1">
-                        {/* <FaHeart className="text-red-400" /> */}
-                        <SlLike className='text-secondary-100' />
-                        <span className="text-sm font-light text-secondary-100">500</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                        <FaRegComment className="text-secondary-100" />
-                        <span className="text-sm font-light text-secondary-100">10</span>
+            <div className='flex flex-between pb-4'>
+                <div className="px-4 pt-4 flex flex-col">
+                    <p className=" text-dark-navy text-xl mb-3" onClick={openDetails}>Your Caption here</p>
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-1">
+                            {/* <FaHeart className="text-red-400" /> */}
+                            <SlLike className='text-dark-navy' />
+                            <span className="text-sm font-light text-dark-navy">500</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <FaRegComment className="text-dark-navy" />
+                            <span className="text-sm font-light text-dark-navy">10</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div className='flex px-5 pb-4'>
-                {
-                    viewSubmitLink && (
-                        <button className="text-[#040136B2] ml-auto text-sm font-medium hover:text-gray-900 transition-colors underline" onClick={() => open(<SubmitUrl />, { position: 'center' })}>
-                            Submit Link
-                        </button>
-                    )
-                }
+                <div className='flex px-5 pb-4'>
+                    {
+                        viewSubmitLink && (
+                            <button className="text-dark-navy/70 ml-auto text-sm font-light hover:text-gray-900 transition-colors underline" onClick={() => open(<SubmitUrl />, { position: 'center' })}>
+                                Submit Link
+                            </button>
+                        )
+                    }
 
-                {
-                    isWin && price && (
-                        <button className="text-[#FD6C1D] ml-auto text-sm font-medium hover:text-gray-900 transition-colors underline" onClick={() => open(<SubmitUrl />, { position: 'center' })}>
-                            {price}
-                        </button>
-                    )
-                }
+                    {
+                        isWin && price && (
+                            <button className="text-primary-orange ml-auto text-sm font-light hover:text-gray-900 transition-colors underline" onClick={() => open(<SubmitUrl />, { position: 'center' })}>
+                                {price}
+                            </button>
+                        )
+                    }
+                </div>
             </div>
         </motion.div>
     )

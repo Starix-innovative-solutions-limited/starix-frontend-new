@@ -16,9 +16,9 @@ const TopBar = () => {
   const { profile } = useAuthStore();
 
   return (
-    <div className="w-full py-4 px-4 md:px-14  flex items-center justify-between rounded-2xl bg-white border border-gray-200 shadow-2xs relative max-md:gap-4">
+    <div className="w-full py-4 px-4 md:px-14  flex items-center justify-between rounded-2xl bg-white   relative max-md:gap-4">
       {/* Search Bar */}
-      <div className="flex items-center gap-2 bg-[#FAFAFA] border border-gray-200 shadow-2xs rounded-full px-3 py-3 flex-1 max-w-md">
+      <div className="flex items-center gap-2 bg-[#FAFAFA]  rounded-full px-3 py-3 flex-1 max-w-md">
         <CiSearch className="text-secondary-100" size={29} />
         <input
           type="text"

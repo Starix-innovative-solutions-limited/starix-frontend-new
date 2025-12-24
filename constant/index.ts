@@ -11,7 +11,7 @@ import {
 
 import { Variants } from "framer-motion";
 import { HiUserGroup, HiUser } from "react-icons/hi";
-import {  IoSearch, IoStatsChart } from "react-icons/io5";
+import { IoSearch, IoStatsChart } from "react-icons/io5";
 import { RiHome5Line } from "react-icons/ri";
 
 type Creator = {
@@ -31,12 +31,12 @@ type Creator = {
 export const sidebarLinks = [
   {
     label: "Home",
-    icon: RiHome5Line,
+    icon: "homeIcon.svg",
     href: "/dashboard",
   },
   {
     label: "Challenges",
-    icon: IoSearch,
+    icon: "challengesIcon.svg",
     href: "/challenges",
     badge: {
       hug: 102,
@@ -45,22 +45,22 @@ export const sidebarLinks = [
   },
   {
     label: "Creator Circles",
-    icon: HiUserGroup,
+    icon: "creatorIcon.svg",
     href: "/creator-circles",
   },
   {
     label: "Portfolio",
-    icon: MdMailOutline,
+    icon: "portfolioIcon.svg",
     href: "/portfolio",
   },
   {
     label: "Analytics",
-    icon: IoStatsChart,
+    icon: "analyticsIcon.svg",
     href: "/analytics",
   },
   {
     label: "Profile",
-    icon: HiUser,
+    icon: "profileIcon.svg",
     href: "/profile",
   },
 ];
@@ -417,9 +417,8 @@ export const creators: Creator[] = [
   },
 ];
 
-
 export enum AuthBgEnum {
   CREATOR = "creator",
   BRAND = "brand",
-  None = "none"
+  None = "none",
 }

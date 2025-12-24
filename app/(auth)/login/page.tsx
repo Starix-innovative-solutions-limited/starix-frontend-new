@@ -19,31 +19,30 @@ type FormProps = {
 
 const Page = () => {
   const initialForm: FormProps = {
-    email: "",
-    password: "",
+    email: "oyetunjie26@yahoo.com",
+    password: "#Olagoke26",
   };
 
   // const { mutate, isSuccess, isError, error, data } = useLogin();
 
   const [form, setForm] = useState<FormProps | any>(initialForm);
 
-  // const [isLoading, setIsLoading] = useState(false);
 
-  const { mutateAsync, isPending } = useLogin();
+
+  const { mutateAsync, isPending: isLoading } = useLogin();
   const router = useRouter();
 
+
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // prevent form default submit
+    e.preventDefault();
 
     if (!form?.email || !form?.password) {
       console.log("Email or password is missing");
       return;
     }
 
-
     try {
-
-      await toast.promise(
+      const res = await toast.promise(
         mutateAsync({
           email: form.email,
           password: form.password,
@@ -51,30 +50,31 @@ const Page = () => {
         {
           loading: "Signing in...",
           success: (res) => {
-            if (res?.data?.user_type == 'brand') {
-              router.push('/brand')
-            } else {
-              router.push('/dashboard')
+            if (res?.user_type === "brand") {
+              router.push("/brand");
             }
-            setForm(initialForm); // ✅ clear form
-            // router.push('/dashboard')
-            // console.log("RESULT FROM LOGIN", res?.data)
-
-            return "Signed in successfully ✅";
+            if (res?.user_type === "creator") {
+              router.push("/dashboard");
+            }
+            return "Signed in successfully ✅"
           },
-          error: (err: any) => {
-            console.log("SignIn Error:", err); // ✅ log the full error object
-            // setIsLoading(false)
-            return `Signin failed: ${err.response.data.detail}`;
-          },
+          error: (err: any) => `Signin failed: ${err.response?.data?.detail || err.message}`,
         }
       );
-    } catch (error) {
-      // setIsLoading(false)
-      console.log(error)
+
+      // Clear the form
+      setForm(initialForm);
+
+      // Navigate immediately after mutation resolves
+      if (res?.user_type === "brand") {
+        router.push("/brand");
+      }
+      if (res?.user_type === "creator") {
+        router.push("/dashboard");
+      }
+    } catch (err) {
+      console.log("SignIn Error:", err);
     }
-
-
   };
 
 
@@ -139,10 +139,11 @@ const Page = () => {
           variants={variants?.itemVariants}
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
+          disabled={isLoading}
           className="btn bg-dark-navy !py-4 w-full text-white"
           onClick={handleSubmit}
         >
-          {isPending ? <Loader /> : " Login"}
+          {isLoading ? <Loader /> : " Login"}
         </motion.button>
 
         <motion.div

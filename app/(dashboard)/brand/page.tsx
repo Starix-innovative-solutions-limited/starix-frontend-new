@@ -8,8 +8,10 @@ import { variants } from '@/constant'
 import { motion } from 'framer-motion'
 import React from 'react'
 import { FaBullhorn, FaUsers, FaWallet, FaImages } from 'react-icons/fa'
+import { useAuthStore } from '@/store/useAuthStore'
 
-const page = () => {
+const Page = () => {
+    const { profile } = useAuthStore()
     const DASHBOARD_STATS = [
         {
             key: "totalChallenges",
@@ -56,7 +58,7 @@ const page = () => {
                         whileTap={{ scale: 0.95 }}
                         className="flex items-center gap-2 py-2 text-[28px] font-normal  transition-colors text-secondary-100 "
                     >
-                        Hello, “Brand Name”
+                        Hello, {profile?.brand_name}
                     </motion.span>
 
 
@@ -110,4 +112,4 @@ const page = () => {
     )
 }
 
-export default page
+export default Page

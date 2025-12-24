@@ -12,20 +12,36 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/useAuthStore";
 
+interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+interface LoginResponse {
+  access_token: string;
+  token_type: string;
+  user_type: "creator" | "brand" | string;
+  user: any;
+}
+
 export function useLogin() {
   const { setAuth } = useAuthStore();
-  return useMutation({
-    mutationFn: (data: { email: string; password: string }) =>
-      api.post("/auth/login", data),
 
-    onError: (err: any) => {
-      console.log("LOGIN ERROR:", err.response?.data);
+  return useMutation<LoginResponse, any, LoginPayload>({
+    mutationFn: async (data: LoginPayload) => {
+      const res = await api.post<LoginResponse>("/auth/login", data);
+      return res.data; // Return actual payload
     },
 
-    onSuccess: (res: any) => {
-      console.log("LOGIN SUCCESS:", res.data);
-      setAuth(res?.data);
-      return res?.data;
+    onError: (err: any) => {
+      console.error("LOGIN ERROR:", err.response?.data || err.message);
+      // Optionally throw to let mutateAsync catch it
+      throw err;
+    },
+
+    onSuccess: (data: LoginResponse) => {
+      console.log("LOGIN SUCCESS:", data);
+      setAuth(data); // Update Zustand store
     },
   });
 }
@@ -130,6 +146,20 @@ export function useResendOtp() {
 
     onError: (err: any) => {
       console.log("OTP RESENT ERROR:", err.response?.data);
+    },
+  });
+}
+
+export function useRefreshToken() {
+  return useMutation({
+    mutationFn: (data: any) => api.post("/auth/refresh", data),
+
+    onSuccess: (res: any) => {
+      console.log("REFRESH TOKEN SUCCESS:", res.data);
+    },
+
+    onError: (err: any) => {
+      console.log("REFRESH TOKEN ERROR ERROR:", err.response?.data);
     },
   });
 }
