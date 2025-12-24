@@ -1,18 +1,4 @@
-import { MdMailOutline } from "react-icons/md";
-import {
-  Facebook,
-  Twitter,
-  Instagram,
-  Linkedin,
-  Music,
-  Youtube,
-  Download,
-} from "lucide-react";
-
 import { Variants } from "framer-motion";
-import { HiUserGroup, HiUser } from "react-icons/hi";
-import { IoSearch, IoStatsChart } from "react-icons/io5";
-import { RiHome5Line } from "react-icons/ri";
 
 type Creator = {
   name: string;
