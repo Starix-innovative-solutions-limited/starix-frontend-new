@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { MoveRight, Menu, Minimize2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -40,7 +41,7 @@ export default function Navbar() {
       className={`fixed top-0 w-full z-50 transition-all duration-300
         ${scrolled ? "scrolled py-4" : "py-10"}
         ${isOpen ? "bg-white" : "bg-transparent"}
-        px-10 md:px-20 lg:px-32 flex-between`}
+        px-6 md:px-20 lg:px-32 flex-between`}
     >
       {/* Logo */}
       <Image src="/logo.png" alt="Starix-logo" width={100} height={25} />
@@ -59,13 +60,20 @@ export default function Navbar() {
       </div>
 
       {/* Desktop CTA */}
-      <div className="hidden md:flex items-center gap-12">
+      <div className="hidden md:flex items-center gap-2">
         <Link
-          href="/login"
-          className="text-white ml-16 bg-dark-navy py-2 px-4 rounded-md text-lg font-semibold flex items-center gap-3"
+          href={"/login"}
+          className="bg-white flex-center  hover:bg-secondary-100 text-secondary-100 border border-secondary-100 !w-fit !rounded-full  p-1.5 px-3 "
         >
-          <span className="text-sm">Get Started</span>
-          <MoveRight size={20} />
+          <span>Sign up</span>
+          <MdOutlineKeyboardArrowDown />
+        </Link>
+        <Link
+          href="/signup"
+          className="text-white bg-dark-navy p-1.5 px-3 rounded-full  font-semibold flex items-center gap-3 text-base"
+        >
+          Login
+          {/* <MoveRight size={20} /> */}
         </Link>
       </div>
 
