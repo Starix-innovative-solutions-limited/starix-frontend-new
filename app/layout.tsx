@@ -32,6 +32,7 @@ export default function RootLayout({
     <html lang="en">
       <body lang="en" className={`${geist.variable} antialiased`}>
         <main className="bg-bluelayer min-h-screen">
+
           {/* <AnimatedLayout> */}
           <Providers>
             <ModalProvider>{children} <Toaster position="top-right" /> </ModalProvider>
