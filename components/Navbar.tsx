@@ -5,10 +5,16 @@ import { MoveRight, Menu, Minimize2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { MdOutlineKeyboardArrowDown } from "react-icons/md";
+// import { usePathname } from "next/navigation";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  // const pathName = usePathname()
+
+  // useEffect(() => {
+  //   navLinks.forEach()
+  // }, [pathName])
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -35,6 +41,8 @@ export default function Navbar() {
     };
   }, [isOpen]);
 
+  const [active, setActive] = useState(0)
+
   return (
     <nav
       id="navbar"
@@ -48,11 +56,12 @@ export default function Navbar() {
 
       {/* Desktop Links */}
       <div className="max-md:hidden flex items-center gap-8">
-        {navLinks.map((link) => (
+        {navLinks.map((link, i) => (
           <Link
             key={link.href}
             href={link.href}
-            className="text-[#6E6E6E99] hover:text-primary-400 font-medium transition-colors"
+            className={` ${i == active ? "text-dark-navy" : "text-neut/60"} hover:text-primary-400 font-medium transition-colors`}
+            onClick={() => setActive(i)}
           >
             {link.label}
           </Link>
@@ -103,7 +112,7 @@ export default function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-neutral-600 hover:text-primary-400 font-medium transition-colors"
+              className="text-neut/60 hover:text-primary-400 font-medium transition-colors"
               onClick={() => setIsOpen(false)}
             >
               {link.label}

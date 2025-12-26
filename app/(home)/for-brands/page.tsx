@@ -55,13 +55,13 @@ const Page = () => {
   return (
 
     <>
-      <div className="bg-off-white">
+      <div className="bg-off-white bg-lines">
         <main className="relative general-space min-h-screen">
           <div className='grid grid-cols-1 md:items-center md:grid-cols-2 mt-20'>
-            <div className='flex flex-col gap-10 h-fit'>
-              <h3 className='font-semibold text-6xl line-clamp-3 '>
-                High‐Quality
-                UGC, Powered by
+            <div className='flex flex-col gap-10 h-fit relative'>
+              <h3 className='font-semibold text-6xl w-full leading-snug line-clamp-3 text-dark-navy grow '>
+                High‐Quality <br />
+                UGC, Powered by <br />
                 Real Data
               </h3>
 
@@ -70,6 +70,14 @@ const Page = () => {
               <button className=' bg-dark-navy py-2 px-5 rounded-full text-off-white w-fit'>
                 Join as a brand.
               </button>
+
+              <Image
+                src={'/hero1.png'}
+                alt=""
+                width={500}
+                height={500}
+                className=' absolute -top-5/12 -right-5'
+              />
 
             </div>
 
@@ -125,9 +133,9 @@ const Page = () => {
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
-                        className="flex items-center gap-3 text-gray-600"
+                        className="flex items-center gap-3 text-dark-navy/70"
                       >
-                        <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                        <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-neut/60 text-sm">
                           {index + 1}
                         </div>
                         <span className="text-lg">{problem}</span>
@@ -198,7 +206,7 @@ const Page = () => {
                   viewport={{ once: true }}
                   className="mb-12"
                 >
-                  <h2 className="text-4xl font-bold text-gray-900 mb-4">Key Features For Brands <br /> On Starix</h2>
+                  <h2 className="text-4xl font-bold text-dark-navy mb-4">Key Features For Brands <br /> On Starix</h2>
                 </motion.div>
 
                 <div className="flex flex-wrap gap-3 mb-8">

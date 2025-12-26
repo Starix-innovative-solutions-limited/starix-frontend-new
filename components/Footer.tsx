@@ -1,9 +1,16 @@
+"use client"
+
 import { Linkedin, Facebook } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import { usePathname } from "next/navigation";
 
 const Footer = () => {
+
+  const path = usePathname()
+  console.log(path)
+
   return (
     <section className="flex flex-col  pt-6 text-[#444444]">
 
@@ -12,22 +19,33 @@ const Footer = () => {
         <div className="border border-dark-navy rounded-2xl p-10 flex-between">
           <div className="max-w-md min-w-fit p-2">
             <h3 className="font-semibold text-dark-navy text-5xl">
-              Redefine Your <br />
-              Creativity & Brand Story
+              Redefine Your&nbsp;
+              {
+                path === "/for-brands"
+                  ? `Brand Story`
+                  : path === "/for-creators"
+                    ? "Creativity"
+                    : `<br /> Creativity & Brand Story`
+              }
+
             </h3>
             <div className="flex items-center md:mt-4 gap-4">
-              <Link
-                href={"/login"}
-                className="bg-white  hover:bg-secondary-100 text-secondary-100 border border-secondary-100 btn !rounded-full "
-              >
-                Join as a Creator
-              </Link>
-              <Link
-                href={"/login"}
-                className="bg-secondary-100 hover:bg-secondary-100 text-white btn !rounded-full"
-              >
-                Join as a Brand
-              </Link>
+              {
+                path != "/for-brands" && <Link
+                  href={"/login"}
+                  className="bg-white  hover:bg-secondary-100 text-secondary-100 border border-secondary-100 btn !rounded-full "
+                >
+                  Join as a Creator
+                </Link>
+              }
+              {
+                path != "/for-creators" && <Link
+                  href={"/login"}
+                  className="bg-secondary-100 hover:bg-secondary-100 text-white btn !rounded-full"
+                >
+                  Join as a Brand
+                </Link>
+              }
             </div>
           </div>
 
