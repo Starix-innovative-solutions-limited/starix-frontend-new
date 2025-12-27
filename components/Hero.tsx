@@ -60,7 +60,7 @@ const Hero = () => {
             alt="Hero grid Image"
             width={1000}
             height={1000} // half the height
-            className=""
+            className="md:hidden"
           />
 
           {/* <h3>fghjkl</h3> */}

@@ -10,6 +10,7 @@ import { FaFire, FaClock, FaChartLine, FaHashtag } from 'react-icons/fa';
 import PostCard from "@/components/(creator)/dashboard/PostCard";
 import WeeklyLeaderboard from "@/components/(creator)/dashboard/WeeklyLeaderboard";
 import { useAuthStore } from "@/store/useAuthStore";
+import LinearGradientBorder from "@/components/ui/LinearGradientBorder";
 // import { useGetChallenges } from "@/hooks/useChallenges";
 
 
@@ -190,28 +191,19 @@ const Page = () => {
                 {trendingInsights.map((insight, index) => {
                   const Icon = insight.icon;
                   return (
-                    <motion.div key={index} className="p-[1px] rounded-xl"
-                      whileHover={{ scale: 1.02 }}
-                      style={{
-                        background: "linear-gradient(90deg, #FD6C1D 0%, #06FF89 50%, #040136 100%)",
-                      }}>
-                      <motion.div
 
-                        className="bg-white rounded-xl p-5 shadow-md relative overflow-hidden"
-                      >
-                        <div className={`absolute inset-0 bg-gradient-to-r opacity-30`}></div>
-                        <div className="relative flex items-start gap-3">
+                    <LinearGradientBorder key={index}>
+                      <div className="relative flex items-start gap-3">
 
-                          <div>
-                            <p className="text-xs text-dark uppercase mb-1 bg-[#F5F5F5] p-1.5 border border-gray-100 shadow-2xs w-fit">{insight.category}</p>
-                            <div className="text-gray-800 font-medium flex items-center gap-2 mt-2">
-                              <Icon className="text-orange-500 text-xl  flex-shrink-0" />
-                              <span>{insight.text}</span>
-                            </div>
+                        <div>
+                          <p className="text-xs text-dark uppercase mb-1 bg-[#F5F5F5] p-1.5 border border-gray-100 shadow-2xs w-fit">{insight.category}</p>
+                          <div className="text-gray-800 font-medium flex items-center gap-2 mt-2">
+                            <Icon className="text-orange-500 text-xl  flex-shrink-0" />
+                            <span>{insight.text}</span>
                           </div>
                         </div>
-                      </motion.div>
-                    </motion.div>
+                      </div>
+                    </LinearGradientBorder>
                   );
                 })}
               </div>
