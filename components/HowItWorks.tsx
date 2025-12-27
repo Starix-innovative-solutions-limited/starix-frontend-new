@@ -49,15 +49,15 @@ const HowItWorks = () => {
     return (
         <div className='general-space flex flex-col   bg-white min-h-screen'>
 
-            <div className='flex-between mt-10'>
-                <div className='text-5xl font-semibold'>
-                    How It Works
+            <div className='flex max-md:flex-col max-md:gap-10 justify-between mt-10'>
+                <div className='text-5xl max-md:text-2xl font-semibold max-md:flex items-center max-md:justify-between'>
+                    <span>How It Works</span>
                     <Image
                         src={'/arrow.png'}
                         width={100}
                         height={100}
                         alt='howitworks'
-                        className=' -ml-5'
+                        className=' -ml-5 max-md:rotate-180'
                     />
                 </div>
                 <div className='text-right max-w-md text-neut/60 font-light text-2xl '>
@@ -65,8 +65,8 @@ const HowItWorks = () => {
                 </div>
             </div>
 
-            <div className='mt-10 bg-white py-14 rounded-2xl shadow grid pl-8'>
-                <div className='flex items-center gap-14'>
+            <div className='mt-10 bg-white py-14 rounded-2xl shadow grid max-md:px-6 md:pl-8'>
+                <div className='flex max-md:flex-col items-center gap-14'>
                     <div className='bg-[#FAFAFA] px-2 py-1 text-dark-navy font-light text-base block'>
                         FOR BRANDS.
                     </div>
@@ -105,8 +105,8 @@ const HowItWorks = () => {
             </div>
 
 
-            <div className=' bg-white py-14 rounded-2xl shadow grid pl-8'>
-                <div className='flex items-center gap-20'>
+            <div className=' bg-white py-14 rounded-2xl shadow grid max-md:px-6 md:pl-8'>
+                <div className='flex max-md:flex-col items-center gap-20'>
                     <div className='bg-[#FAFAFA] px-2 py-1 text-dark-navy font-light text-base'>
                         FOR CREATORS.
                     </div>
@@ -116,7 +116,7 @@ const HowItWorks = () => {
                                 key={index}
                                 className={`rounded-3xl p-1  transition-shadow duration-300`}
                             >
-                                <div className='bg-white p-8 h-full w-full flex flex-col gap-2 rounded-2xl'>
+                                <div className='bg-white md:p-8 h-full w-full flex flex-col gap-2 rounded-2xl'>
                                     <div className='w-full'>
                                         <Image
                                             src={`/${feature?.icon}`}

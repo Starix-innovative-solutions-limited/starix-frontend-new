@@ -46,7 +46,7 @@ const BrandSignup = () => {
           // });
 
           setForm(initialForm); // ✅ clear form
-          router.push('/verify-email')
+          router.push('/verify-email?role=brand')
           return "Account created successfully 🎉";
 
         },

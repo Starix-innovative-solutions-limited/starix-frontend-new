@@ -1,4 +1,4 @@
-import Footer from "@/components/Footer";
+
 import Hero from "@/components/Hero";
 // import Navbar from "@/components/Navbar";
 import WhyStarix from "@/components/WhyStarix";
@@ -12,7 +12,6 @@ export default function Home() {
         <Hero />
         <WhyStarix />
         <HowItWorks />
-        <Footer />
       </main>
     </div>
   );

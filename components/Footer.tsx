@@ -16,20 +16,20 @@ const Footer = () => {
 
 
       <div className="general-space">
-        <div className="border border-dark-navy rounded-2xl p-10 flex-between">
+        <div className="border border-dark-navy rounded-2xl max-md:py-10 max-md:px-3 md:p-10 flex items-center max-md:flex-col justify-between">
           <div className="max-w-md min-w-fit p-2">
-            <h3 className="font-semibold text-dark-navy text-5xl">
+            <h3 className="font-semibold text-dark-navy text-5xl max-md:text-2xl">
               Redefine Your&nbsp;
               {
                 path === "/for-brands"
                   ? `Brand Story`
                   : path === "/for-creators"
                     ? "Creativity"
-                    : `<br /> Creativity & Brand Story`
+                    : `\n Creativity & Brand Story`
               }
 
             </h3>
-            <div className="flex items-center md:mt-4 gap-4">
+            <div className="flex items-center md:mt-4 gap-4 max-md:my-9">
               {
                 path != "/for-brands" && <Link
                   href={"/login"}
