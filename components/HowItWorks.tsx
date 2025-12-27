@@ -148,11 +148,11 @@ const HowItWorks = () => {
             {/* Achievement */}
             <div className='grid grid-cols-1 md:grid-cols-2 items-center gap-20 my-32'>
                 <Image
-                    src={'/achievement.png'}
+                    src={'/achievement2.png'}
                     alt='achievement'
-                    width={1000}
-                    height={1000}
-                    className='w-full'
+                    width={9999}
+                    height={9999}
+                    className='w-full h-auto'
                 />
                 <div className='flex flex-col gap-3'>
                     <h2 className='font-semibold text-2xl md:text-[48px] text-dark-navy'>What You Achieve on Starix</h2>

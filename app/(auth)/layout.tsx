@@ -1,23 +1,12 @@
 "use client";
 
 import React, { Suspense } from "react";
-import { Geist, Geist_Mono } from "next/font/google";
+// import { Geist, Geist_Mono } from "next/font/google";
 import Image from "next/image";
 import AuthBg from "@/components/auth/AuthBg";
 import { useSearchParams } from "next/navigation";
 
-const geist = Geist({
-  subsets: ["latin"],
-  variable: "--font-geist-sans",
-});
 
-const geistMono = Geist_Mono({
-
-  subsets: ["latin"],
-
-  variable: "--font-geist-mono",
-
-});
 
 // Create a small sub-component for the dynamic background
 const DynamicAuthBg = () => {
@@ -33,7 +22,7 @@ const AuthLayout = ({
   children: React.ReactNode;
 }>) => {
   return (
-    <main className={`${geist.variable} ${geistMono.variable} md:h-screen p-7`}>
+    <main className={` md:h-screen p-7`}>
       <div className="md:min-w-2xl xl:min-w-7xl xl:max-w-7xl mx-auto flex flex-col gap-7">
         {/* Logo */}
         <div className="bg-dark-navy w-fit py-3 px-2 rounded-lg shadow-2xs">
