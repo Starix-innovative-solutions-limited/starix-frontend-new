@@ -32,7 +32,7 @@ export const CreatorCard = ({ image, title, description, buttonText, delay }: an
 
                 <div className=" flex flex-col gap-3">
                     <h3 className="text-2xl  text-dark-navy tracking-tight ">{title}</h3>
-                    <p className="text-neut/60 font-light text-xl mb-6 flex-grow">
+                    <p className="text-neut/60 font-light text-lg mb-6 flex-grow">
                         {description}
                     </p>
 
@@ -55,25 +55,25 @@ export const CreatorCard = ({ image, title, description, buttonText, delay }: an
 const Page = () => {
     const creators = [
         {
-            image: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800&q=80",
+            image: "creatorCard1.png",
             title: "New Creators",
             description: "No followers? No problem. Build your creator portfolio day by day one and watch your Starix Score grow with every challenge you join.",
             buttonText: "Create Portfolio"
         },
         {
-            image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&q=80",
+            image: "creatorCard2.png",
             title: "Micro Creators",
             description: "Get consistent access to paid challenges without pitching brands or waiting for collaborations to come to you. Your creativity speaks for itself here.",
             buttonText: "Create Consistency"
         },
         {
-            image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80",
+            image: "creatorCard3.png",
             title: "Trend Creators",
             description: "If you love jumping on trends, you're in the right place. Join fast-moving challenges designed for viral energy and high engagement.",
             buttonText: "Create Impact"
         },
         {
-            image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80",
+            image: "creatorCard1.png",
             title: "Mega Creators",
             description: "Create your own branded challenges, earn rewards, and ship impactful content at scale.",
             buttonText: "Create Influence"
@@ -124,14 +124,13 @@ const Page = () => {
     ];
 
     return (
-
         <>
-            <div className="bg-off-white bg-lines">
-                <main className="relative general-space min-h-screen">
+            <div className="bg-off-white">
+                <main className="relative general-space min-h-screen overflow-x-hidden">
                     <div className='grid grid-cols-1 md:items-center md:grid-cols-2 mt-20 h-fit'>
-                        <div className='flex flex-col gap-10 h-fit relative '>
+                        <div className='flex flex-col gap-10 h-fit relative w-full'>
                             <div className="">
-                                <h3 className='font-semibold text-6xl w-full leading-snug line-clamp-3 text-dark-navy grow '>
+                                <h3 className='font-semibold text-4xl md:text-6xl w-full leading-snug  text-dark-navy grow '>
                                     Grow Smarter, <br />
                                     Build Your Creator <br /> Identity
                                 </h3>
@@ -142,7 +141,7 @@ const Page = () => {
                                 Get discovered. Get opportunities. Improve faster. Earn more.
                             </p>
 
-                            <button className=' bg-dark-navy py-2 px-5 rounded-full text-off-white w-fit'>
+                            <button className=' bg-dark-navy py-2 px-5 md:p-4 rounded-full text-off-white w-fit'>
                                 Join as a creator.
                             </button>
 
@@ -152,7 +151,7 @@ const Page = () => {
                                 alt=""
                                 width={400}
                                 height={400}
-                                className=' absolute -top-5/12 right-0'
+                                className=' absolute -top-5/12 -right-52 md:right-0'
                             />
 
 
@@ -185,7 +184,7 @@ const Page = () => {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.6, delay: 0.2 }}
-                            className="text-4xl lg:text-5xl font-semibold text-dark-navy mb-6 text-center"
+                            className="text-3xl md:text-4xl font-semibold text-dark-navy mb-6 text-center"
                         >
                             “ The Creator Problem”
                         </motion.h1>
@@ -215,7 +214,7 @@ const Page = () => {
                                         >
                                             <span className='bg-[#f3f5f7] rounded-full border border-gray-100 shadow-2xs p-4 mb-6  mx-auto'>
                                                 <Image
-                                                    src={'/editIcon.png'}
+                                                    src={`/creatorProblem${index + 1}.png`}
                                                     alt='edit icons'
                                                     width={1000}
                                                     height={1000}
@@ -223,7 +222,7 @@ const Page = () => {
                                                 />
                                             </span>
                                             <span className="text-2xl text-dark-navy tracking-tight">{problem?.title}</span>
-                                            <span className='text-neut/60 text-xl text-center'>{problem?.description}</span>
+                                            <span className='text-neut/60 text-lg text-center'>{problem?.description}</span>
                                         </motion.div>
                                     ))}
                                 </motion.div>
@@ -252,12 +251,12 @@ const Page = () => {
                             height={1000}
                             className='absolute w-52 object-scale-down right-0 -bottom-[10%]'
                         />
-                        <div className="container mx-auto ">
+                        <div className="">
                             <motion.h2
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
-                                className="text-4xl lg:text-5xl font-semibold text-dark-navy mb-12 text-center"
+                                className="text-3xl md:text-4xl font-semibold text-dark-navy mb-12 text-center"
                             >
                                 Starix Solutions
                             </motion.h2>
@@ -271,11 +270,11 @@ const Page = () => {
                                         viewport={{ once: true }}
                                         transition={{ duration: 0.5, delay: index * 0.1 }}
                                         whileHover={{ y: -5 }}
-                                        className="bg-off-white  p-6"
+                                        className="bg-off-white  px-6 pt-6 pb-3 rounded-xl"
                                     >
                                         <div className="mb-4">
                                             <Image
-                                                src={'/dash-section2.png'}
+                                                src={`/starixSolution${index > 2 ? 4 : index + 4}.png`}
                                                 alt='dash section'
                                                 width={1000}
                                                 height={1000}
@@ -293,7 +292,7 @@ const Page = () => {
                                 viewport={{ once: true }}
                                 className="text-center mt-10"
                             >
-                                <motion.button className=' bg-dark-navy py-2 px-5 rounded-full text-off-white w-fit flex-center gap-2 mt-2.5 mx-auto'>
+                                <motion.button className=' bg-dark-navy py-2 px-5 md:p-4 rounded-full text-off-white w-fit flex-center gap-2 mt-2.5 mx-auto'>
                                     <span>Join as a creator.</span>
                                     <HiOutlineArrowNarrowRight />
                                 </motion.button>
@@ -310,12 +309,12 @@ const Page = () => {
                             viewport={{ once: true }}
                             className="mb-12"
                         >
-                            <h2 className="text-4xl font-bold text-dark-navy mb-4 text-center">Key Features For Creators On Starix</h2>
+                            <h2 className="text-3xl md:text-4xl font-bold text-dark-navy mb-4 text-center">Key Features For Creators On Starix</h2>
                         </motion.div>
 
 
                         <div className='grid grid-cols-1 md:grid-cols-5 gap-20 '>
-                            <div className='md:col-span-3 bg-primary-orange grid grid-cols-10 rounded-3xl border border-gray-200'>
+                            <div className='md:col-span-3 bg-primary-orange grid grid-cols-1 md:grid-cols-10 rounded-3xl border border-gray-200'>
                                 <div className='col-span-4 p-5 pl-20 flex flex-col gap-20 justify-center'>
                                     <span className='bg-off-white/30 text-dark-navy px-2 py-1 text-base font-light w-fit '>
                                         CHALLENGE MARKETPLACE
@@ -326,7 +325,7 @@ const Page = () => {
                                     </p>
                                 </div>
 
-                                <div className='bg-[#F3E3D9] col-span-6 pl-20 relative rounded-r-3xl'>
+                                <div className='bg-[#F3E3D9] md:col-span-6 pl-20 relative rounded-r-3xl'>
                                     <Image
                                         src={'/features1.png'}
                                         alt='dash section'
@@ -395,8 +394,8 @@ const Page = () => {
                             </div>
 
 
-                            <div className='md:col-span-3 bg-[#1DD6C6] grid grid-cols-10 rounded-3xl border border-gray-200'>
-                                <div className='col-span-4 p-5 pl-20 flex flex-col gap-20 justify-center'>
+                            <div className='md:col-span-3 bg-[#1DD6C6] grid grid-cols-1 md:grid-cols-10 rounded-3xl border border-gray-200'>
+                                <div className='md:col-span-4 p-5 pl-20 flex flex-col gap-20 justify-center'>
                                     <span className='bg-off-white/30 px-2 py-1 text-base text-white font-light w-fit '>
                                         CREATOR CV
                                     </span>
@@ -405,7 +404,7 @@ const Page = () => {
                                     </p>
                                 </div>
 
-                                <div className='bg-[#F5F5F5] col-span-6 pl-20 relative rounded-r-3xl'>
+                                <div className='bg-[#F5F5F5] md:col-span-6 pl-20 relative rounded-r-3xl'>
                                     <Image
                                         src={'/features3.png'}
                                         alt='dash section'
@@ -426,9 +425,9 @@ const Page = () => {
                 <section className=" text-dark-navy py-16 general-space">
 
                     <div className="flex flex-col gap-20">
-                        <div className="flex-between">
-                            <p className='text-5xl text-dark-navy font-semibold tracking-tight'>We’re Made for Every Creator</p>
-                            <p className='max-w-md line-clamp-3 text-right font-extralight text-neut/60 text-[28px]'>{'"'}From zero followers to your first thousand, We{'’'}ll help you grow your audience step by step.{'"'}</p>
+                        <div className="md:flex-between max-md:space-y-5">
+                            <p className=' text-3xl md:text-4xl text-dark-navy font-semibold tracking-tight max-md:text-center'>We’re Made for Every Creator</p>
+                            <p className='max-w-md line-clamp-3 text-right font-extralight text-neut/60 text-xl md:text-2xl'>{'"'}From zero followers to your first thousand, We{'’'}ll help you grow your audience step by step.{'"'}</p>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                             {creators.map((creator, index) => (

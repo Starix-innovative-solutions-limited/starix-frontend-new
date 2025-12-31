@@ -4,7 +4,7 @@
 import { Eye, EyeOff, Plus, X } from "lucide-react";
 import React, { useState } from "react";
 
-type CustomInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
+type CustomInputProps = React.InputHTMLAttributes<HTMLInputElement | any> & {
   label?: string;
   value?: string;
   onChange: (e: any) => void;
@@ -194,6 +194,16 @@ const CustomInput: React.FC<CustomInputProps> = ({
             </button>
 
           </div>
+        ) : type === "textarea" ? (
+          <textarea
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            disabled={disabled}
+            rows={5}
+            className={`bg-[#FFFFFF] rounded-xl border-[0.5px] text-sm border-dark/40 text-[#444] w-full px-3 py-3.5 focus:outline-[0.7px]  focus:border-neutral-50 ${className} `}
+            {...rest}
+          />
         ) : (
           /* 🔹 Normal input */
           <input

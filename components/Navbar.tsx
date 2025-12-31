@@ -49,7 +49,7 @@ export default function Navbar() {
       className={`fixed top-0 w-full z-50 transition-all duration-300
         ${scrolled ? "scrolled py-4" : "py-10"}
         ${isOpen ? "bg-white" : "bg-transparent"}
-        px-6 md:px-20 lg:px-32 flex-between`}
+        px-6 md:px-16 flex-between`}
     >
       {/* Logo */}
       <Image src="/logo.png" alt="Starix-logo" width={100} height={25} />
@@ -60,7 +60,7 @@ export default function Navbar() {
           <Link
             key={link.href}
             href={link.href}
-            className={` ${i == active ? "text-dark-navy" : "text-neut/60"} hover:text-primary-400 font-medium transition-colors`}
+            className={` ${i == active ? "text-dark-navy" : "text-neut/60"} hover:text-dark-navy font-medium transition-colors`}
             onClick={() => setActive(i)}
           >
             {link.label}
@@ -112,7 +112,7 @@ export default function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-neut/60 hover:text-primary-400 font-medium transition-colors"
+              className="text-neut/60 hover:text-dark-navy font-medium transition-colors"
               onClick={() => setIsOpen(false)}
             >
               {link.label}

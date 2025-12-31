@@ -16,46 +16,52 @@ const Footer = () => {
 
 
       <div className="general-space">
-        <div className="border border-dark-navy rounded-2xl max-md:py-10 max-md:px-3 md:p-10 flex items-center max-md:flex-col justify-between">
-          <div className="max-w-md min-w-fit p-2">
-            <h3 className="font-semibold text-dark-navy text-5xl max-md:text-2xl">
-              Redefine Your&nbsp;
-              {
-                path === "/for-brands"
-                  ? `Brand Story`
-                  : path === "/for-creators"
-                    ? "Creativity"
-                    : `\n Creativity & Brand Story`
-              }
+        {
+          path != "/contact" && (
+            <div className="border-3 border-dark-navy rounded-2xl max-md:py-10 max-md:px-3 md:pl-10  flex items-center max-md:flex-col justify-between">
+              <div className={`text-white max-md:hidden ${path == '/' && "hidden"}   `}>.</div>
+              <div className="max-w-md min-w-fit p-2 flex flex-col gap-6 md:py-10 ">
+                <h3 className="font-semibold text-dark-navy text-4xl max-md:text-2xl  tracking-wider leading-snug max-md:text-center">
+                  Redefine Your&nbsp; <br className={` ${path == '/' ? '' : 'hidden'}`} />
+                  {
+                    path === "/for-brands"
+                      ? `Brand Story`
+                      : path === "/for-creators"
+                        ? "Creativity"
+                        : `\n Creativity & Brand Story`
+                  }
 
-            </h3>
-            <div className="flex items-center md:mt-4 gap-4 max-md:my-9">
-              {
-                path != "/for-brands" && <Link
-                  href={"/login"}
-                  className="bg-white  hover:bg-secondary-100 text-secondary-100 border border-secondary-100 btn !rounded-full "
-                >
-                  Join as a Creator
-                </Link>
-              }
-              {
-                path != "/for-creators" && <Link
-                  href={"/login"}
-                  className="bg-secondary-100 hover:bg-secondary-100 text-white btn !rounded-full"
-                >
-                  Join as a Brand
-                </Link>
-              }
+                </h3>
+                <div className={` max-md:flex-col items-center md:mt-4 gap-4 max-md:mb-9  ${path != "/" ? 'grid place-items-center' : 'flex'} `}>
+                  {
+                    path != "/for-brands" && <Link
+                      href={"/login"}
+                      className="bg-white max-md:w-full  text-center hover:bg-secondary-100 text-secondary-100 border border-secondary-100 btn !rounded-full "
+                    >
+                      Join as a Creator
+                    </Link>
+                  }
+                  {
+                    path != "/for-creators" && <Link
+                      href={"/login"}
+                      className="bg-dark-navy max-md:w-full text-center hover:bg-secondary-100 text-white btn !rounded-full"
+                    >
+                      Join as a Brand
+                    </Link>
+                  }
+                </div>
+              </div>
+
+              <Image
+                src={'/footer.png'}
+                alt="footer"
+                width={300}
+                height={300}
+                className="h-full max-w-xs"
+              />
             </div>
-          </div>
-
-          <Image
-            src={'/footer.png'}
-            alt="footer"
-            width={200}
-            height={200}
-          />
-        </div>
+          )
+        }
       </div>
 
       {/* <div className="h-[50vh]"></div> */}

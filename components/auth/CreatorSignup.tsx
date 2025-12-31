@@ -119,7 +119,7 @@ const CreatorSignup = () => {
       />
 
 
-      <motion.div className="">
+      <motion.div className="mt-9">
         <motion.button
           variants={variants?.itemVariants}
           whileHover={{ scale: 1.03 }}

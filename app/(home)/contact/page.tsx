@@ -9,7 +9,7 @@ const Page = () => {
         <div className='general-space'>
             <div className='grid grid-cols-1 md:grid-cols-2 mt-20 gap-40 items-center'>
                 <div className='space-y-10'>
-                    <h3 className='font-semibold text-dark-navy text-6xl'>
+                    <h3 className='font-semibold text-dark-navy leading-snug text-5xl'>
                         Get in touch- <br />
                         Let’s build the future of creator marketing together.
                     </h3>
@@ -33,7 +33,7 @@ const Page = () => {
                     <CustomInput label='Email address' placeholder='Email address' onChange={() => { }} className='bg-transparent' />
                     <CustomInput label='Role' placeholder='role' onChange={() => { }} className='bg-transparent' />
                     <CustomInput type='textarea' label='How can we help you?' placeholder='Enter message here' onChange={() => { }} className='bg-transparent' />
-                    <button className='btn w-full bg-dark-navy rounded-full text-white'>
+                    <button className='py-4  w-full bg-dark-navy rounded-full text-white'>
                         Send Message
                     </button>
                 </div>

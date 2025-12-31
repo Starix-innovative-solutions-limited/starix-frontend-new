@@ -49,7 +49,7 @@ const HowItWorks = () => {
     return (
         <div className='general-space flex flex-col   bg-white min-h-screen'>
 
-            <div className='flex max-md:flex-col max-md:gap-10 justify-between mt-10'>
+            <div className='flex max-md:flex-col max-md:gap-5 justify-between mt-10'>
                 <div className='text-5xl max-md:text-2xl font-semibold max-md:flex items-center max-md:justify-between'>
                     <span>How It Works</span>
                     <Image
@@ -65,9 +65,10 @@ const HowItWorks = () => {
                 </div>
             </div>
 
-            <div className='mt-10 bg-white py-14 rounded-2xl shadow grid max-md:px-6 md:pl-8'>
-                <div className='flex max-md:flex-col items-center gap-14'>
-                    <div className='bg-[#FAFAFA] px-2 py-1 text-dark-navy font-light text-base block'>
+            <div className='mt-10 bg-white py-14 rounded-2xl shadow grid max-md:px-6 px-8 border border-gray-100'>
+                <div className='flex max-md:flex-col items-center gap-6'>
+                    <div className='bg-[#FAFAFA]  py-1 text-dark-navy font-light text-base inline-block whitespace-nowrap
+'>
                         FOR BRANDS.
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6  w-full">
@@ -83,7 +84,7 @@ const HowItWorks = () => {
                                             width={100}
                                             height={100}
                                             alt={feature?.icon}
-                                            className={`${index == 1 ? 'w-16' : 'w-16'}`}
+                                            className={`${index == 1 ? 'w-16 ' : 'w-16'} h-auto`}
                                         />
                                     </div>
 
@@ -99,15 +100,16 @@ const HowItWorks = () => {
                     </div>
                 </div>
                 <button className='mx-auto text-lg mt-14 bg-dark-navy rounded-full px-5 py-3 text-white flex-center'>
-                    <span>Learn more</span>
+                    <span>Learn more</span> &nbsp;
                     <HiOutlineArrowLongRight />
                 </button>
             </div>
 
 
-            <div className=' bg-white py-14 rounded-2xl shadow grid max-md:px-6 md:pl-8'>
+            <div className=' bg-white py-14 rounded-2xl shadow grid max-md:px-6 md:pl-8 border border-gray-200'>
                 <div className='flex max-md:flex-col items-center gap-20'>
-                    <div className='bg-[#FAFAFA] px-2 py-1 text-dark-navy font-light text-base'>
+                    <div className='bg-[#FAFAFA] px-2 py-1 text-dark-navy font-light text-base inline-block whitespace-nowrap
+'>
                         FOR CREATORS.
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6  w-full">
@@ -139,25 +141,25 @@ const HowItWorks = () => {
                     </div>
                 </div>
                 <button className='mx-auto text-lg mt-14 bg-dark-navy rounded-full px-5 py-3 text-white flex-center'>
-                    <span>Learn more</span>
+                    <span>Learn more</span> &nbsp;
                     <HiOutlineArrowLongRight />
                 </button>
             </div>
 
 
             {/* Achievement */}
-            <div className='grid grid-cols-1 md:grid-cols-2 items-center gap-20 my-32'>
+            <div className='grid grid-cols-1  md:grid-cols-2 items-center max-md:place-items-center gap-20 my-32'>
                 <Image
                     src={'/achievement2.png'}
                     alt='achievement'
                     width={9999}
                     height={9999}
-                    className='w-full h-auto'
+                    className='w-full h-auto order-2 md:order-1'
                 />
                 <div className='flex flex-col gap-3'>
-                    <h2 className='font-semibold text-2xl md:text-[48px] text-dark-navy'>What You Achieve on Starix</h2>
-                    <p className='text-2xl font-light text-neut/60'>From brands running high-impact challenges to creators winning rewards and building portfolios—Starix drives real engagement, content, and community growth.</p>
-                    <button className='w-fit text-lg mt-14 bg-dark-navy rounded-full px-5 py-3 text-white flex-center'>
+                    <h2 className='font-semibold text-2xl md:text-[48px] text-dark-navy max-md:text-center'>What You Achieve on Starix</h2>
+                    <p className='text-xl md:text-xl font-light text-neut/60 max-md:text-center'>From brands running high-impact challenges to creators winning rewards and building portfolios—Starix drives real engagement, content, and community growth.</p>
+                    <button className='w-fit text-lg mt-14 bg-dark-navy rounded-full px-5 py-3 text-white flex-center max-md:mx-auto'>
                         <span>Get Started</span>
                         <HiOutlineArrowLongRight />
                     </button>
@@ -175,22 +177,22 @@ const HowItWorks = () => {
                     />
                 </div>
 
-                <div className='relative min-h-[55vh] p-9 md:px-20 grid place-items-center backdrop-blur-2xl' style={{
-                    background: 'url(blurredBg.png)',
-                }}>
-                    <div className='text-auto'>
-                        <h3 className='text-2xl text-white text-center'>
-                            Starix is a challenge-based marketing platform
-                            connecting brands with content creators.
-                        </h3>
-                        <p className='text-off-white/80 text-xl font-light mt-4 text-center'>
-                            Brands launch sponsored challenges with clear rewards, while creators participate by producing and sharing content across their social media channels.
-                        </p>
+                <div className=" relative min-h-[55vh] grid place-items-center bg-[url('/blurredBg.png')] bg-no-repeat bg-center bg-cover">
+                    <div className='text-auto bg-dark-navy/22 h-full w-full  p-9 md:px-20 grid place-items-center'>
+                        <div>
+                            <h3 className='text-2xl text-white text-center'>
+                                Starix is a challenge-based marketing platform
+                                connecting brands with content creators.
+                            </h3>
+                            <p className='text-off-white/80 text-xl font-light mt-4 text-center'>
+                                Brands launch sponsored challenges with clear rewards, while creators participate by producing and sharing content across their social media channels.
+                            </p>
 
-                        <button className='mx-auto w-fit text-lg mt-10 bg-transparent border border-off-white/70 rounded-full px-5 py-3 text-white flex-center'>
-                            <span>Get Started</span>
-                            <HiOutlineArrowLongRight />
-                        </button>
+                            <button className='mx-auto w-fit text-lg mt-10 bg-transparent border border-off-white/70 rounded-full px-5 py-3 text-white flex-center'>
+                                <span>Get Started</span>
+                                <HiOutlineArrowLongRight />
+                            </button>
+                        </div>
                     </div>
 
                 </div>

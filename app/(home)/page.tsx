@@ -6,7 +6,7 @@ import HowItWorks from "@/components/HowItWorks";
 
 export default function Home() {
   return (
-    <div className="bg-lines">
+    <div className="">
       <main className="">
         {/* <Navbar /> */}
         <Hero />

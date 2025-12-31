@@ -4,14 +4,14 @@ import Link from "next/link";
 
 const Hero = () => {
   return (
-    <section className="general-space h-screen  overflow-y-hidden overflow-x-hidden ">
-      <div className="grid grid-cols-2 max-md:grid-cols-1 items-center justify-center md:gap-6 h-screen ">
+    <section className="general-space !pb-0 h-fit  overflow-y-hidden overflow-x-hidden ">
+      <div className="grid grid-cols-2 max-md:grid-cols-1 items-center justify-center gap-6 h-fit md:-mt-7 lg:-mt-10 ">
         <div className="w-full flex flex-col gap-7 max-md:mt-20">
-          <h1 className="max-md:text-center text-6xl leading-[1.25] xl:text-[64px] max-md:text-4xl font-semibold text-[#040136]">
+          <h1 className="max-md:text-center md:text-6xl  leading-[1.25]  max-md:text-4xl font-semibold text-[#040136]">
             Empowering creators,
             Engaging brands
           </h1>
-          <p className=" max-md:text-center font-geist font-light text-xl md:text-[28px] tracking-normal  text-[#6E6E6E99]">
+          <p className=" max-md:text-center font-geist font-light text-xl md:text-[28px] tracking-normal  text-neut/50">
             Starix connects brands with creators through fun,
             rewarding challenges that turn creativity into measurable impact
 
@@ -20,7 +20,7 @@ const Hero = () => {
           <div className="flex max-md:flex-col items-center md:mt-4 gap-4">
             <Link
               href={"/login"}
-              className="bg-white max-md:w-full text-center hover:bg-secondary-100 text-secondary-100 border border-secondary-100 btn !rounded-full"
+              className="bg-white max-md:w-full text-center hover:bg-dark-navy hover:text-white text-dark-navy border border-secondary-100 btn !rounded-full"
             >
               Join as a Creator
             </Link>
@@ -52,7 +52,7 @@ const Hero = () => {
             alt="Hero grid Image"
             width={1000}
             height={1000} // half the height
-            className=" max-md:hidden md:absolute md:top-20 md:-left-48"
+            className=" max-md:hidden md:absolute md:top-20 md:-left-48 object-cover"
           />
 
           <Image
