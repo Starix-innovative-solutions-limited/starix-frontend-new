@@ -46,7 +46,7 @@ export default function Navbar() {
   return (
     <nav
       id="navbar"
-      className={`fixed top-0 w-full z-50 transition-all duration-300
+      className={`fixed top-0 w-full z-50 transition-all duration-300 
         ${scrolled ? "scrolled py-4" : "py-10"}
         ${isOpen ? "bg-white" : "bg-transparent"}
         px-6 md:px-16 flex-between`}

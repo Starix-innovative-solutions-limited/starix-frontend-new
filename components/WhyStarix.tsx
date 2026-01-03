@@ -42,7 +42,7 @@ const WhyStarix = () => {
 
             <div className="max-md:flex max-md:flex-col md:grid md:grid-cols-5 gap-5 my-5  md:my-8">
                 <div className='md:bg-[#E0E7FF]  md:rounded-3xl md:p-7 md:col-span-2 md:border md:border-gray-100/30 flex flex-col max-md:gap-8 gap-20'>
-                    <span className='bg-[#FAFAFAB2] text-[#6E6E6E99] px-3 py-2 text-md font-medium w-fit'>
+                    <span className='bg-[#FAFAFAB2] text-[#6E6E6E99] px-[10px] py-1 text-sm font-medium w-fit'>
                         THE PROBLEM
                     </span>
 
@@ -87,7 +87,7 @@ const WhyStarix = () => {
 
                 <div className='col-span-3 bg-[#ffffff] rounded-3xl pl-7 pt-7 border  border-gray-100/30'>
 
-                    <span className='bg-[#FAFAFA] text-secondary-100 shadow-2xs px-3 py-2 text-md font-medium'>
+                    <span className='bg-[#FAFAFA] text-secondary-100 shadow-2xs px-[10px] py-1 text-sm font-medium'>
                         THE SOLUTION
                     </span>
 
