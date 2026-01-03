@@ -148,7 +148,7 @@ body {
 }
 
 .btn {
-  @apply px-4 py-3 rounded-full md:p-4 w-full md:w-full font-light md:text-base max-md:text-xs md:leading-6 transition;
+  @apply px-4 py-3 rounded-full md:p-4 w-full md:w-fit font-light md:text-base max-md:text-xs md:leading-6 transition;
 }
 
 /* navbar onScroll */
