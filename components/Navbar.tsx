@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MoveRight, Menu, Minimize2 } from "lucide-react";
+import { Menu, } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { MdOutlineKeyboardArrowDown } from "react-icons/md";
+import { IoCloseOutline } from "react-icons/io5";
 // import { usePathname } from "next/navigation";
 
 export default function Navbar() {
@@ -87,16 +88,26 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Menu Button */}
-      <button
-        className="md:hidden text-neutral-700 z-50"
-        onClick={() => setIsOpen((prev) => !prev)}
-      >
-        {isOpen ? (
-          <Minimize2 size={22} className="text-[#444444]" />
-        ) : (
-          <Menu size={28} />
-        )}
-      </button>
+      <div className="md:hidden flex items-center gap-3 ">
+        <Link
+          href="/signup"
+          className="text-white bg-dark-navy p-1.5 px-2 rounded-full  font-semibold flex items-center gap-3 text-sm"
+        >
+          Login
+          {/* <MoveRight size={20} /> */}
+        </Link>
+        <button
+          className="md:hidden text-neutral-700 z-50"
+          onClick={() => setIsOpen((prev) => !prev)}
+        >
+          {isOpen ? (
+            // <Minimize2 size={22} className="text-[#444444]" />
+            <IoCloseOutline size={22} className="text-[#444444]" />
+          ) : (
+            <Menu size={28} />
+          )}
+        </button>
+      </div>
 
       {/* Mobile Dropdown (NO GAP) */}
       <div
@@ -112,7 +123,7 @@ export default function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-neut/60 hover:text-dark-navy font-medium transition-colors"
+              className="text-dark-navy text-lg  transition-colors"
               onClick={() => setIsOpen(false)}
             >
               {link.label}
@@ -121,11 +132,29 @@ export default function Navbar() {
 
           <Link
             href="/login"
-            className="text-white w-fit bg-dark-navy py-2 px-4 rounded-md text-lg font-semibold flex items-center gap-3"
-            onClick={() => setIsOpen(false)}
+            className=" w-fit text-dark-navy  text-lg flex items-center gap-3 underline"
+          // onClick={() => setIsOpen(false)}
           >
-            <span className="text-sm">Get Started</span>
-            <MoveRight size={20} />
+            Sign up as Brand.
+          </Link>
+
+
+          <Link
+            href="/login"
+            className="w-fit text-dark-navy text-lg  flex items-center gap-3 underline"
+          // onClick={() => setIsOpen(false)}
+          >
+            Sign up as Creator.
+          </Link>
+
+          <Link
+            href="/login"
+            className="text-white w-full bg-dark-navy py-2 px-4 rounded-full text-center text-lg font-semibold flex items-center gap-3"
+          // onClick={() => setIsOpen(false)}
+          >
+            <span className="text-center mx-auto">
+              Login
+            </span>
           </Link>
         </div>
       </div>

@@ -15,7 +15,7 @@ export const CreatorCard = ({ image, title, description, buttonText, delay }: an
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay }}
-            className="flex flex-col justify-between  bg-white  overflow-hidden  hover:shadow-xl transition-shadow duration-300 px-5 p-5"
+            className="flex flex-col justify-between  bg-white  overflow-hidden hover:border hover:border-dark-navy rounded-3xl  hover:shadow-xl transition-shadow duration-300 px-6 p-5"
         >
             <div className='flex flex-col gap-7'>
                 <motion.div

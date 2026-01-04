@@ -3,10 +3,10 @@
 import React from "react";
 // import Image from "next/image";
 import Link from "next/link";
-import useBreakpoint from "@/hooks/useBreakPoint";
+// import useBreakpoint from "@/hooks/useBreakPoint";
 
 const Hero = () => {
-  const { isMobile } = useBreakpoint()
+  // const { isMobile } = useBreakpoint()
   return (
     <section className="general-space !pb-0 h-fit  overflow-y-hidden overflow-x-hidden">
       <div className="grid grid-cols-2 max-md:grid-cols-1 items-center justify-center gap-6 h-fit md:-mt-7 lg:-mt-10 ">
@@ -69,13 +69,13 @@ const Hero = () => {
         </div> */}
 
 
-        <div className="relative w-full flex items-center justify-center  overflow-hidden md:h-[80vh] pt-[58px]">
+        <div className="relative w-full flex items-center justify-center overflow-hidden md:h-[80vh] pt-[58px] group ">
 
-          {/* Layer 1: The Grid Background Image */}
+          {/* Grid Background */}
           <div
             className="absolute inset-0 z-0"
             style={{
-              backgroundImage: `url('/hero-bg.png')`, // Replace with your grid image path
+              backgroundImage: `url('/hero-bg.png')`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
@@ -83,23 +83,48 @@ const Hero = () => {
             }}
           />
 
-          {/* Layer 2: The Icons Image (Ribbon, Star, etc.) */}
+          {/* Badge */}
           <div
-            className="absolute inset-0 z-10 pointer-events-none w-full h-auto"
-            style={{
-              backgroundImage: `url('/hero-grid-img.svg')`, // Replace with your icons image path
-              backgroundSize: `${isMobile ? 'contain' : 'cover'}`,
-              // backgroundPosition: 'right',
-              backgroundRepeat: 'no-repeat',
-              backgroundPositionX: '-170px',
-              backgroundPositionY: '-50px'
-
-            }}
+            className="
+              absolute inset-0 z-0
+              top-0 -left-[20%]
+              w-auto min-h-[50vh] max-h-[60vh]
+              bg-no-repeat bg-contain
+              rotate-[12deg]
+              transition-transform duration-300
+              group-hover:rotate-[18deg]
+            "
+            style={{ backgroundImage: `url('/badge4x.png')` }}
           />
 
+          {/* Rings */}
+          <div
+            className="
+              absolute z-10
+              top-1/2 left-5/12
+              w-44 h-44
+              bg-no-repeat bg-contain
+            "
+            style={{ backgroundImage: `url('/rings4x.png')` }}
+          />
 
+          {/* Star */}
+          <div
+            className="
+            absolute z-10
+            top-7/12 
+            xl:top-7/12   left-7/12
+             h-53 w-52 xl:w-96 xl:h-96
+            bg-no-repeat bg-contain
+            rotate-[-8deg]
+            transition-transform duration-300
+            group-hover:rotate-[-18deg]
+          "
+            style={{ backgroundImage: `url('/star4x.png')` }}
+          />
 
         </div>
+
 
 
 
