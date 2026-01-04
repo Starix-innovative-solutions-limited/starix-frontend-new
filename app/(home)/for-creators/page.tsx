@@ -5,7 +5,7 @@ import React from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion';
 // import { BsSearch } from 'react-icons/bs';
-import { HiOutlineArrowNarrowRight } from 'react-icons/hi';
+// import { HiOutlineArrowNarrowRight } from 'react-icons/hi';
 import { FiArrowRight } from 'react-icons/fi';
 
 
@@ -292,10 +292,16 @@ const Page = () => {
                                 viewport={{ once: true }}
                                 className="text-center mt-10"
                             >
-                                <motion.button className=' bg-dark-navy py-2 px-5 md:p-4 rounded-full text-off-white w-fit flex-center gap-2 mt-2.5 mx-auto'>
-                                    <span>Join as a creator.</span>
-                                    <HiOutlineArrowNarrowRight />
-                                </motion.button>
+                                <button className='mx-auto text-lg mt-14 bg-dark-navy rounded-full px-5 py-3 text-white flex-center gap-2'>
+                                    <span>Join as a creator</span>
+                                    <Image
+                                        src={'/rightArrow.svg'}
+                                        alt='right-arrow'
+                                        width={100}
+                                        height={100}
+                                        className='w-5'
+                                    />
+                                </button>
                             </motion.div>
                         </div>
                     </div>
@@ -425,7 +431,7 @@ const Page = () => {
                 <section className=" text-dark-navy py-16 general-space">
 
                     <div className="flex flex-col gap-20">
-                        <div className="md:flex-between max-md:space-y-5">
+                        <div className="md:flex md:items-center md:justify-between max-md:space-y-5">
                             <p className=' text-3xl md:text-4xl text-dark-navy font-semibold tracking-tight max-md:text-center'>We’re Made for Every Creator</p>
                             <p className='max-w-md line-clamp-3 text-right font-extralight text-neut/60 text-xl md:text-2xl'>{'"'}From zero followers to your first thousand, We{'’'}ll help you grow your audience step by step.{'"'}</p>
                         </div>
