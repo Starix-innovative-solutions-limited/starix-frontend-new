@@ -96,11 +96,11 @@ const WhyStarix = () => {
                             <h2 className='text-secondary-100 text-4xl'>Trend Intelligence</h2>
                             <p className='text-dark text-lg'>Build campaigns with real creators that aligns with your brand story.</p>
                             <Image
-                                src="/heart1.png"
+                                src="/heart12.png"
                                 alt="Heart Image"
-                                width={100}
-                                height={100}
-                                className=" -ml-5 w-20"
+                                width={1000}
+                                height={1000}
+                                className=" -ml-6 w-28 object-cover"
                             />
                         </div>
 

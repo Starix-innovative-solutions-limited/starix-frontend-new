@@ -1,6 +1,7 @@
 "use client"
 import React from 'react'
 import Image from 'next/image'
+import { motion } from 'framer-motion';
 
 const HowItWorks = () => {
     const brandFeatures = [
@@ -51,13 +52,25 @@ const HowItWorks = () => {
             <div className='flex max-md:flex-col max-md:gap-5 justify-between mt-10'>
                 <div className='text-5xl max-md:text-2xl font-semibold max-md:flex items-center max-md:justify-between'>
                     <span>How It Works</span>
-                    <Image
-                        src={'/arrow.png'}
-                        width={100}
-                        height={100}
-                        alt='howitworks'
-                        className=' -ml-5 max-md:rotate-180'
-                    />
+
+                    <motion.div
+                        animate={{ rotate: [0, -3, 4, -8, 0] }}
+                        transition={{
+                            duration: 1.2,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                        }}
+                        className="-ml-5 max-md:rotate-180"
+                    >
+                        <Image
+                            src={'/arrow.png'}
+                            width={100}
+                            height={100}
+                            alt='howitworks'
+                        // className=' -ml-5 max-md:rotate-180'
+                        />
+
+                    </motion.div>
                 </div>
                 <div className='text-right max-w-md text-neut/60 font-light text-2xl '>
                     Starix transforms how brands and creators collaborate. Our challenge-based system drives authentic engagement and measurable results — helping creators grow faster and brands connect deeper with real audiences.
