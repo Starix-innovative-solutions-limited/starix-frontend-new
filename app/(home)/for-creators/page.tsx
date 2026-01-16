@@ -127,10 +127,10 @@ const Page = () => {
         <>
             <div className="bg-off-white">
                 <main className="relative general-space min-h-screen overflow-x-hidden">
-                    <div className='grid grid-cols-1 md:items-center md:grid-cols-2 mt-20 h-fit'>
+                    <div className='grid grid-cols-1 md:items-center lg:grid-cols-2 mt-20 h-fit'>
                         <div className='flex flex-col gap-10 h-fit relative w-full'>
                             <div className="">
-                                <h3 className='font-semibold text-4xl md:text-6xl w-full leading-snug  text-dark-navy grow '>
+                                <h3 className='font-semibold text-4xl md:text-5xl lg:text-6xl w-full leading-snug  text-dark-navy grow '>
                                     Grow Smarter, <br />
                                     Build Your Creator <br /> Identity
                                 </h3>
@@ -146,13 +146,25 @@ const Page = () => {
                             </button>
 
 
+                            <div
+                                className="
+                                    absolute inset-0 z-10 
+                                    -top-3/12 -right-6/12 lg:-top-5/12 left-6/10
+                                    w-auto h-[20vh] md:min-h-[35vh] md:max-h-[40vh]
+                                    bg-no-repeat bg-contain
+                                    transition-transform duration-300
+                                    "
+                                style={{ backgroundImage: `url('/star2.png')` }}
+                            />
+
+                            {/* 
                             <Image
                                 src={'/star2.png'}
                                 alt=""
                                 width={400}
                                 height={400}
                                 className=' absolute -top-5/12 -right-52 md:right-0'
-                            />
+                            /> */}
 
 
                         </div>

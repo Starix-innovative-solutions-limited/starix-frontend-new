@@ -8,10 +8,10 @@ import Link from "next/link";
 const Hero = () => {
   // const { isMobile } = useBreakpoint()
   return (
-    <section className="general-space !pb-0 h-fit  overflow-y-hidden overflow-x-hidden">
+    <section className="general-space  h-fit  overflow-y-hidden overflow-x-hidden pb-14">
       <div className="grid grid-cols-2 max-md:grid-cols-1 items-center justify-center gap-6 h-fit md:-mt-7 lg:-mt-10 ">
         <div className="w-full flex flex-col gap-7 max-md:mt-20">
-          <h1 className="max-md:text-center md:text-6xl  leading-[1.25]  max-md:text-4xl font-semibold text-[#040136]">
+          <h1 className="max-md:text-center md:text-5xl xl:text-6xl  leading-[1.25]  max-md:text-4xl font-semibold text-[#040136]">
             Empowering creators,
             Engaging brands
           </h1>
@@ -24,7 +24,7 @@ const Hero = () => {
           <div className="flex max-md:flex-col items-center md:mt-4 gap-4">
             <Link
               href={"/login"}
-              className="bg-white max-md:w-full text-center hover:bg-dark-navy hover:text-white text-dark-navy border border-secondary-100 btn !rounded-full"
+              className="bg-white max-md:w-full text-center hover:bg-off-white text-dark-navy border border-secondary-100 btn !rounded-full"
             >
               Join as a Creator
             </Link>
@@ -69,7 +69,7 @@ const Hero = () => {
         </div> */}
 
 
-        <div className="relative w-full flex items-center justify-center overflow-hidden md:h-[80vh] pt-[58px] group ">
+        <div className="relative w-full flex  items-center justify-between overflow-hidden h-fit max-h-[30vh] md:min-h-[90vh] md:pt-[58px] place-items-center group ">
 
           {/* Grid Background */}
           <div
@@ -86,9 +86,12 @@ const Hero = () => {
           {/* Badge */}
           <div
             className="
-              absolute inset-0 z-0
-              top-0 -left-[20%]
-              w-auto min-h-[50vh] max-h-[60vh]
+              md:absolute inset-0 z-0
+              w-44 h-44
+
+              md:top-1/10 md:-left-2/12
+              
+              md:w-auto md:min-h-[50vh] md:max-h-[60vh]
               bg-no-repeat bg-contain
               rotate-[12deg]
               transition-transform duration-300
@@ -100,9 +103,10 @@ const Hero = () => {
           {/* Rings */}
           <div
             className="
-              absolute z-10
-              top-1/2 left-5/12
+              md:absolute inset-0 z-10
+              md:top-5/10 md:left-4/12
               w-44 h-44
+              lg:w-44 lg:h-44
               bg-no-repeat bg-contain
             "
             style={{ backgroundImage: `url('/rings4x.png')` }}
@@ -111,10 +115,10 @@ const Hero = () => {
           {/* Star */}
           <div
             className="
-            absolute z-10
-            top-7/12 
-            xl:top-7/12   left-7/12
-             h-53 w-52 xl:w-96 xl:h-96
+            md:absolute inset-0 z-10
+            md:top-7/12 md:left-6/12
+            w-44 h-44
+            md:w-auto  md:min-h-[40vh] md:max-h-[50vh]
             bg-no-repeat bg-contain
             rotate-[-8deg]
             transition-transform duration-300
@@ -122,6 +126,11 @@ const Hero = () => {
           "
             style={{ backgroundImage: `url('/star4x.png')` }}
           />
+
+
+
+          {/* lg:h-53 lg:w-52 xl:w-96 xl:h-96 */}
+          {/* top-2/12 xl:top-7/12   left-7/12 */}
 
         </div>
 

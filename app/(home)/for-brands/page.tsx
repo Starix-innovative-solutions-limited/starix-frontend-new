@@ -82,9 +82,9 @@ const Page = () => {
       <div className="bg-off-white overflow-hidden">
         <main className="relative general-space min-h-screen">
           <div className='grid grid-cols-1 md:items-center gap-6 md:grid-cols-2 mt-20'>
-            <div className=' flex flex-col  gap-6 md:gap-10 h-fit relative  py-2 '>
+            <div className=' flex items-center gap-6 md:gap-10 h-fit relative  py-2 '>
               <div className='flex flex-col gap-6 md:gap-10m col-span-2 '>
-                <h3 className='font-semibold text-4xl max-md:text-center md:text-6xl w-full leading-snug  text-dark-navy grow '>
+                <h3 className='font-semibold text-4xl max-md:text-center lg:text-5xl xl:text-6xl w-full leading-snug  text-dark-navy grow '>
                   High‐Quality <br className='' />
                   UGC, Powered by <br className='' />
                   Real Data
@@ -97,13 +97,24 @@ const Page = () => {
                 </button>
               </div>
 
-              <Image
+              <div
+                className="
+                  absolute inset-0 z-0 
+                  -top-3/12 -right-6/12 lg:-top-5/12 left-6/10
+                  w-auto h-[30vh] md:min-h-[40vh] md:max-h-[50vh]
+                  bg-no-repeat bg-contain
+                  transition-transform duration-300
+                "
+                style={{ backgroundImage: `url('/hero1.png')` }}
+              />
+
+              {/* <Image
                 src={'/hero1.png'}
                 alt=""
                 width={500}
                 height={500}
-                className='absolute w-lg h-auto -top-5/12 -right-6/12  md:-top-5/12 md:-right-14 lg:-right-5'
-              />
+                className='absolute max-lg:h-xl w-md lg:w-lg  h-lg -top-5/12 -right-6/12  lg:-top-5/12 lg:-right-3/12'
+              /> */}
 
             </div>
 
