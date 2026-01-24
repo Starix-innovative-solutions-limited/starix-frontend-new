@@ -1,21 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Menu, } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 import { IoCloseOutline } from "react-icons/io5";
-// import { usePathname } from "next/navigation";
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); // mobile menu
   const [scrolled, setScrolled] = useState(false);
-  // const pathName = usePathname()
-
-  // useEffect(() => {
-  //   navLinks.forEach()
-  // }, [pathName])
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -24,12 +18,16 @@ export default function Navbar() {
     { href: "/contact", label: "Contact Us" },
   ];
 
+  // Active link (manual)
+  const [active, setActive] = useState(0);
+
+  // Desktop signup dropdown (click-to-open)
+  const [signupOpen, setSignupOpen] = useState(false);
+  const signupRef = useRef(null);
+
   // Handle scroll
   useEffect(() => {
-    const onScroll = () => {
-      setScrolled(window.scrollY > 100);
-    };
-
+    const onScroll = () => setScrolled(window.scrollY > 100);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -42,7 +40,25 @@ export default function Navbar() {
     };
   }, [isOpen]);
 
-  const [active, setActive] = useState(0)
+  // Close desktop dropdown on outside click + ESC
+  useEffect(() => {
+    const handleClickOutside = (e: { target: any; }) => {
+      if (!signupRef.current) return;
+      if (!signupRef.current.contains(e.target)) setSignupOpen(false);
+    };
+
+    const handleEsc = (e: { key: string; }) => {
+      if (e.key === "Escape") setSignupOpen(false);
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEsc);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEsc);
+    };
+  }, []);
 
   return (
     <nav
@@ -61,8 +77,13 @@ export default function Navbar() {
           <Link
             key={link.href}
             href={link.href}
-            className={` ${i == active ? "text-dark-navy" : "text-neut/60"} hover:text-dark-navy font-medium transition-colors`}
-            onClick={() => setActive(i)}
+            className={`${
+              i === active ? "text-dark-navy" : "text-neut/60"
+            } hover:text-dark-navy font-medium transition-colors`}
+            onClick={() => {
+              setActive(i);
+              setSignupOpen(false);
+            }}
           >
             {link.label}
           </Link>
@@ -71,37 +92,99 @@ export default function Navbar() {
 
       {/* Desktop CTA */}
       <div className="hidden md:flex items-center gap-2">
+        {/* SIGN UP (click dropdown) */}
+        <div className="relative" ref={signupRef}>
+          <button
+            type="button"
+            onClick={() => setSignupOpen((prev) => !prev)}
+            className="
+              bg-white flex-center
+              text-secondary-100
+              border border-secondary-100
+              !w-fit !rounded-full p-1.5 px-3
+              transition-colors duration-300
+              hover:bg-secondary-100 hover:text-white
+              focus:outline-none
+            "
+            aria-haspopup="menu"
+            aria-expanded={signupOpen}
+          >
+            <span>Sign up</span>
+            <MdOutlineKeyboardArrowDown
+              className={`transition-transform duration-200 ${
+                signupOpen ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+
+          {/* Dropdown panel */}
+          <div
+            className={`
+              absolute right-0 top-[110%] w-56
+              bg-white border border-secondary-100/30
+              rounded-2xl shadow-lg overflow-hidden
+              transition-all duration-200 origin-top
+              ${
+                signupOpen
+                  ? "opacity-100 translate-y-0 pointer-events-auto"
+                  : "opacity-0 -translate-y-2 pointer-events-none"
+              }
+            `}
+            role="menu"
+          >
+            <Link
+              href="/signup?role=brand"
+              className="
+                block px-4 py-3 text-dark-navy
+                transition-colors
+                hover:bg-secondary-100 hover:text-white
+              "
+              role="menuitem"
+              onClick={() => setSignupOpen(false)}
+            >
+              Sign up as a Brand
+            </Link>
+
+            <Link
+              href="/signup"
+              className="
+                block px-4 py-3 text-dark-navy
+                transition-colors
+                hover:bg-secondary-100 hover:text-white
+              "
+              role="menuitem"
+              onClick={() => setSignupOpen(false)}
+            >
+              Sign up as a Creator
+            </Link>
+          </div>
+        </div>
+
+        {/* LOGIN */}
         <Link
-          href={"/login"}
-          className="bg-white flex-center  hover:bg-secondary-100 text-secondary-100 border border-secondary-100 !w-fit !rounded-full  p-1.5 px-3 "
-        >
-          <span>Sign up</span>
-          <MdOutlineKeyboardArrowDown />
-        </Link>
-        <Link
-          href="/signup"
-          className="text-white bg-dark-navy p-1.5 px-3 rounded-full  font-semibold flex items-center gap-3 text-base"
+          href="/login"
+          className="text-white bg-dark-navy p-1.5 px-3 rounded-full font-semibold flex items-center gap-3 text-base"
+          onClick={() => setSignupOpen(false)}
         >
           Login
-          {/* <MoveRight size={20} /> */}
         </Link>
       </div>
 
       {/* Mobile Menu Button */}
-      <div className="md:hidden flex items-center gap-3 ">
+      <div className="md:hidden flex items-center gap-3">
         <Link
-          href="/signup"
-          className="text-white bg-dark-navy p-1.5 px-2 rounded-full  font-semibold flex items-center gap-3 text-sm"
+          href="/login"
+          className="text-white bg-dark-navy p-1.5 px-2 rounded-full font-semibold flex items-center gap-3 text-sm"
         >
           Login
-          {/* <MoveRight size={20} /> */}
         </Link>
+
         <button
           className="md:hidden text-neutral-700 z-50"
           onClick={() => setIsOpen((prev) => !prev)}
+          type="button"
         >
           {isOpen ? (
-            // <Minimize2 size={22} className="text-[#444444]" />
             <IoCloseOutline size={22} className="text-[#444444]" />
           ) : (
             <Menu size={28} />
@@ -109,13 +192,14 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Dropdown (NO GAP) */}
+      {/* Mobile Dropdown */}
       <div
         className={`absolute left-0 top-full w-full bg-white shadow-md md:hidden z-40
           transition-all duration-300 ease-in-out
-          ${isOpen
-            ? "translate-y-0 opacity-100"
-            : "-translate-y-4 opacity-0 pointer-events-none"
+          ${
+            isOpen
+              ? "translate-y-0 opacity-100"
+              : "-translate-y-4 opacity-0 pointer-events-none"
           }`}
       >
         <div className="flex flex-col gap-6 p-6">
@@ -123,7 +207,7 @@ export default function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-dark-navy text-lg  transition-colors"
+              className="text-dark-navy text-lg transition-colors"
               onClick={() => setIsOpen(false)}
             >
               {link.label}
@@ -131,18 +215,17 @@ export default function Navbar() {
           ))}
 
           <Link
-            href="/login"
-            className=" w-fit text-dark-navy  text-lg flex items-center gap-3 underline"
-          // onClick={() => setIsOpen(false)}
+            href="/signup?role=brand"
+            className="w-fit text-dark-navy text-lg flex items-center gap-3 underline"
+            onClick={() => setIsOpen(false)}
           >
             Sign up as Brand.
           </Link>
 
-
           <Link
-            href="/login"
-            className="w-fit text-dark-navy text-lg  flex items-center gap-3 underline"
-          // onClick={() => setIsOpen(false)}
+            href="/signup"
+            className="w-fit text-dark-navy text-lg flex items-center gap-3 underline"
+            onClick={() => setIsOpen(false)}
           >
             Sign up as Creator.
           </Link>
@@ -150,11 +233,9 @@ export default function Navbar() {
           <Link
             href="/login"
             className="text-white w-full bg-dark-navy py-2 px-4 rounded-full text-center text-lg font-semibold flex items-center gap-3"
-          // onClick={() => setIsOpen(false)}
+            onClick={() => setIsOpen(false)}
           >
-            <span className="text-center mx-auto">
-              Login
-            </span>
+            <span className="text-center mx-auto">Login</span>
           </Link>
         </div>
       </div>

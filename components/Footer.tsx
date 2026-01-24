@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Linkedin, Facebook } from "lucide-react";
 import Image from "next/image";
@@ -7,164 +7,200 @@ import React from "react";
 import { usePathname } from "next/navigation";
 
 const Footer = () => {
-
-  const path = usePathname()
-  console.log(path)
+  const path = usePathname();
 
   return (
-    <section className="flex flex-col  pt-6 text-[#444444]">
-
-
+    <section className="flex flex-col pt-6 text-[#444444]">
+      {/* CTA CARD (hidden on contact page) */}
       <div className="general-space">
-        {
-          path != "/contact" && (
-            <div className="border-3 border-dark-navy rounded-2xl max-md:py-10 max-md:px-3 md:pl-10  flex items-center max-md:flex-col justify-between">
-              <div className={`text-white max-md:hidden ${path == '/' && "hidden"}   `}>.</div>
-              <div className="max-w-md min-w-fit p-2 flex flex-col gap-6 md:py-10 ">
-                <h3 className="font-semibold text-dark-navy text-4xl max-md:text-2xl  tracking-wider leading-snug max-md:text-center">
-                  Redefine Your&nbsp; <br className={` ${path == '/' ? '' : 'hidden'}`} />
-                  {
-                    path === "/for-brands"
-                      ? `Brand Story`
-                      : path === "/for-creators"
-                        ? "Creativity"
-                        : `\n Creativity & Brand Story`
-                  }
-
+        {path !== "/contact" && (
+          <div className="border-3 border-dark-navy rounded-2xl overflow-hidden">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-8 p-4 sm:p-6 md:p-10">
+              {/* Left text */}
+              <div className="w-full md:max-w-md flex flex-col gap-6">
+                <h3 className="font-semibold text-dark-navy text-2xl sm:text-3xl md:text-4xl leading-snug text-center md:text-left">
+                  Redefine Your
+                  <br className={path === "/" ? "" : "hidden"} />
+                  {path === "/for-brands"
+                    ? "Brand Story"
+                    : path === "/for-creators"
+                    ? "Creativity"
+                    : "Creativity & Brand Story"}
                 </h3>
-                <div className={` max-md:flex-col items-center md:mt-4 gap-4 max-md:mb-9  ${path != "/" ? 'grid place-items-center' : 'flex'} `}>
-                  {
-                    path != "/for-brands" && <Link
-                      href={"/login"}
-                      className="bg-white max-md:w-full  text-center hover:bg-secondary-100 text-secondary-100 border border-secondary-100 btn !rounded-full "
+
+                {/* Buttons */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  {path !== "/for-brands" && (
+                    <Link
+                      href="/signup"
+                      className="
+                        w-full sm:w-auto text-center
+                        bg-white text-secondary-100
+                        border border-secondary-100
+                        btn !rounded-full
+                        transition-all duration-300
+                        hover:bg-secondary-100 hover:text-white
+                      "
                     >
                       Join as a Creator
                     </Link>
-                  }
-                  {
-                    path != "/for-creators" && <Link
-                      href={"/login"}
-                      className="bg-dark-navy max-md:w-full text-center hover:bg-secondary-100 text-white btn !rounded-full"
+                  )}
+
+                  {path !== "/for-creators" && (
+                    <Link
+                      href="/signup?role=brand"
+                      className="
+                        w-full sm:w-auto text-center
+                        bg-dark-navy text-white
+                        border border-dark-navy
+                        btn !rounded-full
+                        transition-all duration-300
+                        hover:bg-white hover:text-dark-navy
+                      "
                     >
                       Join as a Brand
                     </Link>
-                  }
+                  )}
                 </div>
               </div>
 
-              <Image
-                src={'/footer.png'}
-                alt="footer"
-                width={300}
-                height={300}
-                className="h-full max-w-xs"
-              />
-            </div>
-          )
-        }
-      </div>
-
-      {/* <div className="h-[50vh]"></div> */}
-      <div className="bg-dark-navy py-3 -mt-6 general-space">
-        <div className="">
-          {/* Top Section */}
-          <div className="flex flex-col md:flex-row justify-between items-start mb-16 gap-12 md:gap-0">
-            {/* Logo */}
-            <div className="text-3xl font-bold flex items-center gap-0.5">
-              <Image
-                src={'/lightLogo.png'}
-                alt="lightLogo"
-                width={260}
-                height={100}
-
-              />
-            </div>
-
-            {/* Navigation */}
-            <div className="flex flex-col md:flex-row gap-12 md:gap-20">
-              {/* Resources Column */}
-              <div>
-                <h3 className="text-xl text-off-white mb-3">Resources</h3>
-                <ul className="space-y-2">
-                  <li>
-                    <a href="#" className="text-base text-off-white/70 font-light hover:text-[#00ff88] transition-colors">
-                      For Brands
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="text-base text-off-white/70 font-light hover:text-[#00ff88] transition-colors">
-                      For Creators
-                    </a>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Contact Column */}
-              <div>
-                <h3 className="text-xl text-off-white mb-3">Contact</h3>
-                <ul className="space-y-2">
-                  <li>
-                    <a href="tel:+32460000000" className="text-base text-off-white/70 font-light hover:text-[#00ff88] transition-colors">
-                      +32460000000
-                    </a>
-                  </li>
-                  <li>
-                    <a href="mailto:starix@mail.com" className="text-base text-off-white/70 font-light hover:text-[#00ff88] transition-colors">
-                      Starix@mail.com
-                    </a>
-                  </li>
-                </ul>
+              {/* Right image */}
+              <div className="w-full md:w-auto flex justify-center">
+                <Image
+                  src="/footer.png"
+                  alt="footer"
+                  width={420}
+                  height={420}
+                  className="w-[220px] sm:w-[260px] md:w-[320px] h-auto object-contain"
+                />
               </div>
             </div>
           </div>
+        )}
+      </div>
 
-          {/* Social Links */}
-          <div className="flex gap-4 mb-16">
+      {/* DARK FOOTER */}
+      <div className="bg-dark-navy py-8 -mt-6 general-space">
+        <div>
+          {/* TOP SECTION — mobile 3-column like screenshot */}
+          <div
+            className="
+              grid grid-cols-3 gap-6 mb-12
+              md:flex md:justify-between md:gap-16
+            "
+          >
+            {/* Logo */}
+            <div>
+              <Image
+                src="/lightLogo.png"
+                alt="lightLogo"
+                width={260}
+                height={100}
+                className="w-[130px] sm:w-[160px] md:w-[240px] h-auto"
+              />
+            </div>
+
+            {/* Contact */}
+            <div className="text-center md:text-left">
+              <h3 className="text-lg sm:text-xl text-off-white mb-4">
+                Contact
+              </h3>
+              <ul className="space-y-4">
+                <li>
+                  <a
+                    href="tel:+23400000000"
+                    className="text-sm sm:text-base text-off-white/70 hover:text-[#00ff88] transition-colors"
+                  >
+                    +23400000000
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="mailto:starix@mail.com"
+                    className="text-sm sm:text-base text-off-white/70 hover:text-[#00ff88] transition-colors"
+                  >
+                    Starix@mail.com
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Resources */}
+            <div className="text-right md:text-left">
+              <h3 className="text-lg sm:text-xl text-off-white mb-4">
+                Resources
+              </h3>
+              <ul className="space-y-4">
+                <li>
+                  <Link
+                    href="/for-brands"
+                    className="text-sm sm:text-base text-off-white/70 hover:text-[#00ff88] transition-colors"
+                  >
+                    For Brands
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/for-creators"
+                    className="text-sm sm:text-base text-off-white/70 hover:text-[#00ff88] transition-colors"
+                  >
+                    For Creators
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* SOCIAL ICONS */}
+          <div className="flex gap-8 mb-12">
             <a
               href="#"
-              className="w-9 h-9 flex items-center justify-center hover:opacity-70 transition-opacity"
+              className="w-10 h-10 flex items-center justify-center hover:opacity-70 transition-opacity"
               aria-label="LinkedIn"
             >
-              <Linkedin size={20} color="#FAFAFAB2" />
+              <Linkedin size={26} color="#FAFAFAB2" />
             </a>
+
             <a
               href="#"
-              className="w-9 h-9 flex items-center justify-center hover:opacity-70 transition-opacity"
+              className="w-10 h-10 flex items-center justify-center hover:opacity-70 transition-opacity"
               aria-label="Facebook"
             >
-              <Facebook size={20} color="#FAFAFAB2" />
+              <Facebook size={26} color="#FAFAFAB2" />
             </a>
+
             <a
               href="#"
-              className="w-9 h-9 flex items-center justify-center hover:opacity-70 transition-opacity"
+              className="w-10 h-10 flex items-center justify-center hover:opacity-70 transition-opacity"
               aria-label="X (Twitter)"
             >
-              <svg viewBox="0 0 24 24" fill=" #FAFAFAB2" className="w-5 h-5">
+              <svg viewBox="0 0 24 24" fill="#FAFAFAB2" className="w-7 h-7">
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
               </svg>
             </a>
           </div>
 
-          {/* Bottom Section */}
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-6 border-t border-white/10 text-sm text-off-white/70 text-base">
-            {/* Legal Links */}
-            <div className="flex items-center gap-5">
+          {/* DIVIDER */}
+          <div className="h-px w-full bg-white/20 mb-10" />
+
+          {/* BOTTOM SECTION */}
+          <div className="flex flex-col gap-6 text-off-white/70">
+            <div className="text-base sm:text-lg">
               <a href="#" className="hover:text-[#00ff88] transition-colors">
                 Legal
               </a>
-              <span>|</span>
+              <span className="mx-2 opacity-50">|</span>
               <a href="#" className="hover:text-[#00ff88] transition-colors">
                 Privacy
               </a>
-              <span>|</span>
+              <span className="mx-2 opacity-50">|</span>
               <a href="#" className="hover:text-[#00ff88] transition-colors">
                 Terms of Services
               </a>
             </div>
 
-            {/* Copyright */}
-            <div>
-              © 2025 Powered by Starix. All rights reserved
+            <div className="text-base sm:text-lg">
+              © 2025 Powered by Starix. All rights reserved.
             </div>
           </div>
         </div>

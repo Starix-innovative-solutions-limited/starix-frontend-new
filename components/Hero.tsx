@@ -22,19 +22,39 @@ const Hero = () => {
           </p>
 
           <div className="flex max-md:flex-col items-center md:mt-4 gap-4">
-            <Link
-              href={"/login"}
-              className="bg-white max-md:w-full text-center hover:bg-off-white text-dark-navy border border-secondary-100 btn !rounded-full"
-            >
-              Join as a Creator
-            </Link>
-            <Link
-              href={"/login"}
-              className="bg-secondary-100 max-md:w-full text-center hover:bg-secondary-100 text-white btn !rounded-full"
-            >
-              Join as a Brand
-            </Link>
-          </div>
+          <Link
+            href="/login"
+            className="
+              bg-white
+              max-md:w-full text-center
+              text-dark-navy
+              border border-secondary-100
+              btn !rounded-full
+              transition-colors duration-300
+              hover:bg-secondary-100
+              hover:text-white
+            "
+          >
+            Join as a Creator
+          </Link>
+
+          <Link
+            href="/login"
+            className="
+              bg-secondary-100
+              max-md:w-full text-center
+              text-white
+              btn !rounded-full
+              transition-colors duration-300
+              hover:bg-white
+              hover:text-dark-navy
+              hover:border hover:border-secondary-100
+            "
+          >
+            Join as a Brand
+          </Link>
+        </div>
+
         </div>
 
         {/* <div className="relative w-full md:h-[80vh] "

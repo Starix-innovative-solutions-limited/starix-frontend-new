@@ -1,7 +1,7 @@
 "use client"
-import React from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion';
+import Link from "next/link";
 
 const HowItWorks = () => {
     const brandFeatures = [
@@ -111,16 +111,35 @@ const HowItWorks = () => {
                             ))}
                         </div>
                     </div>
-                    <button className='mx-auto text-lg mt-14 bg-dark-navy rounded-full px-5 py-3 text-white flex-center gap-2'>
-                        <span>Learn more</span>
-                        <Image
-                            src={'/rightArrow.svg'}
-                            alt='right-arrow'
-                            width={100}
-                            height={100}
-                            className='w-5'
-                        />
-                    </button>
+                    <Link
+                    href="/for-brands"
+                    className="
+                        group
+                        mx-auto mt-14
+                        text-lg
+                        bg-dark-navy text-white
+                        rounded-full px-5 py-3
+                        flex-center gap-2
+                        border border-dark-navy
+                        transition-all duration-300
+                        hover:bg-white hover:text-dark-navy
+                    "
+                    >
+                    <span>Learn more</span>
+                    <Image
+                        src="/rightArrow.svg"
+                        alt="right-arrow"
+                        width={100}
+                        height={100}
+                        className="
+                        w-5
+                        transition-all duration-300
+                        group-hover:invert
+                        "
+                    />
+                    </Link>
+
+
                 </div>
 
 
@@ -158,16 +177,35 @@ const HowItWorks = () => {
                             ))}
                         </div>
                     </div>
-                    <button className='mx-auto text-lg mt-14 bg-dark-navy rounded-full px-5 py-3 text-white flex-center gap-2'>
+                    <Link
+                        href="/for-creators"
+                        className="
+                            group
+                            mx-auto mt-14
+                            text-lg
+                            bg-dark-navy text-white
+                            rounded-full px-5 py-3
+                            flex-center gap-2
+                            border border-dark-navy
+                            transition-all duration-300
+                            hover:bg-white hover:text-dark-navy
+                        "
+                        >
                         <span>Learn more</span>
                         <Image
-                            src={'/rightArrow.svg'}
-                            alt='right-arrow'
+                            src="/rightArrow.svg"
+                            alt="right-arrow"
                             width={100}
                             height={100}
-                            className='w-5'
+                            className="
+                            w-5
+                            transition-all duration-300
+                            group-hover:invert
+                            "
                         />
-                    </button>
+                    </Link>
+
+
                 </div>
             </div>
 
@@ -184,16 +222,35 @@ const HowItWorks = () => {
                 <div className='flex flex-col gap-8 order-1 md:order-2'>
                     <h2 className='font-semibold text-2xl md:text-[48px] text-dark-navy max-md:text-center'>What You Achieve on Starix</h2>
                     <p className='text-lg md:text-xl font-light text-neut/60 max-md:text-center'>From brands running high-impact challenges to creators winning rewards and building portfolios—Starix drives real engagement, content, and community growth.</p>
-                    <button className='w-fit text-lg mt-14 bg-dark-navy rounded-full px-5 py-3 text-white flex-center gap-3 max-md:mx-auto'>
-                        <span>Get Started</span>
-                        <Image
-                            src={'/rightArrow.svg'}
-                            alt='right-arrow'
-                            width={100}
-                            height={100}
-                            className='w-5'
-                        />
-                    </button>
+                    <Link
+                    href="/for-brands"
+                    className="
+                        group
+                        w-fit text-lg mt-14
+                        bg-dark-navy text-white
+                        rounded-full px-5 py-3
+                        flex-center gap-3
+                        border border-dark-navy
+                        transition-all duration-300
+                        hover:bg-white hover:text-dark-navy
+                        max-md:mx-auto
+                    "
+                    >
+                    <span>Get Started</span>
+                    <Image
+                        src="/rightArrow.svg"
+                        alt="right-arrow"
+                        width={100}
+                        height={100}
+                        className="
+                        w-5
+                        transition-all duration-300
+                        group-hover:invert
+                        group-hover:translate-x-1
+                        "
+                    />
+                    </Link>
+
                 </div>
             </div>
 
@@ -219,17 +276,36 @@ const HowItWorks = () => {
                                 Brands launch sponsored challenges with clear rewards, while creators participate by producing and sharing content across their social media channels.
                             </p>
 
-                            <button className='mx-auto w-fit text-xs md:text-lg mt-10 bg-transparent border border-off-white/70 rounded-full px-3 py-1.5 md:px-5 md:py-3 text-white flex-center gap-3'>
-                                <span>Get Started</span>
-                                {/* <HiOutlineArrowLongRight /> */}
-                                <Image
-                                    src={'/rightArrow.svg'}
-                                    alt='right-arrow'
-                                    width={100}
-                                    height={100}
-                                    className='w-3 md:w-5'
-                                />
-                            </button>
+                            <Link
+                            href="/for-brands"
+                            className="
+                                group
+                                w-fit text-lg mt-14
+                                bg-white text-dark-navy
+                                rounded-full px-5 py-3
+                                flex-center gap-3
+                                border border-white
+                                transition-all duration-300
+                                hover:bg-dark-navy hover:text-white
+                                max-md:mx-auto
+                            "
+                            >
+                            <span>Get Started</span>
+                            <Image
+                                src="/rightArrow.svg"
+                                alt="right-arrow"
+                                width={100}
+                                height={100}
+                                className="
+                                w-5
+                                invert-0
+                                transition-all duration-300
+                                group-hover:invert
+                                group-hover:translate-x-1
+                                "
+                            />
+                        </Link>
+
                         </div>
                     </div>
 
