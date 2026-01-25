@@ -1,7 +1,6 @@
 "use client";
 
 import { Bell, Menu, X } from "lucide-react";
-
 import React, { useState } from "react";
 import Image from "next/image";
 import SideBar from "./SideBar";
@@ -9,6 +8,7 @@ import { CiSearch } from "react-icons/ci";
 import Notification from "./Notification";
 import { useModal } from "@/hooks/useModal";
 import { useAuthStore } from "@/store/useAuthStore";
+import Link from "next/link";
 
 const TopBar = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
@@ -16,39 +16,56 @@ const TopBar = () => {
   const { profile } = useAuthStore();
 
   return (
-    <div className="w-full py-4 px-4 md:px-14  flex items-center justify-between rounded-2xl bg-white   relative max-md:gap-4">
+    <div className="w-full py-4 px-4 md:px-14 flex items-center justify-between rounded-2xl bg-white relative max-md:gap-4">
+      
       {/* Search Bar */}
-      <div className="flex items-center gap-2 bg-[#FAFAFA]  rounded-full px-3 py-3 flex-1 max-w-md">
+      <div className="flex items-center gap-2 bg-[#FAFAFA] rounded-full px-3 py-3 flex-1 max-w-md">
         <CiSearch className="text-secondary-100" size={29} />
         <input
           type="text"
           placeholder="Search"
-          className="bg-transparent outline-none  text-sm text-gray-600 placeholder:text-gray-400 w-full"
+          className="bg-transparent outline-none text-sm text-gray-600 placeholder:text-gray-400 w-full"
         />
       </div>
 
       {/* Right Side Icons */}
       <div className="flex items-center gap-4 md:gap-5">
-
-        <button className="max-md:hidden" onClick={() => open(<Notification />, { position: 'top-right', modalClassName: ' top-20 md:right-10' })}>
+        
+        {/* Notifications */}
+        <button
+          className="max-md:hidden"
+          onClick={() =>
+            open(<Notification />, {
+              position: "top-right",
+              modalClassName: "top-20 md:right-10",
+            })
+          }
+        >
           <Bell className="text-gray-700" size={26} />
         </button>
 
-
-        {/* Avatar with Name */}
-        <div className="flex items-center gap-4 max-md:hidden">
+        {/* ✅ Avatar + Name (clickable) */}
+        <Link
+          href="/profile"
+          className="flex items-center gap-4 max-md:hidden group"
+        >
           <Image
-            src={"/profile.png"}
+            src={profile?.profile_picture || "/profile.png"}
             alt="avatar"
             width={100}
             height={100}
-            className="rounded-full w-12 h-12"
+            className="rounded-full w-12 h-12 object-cover group-hover:opacity-90 transition-opacity"
           />
+
           <div className="flex flex-col">
-            <span className="text-base font-medium text-secondary-100">{profile?.display_name}</span>
-            <span className="text-sm text-dark -mt-1">Creator</span>
+            <span className="text-base font-medium text-secondary-100 group-hover:underline">
+              {profile?.display_name || "Your Profile"}
+            </span>
+            <span className="text-sm text-dark -mt-1">
+              Creator
+            </span>
           </div>
-        </div>
+        </Link>
 
         {/* Mobile Menu Button */}
         <button
@@ -62,6 +79,7 @@ const TopBar = () => {
           )}
         </button>
 
+        {/* Mobile Sidebar */}
         {isNavOpen && (
           <SideBar
             className="fixed top-0 left-0 h-screen z-[99999] w-full"
@@ -69,7 +87,7 @@ const TopBar = () => {
           />
         )}
       </div>
-    </div >
+    </div>
   );
 };
 
