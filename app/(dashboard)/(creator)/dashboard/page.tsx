@@ -293,10 +293,8 @@ const Page = () => {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 my-10">
-              {[1, 2, 3, 4, 5, 6].map((challenge) => (
-                <PostCard key={challenge} />
-              ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1,2,3,4,5,6].map((c) => <PostCard key={c} />)}
             </div>
           </div>
         </div>

@@ -75,7 +75,6 @@ const page = () => {
 
       <ChallengeGrid />
 
-
     </div>
   );
 };
