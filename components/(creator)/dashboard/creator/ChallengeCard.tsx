@@ -1,124 +1,134 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { AiOutlineClockCircle } from "react-icons/ai";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { variants } from "@/constant";
 import { useModal } from "@/components/GlobalModal";
 import ChallengeDetails from "./ChallengeDetails";
 import NewPostComponent from "./NewPost";
 import Image from "next/image";
 import { FaEllipsisVertical } from "react-icons/fa6";
-import { useRouter } from "next/navigation";
-import { Eye, Trophy, LogIn } from "lucide-react";
 
-interface ChallengeProps {
+type ChallengeCardProps = {
   challenge: any;
   index: number;
   post?: boolean;
-}
 
-const ChallengeCard = ({ challenge, post }: ChallengeProps) => {
+  // ✅ add these
+  onView?: () => void;
+  onJoin?: () => void;
+  onLeaderboard?: () => void;
+};
+
+const ChallengeCard = ({ challenge, post, onView, onJoin, onLeaderboard }: ChallengeCardProps) => {
   const { open } = useModal();
-  const router = useRouter();
-
   const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement | null>(null);
 
-  // close on outside click
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  const actions = useMemo(
+    () => [
+      {
+        label: "View",
+        onClick: () => {
+          setMenuOpen(false);
 
-  const handleView = () => {
-    setMenuOpen(false);
-    open(<ChallengeDetails />, { position: "center" });
-  };
+          // If parent passed onView, use it. Else fallback to modal.
+          if (onView) return onView();
+          open(<ChallengeDetails />, { position: "center" });
 
-  const handleJoin = () => {
-    setMenuOpen(false);
-    // BACKEND TODO:
-    // call join challenge endpoint here
-    router.push(`/challenges/${challenge?.id ?? ""}?join=true`);
-  };
+          // 🔌 BACKEND DEV TO DO:
+          // If you want full details page, return challenge id + route
+        },
+      },
+      {
+        label: "Join",
+        onClick: () => {
+          setMenuOpen(false);
 
-  const handleLeaderboard = () => {
-    setMenuOpen(false);
-    router.push(`/challenges/${challenge?.id ?? ""}/leaderboard`);
-  };
+          if (onJoin) return onJoin();
+
+          // Frontend fallback for now
+          // open(<JoinChallengeModal />, { position: "center" })
+          // 🔌 BACKEND DEV TO DO:
+          // Implement join endpoint + update status to "joined"
+          alert("Join action: backend needed");
+        },
+      },
+      {
+        label: "Leaderboard",
+        onClick: () => {
+          setMenuOpen(false);
+
+          if (onLeaderboard) return onLeaderboard();
+
+          // 🔌 BACKEND DEV TO DO:
+          // Provide leaderboard endpoint/page
+          alert("Leaderboard: backend needed");
+        },
+      },
+    ],
+    [onView, onJoin, onLeaderboard, open]
+  );
 
   return (
     <motion.div
       variants={variants?.itemVariants}
-      className="bg-white rounded-2xl border border-gray-100 px-5 py-5 shadow-sm hover:shadow-md transition-all duration-300"
+      className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow p-5"
     >
+      {/* Header */}
       <div className="flex items-start gap-4">
         <Image
-          src="/profile.png"
-          alt="profile_pic"
-          width={80}
-          height={80}
+          src={"/profile.png"}
+          alt="brand"
+          width={48}
+          height={48}
           className="w-12 h-12 rounded-full object-cover border border-gray-100"
         />
 
-        <div className="flex-1 min-w-0">
+        <div className="flex-1">
           <div className="flex items-start justify-between gap-3">
-            <h3 className="text-lg md:text-xl font-medium text-dark-navy truncate">
-              {challenge.title}
-            </h3>
+            <div className="min-w-0">
+              <h3 className="text-lg md:text-xl font-medium text-dark-navy truncate">
+                {challenge.title}
+              </h3>
+            </div>
 
             {/* Ellipsis */}
             <div className="relative">
               <button
+                type="button"
                 onClick={() => setMenuOpen((p) => !p)}
-                className="h-9 w-9 grid place-items-center rounded-full border border-gray-100 hover:bg-gray-50 transition"
+                className="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
+                aria-label="Challenge options"
               >
-                <FaEllipsisVertical size={16} className="text-dark-navy/80" />
+                <FaEllipsisVertical size={18} className="text-dark-navy" />
               </button>
 
-              <AnimatePresence>
-                {menuOpen && (
-                  <motion.div
-                    ref={menuRef}
-                    initial={{ opacity: 0, y: -8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-11 z-50 w-48 rounded-2xl border border-gray-200 bg-white shadow-lg overflow-hidden"
-                  >
-                    <button
-                      onClick={handleView}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
-                    >
-                      <Eye className="w-4 h-4" />
-                      View
-                    </button>
+              {menuOpen && (
+                <>
+                  {/* click-away */}
+                  <button
+                    type="button"
+                    className="fixed inset-0 z-40 cursor-default"
+                    onClick={() => setMenuOpen(false)}
+                    aria-label="Close menu"
+                  />
 
-                    <button
-                      onClick={handleJoin}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
-                    >
-                      <LogIn className="w-4 h-4 text-primary-orange" />
-                      Join
-                    </button>
-
-                    <button
-                      onClick={handleLeaderboard}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50"
-                    >
-                      <Trophy className="w-4 h-4" />
-                      Leaderboard
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  <div className="absolute right-0 top-10 z-50 w-48 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+                    {actions.map((a) => (
+                      <button
+                        key={a.label}
+                        type="button"
+                        onClick={a.onClick}
+                        className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        {a.label}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -133,25 +143,27 @@ const ChallengeCard = ({ challenge, post }: ChallengeProps) => {
               {challenge.prize}
             </span>
 
-            <div className="flex items-center gap-2 text-neut/60 text-xs bg-[#F7F7F7] px-2.5 py-1.5 rounded-full">
+            <div className="flex items-center gap-1 text-neut/60 text-xs bg-[#f5f5f5] px-2 py-1 rounded-full">
               <AiOutlineClockCircle />
-              {challenge.timeLeft}
+              <span>{challenge.timeLeft}</span>
             </div>
           </div>
 
-          {/* CTA */}
+          {/* Bottom action (existing behaviour) */}
           <div className="flex justify-end mt-4">
             {post ? (
               <button
+                type="button"
+                className="text-dark-navy/70 text-sm font-light hover:text-dark-navy transition-colors underline"
                 onClick={() => open(<NewPostComponent />, { position: "center" })}
-                className="text-sm font-medium text-dark-navy/70 hover:text-dark-navy underline underline-offset-4"
               >
                 Post
               </button>
             ) : (
               <button
+                type="button"
+                className="text-dark-navy/70 text-sm font-light hover:text-dark-navy transition-colors underline"
                 onClick={() => open(<ChallengeDetails />, { position: "center" })}
-                className="text-sm font-medium text-dark-navy/70 hover:text-dark-navy underline underline-offset-4"
               >
                 View Details
               </button>
