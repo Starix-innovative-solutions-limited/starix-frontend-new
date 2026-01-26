@@ -47,7 +47,7 @@ const HowItWorks = () => {
         }
     ];
     return (
-        <div className='general-space flex flex-col   bg-white min-h-screen'>
+        <div className='general-space flex flex-col bg-white min-h-screen'>
 
             <div className='flex max-md:flex-col max-md:gap-5 justify-between mt-10'>
                 <div className='text-5xl max-md:text-2xl font-semibold max-md:flex items-center max-md:justify-between'>
@@ -207,110 +207,6 @@ const HowItWorks = () => {
 
 
                 </div>
-            </div>
-
-
-            {/* Achievement */}
-            <div className='grid grid-cols-1  md:grid-cols-2 items-center max-md:place-items-center gap-20 my-32'>
-                <Image
-                    src={'/achievement2.png'}
-                    alt='achievement'
-                    width={9999}
-                    height={9999}
-                    className='w-full h-auto md:order-1'
-                />
-                <div className='flex flex-col gap-8 order-1 md:order-2'>
-                    <h2 className='font-semibold text-2xl md:text-[48px] text-dark-navy max-md:text-center'>What You Achieve on Starix</h2>
-                    <p className='text-lg md:text-xl font-light text-neut/60 max-md:text-center'>From brands running high-impact challenges to creators winning rewards and building portfolios—Starix drives real engagement, content, and community growth.</p>
-                    <Link
-                    href="/for-brands"
-                    className="
-                        group
-                        w-fit text-lg mt-14
-                        bg-dark-navy text-white
-                        rounded-full px-5 py-3
-                        flex-center gap-3
-                        border border-dark-navy
-                        transition-all duration-300
-                        hover:bg-white hover:text-dark-navy
-                        max-md:mx-auto
-                    "
-                    >
-                    <span>Get Started</span>
-                    <Image
-                        src="/rightArrow.svg"
-                        alt="right-arrow"
-                        width={100}
-                        height={100}
-                        className="
-                        w-5
-                        transition-all duration-300
-                        group-hover:invert
-                        group-hover:translate-x-1
-                        "
-                    />
-                    </Link>
-
-                </div>
-            </div>
-
-            <div className='grid grid-cols-1 md:grid-cols-2 items-center gap-20'>
-                <div className='p-7'>
-                    <Image
-                        src={'/bigLogo.png'}
-                        alt='blurred'
-                        width={9999}
-                        height={9999}
-                        className='object-cover'
-                    />
-                </div>
-
-                <div className=" relative min-h-[55vh] grid place-items-center bg-[url('/blurredBg.png')] bg-no-repeat bg-center bg-cover">
-                    <div className='text-auto bg-dark-navy/22 h-full w-full  p-9 md:px-20 grid place-items-center'>
-                        <div>
-                            <h3 className=' text-xl md:text-2xl text-white text-center'>
-                                Starix is a challenge-based marketing platform
-                                connecting brands with content creators.
-                            </h3>
-                            <p className='text-off-white/80 text-base md:text-xl font-light mt-4 text-center'>
-                                Brands launch sponsored challenges with clear rewards, while creators participate by producing and sharing content across their social media channels.
-                            </p>
-
-                            <Link
-                            href="/for-brands"
-                            className="
-                                group
-                                w-fit text-lg mt-14
-                                bg-white text-dark-navy
-                                rounded-full px-5 py-3
-                                flex-center gap-3
-                                border border-white
-                                transition-all duration-300
-                                hover:bg-dark-navy hover:text-white
-                                max-md:mx-auto
-                            "
-                            >
-                            <span>Get Started</span>
-                            <Image
-                                src="/rightArrow.svg"
-                                alt="right-arrow"
-                                width={100}
-                                height={100}
-                                className="
-                                w-5
-                                invert-0
-                                transition-all duration-300
-                                group-hover:invert
-                                group-hover:translate-x-1
-                                "
-                            />
-                        </Link>
-
-                        </div>
-                    </div>
-
-                </div>
-
             </div>
         </div>
     )
