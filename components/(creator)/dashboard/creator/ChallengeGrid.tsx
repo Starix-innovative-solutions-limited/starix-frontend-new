@@ -262,8 +262,7 @@ const ChallengeGrid = () => {
               price={c.prize}
               // Optional: use the challenge id as the details link for now
               link={`/challenges/${c.id}`}
-              // Optional share url
-              shareUrl={`/challenges/${c.id}`}
+
               // 🔌 BACKEND DEV TO DO:
               // Provide real postId + post link + shareUrl from API
             />
