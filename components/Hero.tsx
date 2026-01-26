@@ -1,164 +1,95 @@
-"use client"
+"use client";
 
 import React from "react";
-// import Image from "next/image";
+import Image from "next/image";
 import Link from "next/link";
-// import useBreakpoint from "@/hooks/useBreakPoint";
 
 const Hero = () => {
-  // const { isMobile } = useBreakpoint()
   return (
-    <section className="general-space  h-fit  overflow-y-hidden overflow-x-hidden pb-14">
-      <div className="grid grid-cols-2 max-md:grid-cols-1 items-center justify-center gap-6 h-fit md:-mt-7 lg:-mt-10 ">
-        <div className="w-full flex flex-col gap-7 max-md:mt-20">
-          <h1 className="max-md:text-center md:text-5xl xl:text-6xl  leading-[1.25]  max-md:text-4xl font-semibold text-[#040136]">
-            Empowering creators,
-            Engaging brands
-          </h1>
-          <p className=" max-md:text-center font-geist font-light text-xl md:text-2xl tracking-normal  text-neut/50">
-            Starix connects brands with creators through fun, <br className="max-md:hidden" />
-            rewarding challenges that turn creativity into measurable impact
+    <section className="relative w-full min-h-screen lg:min-h-[90vh] pt-24 pb-12 lg:pt-32 overflow-hidden bg-[#fafafa] flex flex-col justify-center">
+      <div className="max-w-[1440px] mx-auto px-6 md:px-16 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center h-full">
 
+        {/* Left Column: Text & CTA */}
+        <div className="flex flex-col items-center lg:items-start text-center lg:text-left z-10">
+          <h1 className="text-4xl md:text-5xl lg:text-[4rem] xl:text-[5rem] font-bold text-dark-navy leading-[1.1] tracking-tight">
+            Empowering creators,<br className="hidden lg:block" /> Engaging brands
+          </h1>
+
+          <p className="mt-6 text-lg md:text-xl text-neut/70 max-w-xl font-light leading-relaxed">
+            Starix connects brands with creators through fun, rewarding challenges that turn creativity into measurable impact.
           </p>
 
-          <div className="flex max-md:flex-col items-center md:mt-4 gap-4">
-          <Link
-            href="/login"
-            className="
-              bg-white
-              max-md:w-full text-center
-              text-dark-navy
-              border border-secondary-100
-              btn !rounded-full
-              transition-colors duration-300
-              hover:bg-secondary-100
-              hover:text-white
-            "
-          >
-            Join as a Creator
-          </Link>
+          <div className="mt-10 flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+            <Link
+              href="/signup?role=creator"
+              className="
+                w-full sm:w-auto px-8 py-4
+                bg-white text-dark-navy
+                border border-secondary-100
+                rounded-full font-medium
+                transition-all duration-300
+                hover:bg-secondary-100 hover:text-white
+                shadow-sm text-center
+              "
+            >
+              Join as a Creator
+            </Link>
 
-          <Link
-            href="/login"
-            className="
-              bg-secondary-100
-              max-md:w-full text-center
-              text-white
-              btn !rounded-full
-              transition-colors duration-300
-              hover:bg-white
-              hover:text-dark-navy
-              hover:border hover:border-secondary-100
-            "
-          >
-            Join as a Brand
-          </Link>
+            <Link
+              href="/signup?role=brand"
+              className="
+                w-full sm:w-auto px-8 py-4
+                bg-secondary-100 text-white
+                border border-secondary-100
+                rounded-full font-medium
+                transition-all duration-300
+                hover:bg-white hover:text-dark-navy
+                shadow-sm text-center
+              "
+            >
+              Join as a Brand
+            </Link>
+          </div>
         </div>
 
-        </div>
+        {/* Right Column: Visual Composition */}
+        <div className="relative w-full h-[50vh] md:h-[60vh] lg:h-[80vh] flex items-center justify-center select-none group">
 
-        {/* <div className="relative w-full md:h-[80vh] "
+          {/* Background Grid/Pattern */}
+          <div className="absolute inset-0 z-0 flex items-center justify-center lg:justify-end">
+             <div className="relative w-[120%] h-[120%] lg:w-full lg:h-full">
+                <Image
+                    src="/hero-bg.png"
+                    alt="Background Pattern"
+                    fill
+                    className="object-contain lg:object-right opacity-90"
+                    priority
+                />
+             </div>
+          </div>
 
-        >
-          <Image
-            src="/hero-bg.png"
-            alt="Hero Image"
-            width={1000}
-            height={1000} // half the height
-            className=" absolute top-0 left-0  md:left-0  w-full z-0 "
-          />
-
-          <Image
-            src="/hero-grid-img.svg"
-            alt="Hero grid Image"
-            width={1000}
-            height={1000} // half the height
-            className=" max-md:hidden md:absolute md:top-20 md:-left-48 object-cover"
-          />
-
-          <Image
-            src="/hero-mobile.png"
-            alt="Hero grid Image"
-            width={1000}
-            height={1000} // half the height
-            className="md:hidden"
-          />
-
-
-
-        </div> */}
-
-
-        <div className="relative w-full flex  items-center justify-between overflow-hidden h-fit max-h-[30vh] md:min-h-[90vh] md:pt-[58px] place-items-center group ">
-
-          {/* Grid Background */}
-          <div
-            className="absolute inset-0 z-0"
-            style={{
-              backgroundImage: `url('/hero-bg.png')`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-              backgroundPositionY: '17px'
-            }}
-          />
-
-          {/* Badge */}
-          <div
-            className="
-              md:absolute inset-0 z-0
-              w-44 h-44
-
-              md:top-1/10 md:-left-2/12
+          {/* Composition Container */}
+          <div className="relative w-[280px] h-[280px] md:w-[400px] md:h-[400px] lg:w-[500px] lg:h-[500px] z-10">
               
-              md:w-auto md:min-h-[50vh] md:max-h-[60vh]
-              bg-no-repeat bg-contain
-              rotate-[12deg]
-              transition-transform duration-300
-              group-hover:rotate-[18deg]
-            "
-            style={{ backgroundImage: `url('/badge4x.png')` }}
-          />
+              {/* Rings (Center) */}
+              <div className="absolute inset-0 z-10 transition-transform duration-700 group-hover:scale-105">
+                  <Image src="/rings4x.png" alt="Rings" fill className="object-contain" priority />
+              </div>
 
-          {/* Rings */}
-          <div
-            className="
-              md:absolute inset-0 z-10
-              md:top-5/10 md:left-4/12
-              w-44 h-44
-              lg:w-44 lg:h-44
-              bg-no-repeat bg-contain
-            "
-            style={{ backgroundImage: `url('/rings4x.png')` }}
-          />
+              {/* Badge (Top Left) */}
+              <div className="absolute -top-6 -left-6 md:-top-10 md:-left-10 w-24 h-24 md:w-40 md:h-40 lg:w-48 lg:h-48 z-20 transition-transform duration-500 group-hover:-rotate-12 group-hover:-translate-y-4">
+                  <Image src="/badge4x.png" alt="Badge" fill className="object-contain rotate-12" />
+              </div>
 
-          {/* Star */}
-          <div
-            className="
-            md:absolute inset-0 z-10
-            md:top-7/12 md:left-6/12
-            w-44 h-44
-            md:w-auto  md:min-h-[40vh] md:max-h-[50vh]
-            bg-no-repeat bg-contain
-            rotate-[-8deg]
-            transition-transform duration-300
-            group-hover:rotate-[-18deg]
-          "
-            style={{ backgroundImage: `url('/star4x.png')` }}
-          />
-
-
-
-          {/* lg:h-53 lg:w-52 xl:w-96 xl:h-96 */}
-          {/* top-2/12 xl:top-7/12   left-7/12 */}
+              {/* Star (Bottom Right) */}
+              <div className="absolute -bottom-6 -right-6 md:-bottom-10 md:-right-10 w-24 h-24 md:w-40 md:h-40 lg:w-48 lg:h-48 z-20 transition-transform duration-500 group-hover:rotate-12 group-hover:translate-y-4">
+                  <Image src="/star4x.png" alt="Star" fill className="object-contain -rotate-6" />
+              </div>
+          </div>
 
         </div>
-
-
-
 
       </div>
-
     </section>
   );
 };
