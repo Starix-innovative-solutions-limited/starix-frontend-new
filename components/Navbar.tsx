@@ -23,7 +23,9 @@ export default function Navbar() {
 
   // Desktop signup dropdown (click-to-open)
   const [signupOpen, setSignupOpen] = useState(false);
-  const signupRef = useRef(null);
+
+  // ✅ FIX: type the ref so `.contains` exists
+  const signupRef = useRef<HTMLDivElement | null>(null);
 
   // Handle scroll
   useEffect(() => {
@@ -42,12 +44,13 @@ export default function Navbar() {
 
   // Close desktop dropdown on outside click + ESC
   useEffect(() => {
-    const handleClickOutside = (e: { target: any; }) => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
       if (!signupRef.current) return;
-      if (!signupRef.current.contains(e.target)) setSignupOpen(false);
+      if (!signupRef.current.contains(target)) setSignupOpen(false);
     };
 
-    const handleEsc = (e: { key: string; }) => {
+    const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") setSignupOpen(false);
     };
 
