@@ -72,98 +72,107 @@ const HowItWorks = () => {
 >
   <span>How It Works</span>
 
-  {/* Arrow Group */}
-<motion.div
+  {/* Arrow Group Wrapper (handles mobile rotation) */}
+<div
   className="
     absolute
-    w-[140px]
-    h-[96px]
     top-[calc(50px-18%)]
     -left-[18%]
     max-md:static
     max-md:mt-4
     max-md:ml-0
-    flex
-    flex-col
-    items-center
-    justify-center
-    pointer-events-none
+
+    /* MOBILE FLIP */
+    max-md:rotate-180
   "
-  animate={{
-    rotate: [0, 20, 20, 0, 0],   // center → right → pause → center → pause
-  }}
-  transition={{
-    duration: 4.0,              // 2s to right, 2s back
-    repeat: Infinity,
-    ease: "easeInOut",
-    times: [0, 0.25, 0.5, 0.75, 1],
-  }}
 >
-
-  {/* TOP ARROW */}
-  <motion.div
-    animate={{
-      opacity: [
-        1,    // center
-        0.3,  // tilt right → take bottom opacity
-        0.3,  // pause
-        1,    // back to center
-        1     // pause
-      ],
-    }}
-    transition={{
-      duration: 4.0,
-      repeat: Infinity,
-      ease: "easeInOut",
-      times: [0, 0.25, 0.5, 0.75, 1],
-    }}
-    className="w-full object-contain"
-  >
-    <Image
-      src="/Arrow 1.png"
-      alt="arrow-top"
-      width={140}
-      height={96}
-      className="w-full object-contain"
-    />
-  </motion.div>
-
-  {/* Bottom Arrow */}
   <motion.div
     className="
-      absolute
-      w-[117px]
-      h-[80px]
-      top-[50px]
-      left-[20px]
+      w-[140px]
+      h-[96px]
+      flex
+      flex-col
+      items-center
+      justify-center
       pointer-events-none
     "
     animate={{
-      opacity: [
-        0.3,  // center
-        1,    // tilt right → top takes this
-        1,    // pause
-        0.3,  // back to center → bottom takes top
-        0.3
-      ],
+      rotate: [0, 20, 20, 0, 0],   // center → right → pause → center → pause
     }}
     transition={{
-      duration: 4.0,
+      duration: 2.0,
       repeat: Infinity,
       ease: "easeInOut",
       times: [0, 0.25, 0.5, 0.75, 1],
     }}
   >
-    <Image
-      src="/Arrow 1.png"
-      alt="arrow-bottom"
-      width={117}
-      height={80}
-      className="w-full h-full object-contain"
-    />
-  </motion.div>
 
-</motion.div>
+    {/* TOP ARROW */}
+    <motion.div
+      animate={{
+        opacity: [
+          1,    // center
+          0.3,  // tilt right → take bottom opacity
+          0.3,  // pause
+          1,    // back to center
+          1
+        ],
+      }}
+      transition={{
+        duration: 2.0,
+        repeat: Infinity,
+        ease: "easeInOut",
+        times: [0, 0.25, 0.5, 0.75, 1],
+      }}
+      className="w-full object-contain"
+    >
+      <Image
+        src="/Arrow 1.png"
+        alt="arrow-top"
+        width={140}
+        height={96}
+        className="w-full object-contain"
+      />
+    </motion.div>
+
+    {/* Bottom Arrow */}
+    <motion.div
+      className="
+        absolute
+        w-[117px]
+        h-[80px]
+        top-[50px]
+        left-[20px]
+        pointer-events-none
+      "
+      animate={{
+        opacity: [
+          0.3,  // center
+          1,    // tilt right → top takes this
+          1,    // pause
+          0.3,  // back to center → bottom takes top
+          0.3
+        ],
+      }}
+      transition={{
+        duration: 2.0,
+        repeat: Infinity,
+        ease: "easeInOut",
+        times: [0, 0.25, 0.5, 0.75, 1],
+      }}
+    >
+      <Image
+        src="/Arrow 1.png"
+        alt="arrow-bottom"
+        width={117}
+        height={80}
+        className="w-full h-full object-contain"
+      />
+    </motion.div>
+
+  </motion.div>
+</div>
+
 </div>
                 <div
                     className="
