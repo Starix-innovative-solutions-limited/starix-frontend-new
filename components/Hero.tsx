@@ -5,24 +5,54 @@ import Link from "next/link";
 
 const Hero = () => {
   return (
-    <section className="general-space overflow-hidden pb-14 pt-[112px] md:pt-[124px]">
+    <section className="
+  general-space
+  overflow-hidden
+  
+  pt-[112px]
+  md:pt-[124px]
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-10 lg:gap-14">
-        {/* LEFT */}
-<div className="w-full flex flex-col lg:items-start items-center gap-10">
+  mx-auto
+  
+">
+
+      <div className="
+  grid
+  grid-cols-1
+  lg:grid-cols-2
+  items-center
+  gap-12
+  lg:gap-16
+  w-full
+  h-full
+  max-w-[1440px]
+  mx-auto
+">
+
+  {/* LEFT */}
+<div className="
+  w-full
+  flex
+  flex-col
+  lg:items-start
+  items-center
+  gap-10
+  xl:gap-14
+  justify-center
+">
   <h1
     className="
       text-center lg:text-left
       font-[600] text-dark-navy
       tracking-[-0.02em]
       leading-[1.2]
-      text-[36px]
+      text-[34px]
       md:text-[48px]
-      xl:text-[64px]
+      xl:text-[60px]
+      
     "
   >
-    Empowering creators,
-    <br />
+    Empowering creators,<br />
     Engaging brands
   </h1>
 
@@ -30,11 +60,11 @@ const Hero = () => {
     className="
       text-center lg:text-left
       font-[300] text-neut/50
-      text-[20px] leading-[1.2]
-      md:text-[20px] md:leading-[1.2]
-      xl:text-[28px] xl:leading-[1.2]
-      max-w-[620px]
-      mx-auto lg:mx-0
+      text-[18px] leading-[1.5]
+      md:text-[20px] 
+      xl:text-[24px] 
+      max-w-[650px]
+      mx-auto lg:mx-0 fontweight-light
     "
   >
     Starix connects brands with creators through fun,
@@ -87,7 +117,8 @@ const Hero = () => {
 
       
 {/* RIGHT */}
-<div className="relative w-full">
+<div className="relative w-full flex justify-center lg:justify-end">
+
   <div
     className="
       relative mx-auto w-full max-w-[780px]
@@ -132,6 +163,8 @@ const Hero = () => {
       lg:w-[495px] lg:h-[495px]
       xl:w-[539px] xl:h-[539px]
 
+      max-md:scale-[1.7]
+
       bg-no-repeat bg-contain bg-center
       rotate-[10deg]
       transition-transform duration-300 ease-out
@@ -148,10 +181,12 @@ const Hero = () => {
       md:left-[56%] md:top-[52%]
       md:-translate-x-1/2 md:-translate-y-1/2
 
-      w-[60px] h-[60px]
+      w-[72px] h-[72px]
       sm:w-[72px] sm:h-[72px]
       md:w-[114px] md:h-[114px]
-      lg:w-[133px] lg:h-[133px]
+      lg:w-[150px] lg:h-[150px]
+
+      max-md:scale-[2.0]
 
       bg-no-repeat bg-contain bg-center
       transition-transform duration-300 ease-out
@@ -172,6 +207,8 @@ const Hero = () => {
       md:w-[374px] md:h-[374px]
       lg:w-[429px] lg:h-[429px]
       xl:w-[484px] xl:h-[484px]
+
+      max-md:scale-[1.6]
 
       bg-no-repeat bg-contain bg-center
       rotate-[-10deg]
