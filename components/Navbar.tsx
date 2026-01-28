@@ -166,7 +166,7 @@ export default function Navbar() {
             <Link
               href="/login"
               onClick={closeAll}
-              className="h-[40px] px-4 rounded-full bg-dark-navy text-white inline-flex items-center text-sm"
+              className="h-[30px] px-4 rounded-full bg-dark-navy text-white inline-flex items-center text-sm"
             >
               Login
             </Link>

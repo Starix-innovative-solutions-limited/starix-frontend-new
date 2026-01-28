@@ -80,7 +80,7 @@ const Footer = () => {
       </div>
 
       {/* DARK FOOTER */}
-      <div className="bg-dark-navy py-8 -mt-6 general-space">
+      <div className="bg-dark-navy py-8 mt-6 general-space">
         <div>
           {/* TOP SECTION — mobile 3-column like screenshot */}
           <div
@@ -174,7 +174,7 @@ const Footer = () => {
               className="w-10 h-10 flex items-center justify-center hover:opacity-70 transition-opacity"
               aria-label="X (Twitter)"
             >
-              <img src="x logo.svg" alt="" />
+              <img src="X logo.svg" alt="" />
             </a>
           </div>
 
@@ -198,7 +198,7 @@ const Footer = () => {
             </div>
 
             <div className="text-base sm:text-lg">
-              © 2025 Powered by Starix. All rights reserved.
+              © 2026 Powered by Starix. All rights reserved.
             </div>
           </div>
         </div>

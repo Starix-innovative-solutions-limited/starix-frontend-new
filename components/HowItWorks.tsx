@@ -422,50 +422,32 @@ const HowItWorks = () => {
   {/* CTA */}
   <div className="w-full flex justify-center mt-[48px]">
   <Link
-    href="/for-creators"
-    className="
-      w-[193px]
-      h-[68px]
-      flex
-      items-center
-      justify-center
-      gap-[10px]
-      px-[18px]
-      py-[6px]
-      rounded-[40px]
-      bg-[#040136]
-      text-white
-      font-['Geist']
-      font-[400]
-      text-[18px]
-      leading-[18px]
-      opacity-100
-      transition-all
-      duration-300
-      hover:bg-white
-      hover:text-[#040136]
-      border
-      border-[#040136]
-      group
-    "
-  >
-    <span>Learn more</span>
-
-    <Image
-      src="/rightArrow.svg"
-      alt="right-arrow"
-      width={20}
-      height={20}
-      className="
-        w-[20px]
-        h-[20px]
-        transition-all
-        duration-300
-        group-hover:invert
-        group-hover:translate-x-[2px]
-      "
-    />
-  </Link>
+                    href="/for-creators"
+                    className="
+                        group
+                        
+                        text-lg
+                        bg-dark-navy text-white
+                        rounded-full px-5 py-3
+                        flex-center gap-2
+                        border border-dark-navy
+                        transition-all duration-300
+                        hover:bg-white hover:text-dark-navy
+                    "
+                    >
+                    <span>Learn more</span>
+                    <Image
+                        src="/rightArrow.svg"
+                        alt="right-arrow"
+                        width={100}
+                        height={100}
+                        className="
+                        w-5
+                        transition-all duration-300
+                        group-hover:invert
+                        "
+                    />
+                    </Link>
 </div>
 
 </div>
@@ -524,11 +506,13 @@ const HowItWorks = () => {
           font-['Geist']
           font-[600]
           text-[46px]
+
           max-md:text-[20px]
-          leading-[30px]
+          leading-[56px]
+          max-md:leading-[24px]
           tracking-[-0.02em]
           text-[#040136]
-          max-w-[600px]
+          max-w-[650px]
         "
       >
         What You Achieve on Starix
@@ -539,12 +523,14 @@ const HowItWorks = () => {
         className="
           font-['Geist']
           font-[300]
-          text-[27px]
+          text-[24px]
         
           max-md:text-[16px]
-          leading-[22px]
+          leading-[36px]
+          max-md:leading-[22px]
+          tracking-[0]
           text-[#6E6E6E99]
-          max-w-[600px]
+          max-w-[650px]
         "
       >
         From brands running high-impact challenges to creators winning rewards and
@@ -610,7 +596,8 @@ const HowItWorks = () => {
 <div
   className="
     w-full
-    md:w-[1440px]
+    md:w-full
+    max-md:w-full
     md:h-[564px]
     mx-auto
     grid
@@ -628,9 +615,12 @@ const HowItWorks = () => {
     justify-start
     max-md:justify-center
     md:pl-[50px]
+    max-md:pl-0
     pt-10
-    max-md:pt-6
-    max-md:pb-6
+    mx-auto
+
+    max-md:pt-4
+    max-md:pb-2
   "
 >
 
@@ -639,17 +629,20 @@ const HowItWorks = () => {
     flex
     items-center
     gap-[6px]
+    max-md:gap-[4px]
     h-[143px]
     -translate-x-[15%]
     max-md:translate-x-0
-    max-md:scale-[0.75]
+    max-md:scale-[0.5]
+    max-md:mt-auto
+    max-md:mr-4
   "
 
     animate={{
       opacity: [0, 1, 1, 0],   // fade in → hold → fade out
     }}
     transition={{
-      duration: 4,
+      duration: 1.5,
       repeat: Infinity,
       ease: "easeInOut",
       times: [0, 0.25, 0.75, 1],
@@ -676,22 +669,28 @@ const HowItWorks = () => {
     w-[108px]
     object-contain
     mb-25
+
+
     mr-[12px]
     relative
 
     max-md:h-[64px]
     max-md:w-[64px]
-    max-md:mr-0
-    max-md:mt-3
+    max-md:mr-2
+    max-md:mt-5
+    max-md:mb-auto
+    max-md:translate-x-0
+    
   "
 
   animate={{
     opacity: [1, 1, 1, 1],   // container stays stable
   }}
   transition={{
-    duration: 5,
+    duration: 1.5,
     repeat: Infinity,
     ease: "easeInOut",
+    times: [0, 0.25, 0.75, 1],
   }}
 >
 
@@ -744,17 +743,25 @@ const HowItWorks = () => {
 <div
   className="
     relative
-    w-full
-    md:w-[804px]
 
+    /* Desktop */
+    md:w-[804px]
     md:h-[564px]
-    max-md:h-auto
+    md:ml-18
+
+    /* Mobile full-bleed */
+    max-md:w-screen
+    max-md:relative
+    max-md:left-1/2
+    max-md:right-1/2
+    max-md:-ml-[50vw]
+    max-md:-mr-[50vw]
 
     overflow-hidden
-    mx-0
-    max-md:mt-6
+    max-md:mt-4
   "
 >
+
 
   {/* BACKGROUND IMAGE */}
   <div
@@ -765,6 +772,7 @@ const HowItWorks = () => {
       bg-no-repeat
       bg-right
       bg-cover
+      
     "
   />
 
@@ -827,6 +835,7 @@ const HowItWorks = () => {
             font-[400]
             text-white
             text-[28px]
+            max-md:text-[20px]
             leading-[36px]
             max-w-[600px]
           "
@@ -841,6 +850,7 @@ const HowItWorks = () => {
             font-['Geist']
             font-[300]
             text-[20px]
+            max-md:text-[16px]
             leading-[30px]
             text-white/80
             max-w-[640px]
@@ -859,6 +869,7 @@ const HowItWorks = () => {
             max-md:w-auto
             max-md:max-w-[300px]
             h-[68px]
+            max-md:h-auto
             flex
             items-center
             justify-center
@@ -889,7 +900,10 @@ const HowItWorks = () => {
             height={20}
             className="
               w-[24px]
+              max-md:w-[16px]
               h-[24px]
+              
+            
               transition-all
               duration-300
               
