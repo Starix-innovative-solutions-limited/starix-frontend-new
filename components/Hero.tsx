@@ -1,164 +1,194 @@
-"use client"
+"use client";
 
 import React from "react";
-// import Image from "next/image";
 import Link from "next/link";
-// import useBreakpoint from "@/hooks/useBreakPoint";
 
 const Hero = () => {
-  // const { isMobile } = useBreakpoint()
   return (
-    <section className="general-space  h-fit  overflow-y-hidden overflow-x-hidden pb-14">
-      <div className="grid grid-cols-2 max-md:grid-cols-1 items-center justify-center gap-6 h-fit md:-mt-7 lg:-mt-10 ">
-        <div className="w-full flex flex-col gap-7 max-md:mt-20">
-          <h1 className="max-md:text-center md:text-5xl xl:text-6xl  leading-[1.25]  max-md:text-4xl font-semibold text-[#040136]">
-            Empowering creators,
-            Engaging brands
-          </h1>
-          <p className=" max-md:text-center font-geist font-light text-xl md:text-2xl tracking-normal  text-neut/50">
-            Starix connects brands with creators through fun, <br className="max-md:hidden" />
-            rewarding challenges that turn creativity into measurable impact
+    <section className="general-space overflow-hidden pb-14 pt-[112px] md:pt-[124px]">
 
-          </p>
+      <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-10 lg:gap-14">
+        {/* LEFT */}
+<div className="w-full flex flex-col lg:items-start items-center gap-10">
+  <h1
+    className="
+      text-center lg:text-left
+      font-[600] text-dark-navy
+      tracking-[-0.02em]
+      leading-[1.2]
+      text-[36px]
+      md:text-[48px]
+      xl:text-[64px]
+    "
+  >
+    Empowering creators,
+    <br />
+    Engaging brands
+  </h1>
 
-          <div className="flex max-md:flex-col items-center md:mt-4 gap-4">
-          <Link
-            href="/login"
-            className="
-              bg-white
-              max-md:w-full text-center
-              text-dark-navy
-              border border-secondary-100
-              btn !rounded-full
-              transition-colors duration-300
-              hover:bg-secondary-100
-              hover:text-white
-            "
-          >
-            Join as a Creator
-          </Link>
+  <p
+    className="
+      text-center lg:text-left
+      font-[300] text-neut/50
+      text-[20px] leading-[1.2]
+      md:text-[20px] md:leading-[1.2]
+      xl:text-[28px] xl:leading-[1.2]
+      max-w-[620px]
+      mx-auto lg:mx-0
+    "
+  >
+    Starix connects brands with creators through fun,
+    <br className="hidden lg:block" />
+    rewarding challenges that turn creativity into
+    <br className="hidden lg:block" />
+    measurable impact
+  </p>
 
-          <Link
-            href="/login"
-            className="
-              bg-secondary-100
-              max-md:w-full text-center
-              text-white
-              btn !rounded-full
-              transition-colors duration-300
-              hover:bg-white
-              hover:text-dark-navy
-              hover:border hover:border-secondary-100
-            "
-          >
-            Join as a Brand
-          </Link>
-        </div>
+  <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+    <Link
+      href="/login"
+      className="
+        w-full sm:w-auto
+        inline-flex items-center justify-center
+        rounded-full
+        border border-dark-navy/50
+        bg-white
+        h-[56px] px-8
+        text-dark-navy
+        text-[16px] xl:text-[20px]
+        font-[500]
+        transition-all duration-200
+        hover:bg-dark-navy hover:text-white
+      "
+    >
+      Join as a Creator
+    </Link>
 
-        </div>
-
-        {/* <div className="relative w-full md:h-[80vh] "
-
-        >
-          <Image
-            src="/hero-bg.png"
-            alt="Hero Image"
-            width={1000}
-            height={1000} // half the height
-            className=" absolute top-0 left-0  md:left-0  w-full z-0 "
-          />
-
-          <Image
-            src="/hero-grid-img.svg"
-            alt="Hero grid Image"
-            width={1000}
-            height={1000} // half the height
-            className=" max-md:hidden md:absolute md:top-20 md:-left-48 object-cover"
-          />
-
-          <Image
-            src="/hero-mobile.png"
-            alt="Hero grid Image"
-            width={1000}
-            height={1000} // half the height
-            className="md:hidden"
-          />
-
-
-
-        </div> */}
-
-
-        <div className="relative w-full flex  items-center justify-between overflow-hidden h-fit max-h-[30vh] md:min-h-[90vh] md:pt-[58px] place-items-center group ">
-
-          {/* Grid Background */}
-          <div
-            className="absolute inset-0 z-0"
-            style={{
-              backgroundImage: `url('/hero-bg.png')`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-              backgroundPositionY: '17px'
-            }}
-          />
-
-          {/* Badge */}
-          <div
-            className="
-              md:absolute inset-0 z-0
-              w-44 h-44
-
-              md:top-1/10 md:-left-2/12
-              
-              md:w-auto md:min-h-[50vh] md:max-h-[60vh]
-              bg-no-repeat bg-contain
-              rotate-[12deg]
-              transition-transform duration-300
-              group-hover:rotate-[18deg]
-            "
-            style={{ backgroundImage: `url('/badge4x.png')` }}
-          />
-
-          {/* Rings */}
-          <div
-            className="
-              md:absolute inset-0 z-10
-              md:top-5/10 md:left-4/12
-              w-44 h-44
-              lg:w-44 lg:h-44
-              bg-no-repeat bg-contain
-            "
-            style={{ backgroundImage: `url('/rings4x.png')` }}
-          />
-
-          {/* Star */}
-          <div
-            className="
-            md:absolute inset-0 z-10
-            md:top-7/12 md:left-6/12
-            w-44 h-44
-            md:w-auto  md:min-h-[40vh] md:max-h-[50vh]
-            bg-no-repeat bg-contain
-            rotate-[-8deg]
-            transition-transform duration-300
-            group-hover:rotate-[-18deg]
-          "
-            style={{ backgroundImage: `url('/star4x.png')` }}
-          />
+    <Link
+      href="/login"
+      className="
+        w-full sm:w-auto
+        inline-flex items-center justify-center
+        rounded-full
+        bg-dark-navy
+        h-[56px] px-8
+        text-white
+        text-[16px] xl:text-[20px]
+        font-[500]
+        transition-all duration-200
+        hover:opacity-95
+      "
+    >
+      Join as a Brand
+    </Link>
+  </div>
+</div>
 
 
+      
+{/* RIGHT */}
+<div className="relative w-full">
+  <div
+    className="
+      relative mx-auto w-full max-w-[780px]
+      aspect-[1.62/1]
+      rounded-2xl
+      overflow-visible
+      group
+    "
+  >
+    {/* GRID BACKGROUND */}
+    <div
+      className="absolute inset-0 rounded-2xl"
+      style={{
+        backgroundImage: "url('/gridLayer.png')",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "110%", // keep your bigger grid
+        backgroundPosition: "center",
+      }}
+    />
 
-          {/* lg:h-53 lg:w-52 xl:w-96 xl:h-96 */}
-          {/* top-2/12 xl:top-7/12   left-7/12 */}
+    {/* ICON LAYER */}
+<div
+  className="
+    relative z-20
+    flex flex-row items-center justify-center gap-4
+    md:absolute md:inset-0 md:block
+    md:-translate-x-[12%]
+    transition-transform duration-300 ease-out
+    pointer-events-none
+  "
+>
+  {/* BADGE */}
+  <div
+    className="
+      relative md:absolute
+      md:left-[34%] md:top-[26%]
+      md:-translate-x-1/2 md:-translate-y-1/2
 
-        </div>
+      w-[170px] h-[170px]
+      sm:w-[200px] sm:h-[200px]
+      md:w-[451px] md:h-[451px]
+      lg:w-[495px] lg:h-[495px]
+      xl:w-[539px] xl:h-[539px]
 
+      bg-no-repeat bg-contain bg-center
+      rotate-[10deg]
+      transition-transform duration-300 ease-out
+      will-change-transform
+      group-hover:rotate-[20deg]
+    "
+    style={{ backgroundImage: "url('/badge4x.png')" }}
+  />
+
+  {/* SWEET */}
+  <div
+    className="
+      relative md:absolute
+      md:left-[56%] md:top-[52%]
+      md:-translate-x-1/2 md:-translate-y-1/2
+
+      w-[60px] h-[60px]
+      sm:w-[72px] sm:h-[72px]
+      md:w-[114px] md:h-[114px]
+      lg:w-[133px] lg:h-[133px]
+
+      bg-no-repeat bg-contain bg-center
+      transition-transform duration-300 ease-out
+      will-change-transform
+    "
+    style={{ backgroundImage: "url('/rings4x.png')" }}
+  />
+
+  {/* STAR */}
+  <div
+    className="
+      relative md:absolute
+      md:left-[82%] md:top-[74%]
+      md:-translate-x-1/2 md:-translate-y-1/2
+
+      w-[150px] h-[150px]
+      sm:w-[180px] sm:h-[180px]
+      md:w-[374px] md:h-[374px]
+      lg:w-[429px] lg:h-[429px]
+      xl:w-[484px] xl:h-[484px]
+
+      bg-no-repeat bg-contain bg-center
+      rotate-[-10deg]
+      transition-transform duration-300 ease-out
+      will-change-transform
+      group-hover:rotate-[-20deg]
+    "
+    style={{ backgroundImage: "url('/star4x.png')" }}
+  />
+</div>
+
+  </div>
+</div>
 
 
 
       </div>
-
     </section>
   );
 };

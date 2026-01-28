@@ -1,15 +1,19 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Menu } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Menu } from "lucide-react";
 import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 import { IoCloseOutline } from "react-icons/io5";
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false); // mobile menu
-  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [signupOpen, setSignupOpen] = useState(false);
+  const signupRef = useRef<HTMLDivElement | null>(null);
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -18,23 +22,7 @@ export default function Navbar() {
     { href: "/contact", label: "Contact Us" },
   ];
 
-  // Active link (manual)
-  const [active, setActive] = useState(0);
-
-  // Desktop signup dropdown (click-to-open)
-  const [signupOpen, setSignupOpen] = useState(false);
-
-  // ✅ FIX: type the ref so `.contains` exists
-  const signupRef = useRef<HTMLDivElement | null>(null);
-
-  // Handle scroll
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 100);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  // Lock body scroll when mobile menu is open
+  // lock body scroll when mobile menu open
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => {
@@ -42,204 +30,193 @@ export default function Navbar() {
     };
   }, [isOpen]);
 
-  // Close desktop dropdown on outside click + ESC
+  // close dropdown on outside click + esc
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
+    const onMouseDown = (e: MouseEvent) => {
       const target = e.target as Node;
       if (!signupRef.current) return;
       if (!signupRef.current.contains(target)) setSignupOpen(false);
     };
 
-    const handleEsc = (e: KeyboardEvent) => {
+    const onEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") setSignupOpen(false);
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleEsc);
-
+    document.addEventListener("mousedown", onMouseDown);
+    document.addEventListener("keydown", onEsc);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleEsc);
+      document.removeEventListener("mousedown", onMouseDown);
+      document.removeEventListener("keydown", onEsc);
     };
   }, []);
 
+  const closeAll = () => {
+    setSignupOpen(false);
+    setIsOpen(false);
+  };
+
   return (
-    <nav
-      id="navbar"
-      className={`fixed top-0 w-full z-50 transition-all duration-300 
-        ${scrolled ? "scrolled py-4" : "py-10"}
-        ${isOpen ? "bg-white" : "bg-transparent"}
-        px-6 md:px-16 flex-between`}
-    >
-      {/* Logo */}
-      <Image src="/logo.png" alt="Starix-logo" width={100} height={25} />
-
-      {/* Desktop Links */}
-      <div className="max-md:hidden flex items-center gap-8">
-        {navLinks.map((link, i) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className={`${
-              i === active ? "text-dark-navy" : "text-neut/60"
-            } hover:text-dark-navy font-medium transition-colors`}
-            onClick={() => {
-              setActive(i);
-              setSignupOpen(false);
-            }}
-          >
-            {link.label}
+    <nav className="fixed top-0 left-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-[#00000010]">
+      <div className="mx-auto w-full max-w-[1400px] px-6 md:px-16">
+        <div className="h-[84px] flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="shrink-0" onClick={closeAll}>
+            <Image src="/logo.svg" alt="Starix" width={110} height={28} priority />
           </Link>
-        ))}
-      </div>
 
-      {/* Desktop CTA */}
-      <div className="hidden md:flex items-center gap-2">
-        {/* SIGN UP (click dropdown) */}
-        <div className="relative" ref={signupRef}>
-          <button
-            type="button"
-            onClick={() => setSignupOpen((prev) => !prev)}
-            className="
-              bg-white flex-center
-              text-secondary-100
-              border border-secondary-100
-              !w-fit !rounded-full p-1.5 px-3
-              transition-colors duration-300
-              hover:bg-secondary-100 hover:text-white
-              focus:outline-none
-            "
-            aria-haspopup="menu"
-            aria-expanded={signupOpen}
-          >
-            <span>Sign up</span>
-            <MdOutlineKeyboardArrowDown
-              className={`transition-transform duration-200 ${
-                signupOpen ? "rotate-180" : ""
-              }`}
-            />
-          </button>
+          {/* Desktop Links (centered like Figma) */}
+          <div className="hidden md:flex flex-1 items-center justify-center">
+            <div className="flex items-center gap-10">
+              {navLinks.map((link) => {
+                const isActive =
+                  pathname === link.href ||
+                  (link.href !== "/" && pathname?.startsWith(link.href));
 
-          {/* Dropdown panel */}
-          <div
-            className={`
-              absolute right-0 top-[110%] w-56
-              bg-white border border-secondary-100/30
-              rounded-2xl shadow-lg overflow-hidden
-              transition-all duration-200 origin-top
-              ${
-                signupOpen
-                  ? "opacity-100 translate-y-0 pointer-events-auto"
-                  : "opacity-0 -translate-y-2 pointer-events-none"
-              }
-            `}
-            role="menu"
-          >
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setSignupOpen(false)}
+                    className={`text-base transition-colors ${
+                      isActive ? "text-dark-navy" : "text-neut/60 hover:text-dark-navy"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Desktop CTA */}
+          <div className="hidden md:flex items-center gap-3">
+            {/* Sign Up dropdown */}
+            <div className="relative" ref={signupRef}>
+              <button
+                type="button"
+                onClick={() => setSignupOpen((p) => !p)}
+                className="
+                  h-[44px] px-5 rounded-full
+                  border border-[#04013633]
+                  text-dark-navy bg-white
+                  inline-flex items-center gap-2
+                  transition-all
+                  hover:border-[#04013666]
+                  focus:outline-none focus:ring-2 focus:ring-[#0401361a]
+                "
+                aria-haspopup="menu"
+                aria-expanded={signupOpen}
+              >
+                <span className="text-base">Sign Up</span>
+                <MdOutlineKeyboardArrowDown
+                  className={`text-xl transition-transform ${signupOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+
+              <div
+                className={`
+                  absolute right-0 top-[110%] w-60
+                  bg-white border border-[#00000010]
+                  rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.08)]
+                  overflow-hidden
+                  transition-all duration-150 origin-top
+                  ${signupOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-2 pointer-events-none"}
+                `}
+                role="menu"
+              >
+                <Link
+                  href="/signup?role=brand"
+                  role="menuitem"
+                  onClick={() => setSignupOpen(false)}
+                  className="block px-4 py-3 text-dark-navy hover:bg-[#040136] hover:text-white transition-colors"
+                >
+                  Sign up as a Brand
+                </Link>
+                <Link
+                  href="/signup"
+                  role="menuitem"
+                  onClick={() => setSignupOpen(false)}
+                  className="block px-4 py-3 text-dark-navy hover:bg-[#040136] hover:text-white transition-colors"
+                >
+                  Sign up as a Creator
+                </Link>
+              </div>
+            </div>
+
+            {/* Login pill */}
             <Link
-              href="/signup?role=brand"
-              className="
-                block px-4 py-3 text-dark-navy
-                transition-colors
-                hover:bg-secondary-100 hover:text-white
-              "
-              role="menuitem"
+              href="/login"
               onClick={() => setSignupOpen(false)}
-            >
-              Sign up as a Brand
-            </Link>
-
-            <Link
-              href="/signup"
               className="
-                block px-4 py-3 text-dark-navy
-                transition-colors
-                hover:bg-secondary-100 hover:text-white
+                h-[44px] px-6 rounded-full
+                bg-dark-navy text-white
+                inline-flex items-center justify-center
+                text-base
+                transition-all
+                hover:opacity-95
+                focus:outline-none focus:ring-2 focus:ring-[#0401361a]
               "
-              role="menuitem"
-              onClick={() => setSignupOpen(false)}
             >
-              Sign up as a Creator
+              Login
             </Link>
           </div>
+
+          {/* Mobile right */}
+          <div className="md:hidden flex items-center gap-3">
+            <Link
+              href="/login"
+              onClick={closeAll}
+              className="h-[40px] px-4 rounded-full bg-dark-navy text-white inline-flex items-center text-sm"
+            >
+              Login
+            </Link>
+
+            <button
+              type="button"
+              className="h-[40px] w-[40px] rounded-full border border-[#00000012] bg-white inline-flex items-center justify-center"
+              onClick={() => setIsOpen((p) => !p)}
+              aria-label="Toggle menu"
+            >
+              {isOpen ? <IoCloseOutline size={22} /> : <Menu size={20} />}
+            </button>
+          </div>
         </div>
-
-        {/* LOGIN */}
-        <Link
-          href="/login"
-          className="text-white bg-dark-navy p-1.5 px-3 rounded-full font-semibold flex items-center gap-3 text-base"
-          onClick={() => setSignupOpen(false)}
-        >
-          Login
-        </Link>
       </div>
 
-      {/* Mobile Menu Button */}
-      <div className="md:hidden flex items-center gap-3">
-        <Link
-          href="/login"
-          className="text-white bg-dark-navy p-1.5 px-2 rounded-full font-semibold flex items-center gap-3 text-sm"
-        >
-          Login
-        </Link>
-
-        <button
-          className="md:hidden text-neutral-700 z-50"
-          onClick={() => setIsOpen((prev) => !prev)}
-          type="button"
-        >
-          {isOpen ? (
-            <IoCloseOutline size={22} className="text-[#444444]" />
-          ) : (
-            <Menu size={28} />
-          )}
-        </button>
-      </div>
-
-      {/* Mobile Dropdown */}
+      {/* Mobile menu */}
       <div
-        className={`absolute left-0 top-full w-full bg-white shadow-md md:hidden z-40
-          transition-all duration-300 ease-in-out
-          ${
-            isOpen
-              ? "translate-y-0 opacity-100"
-              : "-translate-y-4 opacity-0 pointer-events-none"
-          }`}
+        className={`md:hidden bg-white border-t border-[#00000010] transition-all duration-200 ${
+          isOpen ? "max-h-[520px] opacity-100" : "max-h-0 opacity-0 overflow-hidden"
+        }`}
       >
-        <div className="flex flex-col gap-6 p-6">
+        <div className="px-6 py-6 flex flex-col gap-4">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-dark-navy text-lg transition-colors"
-              onClick={() => setIsOpen(false)}
+              onClick={closeAll}
+              className="text-dark-navy text-lg"
             >
               {link.label}
             </Link>
           ))}
 
-          <Link
-            href="/signup?role=brand"
-            className="w-fit text-dark-navy text-lg flex items-center gap-3 underline"
-            onClick={() => setIsOpen(false)}
-          >
-            Sign up as Brand.
-          </Link>
-
-          <Link
-            href="/signup"
-            className="w-fit text-dark-navy text-lg flex items-center gap-3 underline"
-            onClick={() => setIsOpen(false)}
-          >
-            Sign up as Creator.
-          </Link>
-
-          <Link
-            href="/login"
-            className="text-white w-full bg-dark-navy py-2 px-4 rounded-full text-center text-lg font-semibold flex items-center gap-3"
-            onClick={() => setIsOpen(false)}
-          >
-            <span className="text-center mx-auto">Login</span>
-          </Link>
+          <div className="pt-2 flex flex-col gap-3">
+            <Link
+              href="/signup?role=brand"
+              onClick={closeAll}
+              className="text-dark-navy underline text-base"
+            >
+              Sign up as Brand
+            </Link>
+            <Link
+              href="/signup"
+              onClick={closeAll}
+              className="text-dark-navy underline text-base"
+            >
+              Sign up as Creator
+            </Link>
+          </div>
         </div>
       </div>
     </nav>

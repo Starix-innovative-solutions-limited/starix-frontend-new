@@ -10,6 +10,7 @@ const HomeLayout = ({
     return (
         <div className=''>
             <Navbar />
+            <main className="pt-[84px]"></main>
             {children}
             <Footer />
         </div>
