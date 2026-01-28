@@ -688,7 +688,9 @@ const HowItWorks = () => {
     max-md:mr-2
     max-md:mt-5
     max-md:mb-auto
-    max-md:translate-x-0
+    max-md:left-[-12%]
+max-md:relative
+
     
   "
 
