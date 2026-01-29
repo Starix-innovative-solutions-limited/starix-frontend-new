@@ -4,6 +4,7 @@
 import React, {useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import type { Variants } from "framer-motion";
 import { HiOutlineArrowNarrowRight } from "react-icons/hi";
 import { Key, Minus, Plus } from "lucide-react";
 import { PiWarningCircleLight } from "react-icons/pi";
@@ -73,13 +74,13 @@ useEffect(() => {
   return () => clearInterval(interval);
 }, []);
 
-const variants = {
+const variants: Variants = {
   front: {
     scale: 0.78,
     x: 0,
     y: 0,
     zIndex: 4,
-    transition: { duration: 1, ease: "easeInOut" }
+    transition: { duration: 1, ease: [0.4, 0.0, 0.2, 1] }
   },
 
   mid: {
@@ -87,7 +88,7 @@ const variants = {
     x: 70,
     y: -55,
     zIndex: 3,
-    transition: { duration: 1, ease: "easeInOut" }
+    transition: { duration: 1, ease: [0.4, 0.0, 0.2, 1] }
   },
 
   back: {
@@ -95,7 +96,7 @@ const variants = {
     x: 140,
     y: -110,
     zIndex: 2,
-    transition: { duration: 1, ease: "easeInOut" }
+    transition: { duration: 1, ease: [0.4, 0.0, 0.2, 1] }
   },
 
   far: {
@@ -103,9 +104,10 @@ const variants = {
     x: 210,
     y: -170,
     zIndex: 1,
-    transition: { duration: 1, ease: "easeInOut" }
+    transition: { duration: 1, ease: [0.4, 0.0, 0.2, 1] }
   }
 };
+
 
 
   const solutions = [
