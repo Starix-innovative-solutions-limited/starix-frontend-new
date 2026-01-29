@@ -1,13 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState } from "react";
+import React, {useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { HiOutlineArrowNarrowRight } from "react-icons/hi";
-import { Minus, Plus } from "lucide-react";
+import { Key, Minus, Plus } from "lucide-react";
 import { PiWarningCircleLight } from "react-icons/pi";
 import { useRouter } from "next/navigation";
+import StarixSolutionsSection from "@/components/StarixSolutionsSection";
+import KeyFeaturesSection from "@/components/KeyFeaturesSection";
 
 
 const Page = () => {
@@ -18,9 +20,92 @@ const Page = () => {
     "No clear ROI from creator campaigns",
   ];
 
-  const [activeProblem, setActiveProblem] = useState<number>(0);
+  const [activeProblem, setActiveProblem] = useState(0);
+
+useEffect(() => {
+  const interval = setInterval(() => {
+    setActiveProblem((prev) => (prev + 1) % problems.length);
+  }, 2000); // 2.5 seconds per item
+
+  return () => clearInterval(interval);
+}, [problems.length]);
+
+
+const mobileSliderRef = React.useRef<HTMLDivElement | null>(null);
+
+useEffect(() => {
+  if (!mobileSliderRef.current) return;
+
+  const container = mobileSliderRef.current;
+  const activeEl = container.children[activeProblem] as HTMLElement;
+
+  if (!activeEl) return;
+
+  const containerRect = container.getBoundingClientRect();
+  const activeRect = activeEl.getBoundingClientRect();
+
+  const offset =
+    activeRect.left -
+    containerRect.left -
+    containerRect.width / 2 +
+    activeRect.width / 2;
+
+  container.scrollTo({
+    left: container.scrollLeft + offset,
+    behavior: "smooth",
+  });
+}, [activeProblem]);
+
 
   const router = useRouter();
+const [order, setOrder] = useState([0, 1, 2, 3]);
+
+useEffect(() => {
+  const interval = setInterval(() => {
+    setOrder(prev => {
+      const newOrder = [...prev];
+      const last = newOrder.pop();   // rotate backwards
+      newOrder.unshift(last!);
+      return newOrder;
+    });
+  }, 3000);
+
+  return () => clearInterval(interval);
+}, []);
+
+const variants = {
+  front: {
+    scale: 0.78,
+    x: 0,
+    y: 0,
+    zIndex: 4,
+    transition: { duration: 1, ease: "easeInOut" }
+  },
+
+  mid: {
+    scale: 0.86,
+    x: 70,
+    y: -55,
+    zIndex: 3,
+    transition: { duration: 1, ease: "easeInOut" }
+  },
+
+  back: {
+    scale: 0.93,
+    x: 140,
+    y: -110,
+    zIndex: 2,
+    transition: { duration: 1, ease: "easeInOut" }
+  },
+
+  far: {
+    scale: 1,
+    x: 210,
+    y: -170,
+    zIndex: 1,
+    transition: { duration: 1, ease: "easeInOut" }
+  }
+};
 
 
   const solutions = [
@@ -46,6 +131,13 @@ const Page = () => {
     },
   ];
 
+  const cards = [
+  { id: "poor", src: "/poor.png" },
+  { id: "uneasy", src: "/uneasy.png" },
+  { id: "creator", src: "/creator.png" },
+  { id: "purple", src: "/purple.png" },
+];
+
   // ✅ Matches your reference UI pills
   const featureTabs = ["Challenge", "Guidance", "Entries"];
   const [activeTab, setActiveTab] = useState<string>(featureTabs[0]);
@@ -59,19 +151,19 @@ const Page = () => {
 
   const brandFeatures = [
     {
-      icon: "playButtons.png",
+      icon: "playButtons.svg",
       title: "Real-time Leaderboard",
       description: "Set campaign goals, budget, and duration.",
       gradient: "from-orange-100 via-pink-50 to-green-100",
     },
     {
-      icon: "diamond.png",
+      icon: "diamond.svg",
       title: "Content Insight",
       description: "Suggest hooks, captions, and tone that fit your brand voice.",
       gradient: "from-blue-100 via-indigo-50 to-purple-100",
     },
     {
-      icon: "trophy.png",
+      icon: "trophy.svg",
       title: "Content Performance",
       description: "Starix measures likes and comments automatically.",
       gradient: "from-red-100 via-orange-50 to-blue-100",
@@ -105,348 +197,266 @@ const Page = () => {
       <div className="bg-off-white overflow-hidden">
         <main className="relative general-space min-h-screen">
           {/* HERO */}
-          <div className="grid grid-cols-1 md:items-center gap-6 md:grid-cols-2 mt-20">
-            <div className="flex items-center gap-6 md:gap-10 h-fit relative py-2">
-              <div className="flex flex-col gap-6 md:gap-10m col-span-2">
-                <h3 className="font-semibold text-4xl max-md:text-center lg:text-5xl xl:text-6xl w-full leading-snug text-dark-navy grow">
-                  High‐Quality <br />
-                  UGC, Powered by <br />
-                  Real Data
-                </h3>
+<div className="grid grid-cols-1 md:items-center gap-6 md:grid-cols-2 mt-20">
 
-                <p className="font-light text-xl md:text-2xl text-neut/60 max-md:text-center">
-                  Run smarter creator challenges with verified creators and trend insight
-                </p>
+  {/* LEFT */}
+  <div className="flex items-center gap-6 md:gap-10 h-fit relative py-2">
 
-                {/* ✅ FIX #1: invert hover */}
-                <button
-                  onClick={() => router.push("/signup?role=brand")}
-                  className="
-                    bg-dark-navy text-off-white
-                    border border-dark-navy
-                    p-4 rounded-full
-                    w-full md:w-fit
-                    transition-all duration-300
-                    hover:bg-white hover:text-dark-navy
-                  "
-                >
-                  Join as a brand.
-                </button>
+    {/* BADGE */}
+    <div
+      className="
+        absolute
+        z-[5]
 
-              </div>
+        /* MOBILE POSITION */
+        max-md:top-[-80px]
+        max-md:right-[-120px]
+        max-md:w-[250px]
+        max-md:h-[250px]
 
-              <div
-                className="
-                  absolute inset-0 z-0
-                  -top-3/12 -right-6/12 lg:-top-5/12 left-6/10
-                  w-auto h-[30vh] md:min-h-[40vh] md:max-h-[50vh]
-                  bg-no-repeat bg-contain
-                  transition-transform duration-300
-                "
-                style={{ backgroundImage: `url('/hero1.png')` }}
-              />
-            </div>
+        /* DESKTOP (ORIGINAL — UNTOUCHED) */
+        md:top-[-260px]
+        md:left-[300px]
+        md:w-[510.73px]
+        md:h-[472.86px]
 
-            <Image src={"/brand-hero1.png"} alt="" width={1000} height={1000} />
-          </div>
+        bg-no-repeat
+        bg-contain
+        transition-transform
+        duration-300
+        hover:-rotate-[-30deg]
+      "
+      style={{ backgroundImage: `url('/Badge 1.png')` }}
+    />
+
+    {/* TEXT BLOCK */}
+    <div
+      className="
+        flex flex-col gap-6 md:gap-10m col-span-2
+        md:-translate-y-[15%]
+        max-md:text-center
+        max-md:items-center
+        relative z-[2]
+      "
+    >
+      <h3
+        className="
+          font-['Geist']
+          font-[600]
+          text-[64px]
+          max-md:text-[40px]
+          leading-[1.2]
+          tracking-[-0.02em]
+          text-dark-navy
+          w-full
+          grow
+        "
+      >
+        High‐Quality <br />
+        UGC, Powered by <br />
+        Real Data
+      </h3>
+
+      <p
+        className="
+          font-['Geist']
+          py-4
+          font-[300]
+          text-[28px]
+          max-md:text-[20px]
+          leading-[1]
+          tracking-[0]
+          text-neut/60
+        "
+      >
+        Run smarter creator challenges with verified creators and trend insight
+      </p>
+
+      <button
+        onClick={() => router.push("/signup?role=brand")}
+        className="
+          bg-dark-navy text-off-white
+          border border-dark-navy
+          p-4 rounded-full
+          w-full md:w-fit
+          transition-all duration-300
+          hover:bg-white hover:text-dark-navy
+          max-md:w-full
+        "
+      >
+        Join as a brand.
+      </button>
+    </div>
+
+  </div>
+
+  {/* RIGHT IMAGE — KEEP AS IS */}
+  <Image src={"/brand-hero1.png"} alt="" width={1000} height={1000} />
+
+</div>
+
 
           <div className="flex flex-col py-20">
-            {/* ✅ FIX #3: PROBLEM FOR BRANDS — match your 2nd UI */}
-            {/* DESKTOP VERSION */}
-            <section className="hidden md:block">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="flex flex-col lg:flex-row items-center gap-12"
-              >
-                {/* LEFT IMAGE */}
-                <div className="lg:w-1/2">
-                  <Image
-                    src={'/brand-problems.png'}
-                    alt=""
-                    width={800}
-                    height={800}
-                    className="object-scale-down"
-                  />
+            {/* ================= PROBLEM FOR BRANDS ================= */}
+<section className="hidden md:block py-32">
+  <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="max-w-[1400px] mx-auto grid grid-cols-2 gap-24 items-center">
+
+    {/* LEFT — STACKED CARDS */}
+    <div className="relative w-full h-[520px]">
+
+      {/* STAR (FIXED ANCHOR) */}
+      <div className="absolute z-[50] bottom-[0px] left-[0px] w-[72px] h-[72px] pointer-events-none">
+        <Image src="/poor12.png" alt="star" width={72} height={72} className="w-full h-full object-contain" />
+      </div>
+
+      {/* STACK ORIGIN */}
+      <div className="absolute top-[211px] left-[36px] w-[327px] h-[288px]">
+        {order.map((cardIndex, position) => {
+          const card = cards[cardIndex];
+          const variantMap = ["front", "mid", "back", "far"];
+          const variant = variantMap[position];
+
+          return (
+            <motion.div
+              key={card.id}
+              className="absolute w-[327px] h-[288px] rounded-[40px] overflow-hidden"
+              variants={variants}
+              animate={variant}
+              initial={false}
+              style={{ transformOrigin: "left bottom" }}
+            >
+              <Image src={card.src} alt="" fill className="object-cover" />
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
+
+    {/* RIGHT — PROBLEM LIST */}
+    <div className="flex flex-col h-full">
+
+      <h2 className="font-['Geist'] font-[600] text-[56px] leading-[1.1] text-dark-navy mb-14">
+        Problem For Brands
+      </h2>
+
+      <div className="relative h-full">
+
+        {/* TIMELINE */}
+        <div className="absolute left-[18px] top-[18px] bottom-[18px] w-[1px] bg-[#DADADA] overflow-hidden">
+          <motion.div
+            className="absolute left-0 w-[1px] bg-dark-navy"
+            animate={{ height: `${((activeProblem + 1) / problems.length) * 100}%` }}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
+            style={{ top: 0 }}
+          />
+        </div>
+
+        {problems.map((problem, index) => {
+          const isActive = activeProblem === index;
+
+          return (
+            <div key={index} onClick={() => setActiveProblem(index)} className="flex items-start gap-6 cursor-pointer py-[18px]">
+
+              {/* ICON */}
+              <div className="relative flex flex-col items-center shrink-0">
+                <div className={`w-[38px] h-[38px] min-w-[38px] min-h-[38px] rounded-full flex items-center justify-center border transition-all duration-300 bg-white z-10 ${isActive ? "border-dark-navy text-dark-navy" : "border-[#DADADA] text-[#B5B5B5]"}`}>
+                  <PiWarningCircleLight className="text-[18px]" />
                 </div>
 
-                {/* RIGHT LIST */}
-                <div className="lg:w-1/2 flex flex-col gap-4">
-                  <h1 className="text-4xl lg:text-5xl font-semibold text-dark-navy mb-6">
-                    Problem For Brands
-                  </h1>
-
-                  <div className="space-y-3">
-                    {problems.map((problem, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setActiveProblem(index)}
-                        className={`flex flex-col gap-1 tracking-tight ${
-                          activeProblem === index ? 'text-dark-navy' : 'text-neut/60'
-                        }`}
-                      >
-                        <div className="flex items-center gap-6">
-                          <PiWarningCircleLight className="text-2xl" />
-                          <span className="text-2xl">{problem}</span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            </section>
-
-            {/* MOBILE VERSION */}
-           
-            <section className="md:hidden py-10">
-              <div className="w-full flex flex-col items-center">
-                <h1 className="text-3xl font-semibold text-dark-navy text-center">
-                  Problem For Brands
-                </h1>
-
-                {/* Swipe Area */}
-                <motion.div
-                  className="mt-10 w-full"
-                  drag="x"
-                  dragConstraints={{ left: 0, right: 0 }}
-                  dragElastic={0.25}
-                  onDragEnd={(_, info) => {
-                    if (info.offset.x > swipeConfidenceThreshold) {
-                      // swipe right -> previous
-                      paginate(-1);
-                    } else if (info.offset.x < -swipeConfidenceThreshold) {
-                      // swipe left -> next
-                      paginate(1);
-                    }
-                  }}
-                >
-                  {/* Selector row (same look) */}
-                  <div className="w-full flex items-center justify-center gap-4">
-                    <div className="flex items-center gap-3 opacity-30">
-                      <div className="w-10 h-10 rounded-full border border-neut/30 flex-center">
-                        <PiWarningCircleLight className="text-xl" />
-                      </div>
-                      <span className="text-lg text-neut/60 truncate max-w-[120px]">
-                        {problems[(activeProblem - 1 + problems.length) % problems.length]}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full border border-dark-navy flex-center">
-                        <PiWarningCircleLight className="text-xl text-dark-navy" />
-                      </div>
-                      <span className="text-xl font-medium text-dark-navy">
-                        {problems[activeProblem]}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-3 opacity-30">
-                      <div className="w-10 h-10 rounded-full border border-neut/30 flex-center">
-                        <PiWarningCircleLight className="text-xl" />
-                      </div>
-                      <span className="text-lg text-neut/60 truncate max-w-[120px]">
-                        {problems[(activeProblem + 1) % problems.length]}
-                      </span>
-                    </div>
-                  </div>
-                </motion.div>
-
-                {/* Progress bars */}
-                <div className="mt-6 flex gap-3">
-                  {problems.map((_, i) => (
-                    <div
-                      key={i}
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        i === activeProblem ? "w-20 bg-dark-navy" : "w-10 bg-neut/20"
-                      }`}
-                    />
-                  ))}
-                </div>
-
-                {/* Stacked cards image */}
-                <div className="mt-14">
-                  <Image
-                    src="/brand-problems.png"
-                    alt="brand problems"
-                    width={600}
-                    height={600}
-                    className="w-full max-w-xs mx-auto"
-                  />
-                </div>
-
-                {/* Optional hint (tiny) */}
-                <p className="mt-4 text-sm text-neut/50">Swipe left or right</p>
-              </div>
-            </section>
-
-
-
-
-            {/* Solutions Section */}
-            <section className="bg-white py-16">
-              <div className="flex flex-col gap-20">
-                <motion.h2
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  className="text-3xl md:text-4xl lg:text-5xl font-semibold text-dark-navy text-center"
-                >
-                  Starix Solutions
-                </motion.h2>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-                  {solutions.map((solution, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 30 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                      whileHover={{ y: -5 }}
-                      className="bg-white py-6"
-                    >
-                      <div className="mb-4">
-                        <Image
-                          src={`/starixSolution${index > 2 ? 1 : index + 1}.png`}
-                          alt="dash section"
-                          width={1000}
-                          height={1000}
-                          className="md:max-w-4/5"
-                        />
-                      </div>
-                      <h3 className="font-normal text-xl md:text-2xl text-dark-navy mb-2">{solution.title}</h3>
-                      <p className="text-neut/60 text-base md:text-xl font-light">{solution.description}</p>
-                    </motion.div>
-                  ))}
-                </div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  className="text-center"
-                >
-                  {/* ✅ FIX #1: invert hover */}
-                  <motion.button
-                    onClick={() => router.push("/signup?role=brand")}
-                    className="
-                      bg-dark-navy text-off-white
-                      border border-dark-navy
-                      p-4 rounded-full
-                      w-fit flex-center gap-2 mx-auto
-                      transition-all duration-300
-                      hover:bg-white hover:text-dark-navy
-                    "
-                  >
-                    <span>Join as a brand.</span>
-                    <HiOutlineArrowNarrowRight />
-                  </motion.button>
-
-                </motion.div>
-              </div>
-            </section>
-
-            {/* ✅ FIX #2: KEY FEATURES — match your 1st UI */}
-            <section className="py-16">
-              {/* Heading + arrow image (right) */}
-              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
-                <div>
-                  <h2 className="text-4xl md:text-5xl font-semibold text-dark-navy leading-snug">
-                    Key Features For Brands <br /> On Starix
-                  </h2>
-                </div>
-
-                {/* swap this image if your arrow asset is different */}
-                <div className="flex md:justify-end">
-                  <Image
-                    src="/arrow.png"
-                    alt="arrow"
-                    width={120}
-                    height={120}
-                    className="w-20 md:w-24 h-auto opacity-90"
-                  />
-                </div>
+                {index !== problems.length - 1 && (
+                  <div className={`w-[1px] flex-1 mt-2 ${isActive ? "bg-dark-navy" : "bg-[#E5E5E5]"}`} />
+                )}
               </div>
 
-              {/* Pills row (Challenge active like screenshot) */}
-              <div className="flex gap-4 overflow-x-auto pb-2 mb-10">
-                {featureTabs.map((tab) => {
-                  const isActive = tab === activeTab;
-                  return (
-                    <button
-                      key={tab}
-                      type="button"
-                      onClick={() => setActiveTab(tab)}
-                      className={`
-                        whitespace-nowrap
-                        px-8 py-3 rounded-full
-                        border
-                        text-lg md:text-xl
-                        transition-all duration-300
-                        ${isActive ? "border-dark-navy text-dark-navy bg-white" : "border-neut/30 text-neut/50 bg-white"}
-                      `}
-                    >
-                      {tab}
-                    </button>
-                  );
-                })}
+              {/* TEXT */}
+              <div className="pt-[6px]">
+                <span className={`font-['Geist'] font-[400] text-[28px] leading-[1.2] transition-colors duration-300 ${isActive ? "text-dark-navy" : "text-[#B5B5B5]"}`}>
+                  {problem}
+                </span>
               </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </motion.div>
+</section>
 
-              {/* Content card under tabs */}
-              <motion.div
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="bg-white rounded-3xl border border-neut/10 shadow-sm overflow-hidden"
-              >
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-                  {/* Left copy */}
-                  <div className="p-8 md:p-10 flex flex-col gap-4">
-                    <span className="inline-flex w-fit bg-off-white px-3 py-1 text-sm text-dark-navy/80 rounded-full">
-                      {activeTab.toUpperCase()}
-                    </span>
+{/* ================= MOBILE AUTO SLIDER ================= */}
+<section className="md:hidden py-16">
+  <div className="w-full">
 
-                    <h3 className="text-2xl md:text-3xl font-medium text-dark-navy">
-                      {activeTab === "Challenge"
-                        ? "Create Challenges for Thousands of Creators"
-                        : activeTab === "Guidance"
-                        ? "Guide Submissions with Briefs & Direction"
-                        : "Track Entries and Performance in One Place"}
-                    </h3>
+    <h2 className="font-['Geist'] font-[600] text-[32px] leading-[1.2] tracking-[-0.02em] text-dark-navy text-center mb-8">
+      Problem For Brands
+    </h2>
 
-                    <p className="text-neut/60 text-lg md:text-xl font-light">
-                      {activeTab === "Challenge"
-                        ? "Launch structured UGC challenges, set rules, rewards, and timelines—then let creators compete."
-                        : activeTab === "Guidance"
-                        ? "Provide hooks, captions, tone and examples so creators stay aligned with your brand voice."
-                        : "See submissions, engagement, and winners with clear performance visibility and ROI signals."}
-                    </p>
+    <div className="md:hidden w-full overflow-hidden">
+      <div
+        ref={mobileSliderRef}
+        className="flex items-center gap-6 px-4 overflow-x-auto overflow-y-hidden scroll-smooth scrollbar-hide"
+        style={{ scrollBehavior: "smooth", overscrollBehaviorX: "contain" }}
+      >
 
-                    <div className="mt-2">
-                      <Image
-                        src="/playButtons.png"
-                        alt="feature icon"
-                        width={100}
-                        height={100}
-                        className="w-16 h-auto"
-                      />
-                    </div>
-                  </div>
+      {problems.map((problem, index) => {
+        const isActive = activeProblem === index;
 
-                  {/* Right visual */}
-                  <div className="bg-off-white/60 p-6 md:p-8 flex items-center justify-center">
-                    <Image
-                      src={"/keyFeaturesFram2.png"}
-                      alt="key features"
-                      width={1200}
-                      height={1200}
-                      className="w-full h-auto object-contain"
-                    />
-                  </div>
-                </div>
-              </motion.div>
-            </section>
+        return (
+          <div
+            key={index}
+            onClick={() => setActiveProblem(index)}
+            className="
+              flex items-center gap-3
+              cursor-pointer
+              min-w-fit
+              py-3
+              transition-all
+              duration-500
+            "
+          >
+            {/* ICON */}
+            <div
+              className={`
+                w-[38px] h-[38px] min-w-[38px] min-h-[38px]
+                rounded-full flex items-center justify-center
+                border transition-all duration-300 bg-white shrink-0
+                ${isActive ? "border-dark-navy text-dark-navy scale-110" : "border-[#DADADA] text-[#B5B5B5] scale-100"}
+              `}
+            >
+              <PiWarningCircleLight className="text-[18px]" />
+            </div>
+
+            {/* TEXT */}
+            <span
+              className={`
+                font-['Geist']
+                font-[400]
+                text-[16px]
+                whitespace-nowrap
+                transition-all duration-300
+                ${isActive ? "text-dark-navy" : "text-[#B5B5B5]"}
+              `}
+            >
+              {problem}
+            </span>
+          </div>
+        );
+      })}
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+            
+            <StarixSolutionsSection />
+
+            <KeyFeaturesSection />
+
+
+            
           </div>
         </main>
 
@@ -458,19 +468,21 @@ const Page = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <Image src={"/howBrandsWork.png"} alt="hw brand" width={1000} height={1000} />
+              <Image src={"/howBrands.png"} alt="hw brand" width={1000} height={1000} />
             </motion.div>
 
             <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-              <h2 className="text-4xl lg:text-5xl font-semibold mb-8 md:leading-snug">
-                How Starix Challenge <br className="max-md:hidden" /> System Works
+              <h2 className="font-['Geist'] font-[600] text-[32px] md:text-[48px] leading-[1] md:leading-[1.2] tracking-[0] md:tracking-[-0.02em] text-dark-navy text-center md:text-left mb-2">
+                How Starix Challenge <br className="hidden md:block" /> System Works
               </h2>
+
+
 
               <div className="w-full space-y-3 mt-20">
                 {challengeSteps.map((item, index) => (
                   <div key={index} className="border-b border-secondary-100 overflow-hidden transition-all duration-200">
                     <div className="flex items-center">
-                      <Image src={`/challengeStep${index + 1}.png`} alt="" width={100} height={100} className="w-6" />
+                      <Image src={`/challengeStep${index + 1}.svg`} alt="" width={100} height={100} className="w-6" />
 
                       <div className="grow">
                         <button
@@ -478,7 +490,10 @@ const Page = () => {
                           className="w-full px-6 py-5 flex items-center justify-between text-left transition-colors"
                           type="button"
                         >
-                          <span className="text-2xl text-secondary-100">{item.title}</span>
+                          <span className="font-['Geist'] font-[400] text-[28px] leading-[1] tracking-[-0.02em] text-secondary-100">
+                          {item.title}
+                        </span>
+
                           {openSection === item.id ? (
                             <Minus className="w-6 h-6 text-secondary-100 flex-shrink-0" />
                           ) : (
@@ -509,26 +524,39 @@ const Page = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-                {brandFeatures.map((feature, index) => (
-                  <div
-                    key={index}
-                    className={`bg-gradient-to-br ${feature.gradient} rounded-3xl p-1 shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-300`}
-                  >
-                    <div className="bg-white p-8 h-full w-full rounded-2xl">
-                      <Image
-                        src={`/${feature.icon}`}
-                        width={100}
-                        height={100}
-                        alt={feature.icon}
-                        className="w-16 h-auto"
-                      />
+            
+  {brandFeatures.map((feature, index) => (
+    <div
+      key={index}
+      className={`bg-gradient-to-br ${feature.gradient} rounded-[25px] p-[5px] shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-300`}
+      style={{ width: 340, height: 249 }}   // ✅ card size
+    >
+      <div
+        className="bg-white relative w-full h-full rounded-[20px] pt-[90px] px-6 pb-6"
+      >
+        {/* ICON */}
+        <Image
+          src={`/${feature.icon}`}
+          alt={feature.icon}
+          width={73}
+          height={70}
+          className="absolute top-[18px] left-[35px] w-[73px] h-[70px] opacity-100"
+        />
 
-                      <h3 className="text-[28px] font-normal text-dark-navy mb-3">{feature.title}</h3>
-                      <p className="text-neut/60 font-light text-xl">{feature.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+        {/* CONTENT */}
+        <h3 className="text-[24px] font-normal text-dark-navy mb-2">
+          {feature.title}
+        </h3>
+
+        <p className="text-neut/60 font-light text-[20px] leading-[1.2]">
+          {feature.description}
+        </p>
+      </div>
+    </div>
+  ))}
+</div>
+
+
             </div>
           </div>
         </section>

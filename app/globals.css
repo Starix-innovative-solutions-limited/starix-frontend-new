@@ -12,6 +12,16 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Hide scrollbar cross-browser */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE + Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari */
+}
+
+
 /* Define your custom design tokens */
 @theme {
   /* Primary */
