@@ -42,43 +42,60 @@ const Page = () => {
 
   return (
     <div className="general-space">
-      <div className="grid grid-cols-1 md:grid-cols-2 mt-20 gap-12 md:gap-40 items-center">
-        <div className="space-y-10">
-          <h3 className="font-semibold text-dark-navy leading-snug text-4xl md:text-5xl">
+      <div className="grid grid-cols-1 md:grid-cols-2  md:gap-40 items-center">
+        <div className="space-y-5 md:pb-35 pb-0">
+          <h3 className="font-semibold text-dark-navy md:text-left text-center leading-snug text-4xl md:text-5xl">
             Get in touch- <br />
             Let’s build the future of creator marketing together.
           </h3>
 
-          <p className="font-extralight text-neut/60 text-xl md:text-2xl">
+          <p className="font-extralight md:text-left text-center text-neut/60 text-xl md:text-2xl">
             Have questions, partnership ideas, or feedback? We’d love to hear from you.
           </p>
 
-          <div className="text-lg md:text-xl text-neut/60 space-y-4">
-            <span>You can reach us here:</span>
+          <div className="text-neut/60 space-y-4 text-center md:text-left">
+        <span className="block text-lg md:text-xl">
+            You can reach us here:
+        </span>
 
-            {/* ✅ Click to copy email */}
-            <button
-              type="button"
-              onClick={handleCopyEmail}
-              className="flex items-center gap-2 text-left w-fit group"
-              aria-label="Copy email address"
-              title="Click to copy"
-            >
-              <span>Email:</span>
-              <span className="text-dark-navy group-hover:underline">{email}</span>
-              <IoCopyOutline className="text-dark-navy/70 group-hover:text-dark-navy transition-colors" />
-              <span
-                className={`text-sm ml-2 transition-opacity ${
-                  copied ? "opacity-100 text-green-600" : "opacity-0"
-                }`}
-              >
-                Copied!
-              </span>
-            </button>
-          </div>
+        {/* Email row */}
+        <button
+            type="button"
+            onClick={handleCopyEmail}
+            aria-label="Copy email address"
+            title="Click to copy"
+            className="
+            group
+            inline-flex items-center gap-2
+            mx-auto md:mx-0
+            text-dark-navy
+            transition-colors
+            "
+        >
+            <span className="text-neut/60">Email:</span>
+
+            <span className="font-medium group-hover:underline">
+            {email}
+            </span>
+
+            <IoCopyOutline className="text-dark-navy/70 group-hover:text-dark-navy transition-colors" />
+        </button>
+
+        {/* Copied feedback – fixed position, no layout shift */}
+        <span
+            className={`
+            block text-sm
+            transition-opacity
+            ${copied ? "opacity-100 text-green-600" : "opacity-0"}
+            `}
+        >
+            Copied!
+        </span>
         </div>
 
-        <div className="bg-primary-orange/5 flex flex-col gap-3.5 px-6 md:px-10 py-10 rounded-3xl">
+        </div>
+
+        <div className="bg-primary-white md:bg-primary-orange/5 flex flex-col gap-3.5 px-0 md:px-10 py-0 md:py-10 rounded-3xl">
           <CustomInput
             label="Full name"
             placeholder="Full name"
@@ -138,7 +155,7 @@ const Page = () => {
           {/* ✅ Consistent hover invert */}
           <button
             type="button"
-            disabled={!emailValid || !form.fullName || !form.role || !form.message}
+            
             className="
               group
               py-4 w-full
@@ -147,8 +164,7 @@ const Page = () => {
               rounded-full
               transition-all duration-300
               hover:bg-white hover:text-dark-navy
-              disabled:opacity-40 disabled:cursor-not-allowed
-              disabled:hover:bg-dark-navy disabled:hover:text-white
+              
             "
           >
             Send Message
@@ -156,6 +172,7 @@ const Page = () => {
         </div>
       </div>
     </div>
+
   );
 };
 
