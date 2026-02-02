@@ -12,7 +12,7 @@ export type BrandSignupPayload = {
   password: string;
   brand_name: string;
   website?: string;
-  industry?: string;
+  industry: string[];
 };
 
 // OTP

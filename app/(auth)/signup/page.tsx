@@ -18,16 +18,16 @@ const SignupForm = () => {
   }
 
   return (
-    <div className="min-h-[calc(100vh-2rem)] w-full flex items-center justify-center px-4 py-6 md:px-8">
+    <div className="w-full flex items-center justify-center md:py-6 md:px-8">
       {/* Card */}
       <motion.div
         className="
           w-full
-          max-w-[560px]
-          bg-white
-          border border-gray-100
-          rounded-2xl
-          shadow-sm
+          
+          md:bg-none
+          
+          md:border-0
+          
           p-4 sm:p-6 md:p-8
         "
         variants={variants?.containerVariants}

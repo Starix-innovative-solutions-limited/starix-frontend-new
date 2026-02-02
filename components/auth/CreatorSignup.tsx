@@ -21,6 +21,7 @@ const CreatorSignup = () => {
     password: "",
     displayName: "",
   };
+  const [confirmPassword, setConfirmPassword] = useState("");
 
 
 
@@ -118,16 +119,40 @@ const CreatorSignup = () => {
         onChange={(e) => setForm({ ...form, password: e.target.value })}
       />
 
+      {/* CONFIRM PASSWORD */}
+      <CustomInput
+        label="Retype Password"
+        type="password"
+        placeholder="Retype password"
+        value={confirmPassword}
+        onChange={(e) => setConfirmPassword(e.target.value)}
+      />
+      
+
 
       <motion.div className="mt-9">
         <motion.button
           variants={variants?.itemVariants}
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
-          className="btn bg-dark-navy !py-4 w-full text-white"
+          className="
+                w-full
+                rounded-full
+                py-3.5 md:py-4
+                font-medium
+                text-white
+                bg-dark-navy
+                border border-dark-navy
+                transition-all duration-200
+                hover:bg-white hover:text-dark-navy
+                hover:shadow-md
+                disabled:opacity-60 disabled:cursor-not-allowed
+                focus:outline-none
+                focus:ring-2 focus:ring-dark-navy/20
+              "
           onClick={handleSubmit}
         >
-          {isPending ? <Loader /> : " Sign Up"}
+          {isPending ? <Loader /> : "Sign Up"}
         </motion.button>
 
 

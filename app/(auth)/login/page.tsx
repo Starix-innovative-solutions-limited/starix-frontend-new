@@ -54,7 +54,7 @@ const Page = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-2rem)] w-full flex items-center justify-center px-4 py-6 md:px-8">
+    <div className="min-h-[calc(100vh-2rem)] w-full flex items-center justify-center px-6 py-6 md:px-8">
       {/* Card */}
       <motion.div
         className="
