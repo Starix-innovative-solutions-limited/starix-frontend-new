@@ -121,43 +121,69 @@ const ChallengeGrid = () => {
       {/* Tabs + Filter */}
       <motion.div className="flex items-center justify-between mb-8 gap-3">
         <div className="flex items-center justify-between gap-1 border-b-[0.4px] border-dark p-2 px-4 max-md:overflow-x-auto grow max-w-3xl scrollbar-none">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-5 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
-                activeTab === tab.id
-                  ? "text-secondary-100"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-              type="button"
-            >
-              {tab.label}
-              {activeTab === tab.id && tab.count && (
-                <span
-                  className={`ml-2 text-xs p-1 rounded-lg ${
-                    activeTab === tab.id
-                      ? "bg-gray-900 text-white !text-sm font-bold"
-                      : ""
-                  }`}
-                >
-                  {tab.count}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
+  {tabs.map((tab) => {
+    const isActive = activeTab === tab.id;
+
+    return (
+      <button
+        key={tab.id}
+        onClick={() => setActiveTab(tab.id)}
+        type="button"
+        className={`
+          flex items-center gap-2
+          px-5 py-2
+          text-sm font-medium
+          whitespace-nowrap
+          transition-all duration-200
+          ${
+            isActive
+              ? "bg-white text-gray-500 rounded-full"   // ACTIVE → ellipse
+              : "text-gray-500 hover:bg-gray-100 rounded-full"
+          }
+        `}
+      >
+        {tab.label}
+
+        {tab.count !== undefined && (
+          <span
+            className={`
+              text-xs px-2 py-[2px] rounded-full
+              ${
+                isActive
+                  ? "bg-white text-gray-900 font-semibold"   // active badge
+                  : "bg-white text-gray-400 border border-gray-200" // faint inactive badge
+              }
+            `}
+          >
+            {tab.count}
+          </span>
+        )}
+      </button>
+    );
+  })}
+</div>
+
 
         {/* ✅ Working Filter Dropdown */}
         <div className="relative">
-          <button
+         <button
             type="button"
             onClick={() => setFilterOpen((p) => !p)}
-            className="flex items-center gap-2 px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
-          >
+            className="
+                flex items-center gap-2
+                px-5 py-2.5
+                text-gray-600
+                hover:bg-gray-100
+                rounded-full        /* makes ellipse */
+                border border-gray-200
+                bg-white
+                transition-colors
+            "
+            >
             <IoFilterOutline className="text-lg" />
             <span className="text-sm font-medium">Filter</span>
-          </button>
+            </button>
+
 
           {filterOpen && (
             <>
@@ -234,7 +260,7 @@ const ChallengeGrid = () => {
       {/* Grid */}
       <motion.div
         variants={variants?.containerVariants}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
       >
         {/* Tabs 0-1 show Challenges */}
         {activeTab <= 1 &&

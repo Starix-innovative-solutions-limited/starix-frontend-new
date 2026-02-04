@@ -22,7 +22,6 @@ const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
   const [collapsed, setCollapsed] = useState<boolean>(false);
 
   // useEffect(() => onClose, [active]);
-
   useEffect(() => {
     const handleResize = () => {
       // Tailwind 'lg' breakpoint = 1024px
@@ -52,9 +51,9 @@ const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
     >
       <div className="flex flex-col gap-6 grow">
         <div className="flex-between">
-          <span className="bg-white  rounded-md w-fit">
+          <span className="bg-white rounded-md w-fit">
             <Image
-              src="/logo.png"
+              src="/logo.svg"
               alt="Starix-logo"
               width={100}
               height={25}

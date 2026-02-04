@@ -44,19 +44,19 @@ const Page = () => {
       label: "Starix Score:",
       value: profile?.reputation_score ?? 0,
       valueSize: "text-3xl",
-      image: "/star.png",
+      image: "/star 2.svg",
     },
     {
       label: "Your Niche:",
       value: profile?.content_categories ? profile?.content_categories : "nil",
       valueSize: "text-lg",
-      image: "/ball.png",
+      image: "/ball 2.svg",
     },
     {
       label: "Ongoing Challenges:",
       value: "10",
       valueSize: "text-3xl",
-      image: "/trophy.png",
+      image: "/trophy.svg",
     },
   ];
 
@@ -104,7 +104,7 @@ const Page = () => {
     profile?.profile_picture ||
     profile?.avatar ||
     profile?.image ||
-    "/avatar.png"; // put a default avatar in /public/avatar.png
+    "/avatar.svg"; // put a default avatar in /public/avatar.png
 
   return (
     <div className="min-h-screen w-full">
@@ -144,8 +144,9 @@ const Page = () => {
           <div
             className="
               w-full md:w-fit
-              flex flex-col gap-3
-              md:flex-row md:items-center md:gap-5
+              flex items-center
+              justify-between
+              gap-3 md:gap-5
               bg-white border border-gray-200 rounded-2xl
               px-3 py-3 md:py-2
             "
@@ -175,10 +176,11 @@ const Page = () => {
                 </motion.span>
               </div>
 
-              <span className="text-secondary-100/70 text-sm md:ml-3">
-                LEVEL {Math.round(star.pct)}%
+              <span className="text-secondary-100/70 text-xs">
+                Level {Math.round(star.pct)}
               </span>
             </motion.div>
+
 
             {/* Progress ring */}
             <div
@@ -211,24 +213,32 @@ const Page = () => {
                 key={index}
                 variants={item}
                 className="
-                  bg-white border border-gray-100 rounded-2xl
-                  px-5 md:px-6 py-4 md:py-6
-                  shadow hover:shadow-lg transition-shadow
-                  flex items-center justify-between gap-4
-                  min-w-0
+                  bg-white
+                  border border-gray-100
+                  rounded-[20px]
+                  w-full
+                  h-[100px]
+                  md:w-[335px]
+                 
+                  px-4
+                  shadow
+                  hover:shadow-lg
+                  transition-shadow
+                  flex items-center justify-between
                 "
+
               >
                 <div className="space-y-2 min-w-0">
-                  <p className="text-dark text-base">{card.label}</p>
-                  <span className={`font-bold text-secondary-100 ${card.valueSize} break-words`}>
+                  <p className="text-dark text-sm">{card.label}</p>
+                  <span className={`font-normal text-secondary-100 ${card.valueSize} break-words`}>
                     {card.value}
                   </span>
                 </div>
 
                 <Image
                   src={card.image}
-                  width={240}
-                  height={240}
+                  width={120}
+                  height={82}
                   alt={card.label}
                   className="w-24 md:w-36 h-auto object-contain shrink-0"
                 />
@@ -244,7 +254,7 @@ const Page = () => {
                 Trending in Your Niche
               </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-14">
                 {trendingInsights.map((insight, index) => {
                   const Icon = insight.icon;
                   return (
@@ -257,7 +267,7 @@ const Page = () => {
 
                           <div className="text-gray-800 font-medium flex items-start gap-2 mt-2">
                             <Icon className="text-orange-500 text-lg md:text-xl flex-shrink-0 mt-0.5" />
-                            <span className="text-sm md:text-base break-words">
+                            <span className="text-sm md:text-sm break-words">
                               {insight.text}
                             </span>
                           </div>
@@ -287,10 +297,19 @@ const Page = () => {
 
               <Link
                 href="/challenges"
-                className="text-purple-600 hover:text-purple-700 font-semibold transition-colors"
+                className="
+                
+                  text-[#040136]
+                  px-4 py-2
+                  rounded-full
+                  font-semibold
+                  transition-all duration-200
+                  hover:opacity-90
+                "
               >
                 See All
               </Link>
+
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

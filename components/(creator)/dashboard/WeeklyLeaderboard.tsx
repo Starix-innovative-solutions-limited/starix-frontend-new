@@ -17,7 +17,7 @@ const WeeklyLeaderboard = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
-  // ✅ Backend dev should replace this with the real endpoint + response mapping
+  // ✅ Backend dev can replace this with the real endpoint + response mapping
   const fetchLeaderboard = async (): Promise<LeaderboardUser[]> => {
     // Example:
     // const res = await fetch("/api/leaderboard/weekly");
@@ -60,7 +60,7 @@ const WeeklyLeaderboard = () => {
   }, []);
 
   return (
-    <div className="bg-white rounded-2xl p-4 sm:p-5 md:p-6 shadow border border-gray-100 w-full">
+    <div className="bg-white rounded-2xl p-4 sm:p-5 md:p-2 shadow border border-gray-100 w-full">
       {/* Header */}
       <div className="flex items-center justify-between gap-3 border-b py-4 sm:py-5 border-[#6E6E6E33]">
         <div className="flex items-center gap-2 min-w-0">
@@ -86,7 +86,7 @@ const WeeklyLeaderboard = () => {
       <div className="pt-4">
         {/* Loading */}
         {loading && (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
               <div
                 key={i}
@@ -119,7 +119,7 @@ const WeeklyLeaderboard = () => {
 
         {/* List */}
         {!loading && !error && users.length > 0 && (
-          <div className="space-y-3 sm:space-y-4">
+          <div className="space-y-3 sm:space-y-5">
             {users.map((creator, idx) => {
               const badgeText = creator.isYou ? "You" : null;
 
@@ -130,21 +130,21 @@ const WeeklyLeaderboard = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: idx * 0.06 }}
                   className={[
-                    "flex items-center justify-between gap-3",
-                    "p-3 sm:p-3.5 rounded-xl",
-                    "transition-colors border border-gray-100",
+                    "flex items-center justify-between gap-1",
+                    "rounded-xl",
+                    "transition-colors",
                     "hover:bg-gray-50",
                     creator.isYou ? "bg-[#FFF8F5]" : "bg-white",
                   ].join(" ")}
                 >
                   {/* Left */}
-                  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                    <span className="text-dark font-semibold w-10 shrink-0 text-sm sm:text-base">
+                  <div className="flex items-center gap-4 sm:gap-1 min-w-0">
+                    <span className="text-dark font-sm w-10 shrink-0 text-sm sm:text-base">
                       #{creator.rank}
                     </span>
 
                     {/* Avatar */}
-                    {creator.avatarUrl ? (
+                    {/* {creator.avatarUrl ? (
                       <Image
                         src={creator.avatarUrl}
                         alt={creator.username}
@@ -154,7 +154,15 @@ const WeeklyLeaderboard = () => {
                       />
                     ) : (
                       <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-orange-300 to-pink-300 rounded-full shrink-0" />
-                    )}
+                    )} */} {/* Using placeholder avatar for now */}
+                    <Image
+                      src={creator.avatarUrl || "/avatar.svg"}
+                      alt={creator.username}
+                      width={40}
+                      height={40}
+                      className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover shrink-0"
+                    />
+
 
                     <span className="font-medium text-gray-800 text-sm sm:text-base truncate">
                       {creator.username}
@@ -169,9 +177,10 @@ const WeeklyLeaderboard = () => {
                       </span>
                     )}
 
-                    <span className="text-lg sm:text-2xl font-bold text-gray-800 tabular-nums">
-                      {creator.points}
-                    </span>
+                    <span className="font-['Geist'] font-normal text-[20px] leading-[1] tracking-[0] text-gray-800 tabular-nums">
+                    {creator.points}
+                  </span>
+
                   </div>
                 </motion.div>
               );

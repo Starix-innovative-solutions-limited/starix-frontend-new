@@ -36,7 +36,16 @@ const Page = () => {
     },
   ];
   return (
-    <div className="min-h-screen flex flex-col  gap-10">
+    <div className="
+      min-h-screen
+      flex flex-col gap-10
+      w-full
+      max-w-[1400px]
+      mx-auto
+      px-4 sm:px-6 lg:px-8
+    ">
+
+
 
       {/* Header */}
       <motion.div
@@ -48,7 +57,12 @@ const Page = () => {
         {/* Header */}
         <motion.div
           variants={variants?.headerVariants}
-          className="flex justify-between items-start mb-8"
+          className="
+          flex flex-col gap-4
+          md:flex-row md:justify-between md:items-start
+          mb-8
+        "
+
         >
 
           <div>
@@ -59,7 +73,12 @@ const Page = () => {
             >
               Portfolio
             </motion.span>
-            <div className="flex-center gap-5">
+            <div className="
+              flex gap-3
+              flex-wrap
+              md:flex-nowrap
+            ">
+
               {
                 ['/tiktok/Favour', '/youtube/Favour']?.map((item, i) => (
                   <span key={i} className="text-dark-navy/60 font-light rounded bg-[#f5f5f5] px-2 py-1 border border-gray-100 flex-center gap-2">
@@ -118,7 +137,15 @@ const Page = () => {
             <span className="font-light text-secondary-100 text-sm"> Edit</span> </button>
         </div>
 
-        <div className="flex gap-6  mt-10 bg-white rounded-2xl shadow p-10">
+        <div className="
+          flex flex-wrap gap-3 sm:gap-4
+          mt-6
+          bg-white
+          rounded-2xl
+          shadow
+          p-4 sm:p-6 md:p-8
+        ">
+
           {
             [1, 2, 3, 4, 5, 6, 7, 8, 9]?.map((item) => (
               <button key={item} className="bg-white border-[0.4px] border-secondary-100 rounded-4xl text-secondary-100/60 px-3 py-1.5">
@@ -154,7 +181,8 @@ const Page = () => {
 
         </motion.div>
       </div>
-      <div className="grid  md:grid-cols-3 gap-6  my-4">
+      <div className="grid w-full md:grid-cols-3 gap-6 my-4">
+
         {[1, 2, 3, 4, 5, 6].map((challenge) => (
           <PostCard key={challenge} link={'/portfolio/work-details'} />
         ))}
