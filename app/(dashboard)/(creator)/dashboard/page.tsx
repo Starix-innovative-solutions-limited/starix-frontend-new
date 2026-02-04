@@ -44,7 +44,7 @@ const Page = () => {
       label: "Starix Score:",
       value: profile?.reputation_score ?? 0,
       valueSize: "text-3xl",
-      image: "/star 2.svg",
+      image: "/Star 2.svg",
     },
     {
       label: "Your Niche:",
