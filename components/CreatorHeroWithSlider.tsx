@@ -116,11 +116,11 @@ export default function CreatorHeroWithSlider() {
     translate-y-[40%]
     w-[300px] h-[200px]
     md:w-[455px] md:h-[342px]
-    md:left-0 md:translate-x-[20%]
-    md:translate-y-0
+    md:left-0 md:translate-x-[80%]
+    md:translate-y-[0]
     bg-no-repeat bg-contain
   "
-  style={{ backgroundImage: "url('/star 2.svg')" }}
+  style={{ backgroundImage: "url('/Star 2.svg')" }}
 />
         </div>
 
