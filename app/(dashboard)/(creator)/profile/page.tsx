@@ -126,7 +126,19 @@ export default function Page() {
 
         {/* SIDEBAR */}
         <div className="space-y-6 lg:sticky lg:top-24 h-fit w-full">
-          <Card><PaymentDetails bankDetails={{}} /></Card>
+          <Card>
+          <PaymentDetails
+            bankDetails={{
+              bank_account_number: profile?.bank_account_number ?? "",
+              bank_code: profile?.bank_code ?? "",
+              bank_name: profile?.bank_name ?? "",
+              bank_account_name: profile?.bank_account_name ?? "",
+              bank_verified: profile?.bank_verified ?? false,
+              bank_verified_at: profile?.bank_verified_at ?? "",
+            }}
+          />
+        </Card>
+
           <Card><SocialMedia /></Card>
         </div>
 
