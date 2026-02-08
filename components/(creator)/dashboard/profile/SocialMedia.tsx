@@ -27,7 +27,7 @@ const SocialMedia = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-white rounded-2xl p-6 shadow-sm"
+            className=" p-6"
         >
             <div className=" mx-4 text-center flex items-center gap-2 justify-center pb-3 mb-5 border-b border-neut/20">
                 <UserRoundSearch className="text-neut/60" size={23} />

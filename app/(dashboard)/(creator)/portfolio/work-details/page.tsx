@@ -8,6 +8,7 @@ import RouteHeader from '@/components/(creator)/dashboard/RouteHeader'
 import ImageCarousel from '@/components/(creator)/dashboard/creator/ImageCarousel'
 import EngagementInsight from '@/components/(creator)/dashboard/creator/EngagementInsight'
 
+
 const Page = () => {
 
     const details = [

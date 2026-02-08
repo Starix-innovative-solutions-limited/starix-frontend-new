@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, ChangeEvent } from "react";
-import { FaCamera } from "react-icons/fa";
+import { FaCamera, FaPen } from "react-icons/fa";
 import CustomInput from "@/components/CustomInput";
 import { useUpdateCreatorProfile } from "@/hooks/useProfile";
 import toast from "react-hot-toast";
@@ -151,41 +151,85 @@ const UpdateProfile: React.FC = () => {
 
     return (
         <div className="md:min-w-lg mx-auto min-h-[90vh] max-h-[90vh] overflow-y-scroll ">
-            {/* Profile Image */}
-            <div className="flex flex-col items-center my-8">
-                <div className="relative flex items-end justify-between">
-                    <img
-                        src={profileImage}
-                        alt="Profile"
-                        className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-md"
-                    />
-                    <div>
-                        <label
-                            htmlFor="profile-image"
-                            className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-md cursor-pointer hover:bg-gray-50 transition-colors"
-                        >
-                            <FaCamera className="w-4 h-4 text-gray-600" />
-                        </label>
-                        <input
-                            id="profile-image"
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageChange}
-                            className="hidden"
-                        />
-                    </div>
-                </div>
+            <div className="relative flex items-center justify-center my-10">
+            <h2 className="text-2xl font-medium text-dark-navy">
+                Edit Profile
+            </h2>
 
-                <button
-                    type="button"
-                    onClick={() =>
-                        document.getElementById("profile-image")?.click()
-                    }
-                    className="mt-3 text-sm text-blue-600 hover:text-blue-700 font-medium"
-                >
-                    Change Image
-                </button>
+            <button
+  className="
+    absolute right-5
+    w-10 h-10
+    flex items-center justify-center
+    rounded-full
+    bg-gray-100
+    hover:bg-gray-200
+    transition
+  "
+>
+  ✕
+</button>
+
             </div>
+            {/* Profile Image */}
+            <div className="flex items-center justify-between my-8">
+  {/* LEFT – IMAGE */}
+  <div className="relative">
+    <img
+      src={profileImage}
+      alt="Profile"
+      className="
+        w-24 h-24
+        rounded-full
+        object-cover
+        border-4 border-white
+        shadow-md
+      "
+    />
+
+    <label
+      htmlFor="profile-image"
+      className="
+        absolute bottom-1 right-1
+        bg-white
+        rounded-full
+        p-2
+        shadow-md
+        cursor-pointer
+        hover:bg-gray-50
+        transition
+      "
+    >
+      <FaPen className="w-3 h-3 text-gray-600" />
+    </label>
+
+    <input
+      id="profile-image"
+      type="file"
+      accept="image/*"
+      onChange={handleImageChange}
+      className="hidden"
+    />
+  </div>
+
+  {/* RIGHT – BUTTON */}
+  <button
+    type="button"
+    onClick={() =>
+      document.getElementById("profile-image")?.click()
+    }
+    className="
+      text-sm
+      text-dark-navy
+      hover:text-dark-navy/80
+      font-medium
+      underline
+    "
+  >
+    Change Image
+  </button>
+</div>
+
 
             {/* Form */}
             <CustomInput

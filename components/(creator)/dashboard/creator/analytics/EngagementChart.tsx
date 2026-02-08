@@ -25,7 +25,7 @@ const EngagementChart = ({ label = "Engagement Rate", showLabel }: EngagementPro
     { date: '30 Mar', twitter: 260, instagram: 250, youtube: 180, tiktok: 120 },
   ];
 
-  const timeRanges = ['7d', '14d', '4 wks', '6 mts', '1 yr'];
+  const timeRanges = ['7 days', '14 days', '4 weeks', '6 months', '1 year'];
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
@@ -95,7 +95,7 @@ const EngagementChart = ({ label = "Engagement Rate", showLabel }: EngagementPro
               <Legend
                 verticalAlign="bottom"
                 height={36}
-                iconType="circle"
+                iconType="square"
                 wrapperStyle={{ paddingTop: '20px' }}
                 formatter={(value) => (
                   <span className="text-sm text-gray-600 capitalize">{value}</span>

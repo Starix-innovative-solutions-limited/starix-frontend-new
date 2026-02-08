@@ -3,7 +3,6 @@
 
 import { variants } from "@/constant";
 import { motion } from "framer-motion";
-import React from "react";
 
 import LinearGradientBorder from "@/components/ui/LinearGradientBorder";
 import { TbBrandGoogleAnalytics } from "react-icons/tb";
@@ -23,7 +22,6 @@ const Page = () => {
         variants={variants?.containerVariants}
         className=" flex flex-col gap-7"
       >
-
 
         {/* Header */}
         <motion.div
@@ -53,7 +51,7 @@ const Page = () => {
                   label: 'Avg Engagement Rate',
                   text: '10hr'
                 },]?.map((item: any, i: number) => (
-                  <LinearGradientBorder key={i} className="py-4">
+                  <LinearGradientBorder key={i} className="py-0.5 px-0.5">
                     <div className="flex items-start justify-between text-sm">
                       <div className="flex flex-col gap-3">
                         <span className="text-dark font-light text-base">{item?.label} :</span>
@@ -88,11 +86,11 @@ const Page = () => {
                 </div>
               </div>
 
-              <div className="flex flex-col mt-4 gap-2 md:gap-6 justify-end ">
-                <span className="bg-[#EBEFFF] px-2 py-1 text-xs max-md:w-fit flex items-center font-light h-fit text-secondary-100 rounded-md">
+              <div className="flex flex-col mt-4 gap-2 md:gap-8  justify-end ">
+                <span className="bg-[#EBEFFF] -translate-y-3 px-2 py-0 text-xs max-md:w-fit flex items-center font-light h-fit text-secondary-100 rounded-md">
                   Based On Your Post Engagements
                 </span>
-                <span className="text-dark text-xs font-light flex items-center gap-2">
+                <span className="text-dark text-xs font-light flex items-center gap-2 -translate-x-3 ml-15">
                   <span className="w-3 h-3 rounded-full bg-dark" />
                   Avg engagement +42%
                 </span>

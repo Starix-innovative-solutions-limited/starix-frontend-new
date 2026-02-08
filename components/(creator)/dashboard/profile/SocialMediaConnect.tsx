@@ -49,7 +49,7 @@ export default function SocialMediaConnect() {
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className=" w-full"
+            className=" w-[512px] rounded-3xl p-10"
         >
             <h2 className="text-xl text-center font-medium text-secondary-100 p-4 mb-8">Social Media.</h2>
 

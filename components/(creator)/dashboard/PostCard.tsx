@@ -40,7 +40,7 @@ const PostCard = ({ viewSubmitLink, isWin, price, link }: PostProps) => {
     >
       <div className="relative">
         <Image
-          src={"/post.png"}
+          src={"/card22.png"}
           alt="post"
           width={1000}
           height={1000}
