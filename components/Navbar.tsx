@@ -60,7 +60,7 @@ export default function Navbar() {
       <div className="mx-auto w-full max-w-[1400px] px-6 md:px-16">
         <div className="h-[84px] flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="shrink-0" onClick={closeAll}>
+          <Link href="/" className="shrink-0 -ml-[1.3%]" onClick={closeAll}>
             <Image src="/logo.svg" alt="Starix" width={110} height={28} priority />
           </Link>
 

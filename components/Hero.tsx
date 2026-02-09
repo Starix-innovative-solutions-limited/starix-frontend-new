@@ -10,16 +10,12 @@ const Hero = () => {
         general-space
         overflow-hidden
         mx-auto
-        my-10
+        my-5
 
         /* HEIGHT CONTROL */
       
         
         lg:min-h-[80vh]
-
-        
-
-        
       "
     >
       <div
@@ -89,20 +85,25 @@ const Hero = () => {
             <Link
               href="/login"
               className="
-                w-full sm:w-auto
-                inline-flex items-center justify-center
-                rounded-full
-                border border-dark-navy/50
-                bg-white
-                h-[58px]
-                px-10
-                text-dark-navy
-                text-[16px]
-                xl:text-[20px]
-                font-[500]
-                transition-all duration-200
-                hover:bg-dark-navy hover:text-white
-              "
+              w-full sm:w-[193px]
+              h-[68px]
+              inline-flex items-center justify-center
+              gap-[6px]
+
+              rounded-[40px]
+              border-2 border-dark-navy/50
+              bg-white
+
+              px-[18px] py-[6px]
+
+              text-dark-navy
+              text-[16px] xl:text-[20px]
+              font-medium
+
+              transition-all duration-200
+             
+            "
+
             >
               Join as a Creator
             </Link>
@@ -110,22 +111,27 @@ const Hero = () => {
             <Link
               href="/login"
               className="
-                w-full sm:w-auto
                 inline-flex items-center justify-center
-                rounded-full
+                w-[193px]
+                h-[68px]
+                gap-[6px]
+
+                rounded-[40px]
                 bg-dark-navy
-                h-[58px]
-                px-10
+
+                px-[18px] py-[6px]
+
                 text-white
-                text-[16px]
-                xl:text-[20px]
-                font-[500]
+                text-[16px] xl:text-[20px]
+                font-medium
+
                 transition-all duration-200
                 hover:opacity-95
               "
             >
               Join as a Brand
             </Link>
+
           </div>
         </div>
 
@@ -145,7 +151,7 @@ const Hero = () => {
           >
             {/* GRID BACKGROUND */}
             <div
-              className="absolute inset-0 rounded-2xl"
+              className="absolute inset-0 rounded-2xl min-h-[600px]"
               style={{
                 backgroundImage: "url('/gridLayer.png')",
                 backgroundRepeat: "no-repeat",
@@ -153,6 +159,7 @@ const Hero = () => {
                 backgroundPosition: "center",
               }}
             />
+
 
             {/* ICON LAYER */}
             <div
@@ -199,7 +206,7 @@ const Hero = () => {
                   w-[76px] h-[76px]
                   sm:w-[76px] sm:h-[76px]
                   md:w-[114px] md:h-[114px]
-                  lg:w-[150px] lg:h-[150px]
+                  lg:w-[175px] lg:h-[175px]
 
                   max-md:scale-[2.0]
 

@@ -39,10 +39,11 @@ const WhyStarix = () => {
       </h1>
 
       {/* MAIN WRAPPER */}
-      <div className="w-full max-w-[1200px] grid grid-cols-1 md:grid-cols-[420px_1fr] gap-[32px] px-[20px] md:px-0">
+      <div className="w-full max-w-[1300px] grid grid-cols-1 md:grid-cols-[420px_1fr] gap-[32px] px-[20px] md:px-0">
 
         {/* ================= LEFT PANEL ================= */}
-        <div className="bg-[#E6ECFF] rounded-[28px] p-[20px] md:p-[28px] mb-[48px]">
+        <div className="bg-[#E6ECFF] rounded-[28px] p-[20px] md:p-[28px] mb-[48px] w-full">
+
 
           <span className="inline-block bg-[#FFFFFF] text-[#B0B0B0] text-[12px] px-[14px] py-[6px] rounded-[8px] mb-[28px]">
             THE PROBLEM
