@@ -15,7 +15,13 @@ type FormProps = {
   displayName: string;
 };
 
-const CreatorSignup = () => {
+type CreatorSignupProps = {
+  setIsGoogleAuth: React.Dispatch<React.SetStateAction<boolean>>;
+  role: string;
+};
+
+const CreatorSignup = ({ setIsGoogleAuth, role }: CreatorSignupProps) => {
+
   const initialForm: FormProps = {
     email: "",
     password: "",

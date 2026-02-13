@@ -36,8 +36,14 @@ const initialForm: BrandSignupPayload = {
   website: "",
   industry: [],
 };
+type BrandSignupProps = {
+  setIsGoogleAuth: React.Dispatch<React.SetStateAction<boolean>>;
+  role: string;
+};
 
-const BrandSignup = () => {
+
+const BrandSignup = ({ setIsGoogleAuth, role }: BrandSignupProps) => {
+
   const [form, setForm] = useState<BrandSignupPayload>(initialForm);
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -47,6 +53,7 @@ const BrandSignup = () => {
   const { mutateAsync, isPending } = useBrandSignup();
   const router = useRouter();
 
+  
   /* ---------------- INDUSTRY LOGIC ---------------- */
 
   const filteredIndustries = INDUSTRIES.filter(
@@ -231,4 +238,4 @@ const BrandSignup = () => {
   );
 };
 
-export default BrandSignup;
+
