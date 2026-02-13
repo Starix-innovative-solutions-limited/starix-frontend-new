@@ -238,4 +238,4 @@ const BrandSignup = ({ setIsGoogleAuth, role }: BrandSignupProps) => {
   );
 };
 
-
+export default BrandSignup;
