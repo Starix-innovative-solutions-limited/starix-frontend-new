@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import SSOButtons from "@/components/auth/SSOButtons";
@@ -10,7 +12,6 @@ import Loader from "@/components/Loader";
 import { useLogin } from "@/hooks/useAuth";
 import toast from "react-hot-toast";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
 
 type FormProps = {
   email: string;
@@ -19,36 +20,23 @@ type FormProps = {
 
 const Page = () => {
   const searchParams = useSearchParams();
-  const role = searchParams.get("role"); // "brand" | nullconst searchParams = useSearchParams();
-
+  const role = searchParams.get("role"); // "brand" | null
 
   const router = useRouter();
   const { mutateAsync, isPending: isLoading } = useLogin();
 
   const redirectAfterLogin = () => {
-  const savedRole = localStorage.getItem("loginRole");
+    if (typeof window === "undefined") return;
 
-  const finalRole = role || savedRole;
+    const savedRole = localStorage.getItem("loginRole");
+    const finalRole = role || savedRole;
 
-  if (finalRole === "brand") {
-    router.push("/brand");
-  } else {
-    router.push("/dashboard");
-  }
-};
-
-
-// useEffect(() => {
-//   const savedRole = localStorage.getItem("loginRole");
-
-//   if (savedRole === "brand") {
-//     router.push("/brand");
-//   } else if (savedRole === "creator") {
-//     router.push("/creator");
-//   }
-// }, []);
-
-
+    if (finalRole === "brand") {
+      router.push("/brand");
+    } else {
+      router.push("/dashboard");
+    }
+  };
 
   const initialForm: FormProps = { email: "", password: "" };
   const [form, setForm] = useState<FormProps>(initialForm);
@@ -62,20 +50,22 @@ const Page = () => {
     }
 
     try {
-      const res: any = await toast.promise(
+      await toast.promise(
         mutateAsync({ email: form.email, password: form.password }),
         {
           loading: "Signing in...",
           success: "Signed in successfully ✅",
           error: (err: any) =>
-            `Signin failed: ${err?.response?.data?.detail || err?.message || "Something went wrong"}`,
+            `Signin failed: ${
+              err?.response?.data?.detail ||
+              err?.message ||
+              "Something went wrong"
+            }`,
         }
       );
 
       setForm(initialForm);
-
       redirectAfterLogin();
-
     } catch (err) {
       console.log("SignIn Error:", err);
     }
@@ -83,26 +73,17 @@ const Page = () => {
 
   return (
     <div className="min-h-[calc(100vh-2rem)] w-full flex items-center justify-center px-6 py-6 md:px-8">
-      {/* Card */}
       <motion.div
-        className="
-          w-full
-          max-w-[520px]
-          bg-white
-          border border-gray-100
-          rounded-2xl
-          shadow-sm
-          p-4 sm:p-6 md:p-8
-        "
+        className="w-full max-w-[520px] bg-white border border-gray-100 rounded-2xl shadow-sm p-4 sm:p-6 md:p-8"
         variants={variants?.containerVariants}
         initial="hidden"
         animate="visible"
         exit="exit"
       >
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          {/* Header */}
+          {/* HEADER */}
           <motion.div className="flex flex-col gap-2" variants={variants?.itemVariants}>
-            <h3 className="font-medium text-3xl sm:text-4xl md:text-5xl leading-tight tracking-[0.02rem] text-secondary-100">
+            <h3 className="font-medium text-3xl sm:text-4xl md:text-5xl leading-tight text-secondary-100">
               Welcome back
             </h3>
             <p className="text-neut/60 text-sm sm:text-base font-light">
@@ -111,36 +92,37 @@ const Page = () => {
           </motion.div>
 
           {/* SSO */}
-          <motion.div variants={variants?.itemVariants} className="w-full">
+          <motion.div variants={variants?.itemVariants}>
             <SSOButtons
               onGoogleSign={() => {
-                const selectedRole = role === "brand" ? "brand" : "dashboard"; // default to dashboard if no role or unrecognized role in query
-                localStorage.setItem("loginRole", selectedRole);
-
-                redirectAfterLogin(); // <-- ADD THIS
+                if (typeof window !== "undefined") {
+                  const selectedRole = role === "brand" ? "brand" : "creator";
+                  localStorage.setItem("loginRole", selectedRole);
+                }
+                redirectAfterLogin();
               }}
             />
-
-
-
-
           </motion.div>
 
-          {/* Divider */}
+          {/* DIVIDER */}
           <motion.div variants={variants?.itemVariants} className="flex items-center gap-4">
             <div className="h-px bg-gray-200 w-full" />
-            <span className="text-xs text-gray-400 whitespace-nowrap">or continue with email</span>
+            <span className="text-xs text-gray-400 whitespace-nowrap">
+              or continue with email
+            </span>
             <div className="h-px bg-gray-200 w-full" />
           </motion.div>
 
-          {/* Inputs */}
+          {/* INPUTS */}
           <motion.div variants={variants?.itemVariants} className="flex flex-col gap-4">
             <CustomInput
               label="Email Address"
               type="email"
               placeholder="e.g johndoe@email.com"
               value={form.email}
-              onChange={(e: any) => setForm((prev) => ({ ...prev, email: e.target.value }))}
+              onChange={(e: any) =>
+                setForm((prev) => ({ ...prev, email: e.target.value }))
+              }
             />
 
             <CustomInput
@@ -148,40 +130,28 @@ const Page = () => {
               type="password"
               placeholder="Minimum of 8 characters"
               value={form.password}
-              onChange={(e: any) => setForm((prev) => ({ ...prev, password: e.target.value }))}
+              onChange={(e: any) =>
+                setForm((prev) => ({ ...prev, password: e.target.value }))
+              }
             />
 
-            <div className="flex items-center justify-end">
+            <div className="flex justify-end">
               <a
                 href="/forgot-password"
-                className="text-sm text-dark-navy font-light hover:text-dark-navy/80 transition-colors"
+                className="text-sm text-dark-navy font-light hover:text-dark-navy/80"
               >
                 Forgot password?
               </a>
             </div>
           </motion.div>
 
-          {/* Submit */}
+          {/* SUBMIT */}
           <motion.div variants={variants?.itemVariants} className="flex flex-col gap-4">
             <motion.button
               type="submit"
               disabled={isLoading}
               whileTap={{ scale: 0.98 }}
-              className="
-                w-full
-                rounded-full
-                py-3.5 md:py-4
-                font-medium
-                text-white
-                bg-dark-navy
-                border border-dark-navy
-                transition-all duration-200
-                hover:bg-white hover:text-dark-navy
-                hover:shadow-md
-                disabled:opacity-60 disabled:cursor-not-allowed
-                focus:outline-none
-                focus:ring-2 focus:ring-dark-navy/20
-              "
+              className="w-full rounded-full py-3.5 md:py-4 font-medium text-white bg-dark-navy border border-dark-navy hover:bg-white hover:text-dark-navy disabled:opacity-60"
             >
               {isLoading ? <Loader /> : "Login"}
             </motion.button>
@@ -194,7 +164,6 @@ const Page = () => {
               >
                 Sign up
               </a>
-              
             </p>
           </motion.div>
         </form>
