@@ -26,19 +26,24 @@ export function MotionTable<T>({
   onPageChange,
 }: MotionTableProps<T>) {
   return (
-    <div className=" overflow-y-hidden overflow-x-scroll bg-white min-w-fit w-full grow">
-      <motion.table className="min-w-[70vw]">
+    <div className="overflow-y-hidden overflow-x-auto w-full">
+
+
+      <motion.table className="w-full table-auto">
+
         {/* Table Header */}
         <motion.thead
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="bg-gray-50 border-b border-dark"
+          className="border-b border-gray-200"
+
         >
           <tr>
             {headers.map((header, i) => (
               <motion.th
-                key={header}
+                key={`${header}-${i}`}
+
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 + i * 0.05 }}
@@ -78,7 +83,7 @@ export function MotionTable<T>({
       {/* Pagination */}
       {totalPages && totalPages > 1 && (
         <div className="flex">
-          <div className="flex items-center gap-3 px-4 py-3  bg-gray-50 ml-auto">
+          <div className="flex items-center gap-3 px-4 py-3 ml-auto">
             <button
               disabled={currentPage === 1}
               onClick={() => onPageChange && onPageChange(currentPage! - 1)}

@@ -7,11 +7,13 @@ import { variants } from "@/constant";
 import { useSearchParams } from "next/navigation";
 import CreatorSignup from "@/components/auth/CreatorSignup";
 import BrandSignup from "@/components/auth/BrandSignup";
+import Link from "next/link";
 
 const SignupForm = () => {
   const searchParams = useSearchParams();
-  const role = searchParams.get("role"); // "brand" | null
+  const role = searchParams.get("role") ?? "creator";
   const [isGoogleAuth, setIsGoogleAuth] = useState(false);
+  
 
   if (isGoogleAuth) {
     return <Personalize onBack={() => setIsGoogleAuth(false)} />;
@@ -67,19 +69,22 @@ const SignupForm = () => {
           {/* Form body */}
           <motion.div variants={variants?.itemVariants}>
             {role === "brand" ? (
-              <BrandSignup />
-            ) : (
-              <CreatorSignup />
-            )}
+            <BrandSignup setIsGoogleAuth={setIsGoogleAuth} role="brand" />
+          ) : (
+            <CreatorSignup setIsGoogleAuth={setIsGoogleAuth} role="creator" />
+          )}
           </motion.div>
 
           {/* Footer */}
           <motion.div className="flex flex-col gap-3 mt-1" variants={variants?.itemVariants}>
             <p className="text-center text-sm sm:text-base font-light text-neut/60">
               Already have an account?{" "}
-              <a href="/login" className="text-dark-navy font-normal hover:underline">
-                Login
-              </a>
+              <Link
+              href={`/login${role === "brand" ? "?role=brand" : ""}`}
+              className="text-dark-navy font-normal hover:underline"
+            >
+              Login
+            </Link>
               .
             </p>
 

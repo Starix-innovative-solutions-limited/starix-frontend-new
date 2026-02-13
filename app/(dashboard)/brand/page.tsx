@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
-
 import ActiveChallenges from '@/components/(brand)/overview/ActiveChallenges'
 import TopChallengeInsights from '@/components/(brand)/overview/ChallengeInsight'
 import LinearGradientBorder from '@/components/ui/LinearGradientBorder'
 import { variants } from '@/constant'
 import { motion } from 'framer-motion'
-import React from 'react'
 import { FaBullhorn, FaUsers, FaWallet, FaImages } from 'react-icons/fa'
 import { useAuthStore } from '@/store/useAuthStore'
 
@@ -40,7 +38,6 @@ const Page = () => {
     ]
     return (
         <div className="min-h-screen">
-
             {/* Header */}
             <motion.div
                 initial="hidden"
@@ -51,7 +48,7 @@ const Page = () => {
                 {/* Header */}
                 <motion.div
                     variants={variants?.headerVariants}
-                    className="flex flex-col gap-6 "
+                    className="flex flex-col gap-6"
                 >
                     <motion.span
                         whileHover={{ scale: 1.05 }}
@@ -102,10 +99,7 @@ const Page = () => {
                     <ActiveChallenges />
                 </div>
 
-
-
-                <TopChallengeInsights />
-
+               <TopChallengeInsights />
 
             </motion.div>
         </div>

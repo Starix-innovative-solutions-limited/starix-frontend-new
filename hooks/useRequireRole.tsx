@@ -4,46 +4,60 @@ import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 
-type UserRole = "creator" | "brand" | "admin";
+type UserRole = "dashboard" | "brand" | "admin";
 
 export function useRequireRole(role: UserRole) {
-    const router = useRouter();
+  const router = useRouter();
 
-    const {
-        isAuthenticated,
-        userType,
-        token,
-        profile,
-        fetchProfile,
-    } = useAuthStore();
+  const {
+    isAuthenticated,
+    userType,
+    token,
+    profile,
+    fetchProfile,
+    hasHydrated,
+  } = useAuthStore() as any;
 
-    useEffect(() => {
-        // ❌ Not logged in
-        if (!isAuthenticated) {
-            router.replace("/login");
-            return;
-        }
+  useEffect(() => {
+    if (!hasHydrated) return;
 
-        // ❌ Wrong role
-        if (userType !== role) {
-            router.replace("/login");
-            return;
-        }
+    // ❌ Not logged in
+    if (!isAuthenticated || !token) {
+      router.replace(`/login${role === "brand" ? "?role=brand" : ""}`);
+      return;
+    }
 
-        // ✅ Correct role but profile not loaded yet
-        if (!profile) {
-            fetchProfile();
-        }
-    }, [token, isAuthenticated, userType, role, profile, fetchProfile, router]);
+    // ❌ Wrong role
+    if (userType && userType !== role) {
+      router.replace(userType === "brand" ? "/brand" : "/dashboard");
+      return;
+    }
 
-    const isReady = useMemo(() => {
-        return (
-            isAuthenticated &&
-            !!token &&
-            userType === role &&
-            !!profile
-        );
-    }, [isAuthenticated, token, userType, role, profile]);
+    // ✅ Fetch profile in background
+    if (!profile) {
+      fetchProfile();
+    }
+  }, [
+    hasHydrated,
+    isAuthenticated,
+    token,
+    userType,
+    role,
+    profile,
+    fetchProfile,
+    router,
+  ]);
 
-    return { isReady };
+  const isReady = useMemo(() => {
+    if (!hasHydrated) return false;
+
+    // DO NOT block on profile
+    return (
+      isAuthenticated &&
+      !!token &&
+      userType === role
+    );
+  }, [hasHydrated, isAuthenticated, token, userType, role]);
+
+  return { isReady };
 }

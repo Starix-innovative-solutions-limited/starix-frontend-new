@@ -1,101 +1,136 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from 'react';
+"use client";
 
-import CustomInput from '@/components/CustomInput';
-import { useModal } from '@/components/GlobalModal';
-import FeedBack from '@/components/(creator)/dashboard/FeedBack';
-import ImageUploader from '@/components/ImageUploader';
+import { useState } from "react";
+import { FiCamera, FiChevronDown } from "react-icons/fi";
+import { useModal } from "@/hooks/useModal";
 
-const CreateChallenge = () => {
-    const { open } = useModal()
-    // const [formData, setFormData] = useState<any | null>({
-    //     title: "",
-    //     brief: "",
-    //     content_requirements: "",
-    //     start_at: "",
-    //     end_at: ""
+const industries = ["Fashion", "Tech", "Finance", "Health", "Education"];
 
-    // })
+export default function EditProfileModal() {
+  const { close } = useModal();
 
-    const [formPart, setFormPart] = useState<number | any>(1)
+  const [industry, setIndustry] = useState("");
+  const [showIndustry, setShowIndustry] = useState(false);
 
+  return (
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center px-4 py-10 overflow-y-auto">
 
-    const handleSubmit = () => {
-        open(<FeedBack />)
-    };
-
-
-    return (
-        <div className=" bg-gray-50 flex items-center justify-center md:min-w-lg">
-            <div className="w-full p-4 md:p-6">
-                <h2 className="text-xl text-center font-medium text-secondary-100 mb-12">Create Challenge</h2>
-                <div className="space-y-6">
+      <div className="
+        w-full 
+        max-w-2xl 
+        bg-white 
+        rounded-3xl 
+        p-6 md:p-10 
+        relative 
+        max-h-[90vh] 
+        overflow-y-auto
+        ">
 
 
-                    {
-                        formPart == 1 ? (
-                            <>
-                                <CustomInput onChange={() => { }} type='text' label='Challenge Name' placeholder='Challenge Name' />
-                                <CustomInput onChange={() => { }} type='text' label='Challenge Description' placeholder='Description' />
-                                <CustomInput onChange={() => { }} type='text' label='Content Requirement' placeholder='e.g: use hashtags, 1 min video' />
-                                <CustomInput onChange={() => { }} type='date' label='Date Range' placeholder='Description' />
-                            </>
-                        ) : formPart == 2 ? (
-                            <>
-                                <CustomInput onChange={() => { }} type='text' label='Challenge Name' placeholder='Challenge Name' />
-                                <CustomInput onChange={() => { }} type='text' label='Challenge Description' placeholder='Description' />
-                                <CustomInput onChange={() => { }} type='text' label='Content Requirement' placeholder='e.g: use hashtags, 1 min video' />
-                                <CustomInput onChange={() => { }} type='date' label='Date Range' placeholder='Description' />
-                            </>
-                        ) : (
-                            <>
-                                <CustomInput onChange={() => { }} type='text' label='Brief Template' placeholder='Brief Template' />
-                                <ImageUploader label='Upload Document' />
-                            </>
-                        )
-                    }
+        {/* TITLE */}
+        <h2 className="text-center text-2xl text-dark-navy mb-8">
+        Edit Profile
+        </h2>
 
-                    {
-                        formPart == 1 ? <button onClick={() => setFormPart(2)}
-                            className="w-full bg-dark-navy text-white py-4 rounded-full text-base font-medium hover:bg-indigo-900 transition-colors mt-8"
-                        >
-                            Next
-                        </button> : formPart == 2 ? <>
-                            <button
-                                onClick={() => setFormPart(1)}
-                                className="w-full border border-dark-navy text-dark-navy py-4 rounded-full text-base font-medium hover:bg-indigo-900 transition-colors mt-8"
-                            >
-                                Back
-                            </button>
-                            <button
-                                onClick={() => setFormPart(3)}
-                                className="w-full bg-dark-navy text-white py-4 rounded-full text-base font-medium hover:bg-indigo-900 transition-colors"
-                            >
-                                Next
-                            </button>
-                        </> :
-                            (
-                                <>
-                                    <button
-                                        onClick={() => setFormPart(2)}
-                                        className="w-full border-[0.6px] border-dark-navy text-dark-navy py-4 rounded-full text-base font-medium hover:bg-indigo-900 transition-colors mt-8"
-                                    >
-                                        Back
-                                    </button>
-                                    <button
-                                        onClick={handleSubmit}
-                                        className="w-full bg-dark-navy text-white py-4 rounded-full text-base font-medium hover:bg-indigo-900 transition-colors"
-                                    >
-                                        Fund Challenge
-                                    </button>
-                                </>)
-                    }
+        <div className="flex items-center justify-between mb-8">
+  
+            {/* LEFT: Avatar */}
+            <div className="relative">
+                <img
+                src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200"
+                className="w-20 h-20 rounded-full object-cover"
+                />
 
-
-                </div>
+                <button className="absolute -bottom-1 -right-1 bg-white p-1.5 rounded-full shadow">
+                <FiCamera className="w-4 h-4" />
+                </button>
             </div>
-        </div >
-    );
-};
 
-export default CreateChallenge
+            {/* RIGHT: Change Image */}
+            <button className="text-sm text-dark-navy underline">
+                Change Image
+            </button>
+
+            </div>
+
+
+        {/* FORM */}
+        <div className="space-y-4">
+          <Input label="Brand Name" placeholder="Brand Name" />
+          <Input label="Bio" placeholder="Bio" />
+          <Input label="Email" placeholder="Email" />
+          <Input label="Phone No" placeholder="Phone No" />
+          <Input label="Website or URL" placeholder="example.com" />
+
+          {/* INDUSTRY DROPDOWN */}
+          <div>
+            <label className="text-sm text-dark-navy mb-2 block">
+              Industry
+            </label>
+
+            <button
+              onClick={() => setShowIndustry(!showIndustry)}
+              className="w-full flex items-center justify-between border border-gray-300 rounded-xl px-4 py-3 text-gray-500"
+            >
+              {industry || "Select Option"}
+              <FiChevronDown />
+            </button>
+
+            {showIndustry && (
+              <div className="border mt-2 rounded-xl shadow bg-white">
+                {industries.map((item) => (
+                  <button
+                    key={item}
+                    onClick={() => {
+                      setIndustry(item);
+                      setShowIndustry(false);
+                    }}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-50"
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* BUTTONS — MATCH CREATE CHALLENGE */}
+        <div className="space-y-3 mt-6">
+          <button
+            onClick={close}
+            className="w-full border border-dark-navy text-dark-navy py-4 rounded-full text-base font-medium hover:bg-dark-navy hover:text-white transition-colors"
+          >
+            Cancel
+          </button>
+
+          <button
+            className="w-full bg-dark-navy text-white py-4 rounded-full text-base font-medium hover:bg-dark-navy transition-colors"
+          >
+            Save
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+/* INPUT */
+function Input({
+  label,
+  placeholder,
+}: {
+  label: string;
+  placeholder: string;
+}) {
+  return (
+    <div>
+      <label className="text-sm text-dark-navy mb-2 block">{label}</label>
+      <input
+        placeholder={placeholder}
+        className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-dark-navy/20"
+      />
+    </div>
+  );
+}

@@ -6,10 +6,11 @@ import { motion } from "framer-motion";
 import SSOButtons from "@/components/auth/SSOButtons";
 import CustomInput from "@/components/CustomInput";
 import { variants } from "@/constant";
-import { useRouter } from "next/navigation";
 import Loader from "@/components/Loader";
 import { useLogin } from "@/hooks/useAuth";
 import toast from "react-hot-toast";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 type FormProps = {
   email: string;
@@ -17,8 +18,37 @@ type FormProps = {
 };
 
 const Page = () => {
+  const searchParams = useSearchParams();
+  const role = searchParams.get("role"); // "brand" | nullconst searchParams = useSearchParams();
+
+
   const router = useRouter();
   const { mutateAsync, isPending: isLoading } = useLogin();
+
+  const redirectAfterLogin = () => {
+  const savedRole = localStorage.getItem("loginRole");
+
+  const finalRole = role || savedRole;
+
+  if (finalRole === "brand") {
+    router.push("/brand");
+  } else {
+    router.push("/dashboard");
+  }
+};
+
+
+// useEffect(() => {
+//   const savedRole = localStorage.getItem("loginRole");
+
+//   if (savedRole === "brand") {
+//     router.push("/brand");
+//   } else if (savedRole === "creator") {
+//     router.push("/creator");
+//   }
+// }, []);
+
+
 
   const initialForm: FormProps = { email: "", password: "" };
   const [form, setForm] = useState<FormProps>(initialForm);
@@ -44,10 +74,8 @@ const Page = () => {
 
       setForm(initialForm);
 
-      if (res?.user_type === "brand") return router.push("/brand");
-      if (res?.user_type === "creator") return router.push("/dashboard");
+      redirectAfterLogin();
 
-      router.push("/dashboard");
     } catch (err) {
       console.log("SignIn Error:", err);
     }
@@ -84,7 +112,18 @@ const Page = () => {
 
           {/* SSO */}
           <motion.div variants={variants?.itemVariants} className="w-full">
-            <SSOButtons onGoogleSign={() => router.push("/dashboard")} />
+            <SSOButtons
+              onGoogleSign={() => {
+                const selectedRole = role === "brand" ? "brand" : "dashboard"; // default to dashboard if no role or unrecognized role in query
+                localStorage.setItem("loginRole", selectedRole);
+
+                redirectAfterLogin(); // <-- ADD THIS
+              }}
+            />
+
+
+
+
           </motion.div>
 
           {/* Divider */}
@@ -149,9 +188,13 @@ const Page = () => {
 
             <p className="text-center text-sm sm:text-base font-light text-neut/60">
               Don’t have an account?{" "}
-              <a href="/signup" className="text-dark-navy font-normal hover:underline">
+              <a
+                href={`/signup${role === "brand" ? "?role=brand" : ""}`}
+                className="text-dark-navy font-normal hover:underline"
+              >
                 Sign up
               </a>
+              
             </p>
           </motion.div>
         </form>

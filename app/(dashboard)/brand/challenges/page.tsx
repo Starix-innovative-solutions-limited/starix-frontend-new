@@ -88,8 +88,17 @@ const Page = () => {
 
             </motion.div>
 
+            <div
+            className="
+                bg-white
+                rounded-2xl
+                shadow-sm
+                p-4 md:p-6
+            "
+            >
             <ActiveChallenges />
-        </div>
+            </div>
+            </div>
     )
 }
 
