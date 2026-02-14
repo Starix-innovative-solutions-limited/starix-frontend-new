@@ -9,26 +9,35 @@ const sections = [
     id: "discovering",
     title: "Discovering Trends Early",
     content: "Build campaigns with real creators that aligns with your brand story.",
+    image: "/whystarix.png",
   },
   {
     id: "analytics",
     title: "Understanding Analytics",
     content: "Build campaigns with real creators that aligns with your brand story.",
+    image: "/whystarix2.png",
   },
   {
     id: "quality",
     title: "Managing UGC Quality",
     content: "Build campaigns with real creators that aligns with your brand story.",
+    image: "/whystarix3.png",
   },
   {
     id: "opportunities",
     title: "Getting Opportunities",
     content: "Build campaigns with real creators that aligns with your brand story.",
+    image: "/whystarix2.png",
   },
 ]
 
+
 const WhyStarix = () => {
   const [open, setOpen] = useState("discovering")
+
+  const activeSection =
+  sections.find((s) => s.id === open) || sections[0];
+
 
   return (
     <div className="w-full bg-[#EEF2FF] min-h-screen flex flex-col items-center pt-[48px] md:pt-[90px]">
@@ -170,7 +179,7 @@ const WhyStarix = () => {
   {/* Image */}
 <div className="rounded-[18px] overflow-hidden mt-[10px] h-[240px] relative">
   <Image
-    src="/why-star.png"
+    src={activeSection.image}
     alt="dashboard"
     fill
     className="object-cover object-top"
@@ -185,7 +194,7 @@ const WhyStarix = () => {
           <div className="hidden md:grid grid-cols-[1fr_1.4fr] h-full ml-[-6px]">
 
             {/* TEXT COLUMN */}
-            <div className="flex flex-col justify-start pt-[12px]">
+            <div className="flex flex-col justify-start px-5 pt-[135px]">
 
               <h2 className="text-[#0B0F3C] text-[28px] font-medium mb-[12px]">
                 Trend Intelligence
@@ -207,8 +216,10 @@ const WhyStarix = () => {
             {/* IMAGE COLUMN */}
         <div className="relative w-full h-full flex justify-end items-end overflow-hidden">
 
+        
         <Image
-            src="/why-star.png"
+            src={activeSection.image}
+
             alt="dashboard"
             width={820}
             height={820}

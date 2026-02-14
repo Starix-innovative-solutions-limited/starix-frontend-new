@@ -10,7 +10,6 @@ import LogoutModal from "./LogoutModal";
 import { useModal } from "../../GlobalModal";
 import { LuPanelLeftClose, LuPanelRightClose } from "react-icons/lu";
 
-
 interface SideBarProps {
   className?: string;
   onClose?: () => void;
@@ -18,13 +17,13 @@ interface SideBarProps {
 
 const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
   const [active, setActive] = useState<number>(0);
-
   const [collapsed, setCollapsed] = useState<boolean>(false);
 
-  // useEffect(() => onClose, [active]);
+  const { open, close } = useModal();
+
+  /* AUTO COLLAPSE ON SMALL SCREENS */
   useEffect(() => {
     const handleResize = () => {
-      // Tailwind 'lg' breakpoint = 1024px
       if (window.innerWidth < 1024) {
         setCollapsed(true);
       } else {
@@ -32,61 +31,68 @@ const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
       }
     };
 
-    // Run once on mount
     handleResize();
-
-    // Add listener for window resize
     window.addEventListener("resize", handleResize);
-
-    // Cleanup listener on unmount
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const { open, close } = useModal();
-
   return (
     <aside
-      className={` md:px-2 lg:px-4 xl:px-7 bg-white h-screen w-fit ${collapsed ? "pr-4 md:w-fit" : "pr-14  md:min-w-2xs"
-        } py-8 flex flex-col items-between gap-6 ${className && className} `}
+      className={`
+        bg-[#040136]
+        h-screen
+        ${collapsed ? "w-[88px]" : "w-[260px]"}
+        py-8
+        px-4
+        flex flex-col justify-between
+        rounded-r-[32px]
+        transition-all duration-300
+        ${className}
+      `}
     >
-      <div className="flex flex-col gap-6 grow">
-        <div className="flex-between">
-          <span className="bg-white rounded-md w-fit">
-            <Image
-              src="/logo.svg"
-              alt="Starix-logo"
-              width={100}
-              height={25}
-              className={`${collapsed && "hidden"}`}
-            />
-          </span>
+      {/* TOP SECTION */}
+      <div>
+        {/* LOGO + CONTROLS */}
+        <div className="flex items-center justify-between mb-12">
+          <Image
+            src="/logo white.svg"
+            alt="Starix-logo"
+            width={110}
+            height={30}
+            className={`${collapsed && "hidden"}`}
+          />
 
-          <button onClick={() => setCollapsed(!collapsed)}>
+          {/* COLLAPSE BUTTON */}
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="
+              hidden md:flex items-center justify-center
+              w-10 h-10 rounded-full
+              bg-white/20 hover:bg-white/30
+              transition
+            "
+          >
             {collapsed ? (
-              <LuPanelRightClose
-                size={24}
-                color="#040136"
-                className="max-md:hidden"
-              />
+              <LuPanelRightClose size={18} color="#fff" />
             ) : (
-              <LuPanelLeftClose size={24}
-                color="#040136"
-                className="max-md:hidden" />
+              <LuPanelLeftClose size={18} color="#fff" />
             )}
           </button>
+
+          {/* MOBILE CLOSE */}
           <HiX
             onClick={onClose}
-            className="md:hidden"
-            // color=""
-            size={25}
+            className="md:hidden text-white"
+            size={24}
           />
         </div>
-        <div className="space-y-6 mt-7">
-          {/* <MdClose /> */}
-          <ul className="space-y-8">
-            {sidebarLinks.map((items: any, i: number) => (
 
+        {/* NAVIGATION */}
+        <ul className="space-y-6">
+          {sidebarLinks.map((item: any, i: number) => {
+            const isActive = active === i;
 
+            return (
               <li
                 key={i}
                 onClick={() => {
@@ -95,48 +101,64 @@ const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
                 }}
               >
                 <Link
-                  href={`${items?.href}`}
-                  // href={""}
-                  className={`flex items-center gap-4 px-3 py-2 max-md:pl-4 rounded-lg hover:bg-black/50  ${active === i ? "text-secondary-100" : "text-dark "
-                    }`}
+                  href={item.href}
+                  className={`
+                    flex items-center gap-4
+                    px-4 py-3
+                    rounded-full
+                    transition-all
+                    ${
+                      isActive
+                        ? "bg-white text-[#040136]"
+                        : "text-white/60 hover:text-white"
+                    }
+                  `}
                 >
-                  {/* {items?.icon && React.createElement(items.icon, {
-                    className: ` ${collapsed ? "text-xl" : "text-xl"} text-[1.45rem] ${active === i ? "text-secondary-100 " : "text-dark"}`
-                  })} */}
-
                   <Image
-                    src={`/${items?.icon}`}
-                    alt={items?.icon}
-                    width={100}
-                    height={100}
-
-                    className={` w-6 h-6 ${collapsed ? "text-xl" : "text-xl"} text-[1.45rem] ${active === i ? "text-secondary-100 " : "text-dark"}`}
+                    src={`/${item.icon}`}
+                    alt={item.label}
+                    width={22}
+                    height={22}
+                    className={`${!isActive && "opacity-70"}`}
                   />
 
-                  <span
-                    className={` text-lg md:text-xl ${active == i && "text-secondary-100 font-medium"
-                      } ${collapsed && "md:hidden"} text-nowrap`}
-                  >
-                    {items?.label}
-                  </span>
+                  {!collapsed && (
+                    <span
+                      className={`text-lg ${
+                        isActive ? "font-semibold" : "font-normal"
+                      }`}
+                    >
+                      {item.label}
+                    </span>
+                  )}
+
+                  {/* OPTIONAL NEW BADGE */}
+                  {item.new && !collapsed && (
+                    <span className="ml-auto text-[10px] px-2 py-1 rounded-md bg-white/20 text-white">
+                      NEW
+                    </span>
+                  )}
                 </Link>
               </li>
-
-            ))}
-          </ul>
-
-        </div>
+            );
+          })}
+        </ul>
       </div>
 
+      {/* LOGOUT BOTTOM */}
       <button
-        className="flex items-center gap-3 text-white px-3"
         onClick={() => open(<LogoutModal onClose={close} />)}
+        className="
+          flex items-center gap-4
+          px-4 py-3
+          rounded-full
+          text-white/70 hover:text-white
+          transition
+        "
       >
-        <img src={'/logout.svg'} className="w-6.5 h-6.5" />
-        {" "}
-        <p className={`font-mono leading-relaxed text-dark  ${collapsed && "hidden"} `}>
-          Logout
-        </p>
+        <img src="/logout.svg" className="w-5 h-5 opacity-80" />
+
+        {!collapsed && <span className="text-lg">Logout</span>}
       </button>
     </aside>
   );

@@ -73,7 +73,7 @@ const Page = () => {
   return (
     <div className="min-h-[calc(100vh-2rem)] w-full flex items-center justify-center px-6 py-6 md:px-8">
       <motion.div
-        className="w-full max-w-[520px] bg-white border border-gray-100 rounded-2xl shadow-sm p-4 sm:p-6 md:p-8"
+        className="w-full max-w-[520px]  rounded-2xl p-4 sm:p-6 md:p-8"
         variants={variants?.containerVariants}
         initial="hidden"
         animate="visible"
@@ -85,9 +85,9 @@ const Page = () => {
             <h3 className="font-medium text-3xl sm:text-4xl md:text-5xl leading-tight text-secondary-100">
               Welcome back
             </h3>
-            <p className="text-neut/60 text-sm sm:text-base font-light">
+            {/* <p className="text-neut/60 text-sm sm:text-base font-light">
               Login to continue to your dashboard.
-            </p>
+            </p> */}
           </motion.div>
 
           {/* SSO */}

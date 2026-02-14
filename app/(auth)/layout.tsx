@@ -25,8 +25,8 @@ const AuthLayout = ({
     <main className={` md:h-screen p-7`}>
       <div className="md:min-w-2xl xl:min-w-7xl xl:max-w-7xl mx-auto flex flex-col gap-7">
         {/* Logo */}
-        <div className="bg-dark-navy w-fit py-3 px-2 rounded-lg shadow-2xs">
-          <Image src={"/logo-white.svg"} width={100} height={100} className="w-24" alt="Logo" priority />
+        <div className="w-fit py-3 px-2 ">
+          <Image src={"/logoss.svg"} width={100} height={100} className="w-24" alt="Logo" priority />
         </div>
 
         <div className="md:h-[86vh] grid md:grid-cols-2 gap-10 xl:gap-14 items-center overflow-hidden">

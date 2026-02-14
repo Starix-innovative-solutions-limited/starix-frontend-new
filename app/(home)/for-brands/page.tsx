@@ -135,9 +135,9 @@ const variants: Variants = {
 
   const cards = [
   { id: "poor", src: "/poor.png" },
-  { id: "uneasy", src: "/uneasy.png" },
-  { id: "creator", src: "/creator.png" },
-  { id: "purple", src: "/purple.png" },
+  { id: "uneasy", src: "/uneasy1.png" },
+  { id: "creator", src: "/creator1.png" },
+  { id: "purple", src: "/purple1.png" },
 ];
 
   // ✅ Matches your reference UI pills
@@ -530,11 +530,13 @@ const variants: Variants = {
   {brandFeatures.map((feature, index) => (
     <div
       key={index}
-      className={`bg-gradient-to-br ${feature.gradient} rounded-[25px] p-[5px] shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-300`}
+      className={`bg-gradient-to-br ${feature.gradient} rounded-[25px] p-[5px] shadow-sm border group-hover:opacity-100  border-gray-200 hover:shadow-md transition-shadow duration-300`}
       style={{ width: 340, height: 249 }}   // ✅ card size
     >
       <div
         className="bg-white relative w-full h-full rounded-[20px] pt-[90px] px-6 pb-6"
+
+        
       >
         {/* ICON */}
         <Image

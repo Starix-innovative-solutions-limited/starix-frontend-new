@@ -62,9 +62,9 @@ const AuthBg = ({ brand, creator, showLabel }: AuthProps) => {
 
         {/* DASH IMAGES */}
         <div className="mx-auto w-fit">
-          <Image src="/dash-section1.svg" width={300} height={100} alt="" />
+          <Image src="/dash-section11.svg" width={300} height={100} alt="" />
           <Image
-            src="/dash-section2.svg"
+            src="/dash-section12.svg"
             width={300}
             height={100}
             alt=""

@@ -52,8 +52,8 @@ export default function StarixSolutionsAndFeatures() {
           viewport={{ once: true }}
           className="
             font-geist font-[600]
-            text-[24px]
-            md:text-[48x]
+            text-[32px]
+            md:text-[48px]
             tracking-[-0.02em]
             text-dark-navy
             text-center
@@ -184,7 +184,7 @@ export default function StarixSolutionsAndFeatures() {
 
             <div className="bg-[#F3E3D9]">
               <Image
-                src="/frame.png"
+                src="/frame1.png"
                 alt="feature"
                 width={1200}
                 height={1200}
@@ -194,7 +194,7 @@ export default function StarixSolutionsAndFeatures() {
           </div>
 
           {/* SMALL CARD */}
-          <div className="bg-[#EAF9F8] rounded-3xl p-12 flex flex-col items-center justify-between">
+          <div className="bg-[#EBEFFF] rounded-3xl p-12 flex flex-col items-center justify-between">
             <Image src="/Play buttons 1.svg" alt="play" width={80} height={80} />
 
             <span className="bg-white px-3 py-1 text-sm">
@@ -206,7 +206,7 @@ export default function StarixSolutionsAndFeatures() {
             </p>
 
             <Image
-              src="/imageDash 1.png"
+              src="/imageDash11.png"
               alt="dash"
               width={1200}
               height={1200}
@@ -218,7 +218,7 @@ export default function StarixSolutionsAndFeatures() {
         {/* BOTTOM ROW */}
         <div className="grid grid-cols-1 md:grid-cols-[35%_65%] gap-10">
           {/* SMALL CARD */}
-          <div className="bg-primary-orange/20 rounded-3xl p-12 flex flex-col items-center justify-between">
+          <div className="bg-[#F3E3D9] rounded-3xl p-12 flex flex-col items-center justify-between">
             <Image src="/heart 1.svg" alt="heart" width={80} height={80} />
 
             <span className="bg-white px-3 py-1 text-sm">
@@ -230,7 +230,7 @@ export default function StarixSolutionsAndFeatures() {
             </p>
 
             <Image
-              src="/imageDash 1.png"
+              src="/imageDash12.png"
               alt="dash"
               width={1200}
               height={1200}
@@ -239,7 +239,7 @@ export default function StarixSolutionsAndFeatures() {
           </div>
 
           {/* BIG CARD */}
-          <div className="bg-[#1DD6C6] rounded-3xl grid grid-cols-[37%_13%_50%] overflow-hidden">
+          <div className="bg-[#040136] rounded-3xl grid grid-cols-[37%_13%_50%] overflow-hidden">
             <div className="p-12 flex flex-col justify-center gap-10">
               <span className="bg-white/30 text-white px-3 py-2 text-sm w-fit">
                 CREATOR CV
@@ -264,7 +264,7 @@ export default function StarixSolutionsAndFeatures() {
 
             <div className="bg-[#F5F5F5]">
               <Image
-                src="/frame.png"
+                src="/frame22.png"
                 alt="feature"
                 width={1200}
                 height={1200}
