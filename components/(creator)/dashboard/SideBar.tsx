@@ -82,7 +82,7 @@ const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
           {/* MOBILE CLOSE */}
           <HiX
             onClick={onClose}
-            className="md:hidden text-white"
+            className="md:hidden text-white cursor-pointer"
             size={24}
           />
         </div>
@@ -119,7 +119,8 @@ const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
                     alt={item.label}
                     width={22}
                     height={22}
-                    className={`${!isActive && "opacity-70"}`}
+                    /* Turns the white icon dark navy when the item is active */
+                    className={`${isActive ? "brightness-0" : "opacity-100"}`}
                   />
 
                   {!collapsed && (
@@ -132,9 +133,9 @@ const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
                     </span>
                   )}
 
-                  {/* OPTIONAL NEW BADGE */}
+                  {/* EXACT FIGMA "NEW" BADGE STYLE */}
                   {item.new && !collapsed && (
-                    <span className="ml-auto text-[10px] px-2 py-1 rounded-md bg-white/20 text-white">
+                    <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-[4px] bg-[#C5C5D2] text-[#040136] tracking-tight">
                       NEW
                     </span>
                   )}
@@ -156,7 +157,13 @@ const SideBar: React.FC<SideBarProps> = ({ className, onClose }) => {
           transition
         "
       >
-        <img src="/logout.svg" className="w-5 h-5 opacity-80" />
+        <Image 
+          src="/logout.svg" 
+          alt="logout" 
+          width={20} 
+          height={20} 
+          className="opacity-80" 
+        />
 
         {!collapsed && <span className="text-lg">Logout</span>}
       </button>

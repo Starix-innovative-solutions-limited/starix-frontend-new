@@ -5,7 +5,7 @@ import CustomInput from '../../CustomInput'
 const FeedBack = () => {
   const [hasSubmitted, setHasSubmitted] = useState<boolean | null>(false)
   return (
-    <div className="bg-white rounded-lg  w-full max-md:max-w-[80vw] md:min-w-lg mx-auto min-h-full flex flex-col justify-between md:max-w-2xl h-full">
+    <div className="rounded-lg  w-full max-md:max-w-[80vw] md:min-w-lg mx-auto min-h-full flex flex-col justify-between md:max-w-2xl h-full">
       {/* Header */}
       <h2 className="text-xl text-center font-medium text-secondary-100 p-4">
         {hasSubmitted ? 'Get Feedback' : 'Starix Feedback'}
@@ -27,8 +27,11 @@ const FeedBack = () => {
 
         {
           !hasSubmitted && (
-            <button className='btn  bg-secondary-100 text-[#fafafa] mt-12 ' onClick={() => setHasSubmitted(true)}>
-              Send.
+            <button
+              className="w-full bg-secondary-100 text-[#fafafa] mt-12 py-4 rounded-full"
+              onClick={() => setHasSubmitted(true)}
+            >
+              Send
             </button>
           )
         }

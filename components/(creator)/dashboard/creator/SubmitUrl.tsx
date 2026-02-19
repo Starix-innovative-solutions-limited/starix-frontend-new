@@ -1,98 +1,108 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
-import { Plus, X } from 'lucide-react';
-import CustomInput from '@/components/CustomInput';
+import { X } from 'lucide-react';
 import { useModal } from '@/components/GlobalModal';
-import FeedBack from '@/components/(creator)/dashboard/FeedBack';
+import FeedBack2 from '../FeedBack2';
+import { img } from 'framer-motion/client';
+
+// Using raw SVGs for brand accuracy to match the Figma icons
+const SOCIAL_PLATFORMS = [
+  { 
+    id: 'x', 
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+      </svg>
+    )
+  },
+  { 
+    id: 'youtube', 
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="#FF0000">
+        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+      </svg>
+    )
+  },
+  { 
+    id: 'instagram', 
+    icon: (
+        <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" className="w-7 h-7" alt="ig" />
+    )
+  },
+  { 
+    id: 'tiktok', 
+    icon: (
+      <img src="/tiktok.svg" className='w-24 h-24' alt='tiktok'/>
+    )
+  }
+];
 
 const SubmitUrl = ({ onSubmit = (data: any) => console.log(data) }) => {
-  const { open } = useModal()
-  const [platforms, setPlatforms] = useState([
-    { id: 1, platform: '', url: '' }
-  ]);
-
-  const addPlatform = () => {
-    setPlatforms([
-      ...platforms,
-      { id: Date.now(), platform: '', url: '' }
-    ]);
-  };
-
-  const removePlatform = (id: any) => {
-    if (platforms.length > 1) {
-      setPlatforms(platforms.filter(p => p.id !== id));
-    }
-  };
-
-  const updatePlatform = (id: number, field: string, value: string) => {
-    setPlatforms(platforms.map(p =>
-      p.id === id ? { ...p, [field]: value } : p
-    ));
-  };
+  const { open, close } = useModal();
+  const [selectedPlatform, setSelectedPlatform] = useState('x');
+  const [url, setUrl] = useState('');
 
   const handleSubmit = () => {
-    onSubmit(platforms);
-    open(<FeedBack />)
+    onSubmit({ platform: selectedPlatform, url });
+    open(<FeedBack2 />);
   };
 
   return (
-    <div className=" flex items-center justify-center md:min-w-lg">
-      <div className="w-full px-3.5 py-8 md:p-8">
-        <h2 className="text-xl text-center font-medium text-secondary-100 mb-6">Submit Url</h2>
-        <div className="space-y-6">
-          {platforms.map((item, index) => (
-            <div key={item.id} className="space-y-4">
-              <div className="flex items-center justify-between">
+    <div className="relative w-full max-w-[720px] overflow-hidden">
+      {/* Header with Close Icon */}
+      <div className="flex items-center justify-center p-6 relative">
+        <h2 className="text-[20px] font-medium text-[#0A0A30]">Submit URL</h2>
+      </div>
 
-                {platforms.length > 1 && (
-                  <button
-                    onClick={() => removePlatform(item.id)}
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                )}
-              </div>
-
-              <CustomInput
-                label='What social media platform is it posted on?'
-                type="text"
-                placeholder="Social Media"
-                value={item.platform}
-                onChange={(e) => updatePlatform(item.id, 'platform', e.target.value)}
-                className='mb-5'
-              />
-
-
-              <div>
-
-                <CustomInput label='Share Post URL' placeholder="https://www.example.com/" value={item.url} onChange={(e) => updatePlatform(item.id, 'url', e.target.value)} />
-              </div>
-
-              {index < platforms.length - 1 && (
-                <div className="border-b border-gray-100 pt-4"></div>
-              )}
-            </div>
-          ))}
-
-          <button
-            onClick={addPlatform}
-            className="w-full py-3 text-gray-500 text-base font-medium flex items-center justify-center gap-2 hover:text-gray-700 transition-colors"
-          >
-            <Plus className="w-5 h-5" />
-            Add New Social Media Platform
-          </button>
-
-          <button
-            onClick={handleSubmit}
-            className="w-full bg-dark-navy text-white py-4 rounded-full text-base font-medium hover:bg-indigo-900 transition-colors mt-8"
-          >
-            Submit
-          </button>
+      <div className="px-6 pb-10 md:px-12 md:pb-12 space-y-8">
+        {/* Platform Selection */}
+        <div className="space-y-4">
+          <label className="text-[16px] text-[#0A0A30] font-normal block">
+            What social media platform is it posted on?
+          </label>
+          <div className="flex gap-4">
+            {SOCIAL_PLATFORMS.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => setSelectedPlatform(p.id)}
+                className={`w-[72px] h-[72px] flex items-center justify-center rounded-[20px] transition-all border-2 ${
+                  selectedPlatform === p.id 
+                    ? 'border-[#0A0A30] bg-white' 
+                    : 'border-transparent bg-[#F9FAFB] text-gray-400'
+                }`}
+              >
+                {p.icon}
+              </button>
+            ))}
+          </div>
         </div>
+
+        {/* URL Input */}
+        <div className="space-y-4">
+          <label className="text-[16px] text-[#0A0A30] font-normal block">
+            Share Post URL
+          </label>
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="https://www.example.com/"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              className="w-full h-[72px] px-6 rounded-[24px] border border-[#E5E7EB] bg-white text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-50/50 focus:border-indigo-200 transition-all"
+            />
+          </div>
+        </div>
+
+        {/* Submit Button */}
+        <button
+          onClick={handleSubmit}
+          className="w-full bg-[#000033] text-white py-5 rounded-full text-[18px] font-medium hover:bg-[#000055] transition-all shadow-lg active:scale-[0.98] mt-4"
+        >
+          Submit
+        </button>
       </div>
     </div>
   );
 };
 
-export default SubmitUrl
+export default SubmitUrl;

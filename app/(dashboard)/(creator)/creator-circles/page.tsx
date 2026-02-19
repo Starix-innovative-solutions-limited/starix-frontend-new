@@ -140,7 +140,7 @@ const page = () => {
           <div className='md:col-span-2 space-y-10'>
             <h2 className="text-[28px]  text-secondary-100 tracking-[-0.02em]">Creator Feed</h2>
             {
-              [1, 2, 3, 4, 5, 6, 7, 8, 9].map((item) => (
+              [1, 2, 3, 4].map((item) => (
                 <FeedCard key={item} />
               ))
             }

@@ -4,17 +4,18 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FaUsers } from 'react-icons/fa';
+import { FaCircle, FaDotCircle, FaUser, FaUsers } from 'react-icons/fa';
 import Image from 'next/image';
 import Link from 'next/link';
+
 
 export const CircleCard = ({ circle, index }: any) => {
 
   const getImage = (index: any) => {
     const images = [
-      '/star.png',
-      '/ball.png',
-      '/trophy.png',
+      '/stars.svg',
+      '/ball.svg',
+      '/trophys.svg',
     ];
     return images[index % images.length];
   };
@@ -24,18 +25,18 @@ export const CircleCard = ({ circle, index }: any) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
-      className="bg-white rounded-3xl px-5 py-3 shadow-xs hover:shadow-md transition-shadow"
+      className="bg-white rounded-3xl px-6 py-3 shadow-xs hover:shadow-md transition-shadow"
     >
-      <div className='bg-[#F5F5F5] text-dark text-xs  px-3 py-1.5 border border-gray-100 w-fit ml-auto'>
+      <div className='bg-[#F5F5F5] text-dark text-xs  px-3 border border-gray-100 w-fit ml-auto'>
         Fashion
       </div>
       <div className="flex items-center gap-5">
         <Image
           src={getImage(index)}
           alt={circle.name}
-          width={100}
+          width={120}
           height={100}
-          className="rounded-full object-cover w-20 h-20 -ml-3"
+          className="rounded-full object-cover w-[120px] h-[100] -ml-5"
         />
         <div className="flex-1">
           <h3 className="text-base text-secondary-100">{circle.name}</h3>
@@ -45,7 +46,7 @@ export const CircleCard = ({ circle, index }: any) => {
       </div>
       <div className="flex items-center justify-between mt-3">
         <div className="flex items-center gap-2 text-sm text-gray-600">
-          <FaUsers className="text-xs" />
+          <FaCircle className="text-[#040136] text-xs" />
           <span className='text-xs text-secondary-100/70 font-light'>{circle.members} members</span>
         </div>
 

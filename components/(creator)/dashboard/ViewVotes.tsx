@@ -18,7 +18,7 @@ const ViewVotes = () => {
   const [hoveredOption, setHoveredOption] = useState<number | null > (null);
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-8 md:min-w-xl">
+    <div className="p-8 md:min-w-xl">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -29,16 +29,16 @@ const ViewVotes = () => {
         </h2>
 
 
-        <h3 className="text-base font-normal text-secondary-100 my-8">Question Name</h3>
+        <h3 className="text-l font-normal text-secondary-100 my-8">Question Name</h3>
 
         {/* Option 1 */}
         <motion.div 
-          className="mb-8"
+          className="mb-2"
           onHoverStart={() => setHoveredOption(1)}
           onHoverEnd={() => setHoveredOption(null)}
         >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl  text-secondary-100 font-light">Option 1</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-l  text-secondary-100 font-light">Option 1</h2>
             <motion.div 
               className="bg-[#FFDECC] text-secondary-100 px-2 py-1 rounded-lg border border-gray-100 text-xs font-light"
               animate={{ scale: hoveredOption === 1 ? 1.05 : 1 }}
@@ -56,7 +56,7 @@ const ViewVotes = () => {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ delay: index * 0.1 }}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                  className="flex items-center justify-between p-2 rounded-xl hover:bg-gray-100 transition-colors"
                 >
                     <div className="flex items-center gap-3">
                      <Image src={'/profile.png'} alt='profile' width={100} height={100} className='w-10 h-10' />
@@ -65,7 +65,7 @@ const ViewVotes = () => {
                         <p className="text-sm text-dark font-light -mt-1">@favvy</p>
                       </div>
                     </div>
-                    <p className=" text-dark text-sm">Joined 20, Oct, 2024</p>
+                    <p className=" text-dark text-sm">20 Oct, 2024</p>
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -74,12 +74,12 @@ const ViewVotes = () => {
 
         {/* Option 2 */}
         <motion.div 
-          className="mb-4"
+          className="mb-4 mt-6"
           onHoverStart={() => setHoveredOption(2)}
           onHoverEnd={() => setHoveredOption(null)}
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl  text-secondary-100 font-light">Option 2</h2>
+            <h2 className="text-l  text-secondary-100 font-light">Option 2</h2>
             <motion.div 
               className="bg-[#EBEFFF] text-secondary-100 px-2 py-1 rounded-lg border border-gray-100 text-xs font-light"
               animate={{ scale: hoveredOption === 2 ? 1.05 : 1 }}
@@ -97,7 +97,7 @@ const ViewVotes = () => {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ delay: index * 0.1 }}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                  className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-100 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                      <Image src={'/profile.png'} alt='profile' width={100} height={100} className='w-10 h-10' />
@@ -106,7 +106,7 @@ const ViewVotes = () => {
                         <p className="text-sm text-dark font-light -mt-1">@favvy</p>
                       </div>
                     </div>
-                    <p className=" text-dark text-sm">Joined 20, Oct, 2024</p>
+                    <p className=" text-dark text-sm">20 Oct, 2024</p>
                 </motion.div>
               ))}
             </AnimatePresence>

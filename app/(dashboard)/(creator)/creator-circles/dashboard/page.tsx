@@ -20,13 +20,32 @@ const page = () => {
   const { open } = useModal()
 
   const DropMenu = () => {
-    return (
-      <div className='bg-white px-4 pt-4 h-[100px] space-y-2 flex flex-col'>
-        <button className='text-secondary-100 font-light ' onClick={() => open(<CircleMembers />)}>View members</button>
-        <button className='text-[#FF0000]' onClick={() => open(<LeaveCircleModal />)} >Leave Circle</button>
-      </div>
-    )
-  }
+  return (
+    <div className="px-3 py-3 flex flex-col gap-2 items-start">
+      <button
+        className="w-full text-left text-secondary-100 font-light"
+        onClick={() => open(<CircleMembers />)}
+      >
+        View Profile
+      </button>
+
+      <button
+        className="w-full text-left text-secondary-100 font-light"
+        onClick={() => open(<CircleMembers />)}
+      >
+        View members
+      </button>
+
+      <button
+        className="w-full text-left text-[#FF0000] font-light"
+        onClick={() => open(<LeaveCircleModal />)}
+      >
+        Leave Circle
+      </button>
+    </div>
+  );
+};
+
   return (
     <div className='min-h-screen'>
       <motion.div

@@ -34,7 +34,7 @@ const ChallengeDetails = () => {
 
                     <div className='flex gap-3'>
                         {/* Category Badge */}
-                        <div className="mb-6">
+                        <div className="mb-6 my-6">
                             <span className="inline-block px-3 py-1 bg-orange-100 text-orange-600 text-xs font-medium rounded-full">
                                 Fashion
                             </span>
@@ -54,19 +54,19 @@ const ChallengeDetails = () => {
                                 <h4 className="text-sm font-medium text-gray-500 mb-4">Challenge Brief:</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-secondary-100 ">
                                     <div className="flex items-start gap-3">
-                                        <IoCheckmarkCircleOutline className="text-green-600 flex-shrink-0 mt-0.5" size={20} />
+                                        <IoCheckmarkCircleOutline className="text-[#040136B2] flex-shrink-0 mt-0.5" size={20} />
                                         <span className="text-sm">3–5 product moments</span>
                                     </div>
                                     <div className="flex items-start gap-3">
-                                        <IoCheckmarkCircleOutline className="text-green-600 flex-shrink-0 mt-0.5" size={20} />
+                                        <IoCheckmarkCircleOutline className="text-[#040136B2] flex-shrink-0 mt-0.5" size={20} />
                                         <span className="text-sm">Soft aesthetic</span>
                                     </div>
                                     <div className="flex items-start gap-3">
-                                        <IoCheckmarkCircleOutline className="text-green-600 flex-shrink-0 mt-0.5" size={20} />
+                                        <IoCheckmarkCircleOutline className="text-[#040136B2] flex-shrink-0 mt-0.5" size={20} />
                                         <span className="text-sm">Natural lighting</span>
                                     </div>
                                     <div className="flex items-start gap-3">
-                                        <IoCheckmarkCircleOutline className="text-green-600 flex-shrink-0 mt-0.5" size={20} />
+                                        <IoCheckmarkCircleOutline className="text-[#040136B2] flex-shrink-0 mt-0.5" size={20} />
                                         <span className=" text-sm">Authentic reactions to product</span>
                                     </div>
                                 </div>
@@ -77,12 +77,12 @@ const ChallengeDetails = () => {
 
                 </div>
 
-                <div className='px-5 bg-white border border-gray-50 shadow p-3 py-8 h-fit'>
+                <div className='px-6 bg-white rounded-2xl border border-gray-50 shadow-xs p-2 h-fit'>
                     {/* Winnings and Deadline */}
-                    <div className="">
-                        <div className="flex items-center justify-between mb-2 gap-3 rounded-xl p-4">
+                    <div className=" ">
+                        <div className="flex items-center justify-between mb-2 gap-3 rounded-2xl p-4">
                             <p className="text-xs text-dark mb-1">Winnings:</p>
-                            <p className="text-xl font-bold text-orange-500">$400</p>
+                            <p className="text-l font-normal text-orange-500">$400</p>
                         </div>
                         <div className="text-right flex items-center justify-between mb-6 gap-3 rounded-xl p-4">
                             <p className="text-xs text-dark mb-1">Deadline:</p>
@@ -95,7 +95,7 @@ const ChallengeDetails = () => {
 
                     {/* AI Hook Suggestions */}
                     <div className="mb-6">
-                        <button className="flex underline  items-center gap-2 text-indigo-600 hover:text-indigo-700 transition-colors text-xs font-medium">
+                        <button className="flex underline  items-center gap-2 text-[#040136B2] hover:text-[#040136B2] transition-colors text-xs font-medium">
                             <BiBookOpen size={18} />
                             AI Hook Suggestions
                         </button>

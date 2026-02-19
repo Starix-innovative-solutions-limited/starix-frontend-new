@@ -4,8 +4,8 @@ import Image from 'next/image'
 
 const CircleMembers = () => {
   return (
-    <div className="bg-white flex items-center justify-center md:min-w-lg  ">
-      <div className="w-full bg-white p-8 max-h-[70vh] h-full relative">
+    <div className="flex items-center justify-center md:min-w-lg  ">
+      <div className="w-full p-8 max-h-[70vh] h-full relative">
         <h2 className="text-xl text-center font-medium text-secondary-100 mb-6">
           View Members
         </h2>

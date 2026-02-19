@@ -10,6 +10,11 @@ import ChallengeDetails from "./ChallengeDetails";
 import NewPostComponent from "./NewPost";
 import Image from "next/image";
 import { FaEllipsisVertical } from "react-icons/fa6";
+import ChallengeLeaderboard from "./ChallengeLeaderboard";
+import NextStep from "../NextStep";
+import { useRouter } from "next/navigation";
+
+
 
 type ChallengeCardProps = {
   challenge: any;
@@ -26,50 +31,36 @@ const ChallengeCard = ({ challenge, post, onView, onJoin, onLeaderboard }: Chall
   const { open } = useModal();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const actions = useMemo(
-    () => [
-      {
-        label: "View",
-        onClick: () => {
-          setMenuOpen(false);
+  const router = useRouter();
 
-          // If parent passed onView, use it. Else fallback to modal.
-          if (onView) return onView();
-          open(<ChallengeDetails />, { position: "center" });
+  const actions = [
+  {
+    label: "View",
+    onClick: () => {
+      setMenuOpen(false);
+      open(<ChallengeDetails />, { position: "center" });
+    },
+  },
+  {
+    label: "Join",
+    onClick: () => {
+      setMenuOpen(false);
+      open(<NextStep />, { position: "center" });
+    },
+  },
+  {
+    label: "Leaderboard",
+    onClick: () => {
+      setMenuOpen(false);
+      router.push(`/challenges/${challenge.id}/leaderboard`);
+    },
+  },
+];
 
-          // 🔌 BACKEND DEV TO DO:
-          // If you want full details page, return challenge id + route
-        },
-      },
-      {
-        label: "Join",
-        onClick: () => {
-          setMenuOpen(false);
 
-          if (onJoin) return onJoin();
 
-          // Frontend fallback for now
-          // open(<JoinChallengeModal />, { position: "center" })
-          // 🔌 BACKEND DEV TO DO:
-          // Implement join endpoint + update status to "joined"
-          alert("Join action: backend needed");
-        },
-      },
-      {
-        label: "Leaderboard",
-        onClick: () => {
-          setMenuOpen(false);
 
-          if (onLeaderboard) return onLeaderboard();
 
-          // 🔌 BACKEND DEV TO DO:
-          // Provide leaderboard endpoint/page
-          alert("Leaderboard: backend needed");
-        },
-      },
-    ],
-    [onView, onJoin, onLeaderboard, open]
-  );
 
   return (
     <motion.div

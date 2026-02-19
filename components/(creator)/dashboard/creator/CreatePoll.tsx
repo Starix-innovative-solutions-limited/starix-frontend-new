@@ -52,25 +52,25 @@ const CreatePoll: React.FC<CreatePollProps> = ({
   };
 
   return (
-    <div className="bg-gray-50 flex items-center justify-center md:min-w-lg">
-      <div className="w-full bg-white rounded-2xl shadow-lg p-8">
+    <div className=" flex items-center justify-center md:min-w-lg">
+      <div className="w-full rounded-2xl  p-8">
         <h2 className="text-xl text-center font-medium text-secondary-100 mb-6">
           Create Poll
         </h2>
 
-        <div className="space-y-1">
+        <div className="">
           {/* Question Input */}
           <CustomInput
             label="Question"
-            placeholder="Enter your question"
+            placeholder="Question"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            className="mb-2"
+            
           />
 
           {/* Options */}
           {options.map((opt, index) => (
-            <div key={opt.id} className="space-y-4">
+            <div key={opt.id} className="space-y-2">
               <div className="flex items-center justify-between ">
                 {options.length > 2 && (
                   <button

@@ -6,11 +6,11 @@ import CustomInput from '@/components/CustomInput'
 const CreateCircle = () => {
   const [formPart, setFormPart] = useState(0)
   return (
-    <div className="bg-white rounded-lg  w-full max-md:max-w-[80vw] md:min-w-lg mx-auto min-h-full flex flex-col justify-between md:max-w-2xl">
+    <div className="w-full max-md:max-w-[80vw] md:min-w-lg mx-auto min-h-full flex flex-col justify-between md:max-w-2xl">
       {/* Header */}
-      <h2 className="text-xl text-center font-medium text-secondary-100 p-4">Create Circle</h2>
+      <h2 className="text-2xl text-center font-medium text-secondary-100 p-8">Create Circle</h2>
 
-      <div className="px-8 pb-8 flex flex-col gap-2">
+      <div className="px-6 pb-10 flex flex-col gap-4">
 
 
         {
@@ -19,16 +19,48 @@ const CreateCircle = () => {
             <CustomInput label='Circle Description' placeholder='Enter Circle Description' onChange={() => { }} className="rounded-lg" />
           </> : (
             <>
-              <CustomInput label='Category' placeholder='Enter Circle Name' onChange={() => { }} className="rounded-lg" />
+              <CustomInput
+                type="select"
+                label="Category"
+                placeholder="Select Category"
+                options={[
+                  "Fashion",
+                  "Tech",
+                  "Gaming",
+                  "Education",
+                  "Finance",
+                ]}
+                onChange={(value) => console.log(value)}
+                className="rounded-full h-14 px-4 text-lg"
+              />
+
               <div className='flex items-center gap-4 overflow-x-hidden'>
-                {
-                  ['trophy.png', 'ball.png', 'star.png', 'hero1.png', 'heart.png']?.map((item, i) => (
-                    <span key={i} className='bg-[#fafafa] rounded-xl w-16 h-16 grid place-items-center shadow shad'>
-                      <Image src={`/${item}`} alt='' width={100} height={100} className='w-12 h-12 object-cover' />
-                    </span>
-                  ))
-                }
-              </div>
+              {
+                ['Trophy 2.svg', 'ball.svg', 'stars.svg', 'Badge 1.svg', 'heart 1.svg', 'Play buttons 1.svg']
+                  .map((item, i) => {
+                    const isTrophy = item === 'Trophy 2.svg';
+
+                    return (
+                      <span
+                        key={i}
+                        className='bg-[#f5f2f2] rounded-xl w-16 h-16 grid place-items-center shadow-xs'
+                      >
+                        <Image
+                          src={`/${item}`}
+                          alt=''
+                          width={100}
+                          height={100}
+                          className={`
+                            object-contain
+                            ${isTrophy ? 'w-12 h-12' : 'w-16 h-16'}
+                          `}
+                        />
+                      </span>
+                    );
+                  })
+              }
+            </div>
+
             </>
           )
         }
@@ -36,16 +68,55 @@ const CreateCircle = () => {
 
         {
           formPart == 0 ? (
-            <button className='btn mt-12 bg-secondary-100 text-[#fafafa] ' onClick={() => setFormPart(1)}>
+            <button
+              onClick={() => setFormPart(1)}
+              className="
+                w-full
+                h-16
+                
+                rounded-full
+                bg-secondary-100
+                text-white
+                text-lg
+                font-medium
+                hover:opacity-90
+                transition
+              "
+            >
               Next
             </button>
           ) : (
             <>
-              <button className='btn mt-12 bg-white border border-secondary-100 text-secondary-100' onClick={() => setFormPart(0)}>
+              <button
+                onClick={() => setFormPart(0)}
+                className="
+                  w-full
+                  h-14
+                  rounded-full
+                  border border-secondary-100
+                  text-secondary-100
+                  text-lg
+                  font-medium
+                  hover:bg-secondary-100 hover:text-white
+                  transition
+                "
+              >
                 Back
               </button>
 
-              <button className='btn  bg-secondary-100 text-[#fafafa] '>
+              <button
+                className="
+                  w-full
+                  h-16
+                  rounded-full
+                  bg-secondary-100
+                  text-white
+                  text-lg
+                  font-medium
+                  hover:opacity-90
+                  transition
+                "
+              >
                 Create Circle
               </button>
             </>

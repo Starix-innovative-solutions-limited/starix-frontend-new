@@ -58,7 +58,7 @@ const NextStep = ({ id, onDone, onStepChange }: NextProps) => {
   const allCompleted = items.every((x) => x.completed);
 
   return (
-    <div className="bg-white rounded-lg w-full max-md:max-w-[80vw] md:min-w-lg mx-auto min-h-full flex flex-col justify-between">
+    <div className=" w-full max-md:max-w-[80vw] md:min-w-lg mx-auto min-h-full flex flex-col justify-between">
       {/* Header */}
       <h2 className="text-xl text-center font-medium text-secondary-100 p-4">
         Next Steps

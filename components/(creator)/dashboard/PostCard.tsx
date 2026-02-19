@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { PiEyeThin } from "react-icons/pi";
 
+
 interface PostProps {
   viewSubmitLink?: boolean;
   price?: string;
@@ -32,6 +33,12 @@ const PostCard = ({ viewSubmitLink, isWin, price, link }: PostProps) => {
     else open(<SubmissionDetails />);
   };
 
+
+const openSubmissionDetails = () => {
+  open(<SubmissionDetails />, { position: "center" });
+};
+
+
   return (
     <motion.div
       whileHover={{ y: -8 }}
@@ -45,7 +52,7 @@ const PostCard = ({ viewSubmitLink, isWin, price, link }: PostProps) => {
           width={1000}
           height={1000}
           className="w-full h-48 sm:h-56 md:h-52 lg:h-56 object-cover"
-          onClick={openDetails}
+          // onClick={openDetails}
         />
 
         <div className="absolute top-3 left-2 bg-white/90 backdrop-blur-sm p-2 rounded-full flex items-center gap-2">
@@ -78,10 +85,11 @@ const PostCard = ({ viewSubmitLink, isWin, price, link }: PostProps) => {
         cursor-pointer
         flex-1
       "
-      onClick={openDetails}
+      onClick={openSubmissionDetails}
     >
       Your Caption here
     </p>
+
 
     {/* ICONS — MOBILE RIGHT */}
     <div className="flex items-center gap-4 md:hidden shrink-0">

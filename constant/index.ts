@@ -24,6 +24,7 @@ export const sidebarLinks = [
     label: "Challenges",
     icon: "challengesIcon.svg",
     href: "/challenges",
+    new: true,
     badge: {
       hug: 102,
       flag: 26,

@@ -32,6 +32,12 @@ const WeeklyLeaderboard = () => {
       { rank: 2, username: "@LolaUGC", points: 7920 },
       { rank: 3, username: "@KariCreates", points: 7010 },
       { rank: 4, username: "@JadeTalks", points: 6500 },
+      { rank: 5, username: "@QueenBee", points: 8450 },
+      { rank: 6, username: "@LolaUGC", points: 7920 },
+      { rank: 7, username: "@KariCreates", points: 7010 },
+      { rank: 8, username: "@JadeTalks", points: 6500 },
+      { rank: 9, username: "@QueenBee", points: 8450 },
+      { rank: 10, username: "@LolaUGC", points: 7920 },
     ];
   };
 
@@ -131,7 +137,7 @@ const WeeklyLeaderboard = () => {
                   transition={{ delay: idx * 0.06 }}
                   className={[
                     "flex items-center justify-between gap-1",
-                    "rounded-xl",
+                    "rounded",
                     "transition-colors",
                     "hover:bg-gray-50",
                     creator.isYou ? "bg-[#FFF8F5]" : "bg-white",
