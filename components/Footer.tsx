@@ -12,7 +12,7 @@ const Footer = () => {
   return (
     <section className="flex flex-col pt-6 text-[#444444]">
       {/* CTA CARD (hidden on contact page) */}
-      {/* CTA CARD (hidden on contact page) */}
+  
 <div className="general-space">
   {path !== "/contact" && (
     <div className="border-3 border-dark-navy rounded-2xl overflow-hidden">
@@ -193,11 +193,11 @@ const Footer = () => {
           {/* BOTTOM SECTION */}
           <div className="flex flex-col gap-6 text-off-white/70">
             <div className="text-base sm:text-lg">
-              <a href="#" className="hover:text-[#00ff88] transition-colors">
-                Legal
+              <a href="/footer/cookies" className="hover:text-[#00ff88] transition-colors">
+                Cookies
               </a>
               <span className="mx-2 opacity-50">|</span>
-              <a href="#" className="hover:text-[#00ff88] transition-colors">
+              <a href="/footer" className="hover:text-[#00ff88] transition-colors">
                 Privacy
               </a>
               <span className="mx-2 opacity-50">|</span>
