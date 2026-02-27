@@ -60,13 +60,13 @@ export default function Navbar() {
       <div className="mx-auto w-full max-w-[1400px] px-6 md:px-16">
         <div className="h-[84px] flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="shrink-0 -ml-[1.3%]" onClick={closeAll}>
+          <Link href="/" className="shrink-0 -ml-[2%]" onClick={closeAll}>
             <Image src="/logo.svg" alt="Starix" width={110} height={28} priority />
           </Link>
 
           {/* Desktop Links (centered like Figma) */}
           <div className="hidden md:flex flex-1 items-center justify-center">
-            <div className="flex items-center gap-10">
+            <div className="flex items-center gap-13">
               {navLinks.map((link) => {
                 const isActive =
                   pathname === link.href ||
@@ -78,7 +78,7 @@ export default function Navbar() {
                     href={link.href}
                     onClick={() => setSignupOpen(false)}
                     className={`text-base transition-colors ${
-                      isActive ? "text-dark-navy" : "text-neut/60 hover:text-dark-navy"
+                      isActive ? "text-dark-navy" : "text-[#6E6E6E] hover:text-dark-navy"
                     }`}
                   >
                     {link.label}
@@ -90,6 +90,23 @@ export default function Navbar() {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
+              {/* Login pill */}
+            <Link
+              href="/login"
+              onClick={() => setSignupOpen(false)}
+              className="
+                h-[44px] px-8 rounded-full
+                bg-dark-navy text-white
+                inline-flex items-center justify-center
+                text-base
+                transition-all
+                hover:opacity-95
+                focus:outline-none focus:ring-2 focus:ring-[#0401361a]
+              "
+            >
+              Login
+            </Link>
+
             {/* Sign Up dropdown */}
             <div className="relative" ref={signupRef}>
               <button
@@ -143,22 +160,7 @@ export default function Navbar() {
               </div>
             </div>
 
-            {/* Login pill */}
-            <Link
-              href="/login"
-              onClick={() => setSignupOpen(false)}
-              className="
-                h-[44px] px-6 rounded-full
-                bg-dark-navy text-white
-                inline-flex items-center justify-center
-                text-base
-                transition-all
-                hover:opacity-95
-                focus:outline-none focus:ring-2 focus:ring-[#0401361a]
-              "
-            >
-              Login
-            </Link>
+            
           </div>
 
           {/* Mobile right */}

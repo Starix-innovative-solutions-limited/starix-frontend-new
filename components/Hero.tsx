@@ -91,7 +91,7 @@ const Hero = () => {
               gap-[6px]
 
               rounded-[40px]
-              border-2 border-dark-navy/50
+              border-2 border-dark-navy
               bg-white
 
               px-[18px] py-[6px]
@@ -100,7 +100,9 @@ const Hero = () => {
               text-[16px] xl:text-[20px]
               font-medium
 
-              transition-all duration-200
+              transition-all duration-300
+                hover:opacity-95
+                hover:bg-[#bebcbc]
              
             "
 
@@ -127,6 +129,7 @@ const Hero = () => {
 
                 transition-all duration-200
                 hover:opacity-95
+                hover:shadow-lg
               "
             >
               Join as a Brand

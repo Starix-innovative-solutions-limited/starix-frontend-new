@@ -27,12 +27,12 @@ export default function Page() {
 
   const ProfileHeader = () => (
     <Card>
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-6">
 
         {/* TOP */}
         <div className="flex flex-col md:flex-row md:items-start gap-6">
           <img
-            src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300"
+            src="/avatar.svg"
             className="w-28 h-28 rounded-full object-cover shrink-0"
           />
 
@@ -41,7 +41,7 @@ export default function Page() {
               <h1 className="text-3xl font-medium text-[#0F1035]">
                 {profile?.display_name || "Favour"}
               </h1>
-              <span className="px-3 py-1 bg-gray-100 text-gray-500 rounded-md text-sm">
+              <span className="px-3 py-1 bg-[#f3f3f3] text-gray-500 rounded-md text-sm">
                 Fashion
               </span>
             </div>
@@ -109,40 +109,42 @@ export default function Page() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
 
-        {/* MAIN */}
-        <div className="lg:col-span-3 space-y-8">
-          <ProfileHeader />
+  {/* MAIN SECTION - 70% */}
+  <div className="lg:col-span-7 space-y-8">
+    <ProfileHeader />
 
-          <Section title="Portfolio" />
+    <Section title="Portfolio" />
 
-          <Card>
-            <AnalyticsPreview stats={stats} />
-          </Card>
+    <Card>
+      <AnalyticsPreview stats={stats} />
+    </Card>
 
-          <Section title="Submissions" />
-        </div>
+    <Section title="Submissions" />
+  </div>
 
-        {/* SIDEBAR */}
-        <div className="space-y-6 lg:sticky lg:top-24 h-fit w-full">
-          <Card>
-          <PaymentDetails
-            bankDetails={{
-              bank_account_number: profile?.bank_account_number ?? "",
-              bank_code: profile?.bank_code ?? "",
-              bank_name: profile?.bank_name ?? "",
-              bank_account_name: profile?.bank_account_name ?? "",
-              bank_verified: profile?.bank_verified ?? false,
-              bank_verified_at: profile?.bank_verified_at ?? "",
-            }}
-          />
-        </Card>
+  {/* SIDEBAR SECTION - 30% */}
+  <div className="lg:col-span-3 space-y-6 lg:sticky lg:top-24 h-fit w-full">
+    <Card>
+      <PaymentDetails
+        bankDetails={{
+          bank_account_number: profile?.bank_account_number ?? "",
+          bank_code: profile?.bank_code ?? "",
+          bank_name: profile?.bank_name ?? "",
+          bank_account_name: profile?.bank_account_name ?? "",
+          bank_verified: profile?.bank_verified ?? false,
+          bank_verified_at: profile?.bank_verified_at ?? "",
+        }}
+      />
+    </Card>
 
-          <Card><SocialMedia /></Card>
-        </div>
+    <Card>
+      <SocialMedia />
+    </Card>
+  </div>
 
-      </div>
+</div>
     </motion.div>
   );
 }

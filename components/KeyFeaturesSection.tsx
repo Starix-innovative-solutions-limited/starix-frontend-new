@@ -286,7 +286,7 @@ const KeyFeaturesSection = () => {
               </div>
 
               {/* RIGHT */}
-              <div className="bg-[#F5F6FA] flex items-center justify-center p-6 lg:p-10">
+              <div className="bg-[#E0E0E099] flex items-center justify-center p-6 lg:p-10">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={active.img}
@@ -296,7 +296,7 @@ const KeyFeaturesSection = () => {
                     transition={{ duration: 0.5 }}
                     className="w-full h-full flex items-center justify-center"
                   >
-                    <Image src={active.img} alt="feature" width={1600} height={1200} className="w-full h-auto object-contain" />
+                    <Image src={active.img} alt="feature" width={1600} height={1200} className="w-full ml-20 h-auto object-contain" />
                   </motion.div>
                 </AnimatePresence>
               </div>

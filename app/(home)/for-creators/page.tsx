@@ -15,14 +15,13 @@ export const CreatorCard = ({ image, title, description, buttonText, delay }: an
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay }}
-      className="flex flex-col justify-between bg-white overflow-hidden hover:border hover:border-dark-navy rounded-3xl hover:shadow-xl transition-shadow duration-300 px-6 p-5"
+      className="flex flex-col justify-between bg-white overflow-hidden rounded-3xl hover:shadow-xs transition-shadow duration-300 px-6 p-5"
     >
       <div className="flex flex-col gap-7">
         {/* ✅ Responsive image (no layout shift) */}
         <motion.div
           className="relative w-full aspect-[16/10] overflow-hidden rounded-3xl"
-          whileHover={{ scale: 1.02 }}
-          transition={{ duration: 0.3 }}
+          
         >
           <Image
             src={`/${image}`}
@@ -43,10 +42,10 @@ export const CreatorCard = ({ image, title, description, buttonText, delay }: an
       {/* ✅ Link arrow -> /signup */}
       <Link
         href="/signup"
-        className="ml-auto w-fit group flex items-center gap-2 text-dark-navy/70 text-base font-light transition-all duration-300 hover:gap-4"
+        className="ml-auto w-fit group flex items-center gap-2 text-dark-navy/70 text-base font-light "
       >
         <span className="border-b border-dark-navy/70 font-light">{buttonText}</span>
-        <FiArrowRight className="text-xl group-hover:translate-x-1 transition-transform" />
+        <FiArrowRight className="text-xl " />
       </Link>
     </motion.div>
   );
@@ -99,7 +98,7 @@ const Page = () => {
 
   return (
     <>
-      <div className="bg-off-white">
+      <div className="bg-[#F5f5f5]">
         <CreatorHeroWithSlider />
 
         <StarixSolutionsAndFeatures />
@@ -108,7 +107,9 @@ const Page = () => {
         <section className="text-dark-navy py-16 general-space">
           <div className="flex flex-col gap-20">
             <div className="md:flex md:items-center md:justify-between max-md:space-y-5">
-              <p className="text-3xl md:text-4xl text-dark-navy font-semibold tracking-tight max-md:text-center">
+              <p className="font-geist font-[600]
+            text-[34px]
+            md:text-[48px] text-dark-navy tracking-tight max-md:text-center">
                 We’re Made for Every Creator
               </p>
               <p className="max-w-md line-clamp-3 text-right font-extralight text-neut/60 text-xl md:text-2xl max-md:text-center">

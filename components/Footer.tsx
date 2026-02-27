@@ -12,144 +12,153 @@ const Footer = () => {
   return (
     <section className="flex flex-col pt-6 text-[#444444]">
       {/* CTA CARD (hidden on contact page) */}
-      <div className="general-space">
-        {path !== "/contact" && (
-          <div className="border-3 border-dark-navy rounded-2xl overflow-hidden">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-8 p-4 sm:p-6 md:p-10">
-              {/* Left text */}
-              <div className="w-full md:max-w-md flex flex-col gap-6">
-                <h3 className="font-semibold text-dark-navy text-2xl sm:text-3xl md:text-4xl leading-snug text-center md:text-left">
-                  Redefine Your
-                  <br className={path === "/" ? "" : "hidden"} />
-                  {path === "/for-brands"
-                    ? "Brand Story"
-                    : path === "/for-creators"
-                    ? "Creativity"
-                    : "Creativity & Brand Story"}
-                </h3>
+      {/* CTA CARD (hidden on contact page) */}
+<div className="general-space">
+  {path !== "/contact" && (
+    <div className="border-3 border-dark-navy rounded-2xl overflow-hidden">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-8 p-4 sm:p-6 md:p-10">
+        
+        {/* Left text block - Conditionally centered internally */}
+        <div className={`
+          w-full md:max-w-md flex flex-col gap-6
+          ${(path === "/for-brands" || path === "/for-creators") ? "md:items-center md:text-center md:mx-auto" : ""}
+        `}>
+          <h3 className="font-semibold text-dark-navy text-2xl sm:text-3xl md:text-4xl leading-snug text-center md:text-left">
+            Redefine Your
+            <br className={path === "/" ? "" : "hidden"} />
+            {path === "/for-brands"
+              ? "Brand Story "
+              : path === "/for-creators"
+              ? " Creativity"
+              : " Creativity & Brand Story"}
+          </h3>
 
-                {/* Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4">
-                  {path !== "/for-brands" && (
-                    <Link
-                      href="/signup"
-                      className="
-                        w-full sm:w-auto text-center
-                        bg-white text-secondary-100
-                        border border-secondary-100
-                        btn !rounded-full
-                        transition-all duration-300
-                        hover:bg-secondary-100 hover:text-white
-                      "
-                    >
-                      Join as a Creator
-                    </Link>
-                  )}
+          {/* Buttons container - Centered on specific routes */}
+          <div className={`
+            flex flex-col sm:flex-row gap-4 w-full
+            ${(path === "/for-brands" || path === "/for-creators") ? "md:justify-center" : ""}
+          `}>
+            {path !== "/for-brands" && (
+              <Link
+                href="/signup"
+                className="
+                  w-full sm:w-auto text-center
+                  bg-white text-secondary-100
+                  border-2 border-secondary-100
+                  btn !rounded-full
+                  transition-all duration-300
+                  hover:bg-[#f6f6f6]
+                "
+              >
+                Join as a Creator
+              </Link>
+            )}
 
-                  {path !== "/for-creators" && (
-                    <Link
-                      href="/signup?role=brand"
-                      className="
-                        w-full sm:w-auto text-center
-                        bg-dark-navy text-white
-                        border border-dark-navy
-                        btn !rounded-full
-                        transition-all duration-300
-                        hover:bg-white hover:text-dark-navy
-                      "
-                    >
-                      Join as a Brand
-                    </Link>
-                  )}
-                </div>
-              </div>
-
-              {/* Right image */}
-              <div className="w-full md:w-auto flex justify-center">
-                <Image
-                  src="/footer.png"
-                  alt="footer"
-                  width={420}
-                  height={420}
-                  className="w-[220px] sm:w-[260px] md:w-[320px] h-auto object-contain"
-                />
-              </div>
-            </div>
+            {path !== "/for-creators" && (
+              <Link
+                href="/signup?role=brand"
+                className="
+                  w-full sm:w-auto text-center
+                  bg-dark-navy text-white
+                  border border-dark-navy
+                  btn !rounded-full
+                  transition-all duration-300
+                  hover:shadow-lg
+                "
+              >
+                Join as a Brand
+              </Link>
+            )}
           </div>
-        )}
+        </div>
+
+        {/* Right image - Position preserved on the right */}
+        <div className="w-full md:w-auto flex justify-center">
+          <Image
+            src="/footer.png"
+            alt="footer"
+            width={420}
+            height={420}
+            className="w-[220px] sm:w-[260px] md:w-[320px] h-auto object-contain"
+          />
+        </div>
       </div>
+    </div>
+  )}
+</div>
 
       {/* DARK FOOTER */}
       <div className="bg-dark-navy py-8 mt-6 general-space">
         <div>
-          {/* TOP SECTION — mobile 3-column like screenshot */}
-          <div
-            className="
-              grid grid-cols-3 gap-6 mb-12
-              md:flex md:justify-between md:gap-16
-            "
+          
+          {/* TOP SECTION — Aligned to right with 30% gap */}
+<div className="flex flex-col md:flex-row justify-between items-start gap-12 md:gap-0 mb-16">
+  
+  {/* Logo side */}
+  <div className="flex-1">
+    <Image
+      src="/logo light.svg"
+      alt="Starix Logo"
+      width={240}
+      height={80}
+      className="w-[140px] md:w-[200px] h-auto"
+    />
+  </div>
+
+  {/* Right Content Group — Uses 30% gap */}
+  <div className="flex flex-row justify-end md:gap-[50%] w-full md:w-auto">
+    
+    {/* Resources */}
+    <div className="min-w-fit">
+      <h3 className="text-white text-[18px] md:text-[20px] font-normal mb-6">
+        Resources
+      </h3>
+      <ul className="space-y-4">
+        <li>
+          <Link
+            href="/for-brands"
+            className="text-white/60 text-sm md:text-base hover:text-white transition-colors"
           >
-            {/* Logo */}
-            <div>
-              <Image
-                src="/logo light.svg"
-                alt="lightLogo"
-                width={260}
-                height={100}
-                className="w-[130px] sm:w-[160px] md:w-[240px] h-auto"
-              />
-            </div>
+            For Brands
+          </Link>
+        </li>
+        <li>
+          <Link
+            href="/for-creators"
+            className="text-white/60 text-sm md:text-base hover:text-white transition-colors"
+          >
+            For Creators
+          </Link>
+        </li>
+      </ul>
+    </div>
 
-            {/* Contact */}
-            <div className="text-center md:text-left">
-              <h3 className="text-lg sm:text-xl text-off-white mb-4">
-                Contact
-              </h3>
-              <ul className="space-y-4">
-                <li>
-                  <a
-                    href="tel:+23400000000"
-                    className="text-sm sm:text-base text-off-white/70 hover:text-[#00ff88] transition-colors"
-                  >
-                    +23400000000
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="mailto:starix@mail.com"
-                    className="text-sm sm:text-base text-off-white/70 hover:text-[#00ff88] transition-colors"
-                  >
-                    Starix@mail.com
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Resources */}
-            <div className="text-right md:text-left">
-              <h3 className="text-lg sm:text-xl text-off-white mb-4">
-                Resources
-              </h3>
-              <ul className="space-y-4">
-                <li>
-                  <Link
-                    href="/for-brands"
-                    className="text-sm sm:text-base text-off-white/70 hover:text-[#00ff88] transition-colors"
-                  >
-                    For Brands
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/for-creators"
-                    className="text-sm sm:text-base text-off-white/70 hover:text-[#00ff88] transition-colors"
-                  >
-                    For Creators
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
+    {/* Contact */}
+    <div className="min-w-fit">
+      <h3 className="text-white text-[18px] md:text-[20px] font-normal mb-6">
+        Contact
+      </h3>
+      <ul className="space-y-4">
+        <li>
+          <a
+            href="tel:+23400000000"
+            className="text-white/60 text-sm md:text-base hover:text-white transition-colors"
+          >
+            +23400000000
+          </a>
+        </li>
+        <li>
+          <a
+            href="mailto:starix@mail.com"
+            className="text-white/60 text-sm md:text-base hover:text-white transition-colors"
+          >
+            Starix@mail.com
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
 
           {/* SOCIAL ICONS */}
           <div className="flex mb-12">

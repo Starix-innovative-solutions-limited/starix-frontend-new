@@ -150,10 +150,12 @@ const StarixSolutionsSection = () => {
           <button
             onClick={() => router.push("/signup?role=brand")}
             className="
-              bg-gradient-to-r from-[#0B0F3C] to-[#1A1F6B]
+              bg-dark-navy
               text-white
-              px-10
+              px-4
               py-4
+              w-[193px]
+              h-[68px]
               rounded-full
               flex
               items-center
@@ -162,8 +164,8 @@ const StarixSolutionsSection = () => {
               font-medium
               transition-all
               duration-300
-              hover:scale-[1.04]
-              shadow-lg
+
+              hover:drop-shadow-lg
             "
           >
             Join as a Brand

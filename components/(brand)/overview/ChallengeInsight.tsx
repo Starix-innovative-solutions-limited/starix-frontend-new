@@ -75,7 +75,7 @@ export default function TopChallengeInsights() {
     const [hoveredBar, setHoveredBar] = useState<number | any>(5);
 
     return (
-        <div className=" bg-gray-50 relative">
+        <div className="relative">
             <div className="">
                 {/* Header */}
                 <motion.h1

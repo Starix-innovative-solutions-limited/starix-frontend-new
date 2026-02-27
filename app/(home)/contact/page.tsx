@@ -41,7 +41,7 @@ const Page = () => {
   };
 
   return (
-    <div className="general-space">
+    <div className="general-space bg-white min-h-screen">
       <div className="grid grid-cols-1 md:grid-cols-2  md:gap-40 items-center">
         <div className="space-y-5 md:pb-35 pb-0">
           <h3 className="font-semibold text-dark-navy md:text-left text-center leading-snug text-4xl md:text-5xl">
@@ -49,11 +49,11 @@ const Page = () => {
             Let’s build the future of creator marketing together.
           </h3>
 
-          <p className="font-extralight md:text-left text-center text-neut/60 text-xl md:text-2xl">
+          <p className="font-extralight md:text-left text-center text-[#6E6E6E] text-[28px] md:text-2xl">
             Have questions, partnership ideas, or feedback? We’d love to hear from you.
           </p>
 
-          <div className="text-neut/60 space-y-4 text-center md:text-left">
+          <div className="text-[#6E6E6E] space-y-4 text-center md:text-left">
         <span className="block text-lg md:text-xl">
             You can reach us here:
         </span>
@@ -72,7 +72,7 @@ const Page = () => {
             transition-colors
             "
         >
-            <span className="text-neut/60">Email:</span>
+            <span className="text-[#6E6E6E">Email:</span>
 
             <span className="font-medium group-hover:underline">
             {email}
@@ -95,7 +95,7 @@ const Page = () => {
 
         </div>
 
-        <div className="bg-primary-white md:bg-primary-orange/5 flex flex-col gap-3.5 px-0 md:px-10 py-0 md:py-10 rounded-3xl">
+    <div className="bg-primary-white md:bg-[#FAFAFA] shadow-xs flex flex-col gap-3.5 px-0 md:px-10 py-0 md:py-10 rounded-3xl">
           <CustomInput
             label="Full name"
             placeholder="Full name"
@@ -163,7 +163,7 @@ const Page = () => {
               border border-dark-navy
               rounded-full
               transition-all duration-300
-              hover:bg-white hover:text-dark-navy
+              hover:bg-shaadow-lg
               
             "
           >

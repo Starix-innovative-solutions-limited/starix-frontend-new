@@ -27,7 +27,7 @@ const ChallengeLeaderboard = () => {
         {/* HEADER */}
         <div className="flex items-center gap-4">
           <ArrowLeft className="w-6 h-6 text-[#101828] cursor-pointer" />
-          <h1 className="text-[26px] font-semibold text-[#101828]">
+          <h1 className="text-[26px] font-normal text-[#101828]">
             Challenge Leaderboard
           </h1>
         </div>

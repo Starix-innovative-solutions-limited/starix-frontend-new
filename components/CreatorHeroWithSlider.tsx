@@ -77,17 +77,18 @@ export default function CreatorHeroWithSlider() {
           <p
             className="
                 font-geist font-[300]
-                text-[20px]
-                md:text-[28px]
+                text-[30px]
+                
                 leading-[1]
                 tracking-[0]
-                text-neut/60
+                text-[#6E6E6E]
                 max-w-xl
                 text-center md:text-left
                 mx-auto md:mx-0
             "
             >
-            Get discovered. Get opportunities. Improve faster. Earn more.
+            Get discovered. Get opportunities. <br/>
+            Improve faster. Earn more.
           </p>
 
 
@@ -102,6 +103,7 @@ export default function CreatorHeroWithSlider() {
                 transition-all duration-300
                 flex justify-center
                 md:inline-flex md:justify-start
+                hover:shadow-lg
             "
             >
             Join as a Creator
@@ -161,31 +163,44 @@ export default function CreatorHeroWithSlider() {
 
 
 
-  {/* Slider */}
-  <div className="absolute bottom-6 left-6 right-6 z-40 overflow-hidden">
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={index}
-        initial={{ opacity: 0, x: 80 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -80 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="flex items-center gap-4 bg-black/70 backdrop-blur-md rounded-xl px-4 py-3"
-      >
-        <Image
-          src={testimonials[index].avatar}
-          alt={testimonials[index].name}
-          width={44}
-          height={44}
-          className="rounded-full"
-        />
-        <div className="text-sm text-off-white">
-          <p className="opacity-90 leading-snug">“{testimonials[index].quote}”</p>
-          <p className="mt-1 text-xs opacity-60">@{testimonials[index].name}</p>
+  {/* Slider Wrapper */}
+<div className="absolute bottom-6 left-6 right-6 z-40 overflow-hidden">
+  <div className="relative flex w-full">
+    
+    {/* The Moving Track */}
+    <motion.div
+      className="flex gap-4 whitespace-nowrap"
+      animate={{
+        x: ["0%", "-50%"], // Moves halfway because the list is duplicated
+      }}
+      transition={{
+        duration: 20, // Adjust this for speed (higher = slower)
+        ease: "linear",
+        repeat: Infinity,
+      }}
+    >
+      {/* Render the list twice to create the seamless loop */}
+      {[...testimonials, ...testimonials].map((testimonial, i) => (
+        <div
+          key={i}
+          className="flex items-center gap-4 bg-black/10 backdrop-blur-md px-4 py-3 min-w-[300px] md:min-w-[400px]"
+        >
+          <Image
+            src={testimonial.avatar}
+            alt={testimonial.name}
+            width={44}
+            height={44}
+            className="rounded-full shrink-0"
+          />
+          <div className="text-sm text-off-white whitespace-normal">
+            <p className="opacity-90 leading-snug">“{testimonial.quote}”</p>
+            <p className="mt-1 text-xs opacity-60">@{testimonial.name}</p>
+          </div>
         </div>
-      </motion.div>
-    </AnimatePresence>
+      ))}
+    </motion.div>
   </div>
+</div>
 </div>
 
         </div>
