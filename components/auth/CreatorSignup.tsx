@@ -139,7 +139,7 @@ const CreatorSignup = ({ setIsGoogleAuth, role }: CreatorSignupProps) => {
       <motion.div className="mt-9">
         <motion.button
           variants={variants?.itemVariants}
-          whileHover={{ scale: 1.03 }}
+          
           whileTap={{ scale: 0.97 }}
           className="
                 w-full
@@ -149,12 +149,8 @@ const CreatorSignup = ({ setIsGoogleAuth, role }: CreatorSignupProps) => {
                 text-white
                 bg-dark-navy
                 border border-dark-navy
-                transition-all duration-200
-                hover:bg-white hover:text-dark-navy
-                hover:shadow-md
-                disabled:opacity-60 disabled:cursor-not-allowed
-                focus:outline-none
-                focus:ring-2 focus:ring-dark-navy/20
+                hover:shadow-xl
+                
               "
           onClick={handleSubmit}
         >

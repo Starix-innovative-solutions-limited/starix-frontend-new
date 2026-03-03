@@ -140,7 +140,7 @@ const BrandSignup = ({ setIsGoogleAuth, role }: BrandSignupProps) => {
       {/* INDUSTRY MULTI SELECT */}
       <div className="w-full relative mt-4">
         <label className="text-sm text-dark-navy mb-2 block">
-          Industry (max 4)
+          Industry
         </label>
 
         <div className="w-full min-h-[56px] border border-gray-300 rounded-xl px-3 py-2 flex flex-wrap gap-2 items-center focus-within:border-dark-navy transition bg-white">
@@ -213,7 +213,6 @@ const BrandSignup = ({ setIsGoogleAuth, role }: BrandSignupProps) => {
         <motion.button
           type="submit"
           variants={variants?.itemVariants}
-          whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
           className="
                 w-full
@@ -223,12 +222,7 @@ const BrandSignup = ({ setIsGoogleAuth, role }: BrandSignupProps) => {
                 text-white
                 bg-dark-navy
                 border border-dark-navy
-                transition-all duration-200
-                hover:bg-white hover:text-dark-navy
-                hover:shadow-md
-                disabled:opacity-60 disabled:cursor-not-allowed
-                focus:outline-none
-                focus:ring-2 focus:ring-dark-navy/20
+                     
               "
         >
           {isPending ? <Loader /> : "Sign Up"}

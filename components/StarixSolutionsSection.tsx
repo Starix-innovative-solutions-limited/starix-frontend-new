@@ -20,7 +20,7 @@ const solutions = [
   {
     title: "Trend Intelligence",
     desc: "An influence bot to predict the viral trends and emerging creator insights",
-    img: "/starixSolution3.png",
+    img: "/starixSolution33.png",
   },
   {
     title: "Challenge Dashboard",
@@ -150,23 +150,24 @@ const StarixSolutionsSection = () => {
           <button
             onClick={() => router.push("/signup?role=brand")}
             className="
-              bg-dark-navy
-              text-white
-              px-4
-              py-4
-              w-[193px]
-              h-[68px]
-              rounded-full
-              flex
-              items-center
-              gap-3
-              text-lg
-              font-medium
-              transition-all
-              duration-300
+                inline-flex items-center justify-center
+                w-[193px]
+                h-[68px]
+                gap-[6px]
 
-              hover:drop-shadow-lg
-            "
+                rounded-[40px]
+                bg-dark-navy
+
+                px-[18px] py-[6px]
+
+                text-white
+                text-[14px] xl:text-[16px]
+                font-medium
+
+                transition-all duration-200
+                hover:opacity-95
+                hover:shadow-lg
+              "
           >
             Join as a Brand
             <HiOutlineArrowNarrowRight className="text-xl" />

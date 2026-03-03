@@ -126,7 +126,7 @@ const SignupForm = () => {
           <motion.div className="text-center text-sm text-neut/60">
             Already have an account?{" "}
             <Link
-              href={`/login${role === "brand" ? "?role=brand" : ""}`}
+              href={`/login${role === "brand" ? "?role=brand" : " "}`}
               className="text-dark-navy hover:underline"
             >
               Login

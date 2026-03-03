@@ -58,20 +58,11 @@ useEffect(() => {
 
 
   const router = useRouter();
-const [order, setOrder] = useState([0, 1, 2, 3]);
 
-useEffect(() => {
-  const interval = setInterval(() => {
-    setOrder(prev => {
-      const newOrder = [...prev];
-      const last = newOrder.pop();   
-      newOrder.unshift(last!);
-      return newOrder;
-    });
-  }, 3000);
 
-  return () => clearInterval(interval);
-}, []);
+
+
+ 
 
 const variants: Variants = {
   front: {
@@ -139,6 +130,13 @@ const variants: Variants = {
     },
   ];
 
+  // derive card order from activeProblem
+const order = React.useMemo(() => {
+  return cards.map((_, i) => (activeProblem + i) % cards.length);
+}, [activeProblem, cards.length]);
+
+const variantMap = ["front", "mid", "back", "far"];
+
   const [openSection, setOpenSection] = useState(1);
   const toggleSection = (id: any) => setOpenSection(openSection === id ? null : id);
 
@@ -157,14 +155,43 @@ const variants: Variants = {
               <h3 className="font-['Geist'] font-[600] text-[40px] md:text-[64px] leading-[1.2] tracking-[-0.02em] text-dark-navy">
                 High‐Quality <br /> UGC, Powered by <br /> Real Data
               </h3>
-              <p className="font-['Geist'] py-4 font-[300] text-[20px] md:text-[28px] leading-snug text-neut/60">
+              <p
+            className="
+                font-geist font-[300]
+                text-[28px]
+                
+                leading-[1]
+                tracking-[0]
+                text-[#6E6E6E]
+                max-w-xl
+                text-center md:text-left
+                mx-auto md:mx-0
+            "
+            >
                 Run smarter creator challenges with verified creators and trend insight
               </p>
               <button
                 onClick={() => router.push("/signup?role=brand")}
-                className="bg-dark-navy text-off-white border border-dark-navy p-4 rounded-full w-full md:w-fit transition-all hover:bg-white hover:text-dark-navy"
-              >
-                Join as a brand.
+                className="
+                inline-flex items-center justify-center
+                w-[193px]
+                h-[68px]
+                gap-[6px]
+
+                rounded-[40px]
+                bg-dark-navy
+
+                px-[18px] py-[6px]
+
+                text-white
+                text-[16px] xl:text-[20px]
+                font-medium
+
+                transition-all duration-200
+                hover:opacity-95
+                hover:shadow-lg
+              ">
+                Join as a brand
               </button>
             </div>
             <div className="relative w-full aspect-square md:aspect-auto">
@@ -173,68 +200,107 @@ const variants: Variants = {
           </div>
 
           <div className="flex flex-col py-20">
-            {/* PROBLEM SECTION - Added minmax to keep columns stable */}
-            <div className="">
-            <section className="hidden md:block py-32">
-              <motion.div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-[minmax(400px,_1fr)_1fr] gap-24 items-center">
-                <div className="relative w-full h-[520px]">
-                  <div className="absolute z-[50] bottom-0 left-0 w-[72px] h-[72px]">
-                    <Image src="/poor12.png" alt="star" width={72} height={72} className="object-contain" />
-                  </div>
-                  <div className="absolute top-[211px] left-0 w-full max-w-[327px]">
-                    {order.map((cardIndex, position) => {
-                      const variantMap = ["front", "mid", "back", "far"];
-                      return (
-                        <motion.div
-                          key={cards[cardIndex].id}
-                          className="absolute w-full aspect-[327/288] rounded-[40px] overflow-hidden"
-                          variants={variants}
-                          animate={variantMap[position]}
-                          initial={false}
-                        >
-                          <Image src={cards[cardIndex].src} alt="" fill className="object-cover" />
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                </div>
+            {/* PROBLEM SECTION */}
+<div className="bg-white relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] mb-0">
+  <section className="hidden md:block py-32">
+    <motion.div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-[minmax(400px,_1fr)_1fr] gap-24 items-center">
 
-                <div className="flex flex-col h-full">
-                  <h2 className="font-['Geist'] font-[600] text-[42px] md:text-[56px] leading-tight text-dark-navy mb-14">
-                    Problem For Brands
-                  </h2>
-                  <div className="relative h-full">
-                    {/* TIMELINE */}
-                    <div className="absolute left-[18px] top-[18px] bottom-[18px] w-[1px] bg-[#DADADA] overflow-hidden">
+      {/* LEFT SIDE */}
+      <div className="relative w-full h-[520px]">
+        <div className="absolute z-[50] bottom-0 left-0 w-[72px] h-[72px]">
+          <Image
+            src="/poor12.png"
+            alt="star"
+            width={72}
+            height={72}
+            className="object-contain"
+          />
+        </div>
+
+        <div className="absolute top-[211px] left-0 w-full max-w-[327px]">
+          {order.map((cardIndex, position) => (
+            <motion.div
+              key={cards[cardIndex].id}
+              className="absolute w-full aspect-[327/288] rounded-[40px] overflow-hidden"
+              variants={variants}
+              animate={variantMap[position]}
+              initial={false}
+              transition={{ duration: 0.6, ease: "easeInOut" }}
+            >
+              <Image
+                src={cards[cardIndex].src}
+                alt=""
+                fill
+                className="object-cover w-[327px] h-[288px]"
+              />
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* RIGHT SIDE */}
+      <div className="flex flex-col h-full">
+        <h2 className="font-['Geist'] font-[600] text-[42px] md:text-[56px] leading-tight text-dark-navy mb-14">
+          Problem For Brands
+        </h2>
+
+        <div className="relative h-full">
+          {problems.map((problem, index) => {
+            const isActive = activeProblem === index;
+            const isLast = index === problems.length - 1;
+
+            return (
+              <div
+                key={index}
+                onClick={() => setActiveProblem(index)}
+                className="relative flex items-start gap-6 cursor-pointer py-[18px]"
+              >
+                {/* CIRCLE + CONNECTOR */}
+                <div className="relative flex flex-col items-center">
+                  {/* Circle */}
+                  <motion.div
+                    className={`w-[38px] h-[38px] rounded-full flex items-center justify-center border z-10 bg-white`}
+                    animate={{
+                      borderColor: isActive ? "#0B1B3F" : "#DADADA",
+                      color: isActive ? "#0B1B3F" : "#B5B5B5"
+                    }}
+                    transition={{ duration: 0.4 }}
+                  >
+                    <PiWarningCircleLight size={18} />
+                  </motion.div>
+
+                  {/* Connector (not last) */}
+                  {!isLast && (
+                    <div className="relative w-[1px] h-[20px] mt-[6px] bg-[#DADADA] overflow-hidden">
                       <motion.div
-                        className="absolute left-0 w-[2px] bg-dark-navy"
-                        animate={{ height: `${((activeProblem - 1) / problems.length) * 100}%` }}
-                        transition={{ duration: 0.6 }}
+                        className="absolute top-0 left-0 w-full bg-dark-navy"
+                        animate={{
+                          height: activeProblem > index ? "100%" : "0%"
+                        }}
+                        transition={{ duration: 0.4 }}
                       />
                     </div>
-                    {problems.map((problem, index) => {
-                      const isActive = activeProblem === index;
-                      return (
-                        <div key={index} onClick={() => setActiveProblem(index)} className="flex items-start gap-6 cursor-pointer py-[18px]">
-                          <div className={`w-[38px] h-[38px] rounded-full flex items-center justify-center border transition-all z-10 bg-white ${isActive ? "border-dark-navy text-dark-navy" : "border-[#DADADA] text-[#B5B5B5]"}`}>
-                            <PiWarningCircleLight size={18} />
-                          </div>
-                          <span className={`font-['Geist'] text-[24px] md:text-[28px] leading-tight ${isActive ? "text-dark-navy" : "text-[#B5B5B5]"}`}>
-                            {problem}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
+                  )}
                 </div>
-              </motion.div>
-            </section>
-            </div>
 
-            {/* Mobile Problem Section logic remains untouched */}
-            <section className="md:hidden py-16">
-               {/* ... (Mobile Slider Code) */}
-            </section>
+                {/* Text */}
+                <motion.span
+                  className="font-['Geist'] text-[24px] md:text-[28px] leading-tight"
+                  animate={{
+                    color: isActive ? "#0B1B3F" : "#B5B5B5"
+                  }}
+                  transition={{ duration: 0.4 }}
+                >
+                  {problem}
+                </motion.span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </motion.div>
+  </section>
+</div>
             
             <StarixSolutionsSection />
             <KeyFeaturesSection />

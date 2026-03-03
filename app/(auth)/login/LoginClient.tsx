@@ -82,7 +82,7 @@ const Page = () => {
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           {/* HEADER */}
           <motion.div className="flex flex-col gap-2" variants={variants?.itemVariants}>
-            <h3 className="font-medium text-3xl sm:text-4xl md:text-5xl leading-tight text-secondary-100">
+            <h3 className="font-medium text-3xl sm:text-4xl md:text-4xl leading-tight text-secondary-100">
               Welcome back
             </h3>
             {/* <p className="text-neut/60 text-sm sm:text-base font-light">
@@ -117,7 +117,7 @@ const Page = () => {
             <CustomInput
               label="Email Address"
               type="email"
-              placeholder="e.g johndoe@email.com"
+              placeholder="Email address"
               value={form.email}
               onChange={(e: any) =>
                 setForm((prev) => ({ ...prev, email: e.target.value }))
@@ -127,7 +127,7 @@ const Page = () => {
             <CustomInput
               label="Password"
               type="password"
-              placeholder="Minimum of 8 characters"
+              placeholder="Paaword"
               value={form.password}
               onChange={(e: any) =>
                 setForm((prev) => ({ ...prev, password: e.target.value }))

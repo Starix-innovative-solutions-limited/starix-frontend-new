@@ -25,7 +25,8 @@ const solutions = [
 
 export default function StarixSolutionsAndFeatures() {
   return (
-    <section className="relative bg-primary-orange/2">
+    <section className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-primary-orange/2 pt-20 mt-0 border-t-0">
+  <div className="general-space">   
 
         {/* Floating Bubble – Figma style */}
         <div
@@ -104,15 +105,24 @@ export default function StarixSolutionsAndFeatures() {
           <Link
             href="/signup"
             className="
-              bg-dark-navy text-white
-              rounded-full
-              px-8 py-4
-              flex items-center gap-2
-              border-2 border-dark-navy
-              transition-all duration-300
-              hover:shadow-lg
-             
-            "
+                inline-flex items-center justify-center
+                w-[193px]
+                h-[68px]
+                gap-[6px]
+
+                rounded-[40px]
+                bg-dark-navy
+
+                px-[18px] py-[6px]
+
+                text-white
+                text-[14px] xl:text-[16px]
+                font-medium
+
+                transition-all duration-200
+                hover:opacity-95
+                hover:shadow-lg
+              "
           >
             Join as a Creator
             <Image src="/rightArrow.svg" alt="arrow" width={20} height={20} />
@@ -134,6 +144,8 @@ export default function StarixSolutionsAndFeatures() {
         "
         style={{ backgroundImage: "url('/white bubble.svg')" }}
         />
+      </div>
+
       </div>
 
       

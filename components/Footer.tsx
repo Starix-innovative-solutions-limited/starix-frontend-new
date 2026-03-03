@@ -23,11 +23,11 @@ const Footer = () => {
           w-full md:max-w-md flex flex-col gap-6
           ${(path === "/for-brands" || path === "/for-creators") ? "md:items-center md:text-center md:mx-auto" : ""}
         `}>
-          <h3 className="font-semibold text-dark-navy text-2xl sm:text-3xl md:text-4xl leading-snug text-center md:text-left">
-            Redefine Your
+          <h3 className="font-semibold text-dark-navy text-2xl sm:text-3xl md:text-3xl leading-snug text-center md:text-left">
+            Redefine Your 
             <br className={path === "/" ? "" : "hidden"} />
             {path === "/for-brands"
-              ? "Brand Story "
+              ? " Brand Story "
               : path === "/for-creators"
               ? " Creativity"
               : " Creativity & Brand Story"}
@@ -42,13 +42,24 @@ const Footer = () => {
               <Link
                 href="/signup"
                 className="
-                  w-full sm:w-auto text-center
-                  bg-white text-secondary-100
-                  border-2 border-secondary-100
-                  btn !rounded-full
-                  transition-all duration-300
-                  hover:bg-[#f6f6f6]
-                "
+                inline-flex items-center justify-center
+                w-[193px]
+                h-[68px]
+                gap-[6px]
+
+                rounded-[40px]
+                bg-dark-navy
+
+                px-[18px] py-[6px]
+
+                text-white
+                text-[16px] xl:text-[20px]
+                font-medium
+
+                transition-all duration-200
+                hover:opacity-95
+                hover:shadow-lg
+              "
               >
                 Join as a Creator
               </Link>
@@ -58,13 +69,24 @@ const Footer = () => {
               <Link
                 href="/signup?role=brand"
                 className="
-                  w-full sm:w-auto text-center
-                  bg-dark-navy text-white
-                  border border-dark-navy
-                  btn !rounded-full
-                  transition-all duration-300
-                  hover:shadow-lg
-                "
+                inline-flex items-center justify-center
+                w-[193px]
+                h-[68px]
+                gap-[6px]
+
+                rounded-[40px]
+                bg-dark-navy
+
+                px-[18px] py-[6px]
+
+                text-white
+                text-[16px] xl:text-[20px]
+                font-medium
+
+                transition-all duration-200
+                hover:opacity-95
+                hover:shadow-lg
+              "
               >
                 Join as a Brand
               </Link>
@@ -183,7 +205,7 @@ const Footer = () => {
               className="w-10 h-10 flex items-center justify-center hover:opacity-70 transition-opacity"
               aria-label="X (Twitter)"
             >
-              <img src="X logo.svg" alt="" />
+              <img src="/X logo.svg" alt="" />
             </a>
           </div>
 
@@ -201,7 +223,7 @@ const Footer = () => {
                 Privacy
               </a>
               <span className="mx-2 opacity-50">|</span>
-              <a href="#" className="hover:text-[#00ff88] transition-colors">
+              <a href="/footer/terms" className="hover:text-[#00ff88] transition-colors">
                 Terms of Services
               </a>
             </div>

@@ -62,9 +62,9 @@ const AuthBg = ({ brand, creator, showLabel }: AuthProps) => {
 
         {/* DASH IMAGES */}
         <div className="mx-auto w-fit">
-          <Image src="/dash-section11.svg" width={300} height={100} alt="" />
+          <Image src="/dash-section11.svg" width={300} height={100} alt="" className="shadow-lg shadow-[#fbbea4]" />
           <Image
-            src="/dash-section12.svg"
+            src="/dash-section123.png"
             width={300}
             height={100}
             alt=""
@@ -88,52 +88,63 @@ const AuthBg = ({ brand, creator, showLabel }: AuthProps) => {
         </h2>
 
         {/* CTA ROW */}
-        <div className="flex flex-col gap-4">
-          <div
-            className={`
-              bg-[#A9BAEF6E]
-              rounded-full
-              px-4 py-2
-              shadow-2xs
-              flex items-center gap-3
-              w-fit mx-auto
-              overflow-hidden
-              ${brand ? "bg-primary-orange/10" : ""}
-            `}
-          >
-            {/* LOGOS */}
-            <motion.div
-  className="flex items-center relative"
-  animate={{ gap: expanded ? 8 : -6 }}
-  transition={{ duration: 0.6, ease: "easeInOut" }}
->
-  {logosToRender.map((src, i) => (
-    <motion.div
-      key={i}
-      initial={{ scale: 0.9, opacity: 0.7 }}
-      animate={{
-        scale: 1,
-        opacity: 1,
-        x: expanded ? i * 4 : 0,
-      }}
+<div className="flex flex-col gap-4">
+  <motion.div
+    layout
+    transition={{ duration: 0.6, ease: "easeInOut" }}
+    className={`
+      rounded-full
+      px-5 py-3
+      shadow-2xs
+      flex items-center
+      bg-[#A9BAEF6E]
+      w-fit mx-auto
+      overflow-hidden
+      ${brand ? "bg-primary-orange/10" : ""}
+    `}
+  >
+    {/* LOGOS */}
+    <div className="flex items-center">
+      {logosToRender.map((src, i) => (
+        <motion.div
+          key={i}
+          layout
+          transition={{ duration: 0.6, ease: "easeInOut" }}
+          className="relative"
+          style={{
+            marginLeft:
+              i === 0
+                ? 0
+                : expanded
+                ? -6   // still stacked, just looser
+                : -16, // tightly stacked
+            zIndex: logosToRender.length - i
+          }}
+        >
+          <Image src={src} alt="" width={36} height={36} />
+        </motion.div>
+      ))}
+    </div>
+
+    {/* TEXT */}
+    <motion.span
+      layout
       transition={{ duration: 0.6, ease: "easeInOut" }}
-      className="relative"
+      className="italic text-orange-400 text-[24px] ml-3 whitespace-nowrap"
     >
-      <Image src={src} alt="" width={28} height={28} />
+      start here
+    </motion.span>
+
+    {/* ARROW */}
+    <motion.div
+      layout
+      transition={{ duration: 0.6, ease: "easeInOut" }}
+      className="ml-2"
+    >
+      <CgArrowLongRight className="text-orange-400" />
     </motion.div>
-  ))}
-</motion.div>
-
-
-            {/* TEXT */}
-            <span className="italic text-orange-400 ml-1 whitespace-nowrap">
-              start here
-            </span>
-
-            {/* ARROW */}
-            <CgArrowLongRight />
-          </div>
-        </div>
+  </motion.div>
+</div>
 
       </div>
     </div>

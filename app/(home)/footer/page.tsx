@@ -1,374 +1,358 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { useState } from "react";
 
 const PrivacyPolicy = () => {
+  // Navigation IDs synced to the new summarized sections
   const sections = [
-  { id: "collect", title: "What information do we collect?" },
-  { id: "process", title: "How do we process your information?" },
-  { id: "legal-bases", title: "What legal bases do we rely on to process your information?" },
-  { id: "share", title: "When and with whom do we share your personal information?" },
-  { id: "cookies", title: "Do we use cookies and other tracking technologies?" },
-  { id: "ai", title: "Do we offer artificial intelligence-based products?" },
-  { id: "social-logins", title: "How do we handle your social logins?" },
-  { id: "retention", title: "How long do we keep your information?" },
-  { id: "safety", title: "How do we keep your information safe?" },
-  { id: "minors", title: "Do we collect information from minors?" },
-  { id: "rights", title: "What are your privacy rights?" },
-  { id: "dnt", title: "Controls for do-not-track features?" },
-  { id: "us-residents", title: "Do United States residents have specific privacy rights?" },
-  { id: "intellectual-property", title: "Platform data & intellectual property" },
-  { id: "updates", title: "Do we make updates to this notice?" },
-  { id: "contact", title: "How can you contact us about this notice?" },
-  { id: "review", title: "How can you review, update, or delete the data we collect from you?" },
-];
+    { id: "collect", title: "1. What information do we collect?" },
+    { id: "process", title: "2. How do we process your information?" },
+    { id: "legal-bases", title: "3. What legal bases do we rely on?" },
+    { id: "share", title: "4. When and with whom do we share data?" },
+    { id: "cookies", title: "5. Do we use cookies and tracking?" },
+    { id: "ai", title: "6. AI-based products & Automated decisions" },
+    { id: "social-logins", title: "7. How do we handle social logins?" },
+    { id: "retention", title: "8. How long do we keep your information?" },
+    { id: "safety", title: "9. How do we keep your information safe?" },
+    { id: "minors", title: "10. Do we collect information from minors?" },
+    { id: "rights", title: "11. What are your privacy rights?" },
+    { id: "dnt", title: "12. Controls for do-not-track features" },
+    { id: "us-residents", title: "13. US resident privacy rights" },
+    { id: "intellectual-property", title: "14. Platform data & intellectual property" },
+    { id: "updates", title: "15. Do we make updates to this notice?" },
+    { id: "contact", title: "16. How can you contact us?" },
+    { id: "review", title: "17. Reviewing, updating, or deleting data" },
+    { id: "platform-terms", title: "18. Platform-Specific Terms & Compliance" },
+  ];
 
-// State for Accordion +/- functionality
+  // State for Accordion +/- functionality
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(true);
   const [isComplianceOpen, setIsComplianceOpen] = useState(false);
 
   return (
     <div className="bg-[#FCF9F7] min-h-screen pt-15 pb-20 px-6 md:px-10 lg:px-12">
-      <div className="max-w-full  mx-auto grid grid-cols-1 lg:grid-cols-[550px_1fr] gap-16">
+      <div className="max-w-full mx-auto grid grid-cols-1 lg:grid-cols-[550px_1fr] gap-16">
         
         {/* LEFT SIDEBAR - ACCORDION STYLE NAVIGATION */}
-<aside className="hidden lg:block bg-[#FD6C1D]/[0.1] h-fit sticky top-32">
- 
-
-  <div className="flex p-10 flex-col gap-4">
-     {/* STARIX PRIVACY BADGE - Added to match Frame 51 UI */}
-  <div className="mb-4">
-    <span className="bg-white text-[#040136] px-2 py-2 rounded-md text-[14px] font-normal tracking-wider uppercase">
-      STARIX PRIVACY
-    </span>
-  </div>
-    {/* PRIMARY NAVIGATION CARD */}
-    <div className="bg-white border border-[#040136] rounded-2xl overflow-hidden shadow-sm">
-      {/* Header with Toggle Icon (Accordion Style) */}
-      <div 
-        className="flex items-center justify-between p-6 border-b border-[#F0EBE5] cursor-pointer"
-        onClick={() => setIsPrivacyOpen(!isPrivacyOpen)}
-      >
-        <h3 className="font-['Geist'] font-normal text-[#040136] text-xl">
-          Privacy Policy
-        </h3>
-        {/* Toggle Icon Logic */}
-        <div className="relative w-5 h-5 flex items-center justify-center">
-          <div className="absolute w-5 h-[2px] bg-[#040136]" />
-          {!isPrivacyOpen && <div className="absolute w-[2px] h-5 bg-[#040136]" />}
-        </div>
-      </div>
-
-      {/* Numbered Navigation List - Collapsible */}
-      {isPrivacyOpen && (
-        <nav className="p-6 flex flex-col gap-3 max-h-[60vh] overflow-y-auto no-scrollbar">
-          {sections.map((section, index) => (
-            <a
-              key={section.id}
-              href={`#${section.id}`}
-              className="group flex items-start gap-3 text-[#6E6E6E] hover:text-[#040136] transition-colors"
-            >
-              <span className="text-[16px] font-medium pt-0.5">{index + 1}.</span>
-              <span className="text-[15px] uppercase tracking-wide leading-tight font-light">
-                {section.title}
+        <aside className="hidden lg:block bg-[#FD6C1D]/[0.1] h-screen sticky top-32 overflow-y-auto no-scrollbar">
+          <div className="flex p-10 flex-col gap-4">
+            
+            {/* STARIX PRIVACY BADGE */}
+            <div className="mb-4">
+              <span className="bg-white text-[#040136] px-3 py-2 rounded-md text-[14px] font-normal tracking-wider uppercase border border-[#EBE3D9]">
+                STARIX PRIVACY
               </span>
-            </a>
-          ))}
-        </nav>
-      )}
-    </div>
+            </div>
+            
+            {/* PRIMARY NAVIGATION CARD */}
+            <div className="bg-white border border-[#040136] rounded-2xl overflow-hidden shadow-sm">
+              <div 
+                className="flex items-center justify-between p-6 border-b border-[#F0EBE5] cursor-pointer"
+                onClick={() => setIsPrivacyOpen(!isPrivacyOpen)}
+              >
+                <h3 className="font-['Geist'] font-normal text-[#040136] text-xl">
+                  Privacy Policy Overview
+                </h3>
+                <div className="relative w-5 h-5 flex items-center justify-center">
+                  <div className="absolute w-5 h-[2px] bg-[#040136]" />
+                  {!isPrivacyOpen && <div className="absolute w-[2px] h-5 bg-[#040136]" />}
+                </div>
+              </div>
 
-    {/* COMPLIANCE ADDENDUM CARD */}
-    <div 
-      className="bg-white border border-[#040136]/[0.4] rounded-2xl p-6 flex items-center justify-between shadow-sm cursor-pointer hover:bg-gray-50 transition-colors"
-      onClick={() => setIsComplianceOpen(!isComplianceOpen)}
-    >
-      <h3 className="font-['Geist'] font-[28px] text-[#040136] text-xl">
-        Compliance Addendum
-      </h3>
-      <div className="relative w-5 h-5 flex items-center justify-center">
-        <div className="absolute w-5 h-[2px] bg-[#040136]" />
-        {!isComplianceOpen && <div className="absolute w-[2px] h-5 bg-[#040136]" />}
-      </div>
-    </div>
-  </div>
-</aside>
+              {/* Numbered Navigation List - Collapsible */}
+              {isPrivacyOpen && (
+                <nav className="p-6 flex flex-col gap-4 max-h-[60vh] overflow-y-auto no-scrollbar">
+                  {sections.map((section) => (
+                    <a
+                      key={section.id}
+                      href={`#${section.id}`}
+                      className="group flex items-start gap-3 text-[#6E6E6E] hover:text-[#040136] transition-colors"
+                    >
+                      <span className="text-[15px] leading-tight font-light">
+                        {section.title}
+                      </span>
+                    </a>
+                  ))}
+                </nav>
+              )}
+            </div>
+
+            {/* COMPLIANCE ADDENDUM CARD */}
+            <div className="bg-white border border-[#040136]/[0.4] rounded-2xl p-6 flex flex-col shadow-sm">
+              <div 
+                className="flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
+                onClick={() => setIsComplianceOpen(!isComplianceOpen)}
+              >
+                <h3 className="font-['Geist'] font-normal text-[#040136] text-xl">
+                  Compliance Addendum
+                </h3>
+                <div className="relative w-5 h-5 flex items-center justify-center">
+                  <div className="absolute w-5 h-[2px] bg-[#040136]" />
+                  {!isComplianceOpen && <div className="absolute w-[2px] h-5 bg-[#040136]" />}
+                </div>
+              </div>
+
+              {/* Addendum Summary Dropdown */}
+              {isComplianceOpen && (
+                <div className="mt-6 pt-4 border-t border-[#F0EBE5] text-[#6E6E6E] text-[14px] font-light leading-relaxed space-y-3">
+                   <p>Our comprehensive framework ensuring full compliance with GDPR (EU/UK), CCPA/CPRA (California), and Nigeria's NDPA 2023. {/* [cite: 551] */}</p>
+                  <p className="italic text-[#040136]">→ See the complete Compliance Addendum at the end of the downloadable PDF.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </aside>
 
         {/* RIGHT CONTENT - LEGAL TEXT */}
-<main className="font-['Geist'] text-[#040136]">
-  <h1 className="text-[48px] font-semibold leading-tight mb-4">
-    Privacy Policy
-  </h1>
-  <p className="text-[#6E6E6E] italic text-lg mb-12">Last updated February 2026</p>
+        <main className="font-['Geist'] text-[#040136]">
+          <h1 className="text-[48px] font-semibold leading-tight mb-4">
+            Privacy Policy
+          </h1>
+           <p className="text-[#6E6E6E] italic text-lg mb-8">Last updated February 12, 2026 {/* [cite: 1] */}</p>
 
-  <div className="space-y-16 max-w-[850px]">
-    {/* ABOUT / INTRO */}
-<section id="intro">
-  <h2 className="text-[28px] font-normal mb-6 text-[#040136]">About</h2>
-  <div className="space-y-6 text-[#6E6E6E] text-[20px] leading-relaxed font-light">
-    <p>
-      This Privacy Notice for STARIX INNOVATIVE SOLUTIONS LIMITED hereinafter also referred to as "we," "us," or "our," describes and regulates <span className="text-[#040136] font-semibold">our</span> interaction with data; how and why we might access, collect, store, use, and/or share ("process") your personal information when you use our services.
-    </p>
+          {/* DOWNLOAD PDF BUTTON */}
+          <a 
+            href="/starix-privacy-policy.pdf" 
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-3 bg-[#040136] text-white px-8 py-4 rounded-xl font-medium hover:shadow-xl transition-all duration-300 mb-12 shadow-md w-fit"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 16L7 11L8.4 9.55L11 12.15V4H13V12.15L15.6 9.55L17 11L12 16ZM6 20C5.45 20 4.97917 19.8042 4.5875 19.4125C4.19583 19.0208 4 18.55 4 18V15H6V18H18V15H20V18C20 18.55 19.8042 19.0208 19.4125 19.4125C19.0208 19.8042 18.55 20 18 20H6Z" fill="currentColor"/>
+            </svg>
+            Download Full Privacy Policy (PDF)
+          </a>
 
-    <p className="font-medium text-[#040136]">Some of these services include, but are not limited to:</p>
-    
-    <ul className="list-none space-y-4">
-      <li className="flex gap-2">
-        <span>•</span>
-        <span>Visiting our website at “starixapp.com” or any website of ours that links to this Privacy Notice.</span>
-      </li>
-      <li className="flex gap-2">
-        <span>•</span>
-        <span>
-          Use of Starix. Starix is a technology platform that provides data-driven insights, analytics, and trust signals for digital creators, brands, and online platforms. The service collate, aggregates and analyzes publicly available and user-authorized data from social media platforms and other third-party services to generate trust scores, performance, insights, and trend intelligence.
-        </span>
-      </li>
-    </ul>
+          <div className="space-y-16 max-w-[850px]">
+            
+            {/* ABOUT / INTRO */}
+            <section id="intro">
+              <h2 className="text-[28px] font-normal mb-6 text-[#040136]">About</h2>
+              <div className="space-y-6 text-[#6E6E6E] text-[20px] leading-relaxed font-light">
+                <p>
+                  This Privacy Notice for STARIX INNOVATIVE SOLUTIONS LIMITED hereinafter also referred to as "we," "us," or "our", describes and regulates our interaction with data; how and why we might access, collect, store, use, and/or share ("process") your personal information when you use our services.  {/* [cite: 20]  */}{/* [cite: 21] */}
+                </p>
+                <p>
+                  For most processing described in this Privacy Notice, we act as a data controller (or equivalent role under applicable law).  {/* [cite: 22] */} Where we process personal information on behalf of a business customer or brand partner in connection with a specific campaign or engagement, we may act as a processor/service provider (or equivalent role) and will process such information only on documented instructions and for the purposes described.  {/* [cite: 23] */}
+                </p>
+                 <p className="font-medium text-[#040136]">Some of these services include, but are not limited to: {/* [cite: 24] */}</p>
+                <ul className="list-none space-y-4 pl-2">
+                  <li className="flex gap-2"><span>•</span><span>Visiting our website at "starixapp.com" or any website of ours that links to this Privacy Notice.  {/* [cite: 25] */}</span></li>
+                  <li className="flex gap-2"><span>•</span><span>Use of Starix.  {/* [cite: 26] */} Starix is a technology platform that provides data-driven insights, analytics, and trust signals for digital creators, brands, and online platforms.  {/* [cite: 27] */} The service collates, aggregates and analyzes publicly available and user-authorized data from social media platforms and other third-party services to generate trust scores, performance Insights, and trend intelligence.  {/* [cite: 28] */}</span></li>
+                </ul>
+                <p>
+                  Simply put, Starix sorts relevant data in the public domain, and utilizes this data as a tool to generate performance insights and trend intelligence for the benefit of brands and creators alike.  {/* [cite: 29] */} Starix uses automated systems, including algorithms and artificial intelligence, to evaluate engagement patterns, detect anomalies, and support transparency and informed decision-making.  {/* [cite: 30] */}
+                </p>
+                <p className="text-[#040136] font-semibold">
+                  Specifically, we use AI to analyze public social media engagement and create "trust scores" for creators.  {/* [cite: 31] */} These scores are based on engagement frequency, sentiment analysis, and consistency metrics. These scores may influence brand collaboration opportunities.  {/* [cite: 32] */}
+                </p>
+                <p>
+                  The platform may include web and mobile applications, APIs, dashboards, and related tools.  {/* [cite: 33] */} Engage with us in other related ways, including any marketing or events.  {/* [cite: 34] */}
+                </p>
+              </div>
+            </section>
 
-    <p>
-      Simply put, Starix sorts relevant data in the public domain, and utilizes this data as a tool to generate performance insights and trend intelligence for the benefit of brands and creators alike. Starix uses automated systems, including algorithms and artificial intelligence, to evaluate engagement patterns, detect anomalies, and support transparency and informed decision-making.
-    </p>
+            {/* 1. DATA COLLECTION */}
+            <section id="collect">
+              <h2 className="text-[28px] font-normal mb-6">1. What information do we collect?</h2>
+              <div className="text-[#6E6E6E] text-[20px] leading-relaxed font-light space-y-4">
+                <p>We collect personal information you voluntarily provide (like your name, email, and billing address), payment data processed securely via Paystack, and data you authorize us to access when connecting social media accounts.  {/* [cite: 37]  */}{/* [cite: 58]  */}{/* [cite: 61] */} We <span className="font-semibold text-[#040136]">do not</span> process sensitive information or access private direct messages.  {/* [cite: 57]  */}{/* [cite: 71] */}</p>
+                <div className="bg-[#FD6C1D]/[0.05] p-4 rounded-lg border border-[#EBE3D9]">
+                  <p className="italic text-[16px] text-[#040136]">→ For the complete list of collected data points and excluded data, see <span className="font-semibold">Section 1</span> of the downloadable PDF.</p>
+                </div>
+              </div>
+            </section>
 
-    <p className="text-[#040136] font-semibold">
-      Specifically, we use AI to analyze public social media engagement and create "trust scores" for creators. These scores are based on engagement frequency, sentiment analysis, and consistency metrics. These scores may influence brand collaboration opportunities.
-    </p>
+            {/* 2. PROCESSING */}
+            <section id="process">
+              <h2 className="text-[28px] font-normal mb-6">2. How do we process your information?</h2>
+              <div className="text-[#6E6E6E] text-[20px] leading-relaxed font-light space-y-4">
+                <p>We process your information to provide, improve, and administer our Services, communicate with you, ensure security and fraud prevention, and to comply with the law.  {/* [cite: 81] */}</p>
+                <div className="bg-[#FD6C1D]/[0.05] p-4 rounded-lg border border-[#EBE3D9]">
+                  <p className="italic text-[16px] text-[#040136]">→ See <span className="font-semibold">Section 2</span> of the PDF for more details on processing activities.</p>
+                </div>
+              </div>
+            </section>
 
-    <p>
-      The platform may include web and mobile applications, APIs, dashboards, and related tools.
-    </p>
-    
-    <p>
-      • Engage with us in other related ways, including any marketing or events.
-    </p>
-  </div>
-</section>
+            {/* 3. LEGAL BASES */}
+            <section id="legal-bases">
+              <h2 className="text-[28px] font-normal mb-6">3. What legal bases do we rely on?</h2>
+              <div className="text-[#6E6E6E] text-[20px] leading-relaxed font-light space-y-4">
+                <p>If you are in the EU, UK, or Africa, we rely on Consent, Performance of a Contract, Legitimate Interests, and Legal Obligations to process your data.  {/* [cite: 84] */}</p>
+                <div className="bg-[#FD6C1D]/[0.05] p-4 rounded-lg border border-[#EBE3D9]">
+                  <p className="italic text-[16px] text-[#040136]">→ Detailed legal bases can be found in <span className="font-semibold">Section 3</span> of the PDF.</p>
+                </div>
+              </div>
+            </section>
 
-    {/* 1. DATA COLLECTION */}
-<section id="collect">
-  <h2 className="text-[28px] font-normal mb-6">1. What information do we collect?</h2>
-  
-  <div className="space-y-6 text-[#6E6E6E] text-[20px] leading-relaxed font-light">
-    
-    <div>
-      <p className="font-semibold text-[#040136] mb-4">Personal information you disclose to us:</p>
-      
-      <p className="mb-4">
-        We collect personal information that you voluntarily provide to us when you register on the Services, express an interest in obtaining information about us or our products and Services, when you participate in activities on the Services, or otherwise when you contact us.
-      </p>
-      
-      <p className="font-semibold text-[#040136] mb-4">
-        We at Starix do not have access to information that is not voluntarily given to us by users.
-      </p>
+            {/* 4. SHARING */}
+            <section id="share">
+              <h2 className="text-[28px] font-normal mb-6">4. When and with whom do we share data?</h2>
+              <div className="text-[#6E6E6E] text-[20px] leading-relaxed font-light space-y-4">
+                <p>We share minimal data with service providers (like payment processors).  {/* [cite: 86] */} When you participate in brand challenges, brands can view your public creator portfolio and Starix Score, but they <span className="font-semibold text-[#040136]">cannot</span> see your raw social media data.  {/* [cite: 98]  */}{/* [cite: 99]  */}{/* [cite: 100] */} Data flow from social platforms is one-way to Starix only.  {/* [cite: 94] */}</p>
+                <div className="bg-[#FD6C1D]/[0.05] p-4 rounded-lg border border-[#EBE3D9]">
+                  <p className="italic text-[16px] text-[#040136]">→ For full disclosure on data sharing and brand visibility, see <span className="font-semibold">Section 4</span> of the PDF.</p>
+                </div>
+              </div>
+            </section>
 
-      <p className="mb-4">The personal information we collect may include the following:</p>
-      
-      <ul className="list-none space-y-1 mb-6">
-        <li>• Names</li>
-        <li>• Phone numbers</li>
-        <li>• Email addresses</li>
-        <li>• Job titles</li>
-        <li>• Usernames</li>
-        <li>• Passwords</li>
-        <li>• Contact Preferences</li>
-        <li>• Billing Addresses</li>
-        <li>• Contact or Authentication Data</li>
-        <li>• Debit/Credit Card Numbers</li>
-        <li>• Brand Details</li>
-        <li>• Brand Website/URL</li>
-        <li>• Creator Account Details</li>
-        <li>• Account Details Sensitive Information.</li>
-      </ul>
+            {/* 5. COOKIES */}
+            <section id="cookies">
+              <h2 className="text-[28px] font-normal mb-6">5. Do we use cookies and tracking?</h2>
+              <div className="text-[#6E6E6E] text-[20px] leading-relaxed font-light space-y-4">
+                <p>We may use cookies and similar tracking technologies (like web beacons and pixels) to gather information when you interact with our Services.  {/* [cite: 103] */}</p>
+                <div className="bg-[#FD6C1D]/[0.05] p-4 rounded-lg border border-[#EBE3D9]">
+                  <p className="italic text-[16px] text-[#040136]">→ Specific information is set out in our Cookie Notice (Section 5) in the PDF, or visit <a href="https://www.starixapp.com/cookies" className="underline hover:text-[#FD6C1D]">starixapp.com/cookies</a>.  {/* [cite: 104] */}</p>
+                </div>
+              </div>
+            </section>
 
-      <p className="mb-4">
-        We do not process sensitive information. Payment Data. We may collect data necessary to process your payment if you choose to make purchases, such as your payment instrument number, and the security code associated with your payment instrument. All payment data is handled and stored by Paystack. You may find their privacy notice link(s) here: <a href="https://paystack.com/compliance" className="text-blue-600 underline">https://paystack.com/compliance</a>.
-      </p>
-    </div>
+            {/* 6. AI PRODUCTS */}
+            <section id="ai">
+              <h2 className="text-[28px] font-normal mb-6">6. AI-based products & Automated decisions</h2>
+              <div className="text-[#6E6E6E] text-[20px] leading-relaxed font-light space-y-4">
+                <p>We use AI and machine learning to calculate your Starix Score, detect artificial engagement (fraud), analyze content, and rank creators fairly.  {/* [cite: 106]  */}{/* [cite: 108]  */}{/* [cite: 114]  */}{/* [cite: 117]  */}{/* [cite: 119] */} If an AI-generated decision negatively impacts you, you have the right to request a human review.  {/* [cite: 130] */}</p>
+                <div className="bg-[#FD6C1D]/[0.05] p-4 rounded-lg border border-[#EBE3D9]">
+                  <p className="italic text-[16px] text-[#040136]">→ Learn how our algorithms work and how to appeal an AI decision in <span className="font-semibold">Section 6</span> of the PDF.</p>
+                </div>
+              </div>
+            </section>
 
-    <div>
-      <p className="font-semibold text-[#040136] mb-2">Social Media Login Data:</p>
-      <p className="mb-4">
-        We may provide you with the option to register with us using your existing social media account details, like your Facebook, X, or other social media account. If you choose to register in this way, we will collect certain profile information about you from the social media provider, as described in the section called "HOW DO WE HANDLE YOUR SOCIAL LOGINS?". The profile information we receive may often include your name, email address, friends list, <span className="font-semibold text-[#040136]">and social media handle.</span>
-      </p>
-    </div>
+            {/* 7. SOCIAL LOGINS */}
+            <section id="social-logins">
+              <h2 className="text-[28px] font-normal mb-6">7. How do we handle social logins?</h2>
+              <div className="text-[#6E6E6E] text-[20px] leading-relaxed font-light space-y-4">
+                <p>When you connect platforms like Instagram, TikTok, Facebook, or YouTube, we use OAuth 2.0 to access only the public metrics you explicitly authorize.  {/* [cite: 164]  */}{/* [cite: 165] */} We never access passwords or direct messages.  {/* [cite: 171] */} You can disconnect a platform at any time.  {/* [cite: 336] */}</p>
+                <div className="bg-[#FD6C1D]/[0.05] p-4 rounded-lg border border-[#EBE3D9]">
+                  <p className="italic text-[16px] text-[#040136]">→ For a comprehensive breakdown of exactly what API data we collect per platform, see <span className="font-semibold">Section 7A</span> of the PDF.</p>
+                </div>
+              </div>
+            </section>
 
-    <div>
-      <p className="font-semibold text-[#040136] mb-2">Information automatically collected:</p>
-      <p>
-        Some information such as your Internet Protocol (IP) address and/or browser and device characteristics is collected automatically when you visit our Services.
-      </p>
-    </div>
+            {/* 8. RETENTION */}
+            <section id="retention">
+              <h2 className="text-[28px] font-normal mb-6">8. How long do we keep your information?</h2>
+              <div className="text-[#6E6E6E] text-[20px] leading-relaxed font-light space-y-4">
+                <p>Generally, we retain personal data for 5 years after account deactivation.  {/* [cite: 374] */} However, data collected from social media platforms is deleted within 90 days after you disconnect the platform (unless required for legal disputes or financial compliance).  {/* [cite: 375] */}</p>
+                <div className="bg-[#FD6C1D]/[0.05] p-4 rounded-lg border border-[#EBE3D9]">
+                  <p className="italic text-[16px] text-[#040136]">→ See <span className="font-semibold">Section 8</span> of the PDF for exact retention policies.</p>
+                </div>
+              </div>
+            </section>
 
-  </div>
-</section>
+            {/* 9. SAFETY */}
+            <section id="safety">
+              <h2 className="text-[28px] font-normal mb-6">9. How do we keep your information safe?</h2>
+              <div className="text-[#6E6E6E] text-[20px] leading-relaxed font-light space-y-4">
+                <p>We implement robust technical and organizational security measures designed to protect the security of any personal information we process.  {/* [cite: 380] */}</p>
+                <div className="bg-[#FD6C1D]/[0.05] p-4 rounded-lg border border-[#EBE3D9]">
+                  <p className="italic text-[16px] text-[#040136]">→ Read about our security infrastructure in <span className="font-semibold">Section 9</span> of the PDF.</p>
+                </div>
+              </div>
+            </section>
 
-    {/* 2. PROCESSING */}
-    <section id="process">
-      <h2 className="text-[28px] font-normal mb-6">2. How do we process your information?</h2>
-      <p className="text-[#6E6E6E] text-[20px] leading-relaxed font-light">
-        We process your information to provide, improve, and administer our Services, communicate with you, for security and fraud prevention, and to comply with law.
-      </p>
-    </section>
+            {/* 10. MINORS */}
+            <section id="minors">
+              <h2 className="text-[28px] font-normal mb-6">10. Do we collect information from minors?</h2>
+              <div className="text-[#6E6E6E] text-[20px] leading-relaxed font-light space-y-4">
+                 <p>Our Services are not intended for children under 16. {/* [cite: 383] */} If you are 16 or 17, you may use the Services only where permitted by law, and your parent or legal guardian must consent to your use.  {/* [cite: 384] */}</p>
+                <div className="bg-[#FD6C1D]/[0.05] p-4 rounded-lg border border-[#EBE3D9]">
+                  <p className="italic text-[16px] text-[#040136]">→ See <span className="font-semibold">Section 10</span> of the PDF for age limitations.</p>
+                </div>
+              </div>
+            </section>
 
-    {/* 3. LEGAL BASES */}
-    <section id="legal-bases">
-      <h2 className="text-[28px] font-normal mb-6">3. What legal bases do we rely on?</h2>
-      <p className="text-[#6E6E6E] text-[20px] leading-relaxed font-light">
-  We only process your personal information when we believe it is necessary and we have a valid legal reason (i.e., legal basis) to do so under applicable law.
-  If you are located in the EU, UK or Africa, we rely on <span className="text-[#040136] font-semibold">
-    Consent, Performance of a Contract, Legitimate Interests</span> (specifically to analyze usage and diagnose problems), 
-    and <span className="text-[#040136] font-semibold">Legal Obligations.</span>
-</p>
-    </section>
+            {/* 11. PRIVACY RIGHTS */}
+            <section id="rights">
+              <h2 className="text-[28px] font-normal mb-6">11. What are your privacy rights?</h2>
+              <div className="text-[#6E6E6E] text-[20px] leading-relaxed font-light space-y-4">
+                <p>Depending on your region, you have the right to access, rectify, erase, or port your personal data.  {/* [cite: 386]  */}{/* [cite: 387] */} You may also challenge automated AI decisions and request human intervention.  {/* [cite: 388] */}</p>
+                <div className="bg-[#FD6C1D]/[0.05] p-4 rounded-lg border border-[#EBE3D9]">
+                  <p className="italic text-[16px] text-[#040136]">→ View your complete rights and how to exercise them in <span className="font-semibold">Section 11</span> of the PDF.</p>
+                </div>
+              </div>
+            </section>
 
-    {/* 4. SHARING */}
-    <section id="share">
-      <h2 className="text-[28px] font-normal mb-6">4. When and with whom do we share data?</h2>
-      <p className="text-[#6E6E6E] text-[20px] leading-relaxed font-light">
-        We may share information in specific situations and with specific categories of third parties, such as Vendors, Consultants,
-         and Other Third-Party Service Providers (e.g., Cloud Computing Services, Data Analytics Services, Payment Processors like Paystack).  </p>
-    </section>
+            {/* 12. DNT */}
+            <section id="dnt">
+              <h2 className="text-[28px] font-normal mb-6">12. Controls for do-not-track features</h2>
+              <div className="text-[#6E6E6E] text-[20px] leading-relaxed font-light space-y-4">
+                <p>We do not currently respond to DNT browser signals.  {/* [cite: 410] */}</p>
+                <div className="bg-[#FD6C1D]/[0.05] p-4 rounded-lg border border-[#EBE3D9]">
+                  <p className="italic text-[16px] text-[#040136]">→ See <span className="font-semibold">Section 12</span> of the PDF.</p>
+                </div>
+              </div>
+            </section>
 
-    {/* 5. COOKIES */}
-    <section id="cookies">
-      <h2 className="text-[28px] font-normal mb-6">5. Do we use cookies?</h2>
-      <p className="text-[#6E6E6E] text-[20px] leading-relaxed font-light">
-  We may use cookies and similar tracking technologies (like web beacons and pixels) to gather information when you interact with our Services.
-  Specific information about how we use such technologies is set out in our Cookie Notice: 
-  <a 
-    href="http://www.starixapp.com/cookies" 
-    className="text-blue-600 underline"
-  >
-    http://www.starixapp.com/cookies
-  </a>.
-</p>
-    </section>
+            {/* 13. US RESIDENTS */}
+            <section id="us-residents">
+              <h2 className="text-[28px] font-normal mb-6">13. US resident privacy rights</h2>
+              <div className="text-[#6E6E6E] text-[20px] leading-relaxed font-light space-y-4">
+                <p>If you reside in certain US states, you may have specific rights to request access to, correct, or delete your personal information.  {/* [cite: 412] */}</p>
+                <div className="bg-[#FD6C1D]/[0.05] p-4 rounded-lg border border-[#EBE3D9]">
+                  <p className="italic text-[16px] text-[#040136]">→ Check <span className="font-semibold">Section 13</span> of the PDF for state-specific provisions.</p>
+                </div>
+              </div>
+            </section>
 
-    {/* 6. AI PRODUCTS */}
-    <section id="ai">
-      <h2 className="text-[28px] font-normal mb-6">6. AI-based products</h2>
-      <p className="text-[#6E6E6E] text-[20px] leading-relaxed font-light">
-        We offer products, features, or tools powered by artificial intelligence, machine learning, or similar technologies. 
-        All personal information processed using our AI Products is handled in line with our Privacy Notice and our agreement with third parties.
-        <span className="text-[#040136] font-semibold"> Importantly, we conduct regular reviews of our AI models to ensure they do not produce discriminatory outcomes.</span>
-         </p>
-    </section>
+            {/* 14. INTELLECTUAL PROPERTY */}
+            <section id="intellectual-property">
+              <h2 className="text-[28px] font-normal mb-6">14. Platform data & intellectual property</h2>
+              <div className="text-[#6E6E6E] text-[20px] leading-relaxed font-light space-y-4">
+                <p>All personal information and social media content remains your property.  {/* [cite: 416] */} By connecting accounts, you grant us a limited license to display your public content in your portfolio.  {/* [cite: 435] */} We do not, and will never, sell your personal information to third parties for marketing purposes.  {/* [cite: 455] */}</p>
+                <div className="bg-[#FD6C1D]/[0.05] p-4 rounded-lg border border-[#EBE3D9]">
+                  <p className="italic text-[16px] text-[#040136]">→ Read more about data ownership and licensing in <span className="font-semibold">Section 14</span> of the PDF.</p>
+                </div>
+              </div>
+            </section>
 
-    {/* 7. SOCIAL LOGINS */}
-    <section id="social-logins">
-      <h2 className="text-[28px] font-normal mb-6">7. How do we handle social logins?</h2>
-      <p className="text-[#6E6E6E] text-[20px] leading-relaxed font-light">
-        If you choose to register or log in to our Services using a social media account, we may have access to certain information about you. 
-        We will use the information we receive only for the purposes that are described in this Privacy Notice. </p>
-    </section>
+            {/* 15. UPDATES */}
+            <section id="updates">
+              <h2 className="text-[28px] font-normal mb-6">15. Do we make updates to this notice?</h2>
+              <div className="text-[#6E6E6E] text-[20px] leading-relaxed font-light space-y-4">
+                <p>Yes, we will update this notice as necessary to stay compliant with relevant laws and will provide clear notice on our platform when we do so.  {/* [cite: 458]  */}{/* [cite: 459] */}</p>
+                <div className="bg-[#FD6C1D]/[0.05] p-4 rounded-lg border border-[#EBE3D9]">
+                  <p className="italic text-[16px] text-[#040136]">→ See <span className="font-semibold">Section 15</span> of the PDF.</p>
+                </div>
+              </div>
+            </section>
 
-    {/* 8. RETENTION */}
-    <section id="retention">
-      <h2 className="text-[28px] font-normal mb-6">8. How long do we keep your info?</h2>
-      <p className="text-[#6E6E6E] text-[20px] leading-relaxed font-light">
-        We will only keep your personal information for as long as it is necessary for the purposes set out in this Privacy Notice, <span className="font-semibold text-[#040136]">generally for a period of 5 years after account deactivation,</span>
-        unless a longer retention period is required or permitted by law (such as tax, accounting, or other legal requirements). </p>
-    </section>
+            {/* 16. CONTACT */}
+            <section id="contact">
+              <h2 className="text-[28px] font-normal mb-6">16. How can you contact us?</h2>
+              <div className="text-[#6E6E6E] text-[20px] leading-relaxed font-light space-y-4">
+                <p>If you have questions or comments about this notice, you may email us at <a href="mailto:contact@starixapp.com" className="font-semibold text-[#040136] hover:underline">contact@starixapp.com</a>.  {/* [cite: 461] */}</p>
+                <div className="bg-[#FD6C1D]/[0.05] p-4 rounded-lg border border-[#EBE3D9]">
+                  <p className="italic text-[16px] text-[#040136]">→ See <span className="font-semibold">Section 16</span> of the PDF.</p>
+                </div>
+              </div>
+            </section>
 
-    {/* 9. SAFETY */}
-    <section id="safety">
-      <h2 className="text-[28px] font-normal mb-6">9. How do we keep your info safe?</h2>
-      <p className="text-[#6E6E6E] text-[20px] leading-relaxed font-light">
-        We have implemented appropriate and reasonable technical and organizational security measures designed to protect the security of any personal information we process.  </p>
-    </section>
+            {/* 17. REVIEW DATA */}
+            <section id="review">
+              <h2 className="text-[28px] font-normal mb-6">17. Reviewing, updating, or deleting data</h2>
+              <div className="text-[#6E6E6E] text-[20px] leading-relaxed font-light space-y-4">
+                <p>To request to review, update, or delete your personal information, please submit a data subject access request to our DPO at <a href="mailto:dpo@starixapp.com" className="font-semibold text-[#040136] hover:underline">dpo@starixapp.com</a>.  {/* [cite: 463] */}</p>
+                <div className="bg-[#FD6C1D]/[0.05] p-4 rounded-lg border border-[#EBE3D9]">
+                  <p className="italic text-[16px] text-[#040136]">→ See <span className="font-semibold">Section 17</span> of the PDF.</p>
+                </div>
+              </div>
+            </section>
 
-    {/* 10. MINORS */}
-    <section id="minors">
-      <h2 className="text-[28px] font-normal mb-6">10. Do we collect info from minors?</h2>
-      <p className="text-[#6E6E6E] text-[20px] leading-relaxed font-light">
-       We do not knowingly collect data from or market to minors. We understand that regulations vary per jurisdiction with respect to age limits and we adhere to those regulations.</p>
-    </section>
+            {/* 18. PLATFORM-SPECIFIC TERMS */}
+            <section id="platform-terms">
+              <h2 className="text-[28px] font-normal mb-6">18. Platform-Specific Terms & Compliance</h2>
+              <div className="text-[#6E6E6E] text-[20px] leading-relaxed font-light space-y-4">
+                <p>Our integrations strictly comply with the API Terms of Service for Meta, TikTok, and Google.  {/* [cite: 506]  */}{/* [cite: 514]  */}{/* [cite: 524] */} Disconnecting a platform from your settings immediately stops data collection, and historical data is deleted within 90 days.  {/* [cite: 471] */}</p>
+                <div className="bg-[#FD6C1D]/[0.05] p-4 rounded-lg border border-[#EBE3D9]">
+                  <p className="italic text-[16px] text-[#040136]">→ For detailed deletion instructions and API compliance breakdown, refer to <span className="font-semibold">Section 18</span> and the Addendums of the PDF.</p>
+                </div>
+              </div>
+            </section>
 
-    {/* 11. PRIVACY RIGHTS */}
-    <section id="rights">
-  <h2 className="text-[28px] font-normal mb-6 uppercase tracking-tight">
-    11. What are your privacy rights?
-  </h2>
-  
-  <div className="space-y-6 text-[#6E6E6E] text-[20px] leading-relaxed font-light">
-    <p>
-      Depending on your region, you have rights that allow you greater access to and control over your personal information. These may include the right to request access, rectification, erasure, and <span className="text-[#040136] font-semibold">data portability</span>.
-    </p>
-
-    <p className="text-[#040136] font-semibold">
-      If a decision that produces legal or similarly significant effects is made solely by automated means (such as an AI-generated trust score), we will inform you, explain the main factors, and offer a simple way to request human review. If you believe an automated trust score is inaccurate, you have the right to request human review of that specific score.
-    </p>
-
-    <p>
-      <span className="text-[#040136] font-semibold">Data Protection Officer (DPO):</span> You may contact our DPO at 
-      <a href="mailto:dpo@starixapp.com" className="text-[#040136] font-semibold hover:underline ml-1">
-        dpo@starixapp.com
-      </a> for any questions regarding this policy.
-    </p>
-  </div>
-</section>
-
-    {/* 12. CONTROLS FOR DO-NOT-TRACK FEATURES */}
-    <section id="dnt">
-      <h2 className="text-[28px] font-normal mb-6">12. Controls for Do-Not-Track Features</h2>
-      <p className="text-[#6E6E6E] text-[20px] leading-relaxed font-light">
-        We do not currently respond to DNT browser signals.</p>
-    </section>
-
-    {/* 13. DO UNITED STATES RESIDENTS HAVE SPECIFIC PRIVACY RIGHTS? */}
-    <section id="us-residents">
-      <h2 className="text-[28px] font-normal mb-6">13. Do United States residents have specific privacy rights?</h2>
-      <div className="text-[#6E6E6E] text-[20px] font-light">
-        <p>If you are a resident of certain US states, you may have the right to request access to and receive details about the personal information
-             we maintain about you and how we have processed it, correct inaccuracies, get a copy of, or delete your personal information</p>
-        
-      </div>
-    </section>
-
-    {/* 14. INTELLECTUAL PROPERTY */}
-    <section id="intellectual-property">
-      <h2 className="text-[28px] font-normal mb-6">14. Platform data & intellectual property </h2>
-      <div className="text-[#6E6E6E] text-[20px] font-light">
-        <p>All user data collected on this platform, including profile information, usage metrics, and payment history, is used solely to provide services, facilitate transactions between brands and creators, 
-            and improve the platform. Intellectual property rights in content and work submitted remain the exclusive property
-             of STARIX INNOVATIVE SOLUTIONS LIMITED, and no personal information will be sold to third parties.
-        </p>
-        
-      </div>
-    </section>
-
-    {/* 15. UPDATES */}
-    <section id="updates">
-      <h2 className="text-[28px] font-normal mb-6">15. Do we make updates to this notice?</h2>
-      <div className="text-[#6E6E6E] text-[20px] font-light">
-        <p>Yes, we will update this notice as necessary to stay compliant with relevant laws. In the event of an update,
-            we will ensure to put notice of these updates on our platform to ensure that users are well informed.
-        </p>
-        
-      </div>
-    </section>
-
-    {/* 16. CONTACT */}
-    <section id="contact">
-      <h2 className="text-[28px] font-normal mb-6">16. How can you contact us about this notice?</h2>
-      <div className="text-[#6E6E6E] text-[20px] font-light">
-        <p>If you have questions or comments about this notice, you may email us at dpo@starixapp.com.</p>
-        
-      </div>
-    </section>
-
-    {/* 17. REVIEW */}
-    <section id="review">
-      <h2 className="text-[28px] font-normal mb-6">17. How can you review, update, or delete the data we collect from you?</h2>
-      <div className="text-[#6E6E6E] text-[20px] font-light">
-        <p>To request to review, update, or delete your personal information, please fill out and submit a data subject access request to dpo@starixapp.com.</p>
-        
-      </div>
-    </section>
-
-  </div>
-</main>
+          </div>
+        </main>
       </div>
     </div>
   );
