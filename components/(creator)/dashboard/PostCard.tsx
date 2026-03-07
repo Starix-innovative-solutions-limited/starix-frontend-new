@@ -41,7 +41,7 @@ const openSubmissionDetails = () => {
 
   return (
     <motion.div
-      whileHover={{ y: -8 }}
+     
       variants={variants?.itemVariants}
       className="overflow-hidden cursor-pointer h-fit w-full "
     >
@@ -69,17 +69,12 @@ const openSubmissionDetails = () => {
 
       <div className="bg-[#F6F6F8] px-4 py-4">
   {/* MOBILE = FLEX / DESKTOP = GRID */}
-  <div
-    className="
-      flex items-center justify-between gap-3
-      md:grid md:grid-cols-[1fr_auto] md:gap-y-3 md:items-center
-    "
-  >
+  <div className="flex items-center justify-between gap-4">
     {/* CAPTION */}
     <p
       className="
         text-dark-navy
-        text-base sm:text-lg md:text-xl
+        text-base sm:text-lg md:text-lg
         font-normal
         truncate
         cursor-pointer
@@ -143,19 +138,38 @@ const openSubmissionDetails = () => {
     )}
 
     {/* DESKTOP ICONS ROW */}
-    <div className="hidden md:flex items-center gap-5 col-span-2">
-      <div className="flex items-center gap-2">
-        <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-sm">
-          <SlLike className="text-dark-navy text-lg" />
-        </div>
-        <span className="text-base font-light text-dark-navy">500</span>
-      </div>
+    <div className="bg-[#F6F6F8] px-4 py-2">
+      <div className="flex items-center justify-between gap-6">
 
-      <div className="flex items-center gap-2">
-        <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-sm">
-          <FaRegComment className="text-dark-navy text-lg" />
+        {/* CAPTION */}
+        <p
+          className="
+            text-dark-navy
+            text-base sm:text-lg
+            font-normal
+            truncate
+            cursor-pointer
+            flex-1
+          
+          "
+          onClick={openSubmissionDetails}
+        >
+          Your Caption here
+        </p>
+
+        {/* ICONS */}
+        <div className="flex items-center gap-4 shrink-0">
+          <div className="flex items-center gap-1">
+            <SlLike className="text-dark-navy" />
+            <span className="text-sm font-light text-dark-navy">500</span>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <FaRegComment className="text-dark-navy" />
+            <span className="text-sm font-light text-dark-navy">10</span>
+          </div>
         </div>
-        <span className="text-base font-light text-dark-navy">10</span>
+
       </div>
     </div>
   </div>

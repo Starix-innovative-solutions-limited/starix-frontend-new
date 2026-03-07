@@ -41,9 +41,9 @@ const Page = () => {
   };
 
   return (
-    <div className="general-space bg-white min-h-screen">
+    <div className="general-space ">
       <div className="grid grid-cols-1 md:grid-cols-2  md:gap-40 items-center">
-        <div className="space-y-5 md:pb-35 pb-0">
+        <div className="space-y-5">
           <h3 className="font-semibold text-dark-navy md:text-left text-center leading-snug text-4xl md:text-5xl">
             Get in touch- <br />
             Let’s build the future of creator marketing together.
@@ -95,7 +95,7 @@ const Page = () => {
 
         </div>
 
-    <div className="bg-primary-white md:bg-[#FAFAFA] shadow-xs flex flex-col gap-3.5 px-0 md:px-10 py-0 md:py-10 rounded-3xl">
+    <div className="bg-primary-white md:bg-[#fff] shadow-xs flex flex-col gap-3.5 px-0 md:px-10 py-0 md:py-10 rounded-3xl">
           <CustomInput
             label="Full name"
             placeholder="Full name"
@@ -107,7 +107,7 @@ const Page = () => {
           {/* ✅ Email validation */}
           <CustomInput
             label="Email address"
-            placeholder="name@email.com"
+            placeholder="Email"
             value={form.email}
             onChange={(e: any) => setForm((p) => ({ ...p, email: e.target.value }))}
             className="bg-transparent"

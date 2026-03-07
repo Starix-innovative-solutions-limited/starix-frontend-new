@@ -11,6 +11,7 @@ import Loader from "@/components/Loader";
 import { useLogin } from "@/hooks/useAuth";
 import toast from "react-hot-toast";
 import { useRouter, useSearchParams } from "next/navigation";
+import { loginUser } from "@/lib/auth";
 
 type FormProps = {
   email: string;
@@ -19,7 +20,7 @@ type FormProps = {
 
 const Page = () => {
   const searchParams = useSearchParams();
-  const role = searchParams.get("role"); // "brand" | null
+  const role = searchParams.get("role");
 
   const router = useRouter();
   const { mutateAsync, isPending: isLoading } = useLogin();
@@ -41,34 +42,37 @@ const Page = () => {
   const [form, setForm] = useState<FormProps>(initialForm);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!form.email || !form.password) {
-      toast.error("Please enter your email and password.");
-      return;
-    }
+  if (!form.email || !form.password) {
+    toast.error("Please enter your email and password.");
+    return;
+  }
 
-    try {
-      await toast.promise(
-        mutateAsync({ email: form.email, password: form.password }),
-        {
-          loading: "Signing in...",
-          success: "Signed in successfully ✅",
-          error: (err: any) =>
-            `Signin failed: ${
-              err?.response?.data?.detail ||
-              err?.message ||
-              "Something went wrong"
-            }`,
-        }
-      );
+  try {
+    const res = await toast.promise(
+      loginUser({
+        email: form.email,
+        password: form.password,
+      }),
+      {
+        loading: "Signing in...",
+        success: "Signed in successfully ✅",
+        error: "Invalid login credentials",
+      }
+    );
 
-      setForm(initialForm);
-      redirectAfterLogin();
-    } catch (err) {
-      console.log("SignIn Error:", err);
-    }
-  };
+    console.log("LOGIN RESPONSE", res);
+
+    // usually APIs return a token
+    localStorage.setItem("token", res.access_token);
+
+    redirectAfterLogin();
+
+  } catch (err) {
+    console.log(err);
+  }
+};
 
   return (
     <div className="min-h-[calc(100vh-2rem)] w-full flex items-center justify-center px-6 py-6 md:px-8">

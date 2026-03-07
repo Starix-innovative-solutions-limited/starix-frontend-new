@@ -15,6 +15,7 @@ const VerifyEmailContent = () => {
   const [otp, setOtp] = useState("");
   const router = useRouter();
   const pendingSignup = sessionAuth?.get();
+  const email = pendingSignup?.email;
   const { mutateAsync: verifyEmail } = useVerifyEmailOtp();
 
   const handleVerifyOtp = async (e?: React.FormEvent) => {
@@ -41,7 +42,7 @@ const VerifyEmailContent = () => {
 
   return (
     <motion.div
-      className="max-md:p-2 p-5 flex flex-col justify-between gap-10 overflow-x-hidden"
+      className="max-md:p-2 p-5 w-full flex flex-col justify-between gap-10 overflow-x-hidden"
       variants={variants?.containerVariants}
       initial="hidden"
       animate="visible"
@@ -53,8 +54,11 @@ const VerifyEmailContent = () => {
       </div>
       <motion.div className="flex flex-col gap-7" variants={variants?.itemVariants}>
         <h3 className="font-medium text-4xl leading-9 tracking-[0.002rem] text-dark-navy">Check your email.</h3>
-        <p className="text-dark font-light text-xl line-clamp-2">
-          We{"’"}ve sent the verification code to {pendingSignup?.email || "your email"}
+        <p className="text-dark font-light text-xl">
+          We’ve sent the verification code to{" "}
+          <span className="font-medium text-dark-navy">
+            {email ?? "your email"}
+          </span>
         </p>
       </motion.div>
       <motion.form action="" className="flex flex-col gap-7 overflow-hidden" variants={variants?.itemVariants}>
@@ -65,10 +69,21 @@ const VerifyEmailContent = () => {
         variants={variants?.itemVariants}
         whileHover={{ scale: 1.03 }}
         whileTap={{ scale: 0.97 }}
-        className="btn bg-dark-navy !py-4 mt-20 w-full text-white !rounded-full"
         onClick={handleVerifyOtp}
+        className="
+          mt-20
+          w-full
+          py-4
+          text-white
+          bg-dark-navy
+          rounded-full
+          font-medium
+          flex
+          items-center
+          justify-center
+        "
       >
-        Verify.
+        Verify
       </motion.button>
     </motion.div>
   );

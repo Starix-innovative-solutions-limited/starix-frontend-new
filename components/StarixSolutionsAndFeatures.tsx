@@ -25,14 +25,14 @@ const solutions = [
 
 export default function StarixSolutionsAndFeatures() {
   return (
-    <section className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-primary-orange/2 pt-20 mt-0 border-t-0">
-  <div className="general-space">   
+    <section className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#6e6e6e]mt-0 border-t-0">
+  <div className="">   
 
         {/* Floating Bubble – Figma style */}
         <div
         className="
             absolute
-            -top-30
+            -top-50
             -left-2
             w-[240px] h-[240px]
             md:w-[280px] md:h-[280px]
@@ -46,7 +46,7 @@ export default function StarixSolutionsAndFeatures() {
         />
 
       {/* ================= SOLUTIONS ================= */}
-      <div className="general-space relative py-32">
+      <div className="px-6 md:px-20 py-1 flex flex-col gap-20 relative">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -58,6 +58,7 @@ export default function StarixSolutionsAndFeatures() {
             tracking-[-0.02em]
             text-dark-navy
             text-center
+        
             
           "
         >
@@ -65,7 +66,7 @@ export default function StarixSolutionsAndFeatures() {
         </motion.h2>
 
         {/* SLIDER */}
-        <div className="flex gap-10 overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+        <div className="flex gap-8 overflow-x-auto snap-x snap-mandatory scrollbar-hide">
           {solutions.map((solution, index) => (
             <motion.div
               key={index}
@@ -89,7 +90,7 @@ export default function StarixSolutionsAndFeatures() {
                 className="w-full h-auto mb-5"
               />
 
-              <h3 className="font-geist font-[500] text-[28px] tracking-[-0.02em] text-dark-navy mb-3">
+              <h3 className="font-geist font-[400] text-[28px] tracking-[-0.02em] text-dark-navy mb-3">
                 {solution.title}
               </h3>
 
@@ -101,7 +102,7 @@ export default function StarixSolutionsAndFeatures() {
         </div>
 
         {/* CTA */}
-        <div className="flex justify-center">
+        <div className="flex pb-6 justify-center">
           <Link
             href="/signup"
             className="

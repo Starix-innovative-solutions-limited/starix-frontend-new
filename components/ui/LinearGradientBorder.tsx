@@ -19,7 +19,7 @@ export default function LinearGradientBorder({
 }: Props) {
   return (
     <motion.div
-      whileHover={{ scale: hoverScale }}
+      
       className={`p-[1px] rounded-2xl ${className}`}
       style={{
         background: gradient,

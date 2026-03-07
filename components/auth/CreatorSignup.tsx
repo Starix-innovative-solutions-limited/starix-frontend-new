@@ -1,18 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { variants } from '@/constant'
-import { motion } from 'framer-motion'
-import React, { useState } from 'react'
-import CustomInput from '../CustomInput'
-import Loader from '../Loader';
-import { useCreatorSignup, useGenerateOtp } from '@/hooks/useAuth';
-import toast from 'react-hot-toast';
-import { useRouter } from 'next/navigation';
 
+import { variants } from "@/constant";
+import { motion } from "framer-motion";
+import React, { useState } from "react";
+import CustomInput from "../CustomInput";
+import Loader from "../Loader";
+import { useCreatorSignup, useGenerateOtp } from "@/hooks/useAuth";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 
 type FormProps = {
+  full_name: string;
   email: string;
   password: string;
-  displayName: string;
+  phone_number?: string;
 };
 
 type CreatorSignupProps = {
@@ -20,151 +23,190 @@ type CreatorSignupProps = {
   role: string;
 };
 
-const CreatorSignup = ({ setIsGoogleAuth, role }: CreatorSignupProps) => {
-
-  const initialForm: FormProps = {
-    email: "",
-    password: "",
-    displayName: "",
-  };
-  const [confirmPassword, setConfirmPassword] = useState("");
-
-
+const CreatorSignup = ({ }: CreatorSignupProps) => {
 
   const router = useRouter();
 
-  const [form, setForm] = useState<FormProps | any>(initialForm);
+  const initialForm: FormProps = {
+    full_name: "",
+    email: "",
+    password: "",
+    phone_number: "",
+  };
 
-  // const { mutateAsync: resendOtp } = useResendOtp()
-
-
-
-
+  const [form, setForm] = useState<FormProps>(initialForm);
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const { mutateAsync, isPending } = useCreatorSignup();
   const { mutate: generateOtp } = useGenerateOtp();
 
+  const validatePassword = (password: string) => {
+    const regex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+
+    return regex.test(password);
+  };
+
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
 
-    await toast.promise(
-      mutateAsync({
-        email: form.email,
-        password: form.password,
-        display_name: form.displayName,
-      }),
-      {
-        loading: "Creating account...",
-        success: () => {
+    if (!form.full_name || !form.email || !form.password) {
+      toast.error("Please fill all required fields");
+      return;
+    }
 
+    if (!validatePassword(form.password)) {
+      toast.error(
+        "Password must contain uppercase, lowercase, number and special character"
+      );
+      return;
+    }
 
-          generateOtp({
-            email: form.email,
-            purpose: "email_verification",
-          });
+    if (form.password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
 
+    try {
+      await toast.promise(
+        mutateAsync(form),
+        {
+          loading: "Creating account...",
 
+          success: () => {
 
-          setForm(initialForm); // ✅ clear form
-          router.push('/verify-email')
-          return "Account created successfully 🎉";
-        },
-        error: (err: any) => {
-          console.log("Signup Error:", err); // ✅ log the full error object
+            generateOtp({
+              email: form.email,
+              purpose: "email_verification",
+            });
 
-          // If it's an Axios error, the actual server response is usually in err.response.data
-          // if (err?.response?.data) {
-          //   console.log("Server response:", err.response.data);
-          //   alert(err.response.data.message || "Signup failed");
-          // } else {
-          //   alert(err.message || "Signup failed");
-          // }
+            setForm(initialForm);
 
-          // resendOtp({
-          //   email: form?.email,
-          //   purpose: "password_reset"
-          // })
+            router.push("/verify-email");
 
+            return "Welcome aboard! Please verify your email to continue.";
+          },
 
-          return `Signup failed: ${err.response.data.detail}`;
-        },
-      }
-    );
+          error: (err: any) => {
+
+            const detail = err?.response?.data?.detail;
+
+            if (Array.isArray(detail)) {
+              return detail.map((d) => d.msg).join(", ");
+            }
+
+            return detail || "Signup failed";
+          },
+        }
+      );
+    } catch (err) {
+      console.log(err);
+    }
   };
-
-
 
   return (
     <motion.div
-      className="flex flex-col"
+      className="flex flex-col gap-6"
       variants={variants?.itemVariants}
     >
 
+      {/* FULL NAME */}
+      <div>
+        <CustomInput
+          label="Full Name"
+          placeholder="John Doe"
+          value={form.full_name}
+          onChange={(e) =>
+            setForm({ ...form, full_name: e.target.value })
+          }
+        />
+       
+      </div>
 
-      <CustomInput
-        label="Display Name"
-        placeholder="Display name"
-        value={form?.displayName}
-        onChange={(e) => setForm({ ...form, displayName: e.target.value })}
-      />
+      {/* EMAIL */}
+      <div>
+        <CustomInput
+          label="Email Address"
+          type="email"
+          placeholder="you@example.com"
+          value={form.email}
+          onChange={(e) =>
+            setForm({ ...form, email: e.target.value })
+          }
+        />
+        
+      </div>
 
-      <CustomInput
-        label="Email Address"
-        type="email"
-        placeholder="Email Address"
-        value={form?.email}
-        onChange={(e) => setForm({ ...form, email: e.target.value })}
-      />
+      {/* PHONE NUMBER */}
+      <div>
+        <label className="text-sm font-medium">
+          Mobile Number (optional)
+        </label>
 
-      <CustomInput
-        label="Password"
-        type="password"
-        placeholder="Password"
-        value={form?.password}
-        // onChange={() => {}}
-        onChange={(e) => setForm({ ...form, password: e.target.value })}
-      />
+        <PhoneInput
+          international
+          defaultCountry="NG"
+          value={form.phone_number}
+          onChange={(value) =>
+            setForm({ ...form, phone_number: value })
+          }
+          className="mt-2 border rounded-md p-3"
+        /> 
+        
+      </div>
+
+      {/* PASSWORD */}
+      <div>
+        <CustomInput
+          label="Password"
+          type="password"
+          placeholder="Create password"
+          value={form.password}
+          onChange={(e) =>
+            setForm({ ...form, password: e.target.value })
+          }
+        />
+
+        <p className="text-xs text-gray-500 mt-1">
+          Must be 8+ characters with uppercase, lowercase, number and
+          special character.
+        </p>
+      </div>
 
       {/* CONFIRM PASSWORD */}
       <CustomInput
-        label="Retype Password"
+        label="Confirm Password"
         type="password"
         placeholder="Retype password"
         value={confirmPassword}
         onChange={(e) => setConfirmPassword(e.target.value)}
       />
-      
 
-
-      <motion.div className="mt-9">
+      {/* SUBMIT BUTTON */}
+      <motion.div className="mt-4">
         <motion.button
           variants={variants?.itemVariants}
-          
           whileTap={{ scale: 0.97 }}
+          disabled={isPending}
           className="
-                w-full
-                rounded-full
-                py-3.5 md:py-4
-                font-medium
-                text-white
-                bg-dark-navy
-                border border-dark-navy
-                hover:shadow-xl
-                
-              "
+            w-full
+            rounded-full
+            py-4
+            font-medium
+            text-white
+            bg-dark-navy
+            border border-dark-navy
+            hover:shadow-xl
+            disabled:opacity-60
+          "
           onClick={handleSubmit}
         >
-          {isPending ? <Loader /> : "Sign Up"}
+          {isPending ? <Loader /> : "Create Account"}
         </motion.button>
-
-
-
       </motion.div>
 
-
-
     </motion.div>
-  )
-}
+  );
+};
 
-export default CreatorSignup
+export default CreatorSignup;

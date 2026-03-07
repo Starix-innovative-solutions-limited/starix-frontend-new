@@ -6,112 +6,79 @@ import { motion } from "framer-motion";
 import React, { useState } from "react";
 import CustomInput from "../CustomInput";
 import Loader from "../Loader";
-import { BrandSignupPayload } from "@/utils/type";
-import { useBrandSignup } from "@/hooks/useAuth";
+import { useBrandSignup, useGenerateOtp } from "@/hooks/useAuth"; // Re-added useGenerateOtp
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
-const INDUSTRIES = [
-  "Technology",
-  "Finance",
-  "Healthcare",
-  "Fashion",
-  "Gaming",
-  "Real Estate",
-  "Education",
-  "Travel",
-  "Marketing",
-  "Music",
-  "Fitness",
-  "Food & Beverage",
-  "Beauty",
-  "Sports",
-  "E-commerce",
-];
-
-const initialForm: BrandSignupPayload = {
-  email: "",
+const initialForm = {
+  brand_email: "",
   password: "",
   brand_name: "",
-  website: "",
-  industry: [],
+  brand_address: "",
+  website_or_social_link: "",
+  industry: "",
 };
+
 type BrandSignupProps = {
   setIsGoogleAuth: React.Dispatch<React.SetStateAction<boolean>>;
   role: string;
 };
 
+const formatWebsite = (url: string) => {
+  if (!url) return "";
+  let trimmed = url.trim();
+  if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
+    return `https://${trimmed}`;
+  }
+  return trimmed;
+};
 
 const BrandSignup = ({ setIsGoogleAuth, role }: BrandSignupProps) => {
-
-  const [form, setForm] = useState<BrandSignupPayload>(initialForm);
+  const [form, setForm] = useState(initialForm);
   const [confirmPassword, setConfirmPassword] = useState("");
-
-  const [industryInput, setIndustryInput] = useState("");
-  const [showDropdown, setShowDropdown] = useState(false);
-
-  const { mutateAsync, isPending } = useBrandSignup();
   const router = useRouter();
 
-  
-  /* ---------------- INDUSTRY LOGIC ---------------- */
-
-  const filteredIndustries = INDUSTRIES.filter(
-    (item) =>
-      item.toLowerCase().includes(industryInput.toLowerCase()) &&
-      !form.industry.includes(item)
-  );
-
-  const addIndustry = (industry: string) => {
-    if (form.industry.length >= 4) return;
-
-    setForm({
-      ...form,
-      industry: [...form.industry, industry],
-    });
-
-    setIndustryInput("");
-    setShowDropdown(false);
-  };
-
-  const removeIndustry = (industry: string) => {
-    setForm({
-      ...form,
-      industry: form.industry.filter((i) => i !== industry),
-    });
-  };
-
-  /* ---------------- SUBMIT ---------------- */
+  const { mutateAsync, isPending } = useBrandSignup();
+  const { mutate: generateOtp } = useGenerateOtp(); // Hook to trigger email
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (form.password !== confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
-    }
+    if (!form.brand_name.trim()) return toast.error("Brand name is required");
+    if (!form.brand_email.includes("@")) return toast.error("Enter a valid email");
+    if (form.password.length < 8) return toast.error("Password too short");
+    if (form.password !== confirmPassword) return toast.error("Passwords do not match");
 
-    await toast.promise(mutateAsync(form), {
-      loading: "Creating account...",
-      success: () => {
-        setForm(initialForm);
-        setConfirmPassword("");
-        router.push("/verify-email?role=brand");
-        return "Account created successfully 🎉";
-      },
-      error: (err: any) => {
-        return `Signup failed: ${err.response?.data?.detail || "Error"}`;
-      },
-    });
+    const payload = {
+      ...form,
+      website_or_social_link: formatWebsite(form.website_or_social_link),
+      industry: form.industry.trim(),
+    };
+
+    await toast.promise(
+      mutateAsync(payload as any),
+      {
+        loading: "Creating account...",
+        success: (data) => {
+          // 💡 TRIGGER OTP MANUALLY IF BACKEND DOESN'T DO IT AUTOMATICALLY
+          generateOtp({ email: form.brand_email } as any);
+          
+          router.push(`/verify-email?email=${form.brand_email}&role=brand`);
+          return "Account created! Check your email for OTP.";
+        },
+        error: (err: any) => {
+          const details = err?.response?.data?.detail;
+          if (Array.isArray(details)) {
+            return `Signup failed: ${details[0].msg} (${details[0].loc[1]})`;
+          }
+          return err?.response?.data?.message || "Error creating account";
+        },
+      }
+    );
   };
 
   return (
-    <motion.form
-      onSubmit={handleSubmit}
-      className="flex flex-col"
-      variants={variants?.itemVariants}
-    >
-      {/* BRAND NAME */}
+    <motion.form onSubmit={handleSubmit} className="flex flex-col" variants={variants?.itemVariants}>
       <CustomInput
         label="Brand Name"
         placeholder="Brand name"
@@ -119,78 +86,38 @@ const BrandSignup = ({ setIsGoogleAuth, role }: BrandSignupProps) => {
         onChange={(e) => setForm({ ...form, brand_name: e.target.value })}
       />
 
-      {/* EMAIL */}
       <CustomInput
         label="Brand Email"
         type="email"
-        placeholder="Brand Email Address"
-        value={form.email}
-        onChange={(e) => setForm({ ...form, email: e.target.value })}
+        placeholder="Email Address"
+        value={form.brand_email}
+        onChange={(e) => setForm({ ...form, brand_email: e.target.value })}
         required
       />
 
-      {/* WEBSITE */}
       <CustomInput
-        label="Website or Social Media Link"
-        placeholder="https://example.com/"
-        value={form.website}
-        onChange={(e) => setForm({ ...form, website: e.target.value })}
+        label="Brand Address"
+        placeholder="Physical address"
+        value={form.brand_address}
+        onChange={(e) => setForm({ ...form, brand_address: e.target.value })}
       />
 
-      {/* INDUSTRY MULTI SELECT */}
-      <div className="w-full relative mt-4">
-        <label className="text-sm text-dark-navy mb-2 block">
-          Industry
-        </label>
+      <CustomInput
+        label="Website or Social Link"
+        placeholder="example.com"
+        value={form.website_or_social_link}
+        onChange={(e) => setForm({ ...form, website_or_social_link: e.target.value })}
+        required
+      />
 
-        <div className="w-full min-h-[56px] border border-gray-300 rounded-xl px-3 py-2 flex flex-wrap gap-2 items-center focus-within:border-dark-navy transition bg-white">
-          {form.industry.map((item) => (
-            <div
-              key={item}
-              className="flex items-center gap-2 bg-[#EEF1FF] text-[#1A1F6B] px-3 py-1 rounded-full text-sm"
-            >
-              {item}
-              <button
-                type="button"
-                onClick={() => removeIndustry(item)}
-                className="text-xs"
-              >
-                ✕
-              </button>
-            </div>
-          ))}
+      <CustomInput
+        label="Industry"
+        placeholder="e.g. Technology"
+        value={form.industry}
+        onChange={(e) => setForm({ ...form, industry: e.target.value })}
+        required
+      />
 
-          {form.industry.length < 4 && (
-            <input
-              value={industryInput}
-              onChange={(e) => {
-                setIndustryInput(e.target.value);
-                setShowDropdown(true);
-              }}
-              onFocus={() => setShowDropdown(true)}
-              placeholder="Add industry..."
-              className="flex-1 outline-none text-sm min-w-[120px]"
-            />
-          )}
-        </div>
-
-        {showDropdown && filteredIndustries.length > 0 && (
-          <div className="absolute z-20 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
-            {filteredIndustries.map((item) => (
-              <button
-                key={item}
-                type="button"
-                onClick={() => addIndustry(item)}
-                className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm"
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* PASSWORD */}
       <CustomInput
         label="Password"
         type="password"
@@ -199,31 +126,19 @@ const BrandSignup = ({ setIsGoogleAuth, role }: BrandSignupProps) => {
         onChange={(e) => setForm({ ...form, password: e.target.value })}
       />
 
-      {/* CONFIRM PASSWORD */}
       <CustomInput
-        label="Retype Password"
+        label="Confirm Password"
         type="password"
-        placeholder="Retype password"
+        placeholder="Confirm password"
         value={confirmPassword}
         onChange={(e) => setConfirmPassword(e.target.value)}
       />
 
-      {/* SUBMIT */}
       <motion.div className="mt-9">
         <motion.button
           type="submit"
-          variants={variants?.itemVariants}
-          whileTap={{ scale: 0.97 }}
-          className="
-                w-full
-                rounded-full
-                py-3.5 md:py-4
-                font-medium
-                text-white
-                bg-dark-navy
-                border border-dark-navy
-                     
-              "
+          disabled={isPending}
+          className="w-full rounded-full py-4 font-medium text-white bg-dark-navy flex items-center justify-center"
         >
           {isPending ? <Loader /> : "Sign Up"}
         </motion.button>

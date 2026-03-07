@@ -77,7 +77,7 @@ const Page = () => {
     {
       image: "creatorCard1.png",
       title: "Mega Creators",
-      description: "Create your own branded challenges, earn rewards, and ship impactful content at scale.",
+      description: "Create your own branded challenges, earn rewards, and ship impactful content at scale. Collaborate with other creators and brands to amplify your influence.",
       buttonText: "Create Influence",
     },
   ];

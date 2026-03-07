@@ -32,12 +32,8 @@ const WeeklyLeaderboard = () => {
       { rank: 2, username: "@LolaUGC", points: 7920 },
       { rank: 3, username: "@KariCreates", points: 7010 },
       { rank: 4, username: "@JadeTalks", points: 6500 },
-      { rank: 5, username: "@QueenBee", points: 8450 },
-      { rank: 6, username: "@LolaUGC", points: 7920 },
-      { rank: 7, username: "@KariCreates", points: 7010 },
-      { rank: 8, username: "@JadeTalks", points: 6500 },
-      { rank: 9, username: "@QueenBee", points: 8450 },
-      { rank: 10, username: "@LolaUGC", points: 7920 },
+      
+      
     ];
   };
 
@@ -66,26 +62,20 @@ const WeeklyLeaderboard = () => {
   }, []);
 
   return (
-    <div className="bg-white rounded-2xl p-4 sm:p-5 md:p-2 shadow border border-gray-100 w-full">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-3 border-b py-4 sm:py-5 border-[#6E6E6E33]">
-        <div className="flex items-center gap-2 min-w-0">
+    <div className="bg-white rounded-2xl p-4  shadow border border-gray-100 w-full">
+      <div className="flex justify-center border-b py-2  border-[#6E6E6E33]">
+        <div className="flex items-center gap-2">
           <Image
             src="/badge.svg"
             width={1000}
             height={1000}
             alt="badge"
-            className="w-7 sm:w-8 shrink-0"
+            className="w-7 sm:w-8"
           />
-          <span className="text-sm sm:text-base text-dark font-medium truncate">
+          <span className="text-sm sm:text-base text-dark font-medium">
             Weekly Leaderboard
           </span>
         </div>
-
-        {/* Optional: right-side label */}
-        <span className="text-xs sm:text-sm text-gray-400 shrink-0">
-          Points
-        </span>
       </div>
 
       {/* Body */}
@@ -140,7 +130,7 @@ const WeeklyLeaderboard = () => {
                     "rounded",
                     "transition-colors",
                     "hover:bg-gray-50",
-                    creator.isYou ? "bg-[#FFF8F5]" : "bg-white",
+                    creator.isYou ? "bg-[#FFF8F5] p-1" : "bg-white",
                   ].join(" ")}
                 >
                   {/* Left */}

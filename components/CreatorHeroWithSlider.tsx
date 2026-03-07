@@ -197,57 +197,63 @@ export default function CreatorHeroWithSlider() {
       
             
 
-      {/* CREATOR PROBLEM SECTION */}
-<div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-white pt-20 pb-0 mb-0">
-    <div className="general-space"> 
-      <motion.h1
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="
-          font-geist font-[600]
-          text-[32px] md:text-[48px]
-          tracking-[-0.02em]
-          text-dark-navy
-          text-center
-          mb-0 
-        "
-      >
-        “The Creator Problem”
-      </motion.h1>
+{/* CREATOR PROBLEM SECTION */}
+<div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-white py-28">
+  <div className="max-w-[1200px] mx-auto px-6">
 
-      {/* 3. Adjust the inner section: Changed pb-0 and reduced pt */}
-      <section className="pt-10 md:pt-16 pb-0">
-        <motion.div
-          className="grid gap-8 sm:gap-12 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+    {/* TITLE */}
+    <motion.h1
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="
+        font-geist
+        font-semibold
+        text-[32px] md:text-[48px]
+        tracking-[-0.02em]
+        text-dark-navy
+        text-center
+        mb-20
+      "
+    >
+      “The Creator Problem”
+    </motion.h1>
+
+    {/* GRID */}
+    <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-14">
+
+      {audienceChallenges.map((problem, index) => (
+        <div
+          key={index}
+          className="flex flex-col items-center text-center"
         >
-          {audienceChallenges.map((problem, index) => (
-            <motion.div
-              key={index}
-              className="flex flex-col items-center text-center gap-4 px-4"
-            >
-              <span className="bg-[#f3f5f7] rounded-full border border-gray-100 shadow-sm p-4 mb-4">
-                <Image
-                  src={`/creatorProblem${index + 1}.svg`}
-                  alt={problem.title}
-                  width={90}
-                  height={90}
-                />
-              </span>
 
-              <span className="font-geist font-[500] text-[22px] md:text-[26px] text-dark-navy">
-                {problem.title}
-              </span>
+          {/* ICON */}
+          <div className="w-[120px] h-[120px] flex items-center justify-center rounded-full bg-[#f3f5f7] mb-8">
+            <Image
+              src={`/creatorProblem${index + 1}.svg`}
+              alt={problem.title}
+              width={90}
+              height={90}
+            />
+          </div>
 
-              <span className="font-geist font-[300] text-[16px] md:text-[19px] text-neut/60 max-w-[280px]">
-                {problem.description}
-              </span>
-            </motion.div>
-          ))}
-        </motion.div>
-      </section>
-    </div>
+          {/* TITLE */}
+          <h3 className="font-geist font-medium text-[22px] text-dark-navy mb-3">
+            {problem.title}
+          </h3>
+
+          {/* DESCRIPTION */}
+          <p className="text-[16px] text-[#6E6E6E] leading-relaxed max-w-[260px]">
+            {problem.description}
+          </p>
+
+        </div>
+      ))}
+
+    </motion.div>
   </div>
+</div>
       
     </main>
   );

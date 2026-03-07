@@ -4,16 +4,18 @@
 export type CreatorSignupPayload = {
   email: string;
   password: string;
-  display_name: string;
+  full_name: string;
+  phone_number?: string;
 };
 
 export type BrandSignupPayload = {
-  email: string;
-  password: string;
-  brand_name: string;
-  website?: string;
-  industry: string[];
-};
+  brand_email: string
+  password: string
+  brand_name: string
+  brand_address: string
+  website_or_social_link: string
+  industry: string   // ✅ string instead of string[]
+}
 
 // OTP
 export type GenerateOtpPayload = {

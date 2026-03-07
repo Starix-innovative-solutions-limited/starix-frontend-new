@@ -94,7 +94,7 @@ export const useBrandSignup = () => {
 export function useGenerateOtp() {
   return useMutation({
     mutationFn: (data: GenerateOtpPayload) =>
-      api.post("/auth/otp/generate", data),
+      api.post("/auth/otp/email/request", data),
 
     onSuccess: (res: any) => {
       console.log("OTP GENERATED SUCCESS:", res.data);
@@ -109,7 +109,7 @@ export function useGenerateOtp() {
 export function useVerifyEmailOtp() {
   return useMutation({
     mutationFn: (data: VerifyEmailOtpPayload) =>
-      api.post("/auth/otp/verify-email", data),
+      api.post("/auth/otp/email/verify", data),
 
     onSuccess: (res: any) => {
       console.log("EMAIL VERIFIED SUCCESS:", res.data);
@@ -124,7 +124,7 @@ export function useVerifyEmailOtp() {
 export function useResetPassword() {
   return useMutation({
     mutationFn: (data: ResetPasswordOtpPayload) =>
-      api.post("/auth/otp/reset-password", data),
+      api.post("/auth/password-reset/request", data),
 
     onSuccess: (res: any) => {
       console.log("PASSWORD RESET SUCCESS:", res.data);
@@ -138,7 +138,7 @@ export function useResetPassword() {
 
 export function useResendOtp() {
   return useMutation({
-    mutationFn: (data: ResendOtpPayload) => api.post("/auth/otp/resend", data),
+    mutationFn: (data: ResendOtpPayload) => api.post("/auth/otp/email/request", data),
 
     onSuccess: (res: any) => {
       console.log("OTP RESENT SUCCESS:", res.data);
@@ -152,7 +152,7 @@ export function useResendOtp() {
 
 export function useRefreshToken() {
   return useMutation({
-    mutationFn: (data: any) => api.post("/auth/refresh", data),
+    mutationFn: (data: any) => api.post("/auth/token/refresh", data),
 
     onSuccess: (res: any) => {
       console.log("REFRESH TOKEN SUCCESS:", res.data);

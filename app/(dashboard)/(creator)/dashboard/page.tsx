@@ -48,7 +48,7 @@ const Page = () => {
     },
     {
       label: "Your Niche:",
-      value: profile?.content_categories ? profile?.content_categories : "nil",
+      value: profile?.content_categories ? profile?.content_categories : "Fashion",
       valueSize: "text-lg",
       image: "/ball 2.svg",
     },
@@ -167,6 +167,7 @@ const Page = () => {
                 hover:bg-gray-100
                 rounded-lg
                 bg-[#FFF8F5]
+                
               "
             >
               <div className="flex items-center gap-2">
@@ -221,9 +222,8 @@ const Page = () => {
                   md:w-[335px]
                  
                   px-4
-                  shadow
-                  hover:shadow-lg
-                  transition-shadow
+                  shadow-xs
+                  
                   flex items-center justify-between
                 "
 
@@ -250,7 +250,7 @@ const Page = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10 mt-8 mb-12">
             {/* Trending */}
             <div className="lg:col-span-2">
-              <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">
+              <h2 className="text-xl md:text-2xl font-normal text-gray-800 mb-6">
                 Trending in Your Niche
               </h2>
 
@@ -281,7 +281,7 @@ const Page = () => {
 
             {/* Top Creators */}
             <div className="w-full">
-              <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">
+              <h2 className="text-xl md:text-2xl font-normal text-gray-800 mb-6">
                 Top Creators in Your Niche
               </h2>
               <WeeklyLeaderboard />
@@ -291,7 +291,7 @@ const Page = () => {
           {/* Active Challenges */}
           <div>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl md:text-2xl font-bold text-gray-800">
+              <h2 className="text-xl md:text-2xl font-normal text-gray-800">
                 Active Challenges
               </h2>
 
@@ -302,7 +302,7 @@ const Page = () => {
                   text-[#040136]
                   px-4 py-2
                   rounded-full
-                  font-semibold
+                  font-normal
                   transition-all duration-200
                   hover:opacity-90
                 "
