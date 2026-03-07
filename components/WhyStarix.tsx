@@ -44,7 +44,7 @@ const WhyStarix = () => {
       </h1>
 
       {/* MAIN WRAPPER: minmax prevents the left panel from squishing the right one */}
-      <div className="w-full max-w-[1300px] grid grid-cols-1 lg:grid-cols-[minmax(380px,_480px)_1fr] gap-[32px] px-[20px] md:px-10">
+      <div className="w-full max-w-[1400px] grid grid-cols-1 lg:grid-cols-[minmax(380px,_480px)_1fr] gap-[32px] px-[20px] md:px-10">
 
         {/* ================= LEFT PANEL ================= */}
         <div className="bg-[#E6ECFF] rounded-[28px] p-[20px] md:p-[28px] h-fit">
@@ -65,8 +65,8 @@ const WhyStarix = () => {
                     onClick={() => setOpen(item.id)} 
                     className="w-full flex justify-between items-start text-left px-6 py-6"
                   >
-                    <div className="flex-1 pr-4">
-                      <h2 className="text-[#040136] text-[24px] xl:text-[28px] font-normal mb-3">
+                    <div className="flex-1 mt-1 pr-4">
+                      <h2 className="text-[#040136] py-1 text-[24px] xl:text-[28px] font-normal mb-2">
                         {item.title}
                       </h2>
                       {isOpen && (
@@ -75,7 +75,7 @@ const WhyStarix = () => {
                         </p>
                       )}
                     </div>
-                    <div className="mt-1">
+                    <div className="mt-4">
                       {isOpen ? (
                         <Minus size={20} className="text-[#0B0F3C]" />
                       ) : (
@@ -118,25 +118,26 @@ const WhyStarix = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-[1fr_1.6fr] gap-10 h-full">
             <div className="flex flex-col justify-start pt-4 md:pt-[100px]">
-              <h2 className="text-[#0B0F3C] text-[28px] md:text-[36px] font-medium mb-4">
+              <h2 className="text-[#0B0F3C] text-[28px] md:text-[28px] font-medium mb-4">
                 Trend Intelligence
               </h2>
-              <p className="text-[#B5B5B5] text-[16px] md:text-[18px] leading-relaxed max-w-[320px] mb-8">
-                Build campaigns with real creators that aligns with your brand story.
-              </p>
+              <p className="text-[#6e6e6e] text-[16px] md:text-[18px] leading-relaxed min-w-[450px] mb-8">
+                Build campaigns with real creators <br className="hidden md:block" />
+                that aligns with your brand story.
+                </p>
               <Image src="/heart12.png" alt="heart" width={80} height={80} className="object-contain" />
             </div>
 
-            <div className="relative w-full h-[300px] md:h-full flex items-end">
-              <div className="relative w-[110%] h-[110%] translate-x-[10%] translate-y-[5%]">
+            <div className="relative w-full h-[320px] md:h-full flex items-end">
+            <div className="absolute  bottom-[-40px] right-[-150px] w-[700px] h-[520px] md:w-[820px] md:h-[600px]">
                 <Image
-                  src={activeSection.image}
-                  alt="dashboard"
-                  fill
-                  priority
-                  className="object-contain object-right-bottom"
+                src={activeSection.image}
+                alt="dashboard"
+                fill
+                priority
+                className="object-contain object-right"
                 />
-              </div>
+            </div>
             </div>
           </div>
         </div>

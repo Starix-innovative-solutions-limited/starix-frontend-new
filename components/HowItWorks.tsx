@@ -54,7 +54,7 @@ const HowItWorks = () => {
                 <div className="relative w-full max-w-[293px] font-['Geist'] font-[600] text-[25px] md:text-[48px] leading-tight tracking-[-0.02em] text-[#040136] flex items-center max-md:justify-center max-md:mx-auto">
                     <span>How It Works</span>
 
-                    <div className="absolute top-[calc(50px-35%)] -left-[18%] max-md:static max-md:mt-4 max-md:ml-0 max-md:rotate-180">
+                    <div className="absolute top-[calc(50px-35%)] -left-[8%] max-md:static max-md:mt-4 max-md:ml-0 max-md:rotate-180">
                         <motion.div
                             className="w-[140px] h-[96px] flex flex-col items-center justify-center pointer-events-none"
                             animate={{ rotate: [0, 20, 20, 0, 0] }}
@@ -79,7 +79,7 @@ const HowItWorks = () => {
                     </div>
                 </div>
 
-                <div className="w-full max-w-[610px] text-center md:text-right font-[300] text-[18px] md:text-[28px] leading-relaxed text-[#6E6E6E99] font-['Geist']">
+                <div className="w-full max-w-[610px] text-center md:text-right font-[300] text-[18px] md:text-[28px] leading-relaxed text-[#6e6e6e] font-['Geist']">
                     Starix transforms how brands and creators collaborate. Our challenge-based system drives authentic engagement and measurable results — helping creators grow faster and brands connect deeper with real audiences.
                 </div>
             </div>
@@ -94,9 +94,9 @@ const HowItWorks = () => {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full p-5">
                             {brandFeatures.map((feature, index) => (
                                 <div key={index} className="relative group w-full max-w-[420px] mx-auto">
-                                    <div className={`absolute inset-[-1px] rounded-[32px] opacity-0 transition-opacity duration-300 pointer-events-none group-hover:opacity-100 bg-gradient-to-br ${feature.gradient}`} />
+                                    <div className={`absolute inset-[-2px] rounded-[32px] opacity-50 transition-opacity duration-300 pointer-events-none group-hover:opacity-100 bg-gradient-to-br ${feature.gradient}`} />
                                     <div className={`relative bg-gradient-to-br ${feature.gradient} rounded-3xl p-[3px] h-full`}>
-                                        <div className="bg-white w-full h-full min-h-[249px] rounded-[20px] border-[6px] border-transparent relative z-10 p-8 flex flex-col">
+                                        <div className="bg-white w-full h-full min-h-[249px] rounded-[25px] border-[2px] border-transparent relative z-10 p-8 flex flex-col">
                                             <Image src={`/${feature.icon}`} width={64} height={64} alt={feature.title} className="w-16 h-auto mb-4" />
                                             <h3 className="font-['Geist'] font-[400] text-[22px] md:text-[28px] leading-tight text-[#040136] mb-3">{feature.title}</h3>
                                             <p className="font-['Geist'] font-[300] text-[14px] md:text-[17px] text-[#6E6E6E] leading-relaxed">{feature.description}</p>
@@ -147,7 +147,7 @@ const HowItWorks = () => {
                     <Image src="/achievement2.png" alt="achievement" width={603} height={398} className="w-full h-auto object-contain mx-auto" priority />
                     <div className="flex flex-col gap-7 md:pl-[60px] max-md:text-center items-center md:items-start">
                         <h2 className="font-['Geist'] font-[600] text-[20px] md:text-[46px] leading-tight text-[#040136]">What You Achieve on Starix</h2>
-                        <p className="font-['Geist'] font-[300] text-[16px] md:text-[24px] leading-relaxed text-[#6E6E6E99]">From brands running high-impact challenges to creators winning rewards and building portfolios — Starix drives real engagement.</p>
+                        <p className="font-['Geist'] font-[300] text-[16px] md:text-[24px] leading-relaxed text-[#6E6E6E]">From brands running high-impact challenges to creators winning rewards and building portfolios — Starix drives real engagement.</p>
                         <Link href="/for-brands" className="w-[193px] h-[68px] flex items-center justify-center gap-[10px] rounded-[40px] bg-[#040136] text-white text-[18px] border border-[#040136] transition-all hover:shadow-lg group">
                             <span>Get Started</span>
                             <Image src="/rightArrow.svg" alt="arrow" width={20} height={20} className="" />
