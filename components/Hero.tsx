@@ -111,7 +111,7 @@ const Hero = () => {
             </Link>
 
             <Link
-              href="/login"
+              href="/login?role=brand"
               className="
                 inline-flex items-center justify-center
                 w-[193px]
