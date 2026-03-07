@@ -34,7 +34,7 @@ const StarixSolutionsSection = () => {
 
   return (
     <section className="py-20">
-      <div className="max-w-[1500px] mx-auto px-6">
+      <div className="max-w-[1500px] mx-auto">
 
         {/* TITLE */}
         <motion.h2

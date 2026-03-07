@@ -22,25 +22,25 @@ const contentMap: Record<
     tag: "UGC COMMUNITY",
     title: "Create Challenge for Thousands of Creators",
     desc: "Launch structured UGC challenges, set rules, rewards, and timelines—then let creators compete.",
-    img: "/keyFeaturesFram2.png",
+    img: "/keyFeaturesFram4.png",
   },
   Guidance: {
     tag: "CREATOR GUIDANCE",
     title: "Guide Submissions with Briefs & Direction",
     desc: "Provide hooks, captions, tone and examples so creators stay aligned with your brand voice.",
-    img: "/keyFeaturesFram2.png",
+    img: "/keyFeaturesFram5.png",
   },
   Entries: {
     tag: "ENTRIES SYSTEM",
     title: "Track Entries and Performance in One Place",
     desc: "See submissions, engagement, and winners with clear performance visibility and ROI signals.",
-    img: "/keyFeaturesFram2.png",
+    img: "/keyFeaturesFram6.png",
   },
   Reward: {
     tag: "REWARDS",
     title: "Reward Creators Seamlessly",
     desc: "Manage payouts, escrow, and creator rewards automatically with full transparency.",
-    img: "/keyFeaturesFram2.png",
+    img: "/keyFeaturesFram3.png",
   },
 };
 
@@ -51,7 +51,7 @@ const KeyFeaturesSection = () => {
 
   return (
     <section className="py-24">
-      <div className="max-w-[1600px] mx-auto px-6">
+      <div className="max-w-[1600px] mx-auto ">
 
         {/* ================= HEADER ================= */}
 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8 mb-16">
@@ -246,10 +246,10 @@ const KeyFeaturesSection = () => {
             transition={{ duration: 0.8 }}
             className="relative rounded-[32px] overflow-hidden bg-white shadow-[0_0_60px_rgba(0,51,255,0.1)]"
           >
-            <div className="grid grid-cols-[30%_70%] min-h-[520px]">
+            <div className="grid grid-cols-[35%_65%] min-h-[520px]">
 
               {/* LEFT */}
-              <div className="p-8 lg:p-14 flex flex-col justify-center gap-6">
+              <div className="p-7 flex flex-col justify-center gap-6">
                 <span className="inline-block w-fit bg-[#F1F3FF] text-[#1A1F6B] px-4 py-2 rounded-full text-sm font-medium">
                   {active.tag}
                 </span>
@@ -261,24 +261,13 @@ const KeyFeaturesSection = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -15 }}
                     transition={{ duration: 0.4 }}
-                    className="font-['Geist'] font-[500] text-[32px] text-[#0B0F3C] leading-[1.2]"
+                    className="font-['Geist'] font-[500]  text-[28px] text-[#0B0F3C] leading-[1.5]"
                   >
                     {active.title}
                   </motion.h3>
                 </AnimatePresence>
 
-                <AnimatePresence mode="wait">
-                  <motion.p
-                    key={active.desc}
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -15 }}
-                    transition={{ duration: 0.4, delay: 0.05 }}
-                    className="font-['Geist'] font-[300] text-[16px] text-[#6B6F8D] leading-[1.6]"
-                  >
-                    {active.desc}
-                  </motion.p>
-                </AnimatePresence>
+                
 
                 <div className="mt-4">
                   <Image src="/playButtons.svg" alt="icon" width={80} height={80} className="w-16 h-auto" />
@@ -286,20 +275,26 @@ const KeyFeaturesSection = () => {
               </div>
 
               {/* RIGHT */}
-              <div className="bg-[#E0E0E099] flex items-center justify-center p-6 lg:p-10">
+              <div className="bg-[#E0E0E099] flex items-center justify-center p-6 lg:p-10 relative overflow-hidden">
                 <AnimatePresence mode="wait">
-                  <motion.div
+                    <motion.div
                     key={active.img}
                     initial={{ opacity: 0, scale: 0.96 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.96 }}
                     transition={{ duration: 0.5 }}
-                    className="w-full h-full flex items-center justify-center"
-                  >
-                    <Image src={active.img} alt="feature" width={1600} height={1200} className="w-full ml-20 h-auto object-contain" />
-                  </motion.div>
+                    className="w-full h-full relative"
+                    >
+                    <Image
+                        src={active.img}
+                        alt="feature"
+                        width={1600}
+                        height={1200}
+                        className="absolute bottom-0 right-0 w-auto h-full object-contain"
+                    />
+                    </motion.div>
                 </AnimatePresence>
-              </div>
+                </div>
 
             </div>
           </motion.div>

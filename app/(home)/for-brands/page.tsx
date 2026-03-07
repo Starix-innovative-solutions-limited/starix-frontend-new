@@ -104,7 +104,7 @@ const variants: Variants = {
 
   const challengeSteps = [
     { id: 1, title: "Create a Challenge", description: "Set up your campaign with specific goals and guidelines" },
-    { id: 2, title: "Find Escrow", description: "Secure funds for winner payouts" },
+    { id: 2, title: "Fund Escrow", description: "Secure funds for winner payouts" },
     { id: 3, title: "Get Submissions", description: "Receive and review creator content" },
     { id: 4, title: "Approve Winners", description: "Select and reward top performers" },
   ];
@@ -142,7 +142,7 @@ const variantMap = ["front", "mid", "back", "far"];
 
   return (
     <>
-      <div className="bg-[#f5f5f5] overflow-hidden">
+      <div className="bg-[#f5f5f5] min-w-screen overflow-hidden">
         <main className="relative general-space min-h-screen">
           {/* HERO - Fixed grid to prevent shrinking on tablet */}
           <div className="grid grid-cols-1 lg:grid-cols-2 lg:items-center gap-10 mt-20">
@@ -309,7 +309,7 @@ const variantMap = ["front", "mid", "back", "far"];
 
         {/* CHALLENGE SYSTEM SECTION */}
         <section className="bg-[#EBEFFF] text-dark-navy py-16 general-space">
-          <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div className=" mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <Image src={"/howBrands.png"} alt="how brand" width={1000} height={1000} className="w-full h-auto" />
             <div className="flex flex-col">
               <h2 className="font-['Geist'] font-[600] text-[32px] md:text-[48px] leading-tight text-dark-navy mb-10">
@@ -326,7 +326,7 @@ const variantMap = ["front", "mid", "back", "far"];
                           {openSection === item.id ? <Minus /> : <Plus />}
                         </button>
                         {openSection === item.id && (
-                          <p className="pt-4 pb-2 text-dark-navy/70 text-lg">{item.description}</p>
+                          <p className=" pb-2 text-dark-navy/70 text-lg">{item.description}</p>
                         )}
                       </div>
                     </div>
@@ -347,7 +347,7 @@ const variantMap = ["front", "mid", "back", "far"];
       
       {/* Label Badge - Now sits in its own fixed-width column */}
       <div className="h-full">
-        <div className="bg-[#FAFAFA] text-dark-navy p-1 font-light translate-y-[120px] text-base tracking-normal uppercase inline-block whitespace-nowrap">
+        <div className="bg-[#FAFAFA]  text-dark-navy p-2 font-light translate-y-[120px] text-base tracking-normal uppercase inline-block whitespace-nowrap">
           BRAND ANALYTICS.
         </div>
       </div>
