@@ -65,7 +65,7 @@ const Hero = () => {
             className="
               text-center lg:text-left
               font-[300]
-              text-neut/50
+              text-[#6e6e6e]
               text-[18px]
               leading-[1.6]
               md:text-[20px]

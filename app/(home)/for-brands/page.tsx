@@ -158,7 +158,7 @@ const variantMap = ["front", "mid", "back", "far"];
               <p
             className="
                 font-geist font-[300]
-                text-[28px]
+                text-[26px]
                 
                 leading-[1]
                 tracking-[0]
