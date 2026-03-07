@@ -25,7 +25,7 @@ const solutions = [
   {
     title: "Challenge Dashboard",
     desc: "Gamified creator challenges with real-time tracking",
-    img: "/starixSolution4.png",
+    img: "/starixSolution44.png",
   },
 ];
 
