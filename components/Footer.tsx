@@ -23,7 +23,7 @@ const Footer = () => {
           w-full md:max-w-md flex flex-col gap-6
           ${(path === "/for-brands" || path === "/for-creators") ? "md:items-center md:text-center md:mx-auto" : ""}
         `}>
-          <h3 className="font-semibold text-dark-navy text-2xl sm:text-3xl md:text-3xl leading-snug text-center md:text-left">
+          <h3 className="font-semibold text-dark-navy text-2xl sm:text-3xl md:text-[48px] min-w-screen leading-snug text-center md:text-left">
             Redefine Your 
             <br className={path === "/" ? "" : "hidden"} />
             {path === "/for-brands"
@@ -48,17 +48,18 @@ const Footer = () => {
                 gap-[6px]
 
                 rounded-[40px]
-                bg-dark-navy
+                bg-white
+                border-2 border-dark-navy
 
                 px-[18px] py-[6px]
 
-                text-white
+                text-dark-navy
                 text-[16px] xl:text-[20px]
                 font-medium
 
                 transition-all duration-200
-                hover:opacity-95
-                hover:shadow-lg
+              
+                hover:bg-[#bebcbc]
               "
               >
                 Join as a Creator

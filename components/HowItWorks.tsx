@@ -88,7 +88,7 @@ const HowItWorks = () => {
                 {/* FOR BRANDS SECTION */}
                 <div className='mt-5 bg-white py-10 rounded-2xl shadow-[0px_2px_16px_0px_#0033FF1A] grid'>
                     <div className='md:grid md:grid-cols-[1.5fr__9.5fr] p-10 flex flex-col items-center gap-4'>
-                        <div className='bg-[#FAFAFA] text-center py-1 px-4 text-dark-navy font-light text-base inline-block whitespace-nowrap'>
+                        <div className='bg-[#FAFAFA] text-center py-2 px-2 text-dark-navy font-light text-base inline-block whitespace-nowrap'>
                             FOR BRANDS.
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full p-5">
@@ -115,7 +115,7 @@ const HowItWorks = () => {
                 {/* FOR CREATORS SECTION */}
                 <div className="bg-white py-14 rounded-2xl shadow-[0px_2px_16px_0px_#0033FF1A] grid">
                     <div className="md:grid md:grid-cols-[1.5fr_9.5fr] p-10 flex flex-col items-center gap-6">
-                        <div className="bg-[#FAFAFA] text-center text-dark-navy font-light text-base inline-block whitespace-nowrap">
+                        <div className="bg-[#FAFAFA] px-2 py-2 text-center text-dark-navy font-light text-base inline-block whitespace-nowrap">
                             FOR CREATORS.
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
@@ -144,7 +144,7 @@ const HowItWorks = () => {
             {/* ACHIEVEMENT SECTION */}
             <div className="w-full bg-white my-32 min-h-[600px] p-10 md:p-20">
                 <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-2 items-center gap-10">
-                    <Image src="/achievement2.png" alt="achievement" width={603} height={398} className="w-full h-auto object-contain mx-auto" priority />
+                    <Image src="/achievement33.png" alt="achievement" width={603} height={398} className="w-full h-auto object-contain mx-auto" priority />
                     <div className="flex flex-col gap-7 md:pl-[60px] max-md:text-center items-center md:items-start">
                         <h2 className="font-['Geist'] font-[600] text-[20px] md:text-[46px] leading-tight text-[#040136]">What You Achieve on Starix</h2>
                         <p className="font-['Geist'] font-[300] text-[16px] md:text-[24px] leading-relaxed text-[#6E6E6E]">From brands running high-impact challenges to creators winning rewards and building portfolios — Starix drives real engagement.</p>

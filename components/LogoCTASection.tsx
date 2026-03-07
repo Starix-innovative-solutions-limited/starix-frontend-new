@@ -11,20 +11,22 @@ const LogoCTASection = () => {
                 <div className="flex items-center relative">
                     {/* Animated Wordmark */}
                     <motion.div
-                        className="flex items-end gap-1 h-[60px] md:h-[90px]"
-                        animate={{ opacity: [0, 1, 1, 0] }}
-                        transition={{ duration: 1.5, repeat: Infinity, times: [0, 0.25, 0.75, 1] }}
+                    className="flex items-end gap-1 h-[60px] md:h-[90px]"
+                    animate={{ opacity: [0, 1, 1, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, times: [0, 0.25, 0.75, 1] }}
                     >
-                        {['s', 't', 'a', 'r', 'i', 'x'].map((letter) => (
-                            <Image
-                                key={letter}
-                                src={`/${letter}.png`}
-                                alt={letter}
-                                width={80}
-                                height={100}
-                                className="h-full w-auto object-contain"
-                            />
-                        ))}
+                    {['s', 't', 'a', 'r', 'i', 'x'].map((letter) => (
+                        <Image
+                        key={letter}
+                        src={`/${letter}.png`}
+                        alt={letter}
+                        width={80}
+                        height={100}
+                        className={`h-full w-auto object-contain ${
+                            letter === "t" ? "scale-y-[1.15] mb-2" : ""
+                        }`}
+                        />
+                    ))}
                     </motion.div>
 
                     {/* STAR ICON — Positioned as a Trademark/End-piece */}
