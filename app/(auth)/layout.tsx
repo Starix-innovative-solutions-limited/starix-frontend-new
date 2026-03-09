@@ -5,6 +5,7 @@ import React, { Suspense } from "react";
 import Image from "next/image";
 import AuthBg from "@/components/auth/AuthBg";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 
 
@@ -24,10 +25,17 @@ const AuthLayout = ({
   return (
     <main className={` md:h-screen p-7`}>
       <div className="md:min-w-2xl xl:min-w-7xl xl:max-w-7xl mx-auto flex flex-col gap-7">
-        {/* Logo */}
-        <div className="w-fit py-3 px-2 ">
-          <Image src={"/logoss.svg"} width={100} height={100} className="w-24" alt="Logo" priority />
-        </div>
+       {/* Logo */}
+      <Link href="/" className="w-fit py-3 px-2 block">
+        <Image
+          src="/logoss.svg"
+          width={100}
+          height={100}
+          className="w-24"
+          alt="Logo"
+          priority
+        />
+      </Link>
 
         <div className="md:h-[86vh] grid md:grid-cols-2 gap-10 xl:gap-14 items-center overflow-hidden">
 

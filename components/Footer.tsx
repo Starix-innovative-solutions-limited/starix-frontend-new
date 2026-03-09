@@ -220,7 +220,7 @@ const Footer = () => {
                 Cookies
               </a>
               <span className="mx-2 opacity-50">|</span>
-              <a href="/footer" className="hover:text-[#00ff88] transition-colors">
+              <a href="/footer/privacy" className="hover:text-[#00ff88] transition-colors">
                 Privacy
               </a>
               <span className="mx-2 opacity-50">|</span>
