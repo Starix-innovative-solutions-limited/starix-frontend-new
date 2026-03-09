@@ -76,7 +76,7 @@ export const useBrandSignup = () => {
 
     onSuccess: (res) => {
       sessionAuth.save({
-        email: res?.data?.user?.email,
+        email: res?.data?.user?.brand_email,
         role: "brand",
         access_token: res?.data?.access_token,
         token_type: res?.data?.token_type,

@@ -45,6 +45,15 @@ export type ResetPasswordPayload = {
   new_password: string;
 };
 
+export interface PendingSignup {
+  email?: string;
+  brand_email?: string;   // Add this
+  creator_email?: string; // Add this
+  role?: string;
+  access_token?: string;
+  token_type?: string;
+}
+
 export interface User {
   id: string; // UUID
   email: string;

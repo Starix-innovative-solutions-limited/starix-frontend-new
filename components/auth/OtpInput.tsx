@@ -55,12 +55,15 @@ export default function OtpInput({
   );
 
   useEffect(() => {
-    // keep controlled value in sync if parent passes `value`
-    if (value && value.length) {
+  // 💡 Add a check to prevent infinite loops and use a timeout to avoid the render warning
+  if (value !== undefined && value !== internalValue.join("")) {
+    const timeout = setTimeout(() => {
       const arr = Array.from({ length }, (_, i) => value[i] ?? "");
       setInternalValue(arr);
-    }
-  }, [value, length]);
+    }, 0);
+    return () => clearTimeout(timeout);
+  }
+}, [value, length]);
 
   useEffect(() => {
     if (autoFocus && inputsRef.current[0]) inputsRef.current[0].focus();
@@ -68,10 +71,7 @@ export default function OtpInput({
 
   const getCode = (arr: string[]) => arr.join("").slice(0, length);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    idx: number
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
     const raw = e.target.value;
     const char = raw.replace(/[^0-9]/g, "");
     if (!char) return;
@@ -86,10 +86,12 @@ export default function OtpInput({
     }
 
     setInternalValue(next);
-    onChange?.(getCode(next));
+    // onChange?.(getCode(next));
 
     const nextIndex = Math.min(idx + 1, length - 1);
-    setTimeout(() => inputsRef.current[nextIndex]?.focus(), 0);
+    setTimeout(() => {
+    onChange?.(getCode(next));
+  }, 0);
   };
 
   const handleKeyDown = (

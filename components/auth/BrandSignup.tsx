@@ -42,7 +42,7 @@ const BrandSignup = ({ setIsGoogleAuth, role }: BrandSignupProps) => {
   const { mutate: generateOtp } = useGenerateOtp(); // Hook to trigger email
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
     if (!form.brand_name.trim()) return toast.error("Brand name is required");
     if (!form.brand_email.includes("@")) return toast.error("Enter a valid email");
@@ -50,32 +50,42 @@ const BrandSignup = ({ setIsGoogleAuth, role }: BrandSignupProps) => {
     if (form.password !== confirmPassword) return toast.error("Passwords do not match");
 
     const payload = {
-      ...form,
-      website_or_social_link: formatWebsite(form.website_or_social_link),
-      industry: form.industry.trim(),
-    };
+  brand_name: form.brand_name.trim(),
+  brand_email: form.brand_email.trim(),
+  password: form.password,
+  brand_address: form.brand_address.trim(),
+  website_or_social_link: formatWebsite(form.website_or_social_link),
+  // 💡 THE FIX: Wrap the string in an array
+  industry: [form.industry.trim()], 
+  role: "brand"
+};
 
-    await toast.promise(
-      mutateAsync(payload as any),
-      {
-        loading: "Creating account...",
-        success: (data) => {
-          // 💡 TRIGGER OTP MANUALLY IF BACKEND DOESN'T DO IT AUTOMATICALLY
-          generateOtp({ email: form.brand_email } as any);
-          
-          router.push(`/verify-email?email=${form.brand_email}&role=brand`);
-          return "Account created! Check your email for OTP.";
-        },
-        error: (err: any) => {
-          const details = err?.response?.data?.detail;
-          if (Array.isArray(details)) {
-            return `Signup failed: ${details[0].msg} (${details[0].loc[1]})`;
-          }
-          return err?.response?.data?.message || "Error creating account";
-        },
+  console.log("FINAL ATTEMPT PAYLOAD:", payload);
+
+  await toast.promise(
+    mutateAsync(payload as any),
+    {
+      loading: "Creating brand account...",
+      success: (data) => {
+        generateOtp({ email: form.brand_email } as any);
+        router.push(`/verify-email?email=${form.brand_email}&role=brand`);
+        return "Account created! Check email for OTP.";
+      },
+      error: (err: any) => {
+        const details = err?.response?.data?.detail;
+        if (Array.isArray(details)) {
+          // This will log the path, e.g., ["body", "industry"] 
+          // or ["body", "brand_data", "industry"]
+          details.forEach((error: any, index: number) => {
+            console.error(`ERROR ${index}:`, error.loc, error.msg);
+          });
+          return `Backend says: ${details[0].msg} at ${details[0].loc.join('.')}`;
+        }
+        return "Signup failed";
       }
-    );
-  };
+    }
+  );
+};
 
   return (
     <motion.form onSubmit={handleSubmit} className="flex flex-col" variants={variants?.itemVariants}>

@@ -44,7 +44,7 @@ const Page = () => {
     <div className="general-space ">
       <div className="grid grid-cols-1 md:grid-cols-2  md:gap-40 items-center">
         <div className="space-y-5">
-          <h3 className="font-semibold text-dark-navy md:text-left text-center leading-snug text-4xl md:text-5xl">
+          <h3 className="font-semibold text-dark-navy md:text-left text-center leading-[120%] md:text-[62px]">
             Get in touch- <br />
             Let’s build the future of creator marketing together.
           </h3>
@@ -101,7 +101,7 @@ const Page = () => {
             placeholder="Full name"
             value={form.fullName}
             onChange={(e: any) => setForm((p) => ({ ...p, fullName: e.target.value }))}
-            className="bg-transparent"
+            className="bg-transparent py-5"
           />
 
           {/* ✅ Email validation */}
@@ -110,7 +110,7 @@ const Page = () => {
             placeholder="Email"
             value={form.email}
             onChange={(e: any) => setForm((p) => ({ ...p, email: e.target.value }))}
-            className="bg-transparent"
+            className="bg-transparent py-5"
           />
           {!emailValid && form.email.length > 0 && (
             <p className="text-sm text-red-500 -mt-2">
@@ -122,18 +122,19 @@ const Page = () => {
           <div className="flex flex-col gap-2">
             <label className="text-dark-navy text-sm md:text-base">Role</label>
             <select
-              value={form.role}
-              onChange={(e) => setForm((p) => ({ ...p, role: e.target.value }))}
-              className="
+            value={form.role}
+            onChange={(e) => setForm((p) => ({ ...p, role: e.target.value }))}
+            className="
                 bg-transparent w-full
-                border border-dark-navy/20
+                border border-[#6e6e6e]
                 rounded-2xl
-                px-4 py-3
+                px-4 
                 text-dark-navy
                 outline-none
                 focus:border-dark-navy
                 transition-colors
-              "
+                py-5
+            "
             >
               <option value="" disabled>
                 Select role
@@ -149,7 +150,7 @@ const Page = () => {
             placeholder="Enter message here"
             value={form.message}
             onChange={(e: any) => setForm((p) => ({ ...p, message: e.target.value }))}
-            className="bg-transparent"
+            className="bg-transparent py-4"
           />
 
           {/* ✅ Consistent hover invert */}
@@ -163,7 +164,7 @@ const Page = () => {
               border border-dark-navy
               rounded-full
               transition-all duration-300
-              hover:bg-shaadow-lg
+              hover:bg-shadow-lg
               
             "
           >

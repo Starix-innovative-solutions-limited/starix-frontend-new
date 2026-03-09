@@ -5,7 +5,7 @@ export const loginUser = async (data: {
   email: string;
   password: string;
 }) => {
-  const res = await api.post("/api/auth/login", data);
+  const res = await api.post("/auth/login", data);
   return res.data;
 };
 
@@ -15,7 +15,7 @@ export const signupCreator = async (data: {
   password: string;
   username: string;
 }) => {
-  const res = await api.post("/api/auth/signup_creator", data);
+  const res = await api.post("/auth/signup_creator", data);
   return res.data;
 };
 
@@ -25,6 +25,6 @@ export const signupBrand = async (data: {
   password: string;
   company_name: string;
 }) => {
-  const res = await api.post("/api/auth/signup_brand", data);
+  const res = await api.post("/auth/signup_brand", data);
   return res.data;
 };
