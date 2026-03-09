@@ -20,10 +20,10 @@ const Footer = () => {
         
         {/* Left text block - Conditionally centered internally */}
         <div className={`
-          w-full md:max-w-md flex flex-col gap-6
+          w-full  flex flex-col gap-4
           ${(path === "/for-brands" || path === "/for-creators") ? "md:items-center md:text-center md:mx-auto" : ""}
         `}>
-          <h3 className="font-semibold text-dark-navy text-2xl sm:text-3xl md:text-[48px] min-w-screen leading-snug text-center md:text-left">
+          <h3 className="font-semibold text-dark-navy text-2xl sm:text-3xl md:text-[48px] leading-snug text-center md:text-left">
             Redefine Your 
             <br className={path === "/" ? "" : "hidden"} />
             {path === "/for-brands"
@@ -98,11 +98,11 @@ const Footer = () => {
         {/* Right image - Position preserved on the right */}
         <div className="w-full md:w-auto flex justify-center">
           <Image
-            src="/footer.png"
+            src="/footer.svg"
             alt="footer"
             width={420}
             height={420}
-            className="w-[220px] sm:w-[260px] md:w-[320px] h-auto object-contain"
+            className="w-[220px] sm:w-[260px] md:w-[390px] h-auto object-contain"
           />
         </div>
       </div>
