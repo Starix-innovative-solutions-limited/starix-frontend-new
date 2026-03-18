@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Loader from "@/components/Loader";
 
-const AuthCallback = () => {
+// 1. Move the logic into a internal handler component
+const CallbackHandler = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    // Your backend will redirect to: yoursite.com/auth/callback?token=XYZ
     const token = searchParams.get("token");
     const error = searchParams.get("error");
 
@@ -20,13 +20,9 @@ const AuthCallback = () => {
     }
 
     if (token) {
-      // 1. Save the token
       localStorage.setItem("token", token);
-
-      // 2. Retrieve the role we saved before leaving for Google
       const savedRole = localStorage.getItem("loginRole");
 
-      // 3. Redirect to the correct dashboard
       if (savedRole === "brand") {
         router.push("/brand");
       } else {
@@ -38,8 +34,22 @@ const AuthCallback = () => {
   return (
     <div className="h-screen w-full flex flex-col items-center justify-center gap-4">
       <Loader />
-      <p className="text-dark-navy animate-pulse">Completing login...</p>
+      <p className="text-[#040136] animate-pulse">Completing login...</p>
     </div>
+  );
+};
+
+// 2. Export a default component wrapped in Suspense
+const AuthCallback = () => {
+  return (
+    <Suspense fallback={
+      <div className="h-screen w-full flex flex-col items-center justify-center gap-4">
+        <Loader />
+        <p className="text-[#040136] opacity-50">Preparing session...</p>
+      </div>
+    }>
+      <CallbackHandler />
+    </Suspense>
   );
 };
 
