@@ -9,162 +9,117 @@ import CustomInput from "@/components/CustomInput";
 import { variants } from "@/constant";
 import Loader from "@/components/Loader";
 import { useLogin } from "@/hooks/useAuth";
+import { api } from "@/lib/api"; // 💡 Using your existing axios instance
 import toast from "react-hot-toast";
 import { useRouter, useSearchParams } from "next/navigation";
 import { loginUser } from "@/lib/auth";
 
-type FormProps = {
-  email: string;
-  password: string;
-};
-
 const Page = () => {
   const searchParams = useSearchParams();
   const role = searchParams.get("role");
-
   const router = useRouter();
-  const { mutateAsync, isPending: isLoading } = useLogin();
+  const { isPending: isLoading } = useLogin();
+  const [form, setForm] = useState({ email: "", password: "" });
 
-  const redirectAfterLogin = () => {
-    if (typeof window === "undefined") return;
+  const handleGoogleLogin = async () => {
+    try {
+      // 1. Save the role so we know where to redirect after the callback
+      const selectedRole = role === "brand" ? "brand" : "creator";
+      localStorage.setItem("loginRole", selectedRole);
 
-    const savedRole = localStorage.getItem("loginRole");
-    const finalRole = role || savedRole;
+      // 2. Fetch the URL from your backend using your Axios 'api' instance
+      // This handles the baseURL (https://starix-backend.onrender.com/api) automatically
+      const { data } = await api.get("/auth/oauth/google");
 
-    if (finalRole === "brand") {
-      router.push("/brand");
-    } else {
-      router.push("/dashboard");
+      if (data?.authorization_url) {
+        // 3. Redirect the browser to Google
+        window.location.href = data.authorization_url;
+      } else {
+        toast.error("Google login initiation failed.");
+      }
+    } catch (err: any) {
+      // 💡 This will log the specific backend error (like CORS or 404)
+      console.error("GOOGLE LOGIN ERROR:", err.response?.data || err.message);
+      toast.error("Unable to connect to Google Login.");
     }
   };
 
-  const initialForm: FormProps = { email: "", password: "" };
-  const [form, setForm] = useState<FormProps>(initialForm);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.email || !form.password) return toast.error("Fields cannot be empty");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-
-  if (!form.email || !form.password) {
-    toast.error("Please enter your email and password.");
-    return;
-  }
-
-  try {
-    const res = await toast.promise(
-      loginUser({
-        email: form.email,
-        password: form.password,
-      }),
-      {
-        loading: "Signing in...",
-        success: "Signed in successfully ✅",
-        error: "Invalid login credentials",
-      }
-    );
-
-    console.log("LOGIN RESPONSE", res);
-
-    // usually APIs return a token
-    localStorage.setItem("token", res.access_token);
-
-    redirectAfterLogin();
-
-  } catch (err) {
-    console.log(err);
-  }
-};
+    try {
+      const res = await toast.promise(
+        loginUser({ email: form.email, password: form.password }),
+        {
+          loading: "Signing in...",
+          success: "Signed in successfully ✅",
+          error: "Invalid login credentials",
+        }
+      );
+      localStorage.setItem("token", res.access_token);
+      router.push(role === "brand" ? "/brand" : "/dashboard");
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
-    <div className="min-h-[calc(100vh-2rem)] w-full flex items-center justify-center px-6 py-6 md:px-8">
-      <motion.div
-        className="w-full max-w-[520px]  rounded-2xl p-4 sm:p-6 md:p-8"
-        variants={variants?.containerVariants}
-        initial="hidden"
-        animate="visible"
-        exit="exit"
+    <div className="min-h-[calc(100vh-2rem)] w-full flex items-center justify-center px-6 py-6">
+      <motion.div 
+        className="w-full max-w-[520px]" 
+        variants={variants?.containerVariants} 
+        initial="hidden" animate="visible"
       >
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          {/* HEADER */}
           <motion.div className="flex flex-col gap-2" variants={variants?.itemVariants}>
-            <h3 className="font-medium text-3xl sm:text-4xl md:text-4xl leading-tight text-secondary-100">
+            <h3 className="font-medium text-3xl sm:text-4xl leading-tight text-secondary-100">
               Welcome back
             </h3>
-            {/* <p className="text-neut/60 text-sm sm:text-base font-light">
-              Login to continue to your dashboard.
-            </p> */}
           </motion.div>
 
-          {/* SSO */}
           <motion.div variants={variants?.itemVariants}>
-            <SSOButtons
-              onGoogleSign={() => {
-                if (typeof window !== "undefined") {
-                  const selectedRole = role === "brand" ? "brand" : "creator";
-                  localStorage.setItem("loginRole", selectedRole);
-                }
-                redirectAfterLogin();
-              }}
-            />
+            <SSOButtons onGoogleSign={handleGoogleLogin} />
           </motion.div>
 
-          {/* DIVIDER */}
           <motion.div variants={variants?.itemVariants} className="flex items-center gap-4">
             <div className="h-px bg-gray-200 w-full" />
-            <span className="text-xs text-gray-400 whitespace-nowrap">
-              or continue with email
-            </span>
+            <span className="text-xs text-gray-400 whitespace-nowrap">or continue with email</span>
             <div className="h-px bg-gray-200 w-full" />
           </motion.div>
 
-          {/* INPUTS */}
           <motion.div variants={variants?.itemVariants} className="flex flex-col gap-4">
             <CustomInput
               label="Email Address"
               type="email"
-              placeholder="Email address"
               value={form.email}
-              onChange={(e: any) =>
-                setForm((prev) => ({ ...prev, email: e.target.value }))
-              }
+              onChange={(e: any) => setForm(p => ({ ...p, email: e.target.value }))}
             />
-
             <CustomInput
               label="Password"
               type="password"
-              placeholder="Paaword"
               value={form.password}
-              onChange={(e: any) =>
-                setForm((prev) => ({ ...prev, password: e.target.value }))
-              }
+              onChange={(e: any) => setForm(p => ({ ...p, password: e.target.value }))}
             />
-
             <div className="flex justify-end">
-              <a
-                href="/forgot-password"
-                className="text-sm text-dark-navy font-light hover:text-dark-navy/80"
-              >
+              <a href="/forgot-password" className="text-sm text-dark-navy hover:underline">
                 Forgot password?
               </a>
             </div>
           </motion.div>
 
-          {/* SUBMIT */}
           <motion.div variants={variants?.itemVariants} className="flex flex-col gap-4">
             <motion.button
               type="submit"
               disabled={isLoading}
               whileTap={{ scale: 0.98 }}
-              className="w-full rounded-full py-3.5 md:py-4 font-medium text-white bg-dark-navy border border-dark-navy hover:bg-white hover:text-dark-navy disabled:opacity-60"
+              className="w-full rounded-full py-4 font-medium text-white bg-dark-navy hover:shadow-lg border-dark-navy transition-all"
             >
               {isLoading ? <Loader /> : "Login"}
             </motion.button>
-
-            <p className="text-center text-sm sm:text-base font-light text-neut/60">
+            <p className="text-center text-sm font-light text-neut/60">
               Don’t have an account?{" "}
-              <a
-                href={`/signup${role === "brand" ? "?role=brand" : ""}`}
-                className="text-dark-navy font-normal hover:underline"
-              >
+              <a href={`/signup${role === "brand" ? "?role=brand" : ""}`} className="text-dark-navy font-normal hover:underline">
                 Sign up
               </a>
             </p>

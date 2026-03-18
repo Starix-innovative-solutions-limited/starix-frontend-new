@@ -1,68 +1,49 @@
+"use client";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, ChangeEvent } from "react";
-import { FaCamera, FaPen } from "react-icons/fa";
+import React, { useState, ChangeEvent, useEffect } from "react";
+import { FaPen } from "react-icons/fa";
 import CustomInput from "@/components/CustomInput";
 import { useUpdateCreatorProfile } from "@/hooks/useProfile";
 import toast from "react-hot-toast";
 import Loader from "@/components/Loader";
 import { useAuthStore } from "@/store/useAuthStore";
-
-/* =====================
-   Types
-===================== */
-
-type FormData = {
-    name: string;
-    username: string;
-    bio: string;
-    niche: string;
-    gender: string;
-    country: string;
-    ageGroup: string;
-};
-
-/* =====================
-   Component
-===================== */
+import { useModal } from "@/hooks/useModal";
 
 const UpdateProfile: React.FC = () => {
+    const { profile } = useAuthStore();
+    const { close } = useModal(); // 💡 Grab the close function
+    const { mutateAsync: updateProfile, isPending } = useUpdateCreatorProfile();
+
+    // Local state for image preview and the actual File object
     const [profileImage, setProfileImage] = useState<string>(
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop"
+        profile?.profile_image || "/avatar.svg"
     );
+    const [imageFile, setImageFile] = useState<File | null>(null);
 
-    const { profile } = useAuthStore()
+    // 💡 Initialize form with profile data, providing safe fallbacks
+    const [formData, setFormData] = useState({
+        display_name: profile?.display_name || "",
+        username: profile?.username || "",
+        bio: profile?.bio || "",
+        category: profile?.category || "",
+        gender: profile?.gender || "",
+        country: profile?.country || "",
+        age_group: profile?.age_group || "",
+    });
 
-    const initialForm = {
-        name: '',
-        username: profile?.display_name,
-        bio: profile?.bio,
-        niche: profile?.content_categories,
-        gender: profile?.gender,
-        country: profile?.country_code,
-        ageGroup: '',
-    }
-
-    const [formData, setFormData] = useState<FormData | any>(initialForm);
-
-    const { mutateAsync: updateProfile, isPending } = useUpdateCreatorProfile()
-
-    /* =====================
-       Handlers
-    ===================== */
-
-    const handleInputChange =
-        (field: keyof FormData) =>
-            (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-                setFormData((prev: any) => ({
-                    ...prev,
-                    [field]: e.target.value,
-                }));
-            };
+    const handleInputChange = (field: string) => (e: any) => {
+        setFormData((prev) => ({
+            ...prev,
+            [field]: e.target.value,
+        }));
+    };
 
     const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
+        setImageFile(file); // Store the file to send to backend
         const reader = new FileReader();
         reader.onloadend = () => {
             setProfileImage(reader.result as string);
@@ -71,232 +52,132 @@ const UpdateProfile: React.FC = () => {
     };
 
     const handleSave = async (e: React.FormEvent) => {
-        e.preventDefault()
+  e.preventDefault();
 
-        console.log("Profile data:", formData);
-        await toast.promise(
-            updateProfile(
-                formData
-            ),
-            {
-                loading: "Signing in...",
-                success: () => {
-                    setFormData(initialForm); //
-                    return "profile updated successfully ✅";
-                },
-                error: (err: any) => {
-                    console.log("SignIn Error:", err); // ✅ log the full error object
+  // 1. Build a clean object of only changed or valid fields
+  const payload: any = {
+    full_name: formData.display_name.trim(),
+    bio: formData.bio.trim(),
+    // Only send username if it's not empty
+    ...(formData.username && { username: formData.username.trim() }),
+  };
 
-                    return `Update failed: ${err.response.data.detail}`;
-                },
-            }
-        );
-        // alert("Profile updated successfully!");
-    };
+  // 2. DEBUG: Log exactly what we are sending
+  console.log("SENDING TO BACKEND:", payload);
 
-    /* =====================
-       Options
-    ===================== */
+  await toast.promise(
+    updateProfile(payload), // Try sending as a plain object first
+    {
+      loading: "Saving...",
+      success: (res) => {
+        close();
+        return "Profile updated! ✅";
+      },
+      error: (err: any) => {
+        // 💡 This will print the EXACT validation error in your console
+        console.error("VALIDATION ERROR:", err.response?.data?.detail);
+        return `Error: ${err.response?.data?.detail?.[0]?.msg || "Check console"}`;
+      },
+    }
+  );
+};
 
-    const nicheOptions: string[] = [
-        "Select Option",
-        "Technology",
-        "Fashion",
-        "Food & Cooking",
-        "Travel",
-        "Fitness",
-        "Gaming",
-        "Beauty",
-        "Business",
-        "Photography",
-        "Music",
-    ];
-
-    const genderOptions: string[] = [
-        "Select Option",
-        "Male",
-        "Female",
-        "Non-binary",
-        "Prefer not to say",
-    ];
-
-    const countryOptions: string[] = [
-        "Select Option",
-        "United States",
-        "United Kingdom",
-        "Canada",
-        "Australia",
-        "Germany",
-        "France",
-        "Nigeria",
-        "India",
-        "Japan",
-        "Brazil",
-    ];
-
-    const ageGroupOptions: string[] = [
-        "Select Option",
-        "13-17",
-        "18-24",
-        "25-34",
-        "35-44",
-        "45-54",
-        "55-64",
-        "65+",
-    ];
-
-    /* =====================
-       Render
-    ===================== */
+    /* ===================== Options (Static) ===================== */
+    const nicheOptions = ["Technology", "Fashion", "Food & Cooking", "Travel", "Fitness", "Gaming", "Beauty"];
+    const genderOptions = ["Male", "Female", "Non-binary", "Prefer not to say"];
+    const countryOptions = ["Nigeria", "United States", "United Kingdom", "Canada", "Germany"];
+    const ageOptions = ["13-17", "18-24", "25-34", "35-44", "45-54"];
 
     return (
-        <div className="md:min-w-lg mx-auto min-h-[90vh] max-h-[90vh] overflow-y-scroll ">
-            <div className="relative flex items-center justify-center my-10">
-            <h2 className="text-2xl font-medium text-dark-navy">
-                Edit Profile
-            </h2>
-
-            <button
-  className="
-    absolute right-5
-    w-10 h-10
-    flex items-center justify-center
-    rounded-full
-    bg-gray-100
-    hover:bg-gray-200
-    transition
-  "
->
-  ✕
-</button>
-
+        <div className="md:min-w-[500px] mx-auto max-h-[85vh] overflow-y-auto px-2">
+            {/* Header */}
+            <div className="sticky top-0 z-10 flex items-center justify-center py-6  mb-6">
+                <h2 className="text-xl font-semibold text-dark-navy">Edit Profile</h2>
+                
             </div>
-            {/* Profile Image */}
-            <div className="flex items-center justify-between my-8">
-  {/* LEFT – IMAGE */}
-  <div className="relative">
-    <img
-      src={profileImage}
-      alt="Profile"
-      className="
-        w-24 h-24
-        rounded-full
-        object-cover
-        border-4 border-white
-        shadow-md
-      "
-    />
 
-    <label
-      htmlFor="profile-image"
-      className="
-        absolute bottom-1 right-1
-        bg-white
-        rounded-full
-        p-2
-        shadow-md
-        cursor-pointer
-        hover:bg-gray-50
-        transition
-      "
-    >
-      <FaPen className="w-3 h-3 text-gray-600" />
-    </label>
+            {/* Photo Upload */}
+            <div className="flex flex-col items-center gap-4 mb-8">
+                <div className="relative">
+                    <img
+                        src={profileImage}
+                        alt="Profile"
+                        className="w-24 h-24 rounded-full object-cover border-4 border-gray-50 shadow-sm"
+                    />
+                    <label htmlFor="profile-pic" className="absolute bottom-0 right-0 bg-dark-navy p-2 rounded-full cursor-pointer shadow-lg hover:scale-110 transition">
+                        <FaPen className="text-white w-3 h-3" />
+                        <input id="profile-pic" type="file" hidden accept="image/*" onChange={handleImageChange} />
+                    </label>
+                </div>
+                <button 
+                    type="button" 
+                    onClick={() => document.getElementById("profile-pic")?.click()}
+                    className="text-sm font-medium text-dark-navy underline"
+                >
+                    Change Profile Photo
+                </button>
+            </div>
 
-    <input
-      id="profile-image"
-      type="file"
-      accept="image/*"
-      onChange={handleImageChange}
-      className="hidden"
-    />
-  </div>
+            {/* Inputs */}
+            <div className="space-y-5">
+                <CustomInput
+                    label="Full Name"
+                    value={formData.display_name}
+                    onChange={handleInputChange("display_name")}
+                />
+                <CustomInput
+                    label="Username"
+                    value={formData.username}
+                    onChange={handleInputChange("username")}
+                />
+                <CustomInput
+                    label="Bio"
+                    value={formData.bio}
+                    onChange={handleInputChange("bio")}
+                />
+                <div className="grid grid-cols-2 gap-4">
+                    <CustomInput
+                        label="Niche"
+                        type="select"
+                        options={nicheOptions}
+                        value={formData.category}
+                        onChange={handleInputChange("category")}
+                    />
+                    <CustomInput
+                        label="Gender"
+                        type="select"
+                        options={genderOptions}
+                        value={formData.gender}
+                        onChange={handleInputChange("gender")}
+                    />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                    <CustomInput
+                        label="Country"
+                        type="select"
+                        options={countryOptions}
+                        value={formData.country}
+                        onChange={handleInputChange("country")}
+                    />
+                    <CustomInput
+                        label="Age Group"
+                        type="select"
+                        options={ageOptions}
+                        value={formData.age_group}
+                        onChange={handleInputChange("age_group")}
+                    />
+                </div>
+            </div>
 
-  {/* RIGHT – BUTTON */}
-  <button
-    type="button"
-    onClick={() =>
-      document.getElementById("profile-image")?.click()
-    }
-    className="
-      text-sm
-      text-dark-navy
-      hover:text-dark-navy/80
-      font-medium
-      underline
-    "
-  >
-    Change Image
-  </button>
-</div>
-
-
-            {/* Form */}
-            <CustomInput
-                label="Name"
-                value={formData.name}
-                onChange={handleInputChange("name")}
-                placeholder="Name"
-            />
-
-            <CustomInput
-                label="Username"
-                value={formData.username}
-                onChange={handleInputChange("username")}
-                placeholder="Username"
-            />
-
-            <CustomInput
-                label="Bio"
-                value={formData.bio}
-                onChange={handleInputChange("bio")}
-                placeholder="Bio"
-            />
-
-            <CustomInput
-                label="Niche"
-                type="select"
-                value={formData.niche}
-                onChange={handleInputChange("niche")}
-                options={nicheOptions}
-            />
-
-            <CustomInput
-                label="Gender"
-                type="select"
-                value={formData.gender}
-                onChange={handleInputChange("gender")}
-                options={genderOptions}
-            />
-
-            <CustomInput
-                label="Country"
-                type="select"
-                value={formData.country}
-                onChange={handleInputChange("country")}
-                options={countryOptions}
-            />
-
-            <CustomInput
-                label="Age Groups"
-                type="select"
-                value={formData.ageGroup}
-                onChange={handleInputChange("ageGroup")}
-                options={ageGroupOptions}
-            />
-
-            {/* Save */}
+            {/* Save Button */}
             <button
                 onClick={handleSave}
                 disabled={isPending}
-                className="w-full bg-dark-navy text-white py-3 rounded-xl font-medium hover:bg-gray-800 transition-colors mt-2"
+                className="w-full bg-dark-navy text-white py-4 rounded-xl font-semibold hover:opacity-90 transition-all mt-8 mb-4 shadow-md disabled:bg-gray-300"
             >
-                {
-                    isPending ? <Loader /> : "Save"
-                }
+                {isPending ? <Loader /> : "Save Changes"}
             </button>
         </div>
-
     );
 };
 

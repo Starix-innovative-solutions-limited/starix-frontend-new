@@ -51,8 +51,7 @@ const Page = () => {
                     className="flex flex-col gap-6"
                 >
                     <motion.span
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                        
                         className="flex items-center gap-2 py-2 text-[28px] font-normal  transition-colors text-secondary-100 "
                     >
                         Hello, {profile?.brand_name}

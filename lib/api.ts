@@ -11,17 +11,23 @@ export const api = axios.create({
 // 💡 This interceptor runs BEFORE every request
 api.interceptors.request.use(
   (config) => {
-    // 1. Get the session data you saved during signup
+    // 1. Try to get the session data
     const session = sessionAuth.get(); 
+    
+    // 2. Try to get the direct token you saved in Login
+    const directToken = localStorage.getItem("token");
 
-    // 2. If a token exists, add it to the Authorization header
-    if (session?.access_token) {
-      config.headers.Authorization = `Bearer ${session.access_token}`;
+    // 3. Pick whichever one is actually a string
+    const token = typeof session === 'string' ? session : session?.access_token || directToken;
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+      console.log("Header Set:", config.headers.Authorization); // Debugging line
+    } else {
+      console.warn("No token found in storage!");
     }
 
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );

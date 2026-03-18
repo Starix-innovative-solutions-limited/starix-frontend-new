@@ -3,7 +3,10 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Font Variable */
+  --font-geist: "Geist", ui-sans-serif, system-ui, sans-serif;
 }
+
 * {
   scroll-behavior: smooth;
 }
@@ -21,9 +24,12 @@ html {
   display: none;             /* Chrome, Safari */
 }
 
-
 /* Define your custom design tokens */
 @theme {
+  /* --- FONTS --- */
+  --font-geist: var(--font-geist);
+
+  /* --- COLORS --- */
   /* Primary */
   --color-primary-100: #ffaeab;
   --color-primary-200: #fe5c57;
@@ -114,12 +120,8 @@ html {
 }
 
 @keyframes marquee {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 .animate-marquee {
@@ -129,36 +131,36 @@ html {
 
 .bg-lines {
   background-color: #fafafa;
-  /* background-image: linear-gradient(#1a2238 0.1px, transparent 1px), linear-gradient(90deg, #1a2238 1px, transparent 1px); */
   background-image: linear-gradient(#4441 0.1px, transparent 0.8px),
     linear-gradient(90deg, #44444411 0.15px, transparent 0.8px);
   background-size: 20px 25px;
 }
+
 body {
   background: #fafafa;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Apply Geist as default */
+  font-family: var(--font-geist);
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.flex-center {
-  @apply flex items-center justify-center;
-}
+/* Custom weights for Geist */
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
 
-.flex-between {
-  @apply flex items-center justify-between;
-}
-
-.flex-around {
-  @apply flex items-center justify-around;
-}
+.flex-center { @apply flex items-center justify-center; }
+.flex-between { @apply flex items-center justify-between; }
+.flex-around { @apply flex items-center justify-around; }
 
 .text-gray {
   color: #1d1d1d;
 }
 
 .btn {
-  @apply px-4 py-3 rounded-full md:p-4 w-full md:w-fit font-light md:text-base max-md:text-xs md:leading-6 transition;
+  @apply px-4 py-3 rounded-full md:p-4 w-full md:w-fit font-medium md:text-base max-md:text-xs md:leading-6 transition;
 }
 
 /* navbar onScroll */

@@ -1,165 +1,121 @@
 "use client"
+import { style } from 'framer-motion/client';
 import Image from 'next/image'
-import { motion } from 'framer-motion';
 import Link from "next/link";
-import LogoCTASection from './LogoCTASection'; 
 
 const HowItWorks = () => {
     const brandFeatures = [
         {
-            icon: "playButtons.svg",
-            title: "Create a Challenge",
-            description: "Set campaign goals, budget, and duration.",
-            gradient: "from-orange-100 via-pink-50 to-green-100"
-        },
-        {
-            icon: "diamond.svg",
+            icon: "/briefs.svg", 
             title: "Guide with Briefs",
-            description: "Suggest hooks, captions, and tone that fit your brand voice.",
-            gradient: "from-blue-100 via-indigo-50 to-purple-100"
+            description: "Give creators direction. Hooks, tone, what to avoid. They handle the rest."
         },
         {
-            icon: "trophy.svg",
+            icon: "/flag.svg", 
+            title: "Create a Challenge",
+            description: "Set your goals, budget, and timeline. The challenge goes live."
+        },
+        {
+            icon: "/trophyy.svg", 
             title: "Track & Reward",
-            description: "Starix measures likes and comments automatically.",
-            gradient: "from-red-100 via-orange-50 to-blue-100"
+            description: "Performance tracked automatically. Winners get paid. You get the content."
         }
     ];
 
     const creatorFeatures = [
         {
-            icon: "creatorFeature1.svg",
+            icon: "/timer.svg", 
             title: "Discover Challenges",
-            description: "Browse brand-sponsored tasks that match your niche.",
-            gradient: "from-orange-100 via-pink-50 to-green-100"
+            description: "Find challenges that fit what you already do. No pitching required."
         },
         {
-            icon: "creatorFeature2.svg",
+            icon: "/media.svg", 
             title: "Create Content",
-            description: "Submit your entries with your unique style.",
-            gradient: "from-blue-100 via-indigo-50 to-purple-100"
+            description: "Make the content your way. Submit when you're ready."
         },
         {
-            icon: "creatorFeature3.svg",
+            icon: "/medal.svg", 
             title: "Earn Rewards",
-            description: "Receive your payment for every sponsored content. ",
-            gradient: "from-red-100 via-orange-50 to-blue-100"
+            description: "Win and get paid. No invoices, no chasing, no waiting.",
         }
     ];
 
     return (
-        <div className=' flex flex-col bg-[#f6f6f6]  min-h-screen overflow-x-hidden'>
+        <div className='flex flex-col bg-white min-h-screen font-sans py-20 px-6'>
             {/* --- TOP HEADER --- */}
-            <div className='flex flex-col md:flex-row justify-between mt-10 px-4 md:px-8 gap-5'>
-                <div className="relative w-full max-w-[293px] font-['Geist'] font-[600] text-[25px] md:text-[48px] leading-tight tracking-[-0.02em] text-[#040136] flex items-center max-md:justify-center max-md:mx-auto">
-                    <span>How It Works</span>
-
-                    <div className="absolute top-[calc(50px-35%)] -left-[8%] max-md:static max-md:mt-4 max-md:ml-0 max-md:rotate-180">
-                        <motion.div
-                            className="w-[140px] h-[96px] flex flex-col items-center justify-center pointer-events-none"
-                            animate={{ rotate: [0, 20, 20, 0, 0] }}
-                            transition={{ duration: 2.0, repeat: Infinity, ease: "easeInOut", times: [0, 0.25, 0.5, 0.75, 1] }}
-                        >
-                            <motion.div
-                                animate={{ opacity: [1, 0.3, 0.3, 1, 1] }}
-                                transition={{ duration: 2.0, repeat: Infinity, ease: "easeInOut", times: [0, 0.25, 0.5, 0.75, 1] }}
-                                className="w-full object-contain"
-                            >
-                                <Image src="/Arrow 1.png" alt="arrow-top" width={140} height={96} className="w-full object-contain" />
-                            </motion.div>
-
-                            <motion.div
-                                className="absolute w-[117px] h-[80px] top-[50px] left-[20px] pointer-events-none"
-                                animate={{ opacity: [0.3, 1, 1, 0.3, 0.3] }}
-                                transition={{ duration: 2.0, repeat: Infinity, ease: "easeInOut", times: [0, 0.25, 0.5, 0.75, 1] }}
-                            >
-                                <Image src="/Arrow 1.png" alt="arrow-bottom" width={117} height={80} className="w-full h-full object-contain" />
-                            </motion.div>
-                        </motion.div>
-                    </div>
-                </div>
-
-                <div className="w-full max-w-[610px] text-center md:text-right font-[300] text-[18px] md:text-[28px] leading-relaxed text-[#6e6e6e] font-['Geist']">
-                    Starix transforms how brands and creators collaborate. Our challenge-based system drives authentic engagement and measurable results — helping creators grow faster and brands connect deeper with real audiences.
-                </div>
+            <div className='max-w-325 mx-auto w-full mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-10 px-4'>
+                <h1 className="text-[44px] md:text-[64px] font-regular tracking-tight text-dark-navy leading-[1.1] flex flex-wrap items-center gap-x-3">
+                    <span>Here&apos;s how</span> 
+                    <img 
+                        src="/n-logo.svg" 
+                        className="inline-block w-35 md:w-47.5 h-auto translate-y-0.5" 
+                        alt="starix logo" 
+                    /> 
+                    <span>works</span>
+                </h1>
+                <p className="max-w-75 text-[#6E6E6E] text-[16px] md:text-[20px] md:text-right font-regular leading-snug mb-2">
+                    Find challenges that fit what you already do. No pitching required.
+                </p>
             </div>
 
-            <div className='flex flex-col gap-3 px-4 md:px-8'>
-                {/* FOR BRANDS SECTION */}
-                <div className='mt-5 bg-white py-10 rounded-2xl shadow-[0px_2px_16px_0px_#0033FF1A] grid'>
-                    <div className='md:grid md:grid-cols-[1.5fr__9.5fr] p-10 flex flex-col items-center gap-4'>
-                        <div className='bg-[#FAFAFA] text-center py-2 px-2 text-dark-navy font-light text-base inline-block whitespace-nowrap'>
-                            FOR BRANDS.
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full p-5">
-                            {brandFeatures.map((feature, index) => (
-                                <div key={index} className="relative group w-full max-w-[420px] mx-auto">
-                                    <div className={`absolute inset-[-2px] rounded-[32px] opacity-50 transition-opacity duration-300 pointer-events-none group-hover:opacity-100 bg-gradient-to-br ${feature.gradient}`} />
-                                    <div className={`relative bg-gradient-to-br ${feature.gradient} rounded-3xl p-[3px] h-full`}>
-                                        <div className="bg-white w-full h-full min-h-[249px] rounded-[25px] border-[2px] border-transparent relative z-10 p-8 flex flex-col">
-                                            <Image src={`/${feature.icon}`} width={64} height={64} alt={feature.title} className="w-16 h-auto mb-4" />
-                                            <h3 className="font-['Geist'] font-[400] text-[22px] md:text-[28px] leading-tight text-[#040136] mb-3">{feature.title}</h3>
-                                            <p className="font-['Geist'] font-[300] text-[14px] md:text-[17px] text-[#6E6E6E] leading-relaxed">{feature.description}</p>
-                                        </div>
-                                    </div>
+            <div className='max-w-325 mx-auto w-full flex flex-col gap-8'>
+                
+                {/* 1. FOR BRANDS SECTION (Blue Theme) */}
+                <div className='bg-[#E2E7FA] rounded-4xl p-8 md:p-14 flex flex-col items-center'>
+                    <span className="bg-[#0033FF] text-white text-[16px] font-bold px-5 py-1.5 rounded-full mb-12 uppercase tracking-widest">
+                        For Brands
+                    </span>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full mb-12">
+                        {brandFeatures.map((feature, index) => (
+                            <div key={index} className="bg-[#F5F5FF] rounded-3xl p-6 flex flex-col h-full ">
+                                <div className="h-35 w-full relative flex justify-end">
+                                    <Image src={feature.icon} alt={feature.title} fill className="object-contain object-top-right" />
                                 </div>
-                            ))}
-                        </div>
+                                <h3 className="font-['Geist'] font-normal text-[40px] leading-none tracking-[-0.04em] text-dark-navy max-w-50 mb-3">
+                                {feature.title}
+                                </h3>
+                                <p className="font-['Geist'] font-normal text-[20px] leading-5.5 tracking-[-0.03em] text-[#6E6E6E]">
+                                {feature.description}
+                                </p>
+                            </div>
+                        ))}
                     </div>
-                    <Link href="/for-brands" className="group mx-auto mt-14 w-[193px] h-[68px] text-lg bg-dark-navy text-white rounded-full flex items-center justify-center gap-2 border border-dark-navy transition-all duration-300 hover:shadow-lg">
-                        <span>Learn more</span>
-                        <Image src="/rightArrow.svg" alt="right-arrow" width={20} height={20} className="w-5 transition-all duration-300" />
+
+                    <Link href="/for-brands" className="bg-[#0033FF] text-white px-10 py-4 rounded-full font-bold flex items-center gap-2 hover:opacity-90 transition-all text-lg">
+                        Learn More <span className="text-2xl">→</span>
                     </Link>
                 </div>
 
-                {/* FOR CREATORS SECTION */}
-                <div className="bg-white py-14 rounded-2xl shadow-[0px_2px_16px_0px_#0033FF1A] grid">
-                    <div className="md:grid md:grid-cols-[1.5fr_9.5fr] p-10 flex flex-col items-center gap-6">
-                        <div className="bg-[#FAFAFA] px-2 py-2 text-center text-dark-navy font-light text-base inline-block whitespace-nowrap">
-                            FOR CREATORS.
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-                            {creatorFeatures.map((feature, index) => (
-                                <div key={index} className="p-[6px] flex flex-col w-full max-w-[420px] mx-auto">
-                                    <div className="w-full aspect-video md:h-[220px] flex items-center justify-center bg-transparent overflow-hidden rounded-xl">
-                                        <Image src={`/${feature.icon}`} width={600} height={600} alt={feature.title} className="w-full h-full object-cover" />
-                                    </div>
-                                    <div className="pt-6">
-                                        <h3 className="font-['Geist'] font-[400] text-[28px] text-[#040136] mb-3">{feature.title}</h3>
-                                        <p className="font-['Geist'] font-[300] text-[14px] md:text-[18px] text-[#6E6E6E] leading-relaxed">{feature.description}</p>
-                                    </div>
+                {/* 2. FOR CREATORS SECTION (Orange Theme) */}
+                <div className='bg-[#FAE6DA] rounded-4xl p-8 md:p-14 flex flex-col items-center'>
+                    <span className="bg-[#FF6B00] text-white text-[16px] font-bold px-5 py-1.5 rounded-full mb-12 uppercase tracking-widest">
+                        For Creators
+                    </span>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full mb-12">
+                        {creatorFeatures.map((feature, index) => (
+                            <div key={index} className="bg-[#FFF9F5] rounded-3xl p-6 flex flex-col h-full ">
+                                <div className="h-40 w-full relative flex justify-end">
+                                    <Image src={feature.icon} alt={feature.title} fill className="object-contain object-top-right" />
                                 </div>
-                            ))}
-                        </div>
+                                <h3 className="font-['Geist'] font-normal text-[40px] leading-none tracking-[-0.04em] text-dark-navy max-w-50 mb-3">
+                                    {feature.title}
+                                </h3>
+                                <p className="font-['Geist'] font-normal text-[20px] leading-5.5 tracking-[-0.03em] text-[#6E6E6E]">
+                                    {feature.description}
+                                </p>
+                            </div>
+                        ))}
                     </div>
-                    <div className="w-full flex justify-center mt-12">
-                        <Link href="/for-creators" className="group w-[193px] h-[68px] text-lg bg-dark-navy text-white rounded-full flex items-center justify-center gap-2 border border-dark-navy transition-all duration-300 hover:drop-shadow-lg">
-                            <span>Learn more</span>
-                            <Image src="/rightArrow.svg" alt="right-arrow" width={20} height={20} className="w-5" />
-                        </Link>
-                    </div>
-                </div>
-            </div>
 
-            {/* ACHIEVEMENT SECTION */}
-            <div className="w-full bg-white my-32 min-h-[600px] p-10 md:p-20">
-                <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-2 items-center gap-10">
-                    <Image src="/achievement33.png" alt="achievement" width={603} height={398} className="w-full h-auto object-contain mx-auto" priority />
-                    <div className="flex flex-col gap-7 md:pl-[60px] max-md:text-center items-center md:items-start">
-                        <h2 className="font-['Geist'] font-[600] text-[20px] md:text-[46px] leading-tight text-[#040136]">What You Achieve on Starix</h2>
-                        <p className="font-['Geist'] font-[300] text-[16px] md:text-[24px] leading-relaxed text-[#6E6E6E]">From brands running high-impact challenges to creators winning rewards and building portfolios — Starix drives real engagement.</p>
-                        <Link href="/for-brands" className="w-[193px] h-[68px] flex items-center justify-center gap-[10px] rounded-[40px] bg-[#040136] text-white text-[18px] border border-[#040136] transition-all hover:shadow-lg group">
-                            <span>Get Started</span>
-                            <Image src="/rightArrow.svg" alt="arrow" width={20} height={20} className="" />
-                        </Link>
-                    </div>
+                    <Link href="/for-creators" className="bg-[#FF6B00] text-white px-10 py-4 rounded-full font-bold flex items-center gap-2 hover:opacity-90 transition-all text-lg">
+                        Learn More <span className="text-2xl">→</span>
+                    </Link>
                 </div>
-            </div>
 
-            {/* --- LOGO & CTA SECTION (NOW A COMPONENT) --- */}
-            <LogoCTASection />
+            </div>
         </div>
-        
     )
 }
 

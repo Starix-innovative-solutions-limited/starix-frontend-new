@@ -1,241 +1,137 @@
 "use client";
 
-import { Linkedin, Facebook } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import { usePathname } from "next/navigation";
 
 const Footer = () => {
-  const path = usePathname();
-
   return (
-    <section className="flex flex-col pt-6 text-[#444444]">
-      {/* CTA CARD (hidden on contact page) */}
-  
-<div className="general-space">
-  {path !== "/contact" && (
-    <div className="border-3 border-dark-navy rounded-2xl overflow-hidden">
-      <div className="flex flex-col md:flex-row items-center justify-between gap-8 p-4 sm:p-6 md:p-10">
+    <footer
+      className="relative min-h-[683px] overflow-hidden text-white bg-[#0C2792] "
+      style={{ paddingTop: "100px", paddingBottom: "0" }}
+    >
+      {/* WATERMARK — Replicated Figma Specs */}
+      <div
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 pointer-events-none select-none overflow-hidden"
+        style={{ 
+          width: '1440px', 
+          height: '387px', 
+          zIndex: 0 
+        }}
+      >
+        {/* The Image */}
+        <img 
+          src="/foot 2.svg" 
+          alt="" 
+          className="w-full h-full object-contain"
+          style={{ opacity: 1 }} // Adjust opacity to match Figma's subtle watermark effect
+        />
         
-        {/* Left text block - Conditionally centered internally */}
-        <div className={`
-          w-full  flex flex-col gap-4
-          ${(path === "/for-brands" || path === "/for-creators") ? "md:items-center md:text-center md:mx-auto" : ""}
-        `}>
-          <h3 className="font-semibold text-dark-navy text-2xl sm:text-3xl md:text-[48px] leading-snug text-center md:text-left">
-            Redefine Your 
-            <br className={path === "/" ? "" : "hidden"} />
-            {path === "/for-brands"
-              ? " Brand Story "
-              : path === "/for-creators"
-              ? " Creativity"
-              : " Creativity & Brand Story"}
-          </h3>
-
-          {/* Buttons container - Centered on specific routes */}
-          <div className={`
-            flex flex-col sm:flex-row gap-4 w-full
-            ${(path === "/for-brands" || path === "/for-creators") ? "md:justify-center" : ""}
-          `}>
-            {path !== "/for-brands" && (
-              <Link
-                href="/signup"
-                className="
-                inline-flex items-center justify-center
-                w-[193px]
-                h-[68px]
-                gap-[6px]
-
-                rounded-[40px]
-                bg-white
-                border-2 border-dark-navy
-
-                px-[18px] py-[6px]
-
-                text-dark-navy
-                text-[16px] xl:text-[20px]
-                font-medium
-
-                transition-all duration-200
-              
-                hover:bg-[#bebcbc]
-              "
-              >
-                Join as a Creator
-              </Link>
-            )}
-
-            {path !== "/for-creators" && (
-              <Link
-                href="/signup?role=brand"
-                className="
-                inline-flex items-center justify-center
-                w-[193px]
-                h-[68px]
-                gap-[6px]
-
-                rounded-[40px]
-                bg-dark-navy
-
-                px-[18px] py-[6px]
-
-                text-white
-                text-[16px] xl:text-[20px]
-                font-medium
-
-                transition-all duration-200
-                hover:opacity-95
-                hover:shadow-lg
-              "
-              >
-                Join as a Brand
-              </Link>
-            )}
-          </div>
-        </div>
-
-        {/* Right image - Position preserved on the right */}
-        <div className="w-full md:w-auto flex justify-center">
-          <Image
-            src="/footer.svg"
-            alt="footer"
-            width={420}
-            height={420}
-            className="w-[220px] sm:w-[260px] md:w-[390px] h-auto object-contain"
-          />
-        </div>
+        {/* The Gradient Overlay — Applied exactly as per Figma specs */}
+        <div 
+          className="absolute inset-0" 
+          style={{
+            background: 'linear-gradient(180deg, #0C2792 7.5%, rgba(12, 39, 146, 0.9) 88.88%)',
+            mixBlendMode: 'multiply', // This allows the vector detail to show through the gradient
+          }}
+        />
       </div>
-    </div>
-  )}
-</div>
 
-      {/* DARK FOOTER */}
-      <div className="bg-dark-navy py-8 mt-6 general-space">
-        <div>
-          
-          {/* TOP SECTION — Aligned to right with 30% gap */}
-<div className="flex flex-col md:flex-row justify-between items-start gap-12 md:gap-0 mb-16">
-  
-  {/* Logo side */}
-  <div className="flex-1">
-    <Image
-      src="/logo light.svg"
-      alt="Starix Logo"
-      width={240}
-      height={80}
-      className="w-[140px] md:w-[200px] h-auto"
-    />
-  </div>
+      {/* MAIN CONTENT */}
+      <div className="relative z-10 mx-auto px-8 md:px-16 max-w-[1400px]">
+        {/* TOP ROW */}
+        <div className="flex flex-col md:flex-row justify-between items-start gap-16">
+          {/* LEFT — Logo, description, social icons */}
+          <div className="max-w-[460px]">
+            <Link href="/" className="inline-block mb-6">
+              <Image
+                src="/logo light.svg"
+                alt="Starix Logo"
+                width={198}
+                height={57}
+                className="h-auto w-[clamp(140px,14vw,200px)]"
+              />
+            </Link>
 
-  {/* Right Content Group — Uses 30% gap */}
-  <div className="flex flex-row justify-end md:gap-[50%] w-full md:w-auto">
-    
-    {/* Resources */}
-    <div className="min-w-fit">
-      <h3 className="text-white text-[18px] md:text-[20px] font-normal mb-6">
-        Resources
-      </h3>
-      <ul className="space-y-4">
-        <li>
-          <Link
-            href="/for-brands"
-            className="text-white/60 text-sm md:text-base hover:text-white transition-colors"
-          >
-            For Brands
-          </Link>
-        </li>
-        <li>
-          <Link
-            href="/for-creators"
-            className="text-white/60 text-sm md:text-base hover:text-white transition-colors"
-          >
-            For Creators
-          </Link>
-        </li>
-      </ul>
-    </div>
+            <p className="text-[#E0E1E6] mb-8 text-[clamp(16px,1.1vw,16px)] leading-[1.65]">
+              Starix is where brands post challenges and creators compete to
+              make the best content. Winners get paid. Brands get work they can
+              use.
+            </p>
 
-    {/* Contact */}
-    <div className="min-w-fit">
-      <h3 className="text-white text-[18px] md:text-[20px] font-normal mb-6">
-        Contact
-      </h3>
-      <ul className="space-y-4">
-        <li>
-          <a
-            href="tel:+2349015000078"
-            className="text-white/60 text-sm md:text-base hover:text-white transition-colors"
-          >
-            +234 901 500 0078
-          </a>
-        </li>
-        <li>
-          <a
-            href="mailto:contact@starixapp.com"
-            className="text-white/60 text-sm md:text-base hover:text-white transition-colors"
-          >
-            contact@starixapp.com
-          </a>
-        </li>
-      </ul>
-    </div>
-  </div>
-</div>
-
-          {/* SOCIAL ICONS */}
-          <div className="flex mb-12">
-            <a
-              href="#"
-              className="w-10 h-10 flex items-center justify-center hover:opacity-70 transition-opacity"
-              aria-label="LinkedIn"
-            >
-              <img src="/linkedin logo.svg" alt="" />
-            </a>
-
-            <a
-              href="#"
-              className="w-10 h-10 flex items-center justify-center hover:opacity-70 transition-opacity"
-              aria-label="Facebook"
-            >
-              <img src="/facebook logo.svg" alt="" />
-            </a>
-
-            <a
-              href="#"
-              className="w-10 h-10 flex items-center justify-center hover:opacity-70 transition-opacity"
-              aria-label="X (Twitter)"
-            >
-              <img src="/X logo.svg" alt="" />
-            </a>
+            {/* --- UPDATED SOCIAL ICONS MAPPING --- */}
+            <div className="flex items-center gap-5">
+              {[
+                { name: "linkd", href: "https://linkedin.com" },
+                { name: "facebook", href: "https://facebook.com" },
+                { name: "twix", href: "https://x.com" },
+                { name: "igs", href: "https://instagram.com" },
+              ].map((social) => (
+                <a
+                  key={social.name}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.name}
+                  className="opacity-70 hover:opacity-100 transition-opacity"
+                >
+                  <img
+                    src={`/${social.name} logo.svg`}
+                    alt={`${social.name} icon`}
+                    // Removes color from original SVG and makes it pure white
+                    className="w-[24px] h-[24px] object-contain brightness-0 invert"
+                  />
+                </a>
+              ))}
+            </div>
           </div>
 
-          {/* DIVIDER */}
-          <div className="h-px w-full bg-white/20 mb-10" />
-
-          {/* BOTTOM SECTION */}
-          <div className="flex flex-col gap-6 text-off-white/70">
-            <div className="text-base sm:text-lg">
-              <a href="/footer/cookies" className="hover:text-[#00ff88] transition-colors">
-                Cookies
-              </a>
-              <span className="mx-2 opacity-50">|</span>
-              <a href="/footer/privacy" className="hover:text-[#00ff88] transition-colors">
-                Privacy
-              </a>
-              <span className="mx-2 opacity-50">|</span>
-              <a href="/footer/terms" className="hover:text-[#00ff88] transition-colors">
-                Terms of Services
-              </a>
+          {/* RIGHT — Resources + Contact columns */}
+          <div className="flex flex-row gap-20 md:gap-32 pt-2">
+            {/* Resources */}
+            <div>
+              <h3 className="text-white font-semibold mb-6 text-[clamp(20px,1.2vw,18px)]">
+                Resources
+              </h3>
+              <ul className="space-y-4">
+                <li>
+                  <Link href="/for-brands" className="text-white/70 hover:text-white font-medium transition-colors text-[clamp(16px,1vw,15px)]">
+                    For Brands
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/for-creators" className="text-white/70 hover:text-white font-medium transition-colors text-[clamp(16px,1vw,15px)]">
+                    For Creators
+                  </Link>
+                </li>
+              </ul>
             </div>
 
-            <div className="text-base sm:text-lg">
-              © 2026 Powered by Starix. All rights reserved.
+            {/* Contact */}
+            <div>
+              <h3 className="text-white font-semibold mb-6 text-[clamp(20px,1.2vw,18px)]">
+                Contact
+              </h3>
+              <ul className="space-y-4">
+                <li>
+                  <a href="tel:+2349015000078" className="text-white/70 hover:text-white font-medium transition-colors text-[clamp(16px,1vw,15px)]">
+                    +234 901 500 0078
+                  </a>
+                </li>
+                <li>
+                  <a href="mailto:contact@starixapp.com" className="text-white/70 font-medium hover:text-white transition-colors text-[clamp(16px,1vw,15px)]">
+                    contact@starixapp.com
+                  </a>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
       </div>
-    </section>
+
+      {/* Extra height so watermark has room to breathe */}
+      <div className="h-[clamp(80px,12vw,160px)]" />
+    </footer>
   );
 };
 

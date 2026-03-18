@@ -1,31 +1,48 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from "@/lib/api";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useCreatorProfile() {
+  const { setProfile } = useAuthStore(); // 💡 Get the setter
+
   return useQuery({
     queryKey: ["creatorProfile"],
     queryFn: async () => {
-      const { data } = await api.get("/auth/profile/creator");
+      const { data } = await api.get("/auth/me");
+      // 💡 Sync store whenever we fetch the profile
+      if (data) setProfile(data); 
       return data;
     },
-    // Only run if we actually have a token in the store
     enabled:
       useAuthStore?.getState().isAuthenticated &&
       !!useAuthStore.getState().token,
   });
 }
 
-// OTP Verfication
 export function useUpdateCreatorProfile() {
+  const queryClient = useQueryClient();
+  const { setProfile } = useAuthStore(); // 💡 Get the setter
+
   return useMutation({
-    mutationFn: (data: any) => api.patch("/auth/profile/creator", data),
-    onSuccess: (res: any) => {
-      console.log("PROFILE UPDATE SUCCESS:", res.data);
+    mutationFn: async (data: any) => {
+      // Axios handles objects as JSON and FormData as multipart automatically
+      const response = await api.patch("/auth/me", data);
+      return response.data; // Return data directly for the component
+    },
+    onSuccess: (updatedData: any) => {
+      console.log("PROFILE UPDATE SUCCESS:", updatedData);
+      
+      // 1. Refresh the cache for this query
+      queryClient.invalidateQueries({ queryKey: ["creatorProfile"] });
+
+      // 2. 💡 Sync the Zustand store immediately so the whole app updates
+      if (updatedData) {
+        setProfile(updatedData);
+      }
     },
     onError: (err: any) => {
-      console.log("PROFILE UPDATE ERROR:", err.response?.data);
+      console.error("PROFILE UPDATE ERROR:", err.response?.data || err.message);
     },
   });
 }

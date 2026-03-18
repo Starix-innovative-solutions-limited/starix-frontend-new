@@ -4,9 +4,6 @@ import { BrandProfile, CreatorProfile } from "@/utils/type";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-// import { useRouter } from "next/navigation";
-
-// 1. Define the User structure based on your JSON
 interface User {
   id: string;
   email: string;
@@ -14,11 +11,8 @@ interface User {
   is_verified: boolean;
   created_at: string;
   updated_at: string;
-  last_login_ip: string;
-  last_login_at: string;
 }
 
-// 2. Define the shape of the Login response
 interface LoginResponse {
   access_token: string;
   token_type: string;
@@ -26,28 +20,22 @@ interface LoginResponse {
   user: User;
 }
 
-// 3. Define the Store's State and Actions
 interface AuthState {
   user: User | null;
   token: string | null;
   userType: string | null;
   isAuthenticated: boolean;
+  profile: CreatorProfile | BrandProfile | any | null;
   setAuth: (data: LoginResponse) => void;
+  setProfile: (profile: any) => void; // 💡 Added this
   logout: () => void;
-  profile: CreatorProfile | BrandProfile | any | null; // Added profile field
   fetchProfile: () => void;
   refreshToken: () => Promise<string | null>;
 }
 
-const PROFILE_ENDPOINTS: Record<string, string> = {
-  creator: "/auth/profile/creator",
-  brand: "/auth/profile/brand",
-};
-// 4. Create the store with Types
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      // Added 'get' to access current state
       user: null,
       profile: null,
       token: null,
@@ -60,54 +48,46 @@ export const useAuthStore = create<AuthState>()(
           userType: data.user_type,
           user: data.user,
           isAuthenticated: true,
-          profile: null, // reset
+          profile: null, 
         });
-
         get().fetchProfile();
       },
 
+      // 💡 Action to update profile from anywhere (like your mutation hook)
+      setProfile: (profile) => set({ profile }),
+
       fetchProfile: async () => {
         try {
-          const { userType } = get();
-
-          const endpoint = userType ? PROFILE_ENDPOINTS[userType] : null;
-
-          if (!endpoint) return;
-
-          const { data } = await api.get(endpoint);
-
+          // 💡 We use /auth/me now since we know it works!
+          const { data } = await api.get("/auth/me");
           set({ profile: data });
-
-          console.log("set profile in auth", data);
-        } catch (error) {
+          console.log("Profile updated in store:", data);
+        } catch (error: any) {
           console.error("Failed to fetch profile:", error);
-          if (error === 401) {
+          if (error.response?.status === 401) {
             get().logout();
           }
         }
       },
 
-      logout: () =>
+      logout: () => {
+        localStorage.removeItem("token"); // Clean up the manual token too
         set({
           user: null,
           profile: null,
           token: null,
           userType: null,
           isAuthenticated: false,
-        }),
+        });
+      },
+
       refreshToken: async () => {
         try {
           const { data } = await api.post("/auth/refresh");
-
-          set({
-            token: data.access_token,
-            isAuthenticated: true,
-          });
-
+          set({ token: data.access_token, isAuthenticated: true });
           return data.access_token;
         } catch (error) {
           get().logout();
-          console.error(error);
           return null;
         }
       },

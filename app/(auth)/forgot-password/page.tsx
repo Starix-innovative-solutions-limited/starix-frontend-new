@@ -6,7 +6,8 @@ import React, { useState } from "react";
 import CustomInput from "@/components/CustomInput";
 import { motion } from "framer-motion";
 import { variants } from "@/constant";
-import { useGenerateOtp, useResetPassword } from "@/hooks/useAuth";
+// 💡 Import useForgotPassword instead of useGenerateOtp
+import { useRequestPasswordReset, useConfirmPasswordReset } from "@/hooks/useAuth";
 import { toast } from "react-hot-toast";
 import OtpInput from "@/components/auth/OtpInput";
 import { useRouter } from "next/navigation";
@@ -18,55 +19,54 @@ const PasswordResetPage = () => {
 
   const router = useRouter();
 
-  // Assuming these hooks are already setup in your useAuth.ts
-  const { mutateAsync: generateOtp, isSuccess: otpSuccess, isPending: isSendingOtp } = useGenerateOtp();
-  const { mutateAsync: resetPassword, isPending: isResetting } = useResetPassword();
+  const { mutateAsync: requestReset, isSuccess: otpSuccess, isPending: isSendingOtp } = useRequestPasswordReset();
+  const { mutateAsync: confirmReset, isPending: isResetting } = useConfirmPasswordReset();
 
   const handleSendOtp = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!email) return toast.error("Please enter your email");
 
     await toast.promise(
-      generateOtp({
-        email: email.trim(),
-        purpose: "password_reset" // Backend uses this to route the email template
-      } as any),
+      requestReset(email.trim()), // 💡 Hits /auth/password-reset/request
       {
-        loading: "Sending OTP...",
-        success: "OTP sent to your email ✅",
-        error: (err: any) => {
-          return err.response?.data?.detail || "Failed to send OTP";
-        },
+        loading: "Sending reset code...",
+        success: "Reset code sent to your email! ✅",
+        error: (err: any) => err.response?.data?.detail || "Failed to send reset code",
       }
     );
   };
 
   const handleReset = async (e?: React.FormEvent) => {
-    e?.preventDefault();
+  e?.preventDefault();
 
-    if (otp.length < 6) return toast.error("Enter the 6-digit code");
-    if (password.length < 8) return toast.error("Password must be at least 8 characters");
+  if (otp.length < 6) return toast.error("Enter the 6-digit code");
+  if (password.length < 8) return toast.error("Password must be at least 8 characters");
 
-    await toast.promise(
-      resetPassword({
-        email: email.trim(),
-        code: otp, // 💡 Changed from otp_code to code to match backend verification logic
-        new_password: password
-      } as any),
-      {
-        loading: "Resetting password...",
-        success: () => {
-          router.push('/login');
-          return "Password reset successful! Please login. ✅";
-        },
-        error: (err: any) => {
-          // If the backend returns a 422 here, check the console for missing fields
-          console.error("RESET ERROR:", err.response?.data);
-          return err.response?.data?.detail || "Reset failed. Check your code.";
-        },
-      }
-    );
-  };
+  await toast.promise(
+    confirmReset({
+      email: email.trim().toLowerCase(),
+      code: otp, // 💡 TRY CHANGING THIS TO 'otp_code' IF 'code' FAILS
+      new_password: password
+    } as any),
+    {
+      loading: "Updating password...",
+      success: () => {
+        router.push('/login');
+        return "Password reset successful! ✅";
+      },
+      error: (err: any) => {
+        // 1. Log the full error to your console so you can see the fix
+        console.error("BACKEND VALIDATION ERROR:", err.response?.data);
+
+        // 2. Safely extract a string for the toast to prevent the crash
+        const detail = err.response?.data?.detail;
+        if (Array.isArray(detail)) return detail[0].msg;
+        return detail || "Reset failed. Check your code.";
+      },
+    }
+  );
+};
+
 
   return (
     <motion.div
@@ -82,8 +82,8 @@ const PasswordResetPage = () => {
         </h3>
         <p className="text-[#666666]">
           {otpSuccess 
-            ? "Enter the code sent to your email and your new password." 
-            : "Enter your email address to receive a verification code."}
+            ? "Check your email for the code and enter your new password below." 
+            : "No worries! Enter your email and we'll send you a code to reset it."}
         </p>
       </motion.div>
 
@@ -109,7 +109,7 @@ const PasswordResetPage = () => {
             className="flex flex-col gap-7"
           >
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-dark-navy">Verification Code</label>
+              <label className="text-sm font-medium text-dark-navy">6-Digit Code</label>
               <OtpInput length={6} value={otp} onChange={(c) => setOtp(c)} className="justify-between" />
             </div>
 
@@ -131,7 +131,7 @@ const PasswordResetPage = () => {
           whileTap={{ scale: 0.99 }}
           className="w-full py-4 rounded-full font-medium text-white bg-dark-navy transition-all hover:opacity-90 disabled:opacity-50"
         >
-          {otpSuccess ? "Reset Password" : "Request OTP"}
+          {otpSuccess ? "Update Password" : "Send Reset Code"}
         </motion.button>
       </motion.form>
     </motion.div>

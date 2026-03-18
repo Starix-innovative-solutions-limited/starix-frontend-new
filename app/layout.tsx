@@ -5,9 +5,11 @@ import Providers from "@/utils/Providers";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
+// Configure Geist with the specific weights used in your design
 const geistSans = Geist({
   subsets: ["latin"],
-  variable: "--font-geist-sans",
+  weight: ["400", "500", "600", "700"], // 400=Regular, 500=Medium, 600=Semibold, 700=Bold
+  variable: "--font-geist",             // Matches the variable in your globals.css
   display: "swap",
 });
 
@@ -26,8 +28,8 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className="antialiased">
         <main className="bg-bluelayer min-h-screen">
           <Providers>
             <ModalProvider>

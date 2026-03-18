@@ -66,12 +66,21 @@ const BrandSignup = ({ setIsGoogleAuth, role }: BrandSignupProps) => {
     mutateAsync(payload as any),
     {
       loading: "Creating brand account...",
-      success: (data) => {
-        generateOtp({ email: form.brand_email } as any);
-        router.push(`/verify-email?email=${form.brand_email}&role=brand`);
-        return "Account created! Check email for OTP.";
-      },
-      error: (err: any) => {
+      success: (data: any) => {
+          // 1. SAVE THE TOKEN HERE 
+          if (data?.access_token) {
+            localStorage.setItem("accessToken", data.access_token);
+            localStorage.setItem("userRole", "brand"); // Helpful for future routing
+            console.log("Token secured in storage!");
+          }
+
+          // 2. Trigger OTP and Redirect
+          generateOtp({ email: form.brand_email } as any);
+          router.push(`/verify-email?email=${form.brand_email}&role=brand`);
+          
+          return "Account created! Check email for OTP.";
+        },
+        error: (err: any) => {
         const details = err?.response?.data?.detail;
         if (Array.isArray(details)) {
           // This will log the path, e.g., ["body", "industry"] 

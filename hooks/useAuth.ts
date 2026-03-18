@@ -121,17 +121,44 @@ export function useVerifyEmailOtp() {
   });
 }
 
-export function useResetPassword() {
+// Add this to your useAuth.ts if it's not there
+export const useForgotPassword = () => {
+  return useMutation({
+    mutationFn: async (email: string) => {
+      // 💡 This is the likely correct endpoint for password resets
+      const { data } = await api.post("/auth/forgot-password", { email });
+      return data;
+    },
+  });
+};
+
+
+// 💡 STEP 1: Request the Reset Code
+// This hits the specific password-reset request route, bypassing the "already verified" check.
+export function useRequestPasswordReset() {
+  return useMutation({
+    mutationFn: (email: string) => 
+      api.post("/auth/password-reset/request", { email }), // Correct endpoint for requesting OTP
+    onSuccess: (res: any) => {
+      console.log("RESET CODE SENT:", res.data);
+    },
+    onError: (err: any) => {
+      console.log("RESET REQUEST ERROR:", err.response?.data);
+    },
+  });
+}
+
+// 💡 STEP 2: Finalize the Password Change
+// This hits the endpoint that actually updates the password in the database.
+export function useConfirmPasswordReset() {
   return useMutation({
     mutationFn: (data: ResetPasswordOtpPayload) =>
-      api.post("/auth/password-reset/request", data),
-
+      api.post("/auth/password-reset/confirm", data), // 💡 Double check if your backend uses /confirm or /reset
     onSuccess: (res: any) => {
-      console.log("PASSWORD RESET SUCCESS:", res.data);
+      console.log("PASSWORD UPDATED SUCCESS:", res.data);
     },
-
     onError: (err: any) => {
-      console.log("PASSWORD RESET ERROR:", err.response?.data);
+      console.log("PASSWORD UPDATE ERROR:", err.response?.data);
     },
   });
 }

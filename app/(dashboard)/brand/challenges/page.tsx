@@ -45,8 +45,7 @@ const Page = () => {
             >
                 <motion.div className='flex items-center justify-between'>
                     <motion.span
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                       
                         className="flex items-center gap-2 py-2 text-[28px] font-normal  transition-colors text-secondary-100 "
                     >
                         Challenge
