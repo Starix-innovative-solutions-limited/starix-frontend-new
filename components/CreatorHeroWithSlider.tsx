@@ -2,259 +2,138 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { style } from "framer-motion/client";
 
 const testimonials = [
   {
-    name: "Briana",
-    quote: "finally, a platform where creativity beats follower count",
-    avatar: "/avatar 1.svg",
+    name: "John Doe",
+    quote: "I stopped pitching. Brands started finding me.",
+    avatar: "/1.svg",
   },
   {
-    name: "Alex",
-    quote: "my work gets seen for what it is, not who I am",
-    avatar: "/avatar 1.svg",
+    name: "Jane Smith",
+    quote: "My approach shifted from selling to storytelling.",
+    avatar: "/2.svg",
   },
   {
-    name: "Jordan",
-    quote: "opportunities found me instead of the other way around",
-    avatar: "/avatar 1.svg",
+    name: "Emily Johnson",
+    quote: "Engagement soared once I prioritized authenticity.",
+    avatar: "/3.svg",
+  },
+  {
+    name: "Michael Brown",
+    quote: "I learned that connection beats promotion every time.",
+    avatar: "/4.svg",
+  },
+  {
+    name: "Sarah Williams",
+    quote: "Collaborations feel natural now, never forced.",
+    avatar: "/5.svg",
+  
   },
 ];
 
-const audienceChallenges = [
-  {
-    title: "Hard to Grow Audience ",
-    description: "Hard to grow without knowing what works in the industry.",
-  },
-  {
-    title: "Fast-Moving Trends",
-    description: "Trends change quickly, making it hard to stay relevant.",
-  },
-  {
-    title: "Brand Credibility",
-    description: "Struggling to appear professional to potential brand partners.",
-  },
-  {
-    title: "Limited Opportunities",
-    description: "New creators often find it hard to get noticed or collaborate.",
-  },
-];
-
-
-export default function CreatorHeroWithSlider() {
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % testimonials.length);
-    }, 3500);
-    return () => clearInterval(interval);
-  }, []);
-
+export default function CreatorHero() {
   return (
-    <main className="relative general-space overflow-x-hidden pb-0">
-      <div className="grid grid-cols-1 lg:grid-cols-2 mt-20 gap-16 items-center">
+    <div className="min-h-screen bg-white font-sans text-[#0A0A1B]">
+      
 
-        {/* LEFT SIDE */}
-        <div className="flex flex-col gap-10 relative">
-          <h3 className="font-['Geist'] font-[600] text-[40px] md:text-[64px] leading-[1.2] tracking-[-0.02em] text-dark-navy">
-            Grow Smarter, <br />
-            Build Your Creator <br /> Identity
-          </h3>
+      {/* --- HERO SECTION --- */}
+      <section className="pt-32 pb-20 px-6 flex flex-col items-center text-center">
+        <h1 
+          className="text-[#040136] text-[80px] font-medium leading-[100%] tracking-[-0.04em] text-center max-w-[1200px]"
+          style={{ 
+            fontFamily: 'Geist, sans-serif', 
+            fontWeight: 500 
+          }}
+        >
+          Your work should open doors. <br />
+          Not just <span className="text-[#FD6C1D]">follower count.</span>
+        </h1>
+        <p className="mt-4 text-medium md:text-[24px] text-[#6E6E6E] max-w-2xl leading-relaxed">
+          Find challenges that fit what you do. <br />
+          Make content. Get paid.
+        </p>
+        <Link 
+          href="#" 
+          className="mt-6 bg-[#FD6C1D] hover:bg-[#e66a28] text-white px-10 py-4 rounded-full text-lg font-semibold transition-all"
+        >
+          Join as a Brand
+        </Link>
 
+        {/* --- MAIN VISUAL --- */}
+<div className="relative mt-28 w-full max-w-7xl mx-auto aspect-[16/8] md:aspect-[21/9]">
+  
+  {/* 1. The Sky Blue Background Box (Defines the main shape) */}
+  <div className="absolute inset-0 bg-[#5CA4D8] rounded-[40px] shadow-lg pointer-events-none z-0"></div>
 
-          <p
-            className="
-                font-geist font-[300]
-                text-[28px]
-                
-                leading-[1]
-                tracking-[0]
-                text-[#6E6E6E]
-                max-w-xl
-                text-center md:text-left
-                mx-auto md:mx-0
-            "
-            >
-            Get discovered. Get opportunities. <br/>
-            Improve faster. Earn more.
-          </p>
+  {/* 2. Background Branding Text / Vector (ALLOWED TO OVERFLOW) */}
+  {/* Positioned slightly larger and offset to break out of the blue box */}
+  <div className="absolute top-[10%] left-1/2  -translate-x-1/2 w-[100%] z-0 pointer-events-none flex justify-center">
+    <img 
+      src="/Vectorsss.svg" 
+      alt="Starix Vector" 
+      className="w-full h-auto  object-contain"
+    />
+  </div>
 
-
-
-          <Link
-            href="/signup"
-            className="
-                inline-flex items-center justify-center
-                w-[193px]
-                h-[68px]
-                gap-[6px]
-
-                rounded-[40px]
-                bg-dark-navy
-
-                px-[18px] py-[6px]
-
-                text-white
-                text-[16px] xl:text-[20px]
-                font-medium
-
-                transition-all duration-200
-                hover:opacity-95
-                hover:shadow-lg
-              "
-            >
-            Join as a Creator
-            </Link>
-
-
-          {/* Floating Star */}
-          <div
-  className="
-    absolute -top-50 left-1/2
-    translate-x-[10%]
-    translate-y-[40%]
-    w-[300px] h-[200px]
-    md:w-[455px] md:h-[342px]
-    md:left-0 md:translate-x-[80%]
-    md:translate-y-[0]
-    bg-no-repeat bg-contain
-  "
-  style={{ backgroundImage: "url('/Star 2.svg')" }}
-/>
-        </div>
-
-        {/* RIGHT SIDE – EXACT FIGMA STRUCTURE */}
-<div className="relative flex justify-center items-center">
-  {/* The Wrapper for the entire stack */}
-  <div className="relative w-[520px] h-[520px]">
-    
-    {/* 1. BOTTOM-MOST BEIGE LAYER */}
-    <div className="absolute -top-8 -right-8 w-full h-full rounded-[32px] bg-[#F4E9DE] z-0" />
-
-    {/* 2. MIDDLE BEIGE LAYER */}
-    <div className="absolute -top-4 -right-4 w-full h-full rounded-[32px] bg-[#FAF3ED] z-1" />
-
-    {/* 3. THE LARGE DECORATIVE OVERLAY (Restored) */}
-    {/* This is the part that was missing - enlarged to 40% bigger than the card */}
+  {/* 3. Main Hero Image (Creators) (ALLOWED TO OVERFLOW TOP) */}
+  {/* Height is over 100% so the heads/hair can pop out the top of the container */}
+  <div className="absolute bottom-0 left-0 w-full h-[130%] z-20 pointer-events-none">
     <Image
-      src="/layers.png"
-      alt="decorative layers"
-      width={1400}
-      height={1400}
-      className="absolute w-[750px] h-[730px] -left-[115px] -top-[105px] object-cover opacity-60 z-20 pointer-events-none"
+      src="/Mask.svg"
+      alt="Creators"
+      fill
+      className="object-cover object-bottom"
       priority
     />
+  </div>
 
-    {/* 4. MAIN IMAGE CARD */}
-    <div className="relative z-30 w-full h-full rounded-[28px] overflow-hidden shadow-xl bg-white">
-      {/* Creator Image */}
-      <Image
-        src="/creator-hero1.png"
-        alt="creator working"
-        fill
-        className="object-cover opacity-90 z-10"
-        priority
-      />
-
-      {/* Internal Grid Overlay */}
-      <div className="absolute inset-0 bg-[url('/layers.png')] opacity-20 z-20 pointer-events-none" />
-
-      {/* Testimonial Slider */}
-      <div className="absolute bottom-0 w-full z-40 overflow-hidden bg-black/20 backdrop-blur-md border-t border-white/10">
-        <div className="relative flex w-full h-[100px] items-center">
-          <motion.div
-            className="flex whitespace-nowrap"
-            animate={{ x: ["0%", "-50%"] }}
-            transition={{ duration: 20, ease: "linear", repeat: Infinity }}
-          >
-            {[...testimonials, ...testimonials].map((testimonial, i) => (
-              <div key={i} className="flex items-center gap-4 px-8 min-w-[350px] md:min-w-[400px]">
-                <div className="relative w-11 h-11 shrink-0">
-                  <Image
-                    src={testimonial.avatar}
-                    alt={testimonial.name}
-                    fill
-                    className="rounded-full object-cover"
-                  />
-                </div>
-                <div className="text-sm text-white whitespace-normal">
-                  <p className="opacity-90 leading-snug font-geist font-light">“{testimonial.quote}”</p>
-                  <p className="mt-1 text-xs opacity-60">@{testimonial.name}</p>
-                </div>
+  {/* 4. Floating Testimonial Slider (Glassmorphism) */}
+  {/* We apply overflow-hidden and rounded-b-[40px] ONLY here so it clips to the bottom corners perfectly */}
+  <div className="absolute bottom-0 left-0 w-full z-30 overflow-hidden">
+    <div className="relative w-full py-5 md:py-7 bg-white/50 backdrop-blur-xl  ">
+      <div className="flex overflow-hidden">
+        <motion.div 
+          className="flex gap-12 md:gap-16 items-center whitespace-nowrap pl-8"
+          animate={{ x: [0, -1000] }}
+          transition={{ repeat: Infinity, duration: 25, ease: "linear" }}
+        >
+          {/* Tripled the array to ensure a seamless infinite loop */}
+          {[...testimonials, ...testimonials, ...testimonials].map((t, i) => (
+            <div key={i} className="flex items-center gap-3 md:gap-3 min-w-max">
+              {/* Avatar */}
+              <div 
+                className={`relative w-[60px] h-[60px] rounded-full overflow-hidden shrink-0 shadow-sm ${
+                  i % 2 === 0 ? 'bg-[#0052FF]' : 'bg-[#FF5C00]'
+                }`}
+              >
+                <img 
+                  src={t.avatar} 
+                  alt={t.name} 
+                  className="w-full h-full object-cover" 
+                />
               </div>
-            ))}
-          </motion.div>
-        </div>
+              {/* Text */}
+              <div className="flex flex-col justify-center text-left">
+                <p className="text-[14px]  font-medium text-[#1E1F24] leading-snug tracking-tight">
+                  {t.quote}
+                </p>
+                <span className="text-[12px] md:text-[12px] text-[#62636C] font-medium mt-0.5">
+                  @{t.name.toLowerCase().replace(/\s+/g, "")}
+                </span>
+              </div>
+            </div>
+          ))}
+        </motion.div>
       </div>
     </div>
   </div>
-</div>        
-      </div>
 
-      
-            
-
-{/* CREATOR PROBLEM SECTION */}
-<div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-white py-28">
-  <div className="max-w-[1200px] mx-auto px-6">
-
-    {/* TITLE */}
-    <motion.h1
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="
-        font-geist
-        font-semibold
-        text-[32px] md:text-[48px]
-        tracking-[-0.02em]
-        text-dark-navy
-        text-center
-        mb-20
-      "
-    >
-      “The Creator Problem”
-    </motion.h1>
-
-    {/* GRID */}
-    <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-14">
-
-      {audienceChallenges.map((problem, index) => (
-        <div
-          key={index}
-          className="flex flex-col items-center text-center"
-        >
-
-          {/* ICON */}
-          <div className="w-[120px] h-[120px] flex items-center justify-center rounded-full bg-[#f3f5f7] mb-8">
-            <Image
-              src={`/creatorProblem${index + 1}.svg`}
-              alt={problem.title}
-              width={90}
-              height={90}
-            />
-          </div>
-
-          {/* TITLE */}
-          <h3 className="font-geist font-medium text-[22px] text-dark-navy mb-3">
-            {problem.title}
-          </h3>
-
-          {/* DESCRIPTION */}
-          <p className="text-[16px] text-[#6E6E6E] leading-relaxed max-w-[260px]">
-            {problem.description}
-          </p>
-
-        </div>
-      ))}
-
-    </motion.div>
-  </div>
 </div>
-      
-    </main>
+      </section>
+    </div>
   );
 }
+
