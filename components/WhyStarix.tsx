@@ -47,7 +47,7 @@ const sections = [
       width: "180%",
       height: "140%",
       bottom: "-65px",
-      right: "-30px",
+      right: "-45px",
       scale: "scale-105",
     }
   },

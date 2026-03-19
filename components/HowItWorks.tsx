@@ -1,4 +1,5 @@
 "use client"
+import { px } from 'framer-motion';
 import { style } from 'framer-motion/client';
 import Image from 'next/image'
 import Link from "next/link";
@@ -34,9 +35,12 @@ const HowItWorks = () => {
             description: "Make the content your way. Submit when you're ready."
         },
         {
-            icon: "/medal.svg", 
-            title: "Earn Rewards",
-            description: "Win and get paid. No invoices, no chasing, no waiting.",
+        icon: "/medal.svg", 
+        title: "Earn Rewards",
+        description: "Win and get paid. No invoices, no chasing, no waiting.",
+        // Individual sizes for this specific asset
+        iconWidth: "w-[200px]", 
+        iconHeight: "h-[200px]", 
         }
     ];
 
@@ -62,7 +66,7 @@ const HowItWorks = () => {
                 
                 {/* 1. FOR BRANDS SECTION (Blue Theme) */}
                 <div className='bg-[#E2E7FA] rounded-4xl p-8 md:p-14 flex flex-col items-center'>
-                    <span className="bg-[#0033FF] text-white text-[16px] font-bold px-5 py-1.5 rounded-full mb-12 uppercase tracking-widest">
+                    <span className="bg-[#0033FF1F] text-[#0033FF] text-[16px] font-medium px-5 py-1.5 rounded-full mb-12 uppercase tracking-widest">
                         For Brands
                     </span>
                     
@@ -89,16 +93,31 @@ const HowItWorks = () => {
 
                 {/* 2. FOR CREATORS SECTION (Orange Theme) */}
                 <div className='bg-[#FAE6DA] rounded-4xl p-8 md:p-14 flex flex-col items-center'>
-                    <span className="bg-[#FF6B00] text-white text-[16px] font-bold px-5 py-1.5 rounded-full mb-12 uppercase tracking-widest">
+                    <span className="bg-[#FD6C1D26] text-[#FD6C1D] text-[16px] font-medium px-5 py-1.5 rounded-full mb-12 uppercase tracking-widest">
                         For Creators
                     </span>
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full mb-12">
-                        {creatorFeatures.map((feature, index) => (
-                            <div key={index} className="bg-[#FFF9F5] rounded-3xl p-6 flex flex-col h-full ">
-                                <div className="h-40 w-full relative flex justify-end">
-                                    <Image src={feature.icon} alt={feature.title} fill className="object-contain object-top-right" />
+                        {creatorFeatures.map((feature: any, index) => (
+                            <div key={index} className="bg-[#FFF9F5] rounded-3xl p-6 flex flex-col h-full">
+                                
+                                {/* --- THE FIX IS HERE --- */}
+                                {/* We check if iconWidth/Height exists, otherwise we fallback to a default size like h-40 */}
+                                <div 
+                                    className={`relative w-full flex justify-end ml-auto ${
+                                        feature.iconHeight ? feature.iconHeight : "h-40"
+                                    } ${
+                                        feature.iconWidth ? feature.iconWidth : "w-full"
+                                    }`}
+                                >
+                                    <Image 
+                                        src={feature.icon} 
+                                        alt={feature.title} 
+                                        fill 
+                                        className="object-contain object-right-top" 
+                                    />
                                 </div>
+
                                 <h3 className="font-['Geist'] font-normal text-[40px] leading-none tracking-[-0.04em] text-dark-navy max-w-50 mb-3">
                                     {feature.title}
                                 </h3>
@@ -109,10 +128,10 @@ const HowItWorks = () => {
                         ))}
                     </div>
 
-                    <Link href="/for-creators" className="bg-[#FF6B00] text-white px-10 py-4 rounded-full font-bold flex items-center gap-2 hover:opacity-90 transition-all text-lg">
-                        Learn More <span className="text-2xl">→</span>
-                    </Link>
-                </div>
+    <Link href="/for-creators" className="bg-[#FF6B00] text-white px-10 py-4 rounded-full font-bold flex items-center gap-2 hover:opacity-90 transition-all text-lg">
+        Learn More <span className="text-2xl">→</span>
+    </Link>
+</div>
 
             </div>
         </div>
