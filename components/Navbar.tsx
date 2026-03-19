@@ -19,11 +19,7 @@ export default function Navbar() {
 
   return (
     <header className="fixed top-6 left-0 w-full z-50 px-4">
-      {/* 1. bg-white/40 -> Semi-transparent background
-          2. backdrop-blur-md -> The "Frosted Glass" effect
-          3. border-white/20 -> A softer, transparent border
-      */}
-      <nav className="mx-auto max-w-fit bg-white/40 backdrop-blur-md rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.05)] border border-white/20 px-6 py-1.5 flex items-center gap-8 transition-all">
+      <nav className="mx-auto max-w-fit bg-white/40 backdrop-blur-md rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.05)] border border-white/20 px-6 py-1.5 flex items-center gap-10 transition-all">
         
         {/* Logo */}
         <Link href="/" className="shrink-0">
@@ -36,28 +32,30 @@ export default function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-[16px] font-medium font-weight text-[#62636C] hover:text-[#040136] transition-all"
+              className={`text-[16px] font-medium transition-all ${
+                pathname === link.href ? "text-[#040136]" : "text-[#62636C] hover:text-[#040136]"
+              }`}
             >
               {link.label}
             </Link>
           ))}
         </div>
 
-        {/* CTA Button */}
+        {/* GLASSY CTA BUTTON (Desktop) */}
         <Link
           href="/signup"
-          className="hidden md:block bg-[#040136] text-white px-3 py-1 rounded-full text-[16px] font-semibold  active:scale-95 transition-all shadow-lg shadow-[#04013620]"
+          className="hidden md:block bg-[#040136] backdrop-blur-lg border border-white/40 text-[#fff] px-5 py-2 rounded-full text-[16px] font-semibold hover:bg-white/50 active:scale-95 transition-all"
         >
           Join Now
         </Link>
 
         {/* Mobile Toggle */}
-        <button className="md:hidden text-dark-navy" onClick={() => setIsOpen(!isOpen)}>
+        <button className="md:hidden text-[#040136]" onClick={() => setIsOpen(!isOpen)}>
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </nav>
 
-      {/* Mobile Menu - Also with Glassmorphism */}
+      {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden mt-4 mx-auto max-w-[90%] bg-white/80 backdrop-blur-lg rounded-3xl p-6 shadow-2xl border border-white/40 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-200">
           {navLinks.map((link) => (
@@ -70,9 +68,11 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+          
+          {/* GLASSY CTA BUTTON (Mobile) */}
           <Link 
             href="/signup" 
-            className="bg-dark-navy text-white text-center py-4 rounded-full font-bold shadow-lg"
+            className="bg-[#040136] backdrop-blur-md border border-white/20 text-[#fff] text-center py-4 rounded-full font-bold shadow-lg active:scale-[0.98] transition-all"
             onClick={() => setIsOpen(false)}
           >
             Join Now
