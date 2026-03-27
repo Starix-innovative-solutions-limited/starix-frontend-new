@@ -53,24 +53,29 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* FULL WIDTH LOTTIE ANIMATION */}
-      <div className="absolute bottom-0 left-0 w-screen flex justify-center pointer-events-none overflow-hidden">
-        {/* Removed max-w-screen and max-w-[1400px] to allow full bleed */}
-        <div className="w-full">
-          {animationData && (
-            <Lottie 
-              animationData={animationData} 
-              loop={true} 
-              autoplay={true}
-              // This prop is key for full-bleed animations to ensure they fill the space
-              rendererSettings={{
-                preserveAspectRatio: "xMidYMax slice" 
-              }}
-              className="w-full h-auto"
-            />
-          )}
-        </div>
-      </div>
+      {/* --- UPDATED ANIMATION CONTAINER --- */}
+<div 
+  className="absolute pointer-events-none"
+  style={{ 
+    width: '1559px', 
+    height: '462px', 
+    top: '500px', 
+    left: '-55px',
+    zIndex: 0 
+  }}
+>
+  {animationData && (
+    <Lottie 
+      animationData={animationData} 
+      loop={true} 
+      autoplay={true}
+      style={{ width: '100%', height: '100%' }}
+      rendererSettings={{
+        preserveAspectRatio: "xMidYMid slice" 
+      }}
+    />
+  )}
+</div>
 
     </section>
   );

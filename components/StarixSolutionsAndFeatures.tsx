@@ -6,91 +6,101 @@ import { motion } from "framer-motion";
 
 const challenges = [
   {
-    title: "Hard to Grow Audience",
-    desc: "Hard to grow when you don't know what's working.",
-    icon: "/sits.svg", // Replace with your placeholder/asset
+    title: "Fast-Moving Trends",
+    desc: "Trends move fast. By the time you catch one it's already gone",
+    icon: "/or-clock.svg",
+    imgClass: "w-[110%] h-[100%] bottom-[-25%] left-[-10%]",
+    titleClass: "top-8 max-w-[150px] left-6",
+    descClass: "top-24  max-w-[115px] right-[4%] text-right"
   },
   {
-    title: "Fast-Moving Trends",
-    desc: "Trends move fast. By the time you catch one, it's already gone.",
-    icon: "/or-clock.svg",
+    title: "Hard to Grow Audience",
+    desc: "Hard to grow when you don't know what's working",
+    icon: "/blue-seats.svg",
+    imgClass: "w-[120%] h-[110%] bottom-[-12%] right-[-20%]",
+    titleClass: "top-8 max-w-[150px] left-8",
+    descClass: "top-10 right-[4%] text-right max-w-[120px]"
   },
   {
     title: "Brand Credibility",
-    desc: "No way to prove you're worth the investment.",
-    icon: "/sits.svg",
+    desc: "No way to prove you're worth the investment",
+    icon: "/cracked.svg",
+    imgClass: "w-[110%] h-[120%] bottom-[-15%] right-[-10%]",
+    titleClass: "top-8 left-8",
+    descClass: "top-18 left-8 max-w-[220px]"
   },
   {
     title: "Limited Opportunities",
     desc: "Opportunities exist. They're just not reaching you.",
-    icon: "/sits.svg",
+    icon: "/gateway.svg",
+    imgClass: "w-[125%] h-[100%] bottom-[-18%] right-[5%]",
+    titleClass: "top-8 max-w-[150px] left-8",
+    descClass: "top-28 right-[4%] text-right max-w-[200px]"
   },
 ];
 
-const ChallengeCard = ({ title, desc, icon, index }: any) => (
+const ChallengeCard = ({
+  title,
+  desc,
+  icon,
+  imgClass,
+  titleClass,
+  descClass,
+  index,
+}: any) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.5, delay: index * 0.1 }}
-    className="bg-[#FFEBE0] rounded-[24px] p-3 flex flex-col items-start text-left h-full relative z-10"
+    className="bg-[#F3F5FC] rounded-[24px] h-[400px] relative overflow-hidden"
   >
-    {/* 3D ICON */}
-    <div className="mb-8 w-[100px] h-[128px] relative">
+    {/* TITLE */}
+    <h3
+      className={`absolute z-10 text-[#040136] font-medium text-[28px] leading-tight tracking-tight ${titleClass}`}
+    >
+      {title}
+    </h3>
+
+    {/* DESCRIPTION */}
+    <p
+      className={`absolute z-10 text-[#6E6E6E] text-[16px] leading-snug ${descClass}`}
+    >
+      {desc}
+    </p>
+
+    {/* IMAGE */}
+    <div
+      className={`absolute ${imgClass} pointer-events-none transition-transform duration-500`}
+    >
       <Image
         src={icon}
         alt={title}
         fill
-        className="object-contain"
+        className="object-contain object-bottom"
       />
     </div>
-
-    {/* TEXT CONTENT */}
-    <h3 className="text-[#040136] max-w-[200px] font-normal text-[30px]  leading-tight">
-      {title}
-    </h3>
-    <p className="text-[#203646B2] text-[20px] font-normal leading-relaxed">
-      {desc}
-    </p>
   </motion.div>
 );
 
 const StarixChallengesSection = () => {
   return (
-    <section className="relative py-20 bg-white px-6">
-      <div className="max-w-[1248px] mx-auto relative">
-        
-        {/* HEADER AREA */}
-        <div className="mb-16">
-          <h2 
-            className="text-[#040136] text-[48px] md:text-[64px] font-light leading-[1.2] tracking-[-0.02em]"
-            style={{ 
-              fontFamily: "'Merriweather', serif", 
-              fontWeight: 300 
-            }}
-          >
-            What’s been holding <br />
-            <span className="text-[#FD6C1D]">you back...</span>
+    <section className="relative py-24 bg-white px-6">
+      <div className="max-w-[1400px] mx-auto">
+        {/* HEADER */}
+        <div className="text-center mb-16">
+          <h2 className="text-[#040136] text-[48px] md:text-[72px] font-medium leading-none tracking-tight">
+            What’s been <br />
+            holding <span className="text-[#FD6C1D]">you back..</span>
           </h2>
         </div>
 
-        {/* LARGE FLOATING BACKGROUND ASSET (The Orange "A" shape) */}
-        <div className="absolute top-[-24%] right-[-12%] w-[641px] h-[600px] pointer-events-none z-0 ">
-          <Image
-            src="/candy-or.svg" // Replace with your "Group 1000005959" or similar asset
-            alt=""
-            fill
-            className="object-contain"
-          />
-        </div>
-
-        {/* GRID OF CARDS */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+        {/* GRID */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {challenges.map((item, i) => (
             <ChallengeCard key={i} {...item} index={i} />
           ))}
         </div>
-
       </div>
     </section>
   );

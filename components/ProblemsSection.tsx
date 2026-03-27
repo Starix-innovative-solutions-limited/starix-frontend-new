@@ -37,16 +37,6 @@ const ProblemsSection = () => {
             className="object-contain"
           />
         </div>
-
-        {/* Bottom Left Shape */}
-        <div className="absolute left-[80px] bottom-[-90px] w-[388px] h-[425px] opacity-90">
-          <Image
-            src="/candy 3.svg"
-            alt=""
-            fill
-            className="object-contain "
-          />
-        </div>
       </div>
 
       {/* CONTENT */}
@@ -65,9 +55,9 @@ const ProblemsSection = () => {
           {problems.map((item, index) => {
             const offsets = [
               "translate-y-0",
-              "translate-y-[60px]",
-              "translate-y-[20px]",
-              "translate-y-[80px]",
+              "translate-y-0",
+              "translate-y-0",
+              "translate-y-0",
             ];
 
             return (
@@ -76,7 +66,7 @@ const ProblemsSection = () => {
                 className={`bg-[#C5E6FE] rounded-[28px] p-10 w-[278px] h-[321px] flex flex-col justify-between ${offsets[index]}`}
               >
                 {/* ICON */}
-                <div className="w-[100px] h-[100px] relative">
+                <div className="w-[120px] h-[100px] relative">
                   <Image
                     src={item.icon}
                     alt=""

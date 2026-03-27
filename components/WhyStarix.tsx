@@ -8,15 +8,17 @@ const sections = [
   {
     id: "discovering",
     title: "Discovering Trends Early",
-    content: "Build campaigns with real creators that aligns with your brand story.",
+    // LEFT SIDE CONTENT (The Problem)
+    problemContent: "Build campaigns with real creators that aligns with your brand story.",
+    // RIGHT SIDE CONTENT (The Solution)
+    solutionContent: "See what's working before everyone else does. Data that tells you where attention is moving.",
     solutionTitle: "Trend Intelligence",
     image: "/horoscope.svg",
     activeColor: "#D6EFFF",
-    // INDIVIDUAL STYLING FOR THIS IMAGE
     imageStyles: {
-      width: "180%",
-      height: "160%",
-      bottom: "-60px",
+      width: "210%",
+      height: "180%",
+      bottom: "-20px",
       right: "-40px",
       scale: "scale-110",
     }
@@ -24,29 +26,31 @@ const sections = [
   {
     id: "analytics",
     title: "Understanding Analytics",
-    content: "Analyze performance data to optimize your creator partnerships effectively.",
-    solutionTitle: "Deep Analytics",
+    problemContent: "Numbers everywhere. No clarity on what actually worked.",
+    solutionContent: "Real numbers tied to real performance. Know what's working, what's not, and why.",
+    solutionTitle: "Creator Analytics",
     image: "/charts.svg",
     activeColor: "#F5EFF4",
     imageStyles: {
       width: "180%",
       height: "120%",
       bottom: "-80px",
-      right: "-50px",
+      right: "-60px",
       scale: "scale-100",
     }
   },
   {
     id: "quality",
     title: "Managing UGC Quality",
-    content: "Ensure every piece of content meets your brand's high standards.",
+    problemContent: "Content comes in. Most of it misses the mark. No way to fix it at scale.",
+    solutionContent: "Every submission rated before you review it. Less noise, better content, faster decisions.",
     solutionTitle: "Quality Control",
     image: "/hand.svg",
     activeColor: "#F5EFF4",
     imageStyles: {
       width: "180%",
       height: "140%",
-      bottom: "-65px",
+      bottom: "-40px",
       right: "-45px",
       scale: "scale-105",
     }
@@ -54,15 +58,16 @@ const sections = [
   {
     id: "opportunities",
     title: "Getting Opportunities",
-    content: "Unlock new brand collaborations and scale your creative reach.",
-    solutionTitle: "Direct Access",
-    image: "/bars.svg",
-    activeColor: "#F5FBFF",
+    problemContent: "Creators pitch into the void. Brands pick in the dark. Nobody wins.",
+    solutionContent: "Creators find briefs that match their strengths. Brands get submissions from people who fit.",
+    solutionTitle: "Open Opportunities",
+    image: "/or-sweet.svg",
+    activeColor: "#FFE6DB",
     imageStyles: {
-      width: "250%",
+      width: "230%",
       height: "180%",
-      bottom: "-120px",
-      right: "-80px",
+      bottom: "-95px",
+      right: "-95px",
       scale: "scale-90",
     }
   },
@@ -80,24 +85,24 @@ const WhyStarix = () => {
     <div className="w-full bg-white flex flex-col items-center pt-12 pb-20 font-sans">
       
       {/* HEADER SECTION */}
-      <h1 className="text-[#040136] text-[32px] md:text-[64px] font-regular text-left max-w-fit leading-[1.1] mb-12 tracking-[-0.04em]">
+      <h1 className="text-[#040136] text-[32px] md:text-[64px] font-regular text-left max-w-fit leading-[1.1] mb-8 tracking-[-0.04em]">
         <span className="block">Why the current system</span>
         <span className="flex items-center">
           <span className="invisible select-none whitespace-pre" aria-hidden="true">Why the </span>
-          <span>fails</span>
-          <span className="inline-block align-middle mx-2 md:mx-4">
-            <Image src="/chain.svg" alt="link" width={130} height={88} className="w-16 md:w-24 h-auto" />
+          <span className="pb-4">fails</span>
+          <span className="inline-block align-center ">
+            <Image src="/chain.svg" alt="link" width={130} height={88} className="w-[130px] h-auto" />
           </span>
-          <span className="text-[#2F3CFF]">both sides</span>
+          <span className="text-[#2F3CFF] pb-4">both sides</span>
         </span>
       </h1>
 
       <div className="w-full max-w-[1400px] grid grid-cols-1 lg:grid-cols-[480px_1fr] gap-8 px-6 h-[565px]">
         
-        {/* LEFT PANEL */}
+        {/* LEFT PANEL (Problem View) */}
         <div className="bg-[#F9F9FB] rounded-[32px] p-6 h-full flex flex-col ">
           <div className="mb-6 pt-6">
-            <span className="inline-block bg-[#FE342614] text-[#D12B1F] text-[16px] font-bold px-4 py-2 rounded-full uppercase tracking-widest">
+            <span className="inline-block bg-[#FE342614] text-[#FD6C1D] text-[16px] font-bold px-4 py-2 rounded-full uppercase tracking-widest">
               THE PROBLEM
             </span>
           </div>
@@ -131,8 +136,9 @@ const WhyStarix = () => {
                       
                       <div className={`grid transition-all duration-500 ease-in-out ${isOpen ? "grid-rows-[1fr] opacity-100 mt-3" : "grid-rows-[0fr] opacity-0"}`}>
                         <div className="overflow-hidden">
+                          {/* UPDATED TO problemContent */}
                           <p className="text-[#296287] text-[15px] leading-relaxed max-w-[220px] font-medium">
-                            {item.content}
+                            {item.problemContent}
                           </p>
                         </div>
                       </div>
@@ -144,12 +150,12 @@ const WhyStarix = () => {
                   </div>
 
                   {isOpen && (
-                    <div className="absolute right-[10px] bottom-[-2px] w-[140px] h-[100px] pointer-events-none">
+                    <div className="absolute right-[35px] bottom-[30px] w-[140px] h-[100px] pointer-events-none">
                       <Image
                         src={item.image}
                         alt="visual"
                         fill
-                        className="object-contain object-right-bottom scale-110"
+                        className="object-contain object-right-bottom scale-150"
                       />
                     </div>
                   )}
@@ -159,33 +165,32 @@ const WhyStarix = () => {
           </div>
         </div>
 
-        {/* RIGHT PANEL */}
+        {/* RIGHT PANEL (Solution View) */}
         <div 
           style={{ backgroundColor: activeSection.activeColor }}
-          className="rounded-[40px] p-12 relative overflow-hidden h-full flex flex-col border border-white/40 transition-colors duration-700 ease-in-out "
+          className="rounded-[40px] relative overflow-hidden h-full flex flex-col border border-white/40 transition-colors duration-700 ease-in-out "
         >
-          {/* Glossy Shine Overlay */}
           <div className="absolute inset-0 bg-gradient-to-br from-white/50 via-transparent to-black/5 pointer-events-none z-10" />
           
-          <div className="relative z-20">
+          <div className="relative p-12 z-20">
             <span className="inline-block px-6 py-2 rounded-full uppercase tracking-widest text-[16px] font-bold text-[#2F3CFF] bg-[#0033FF0D] backdrop-blur-xl saturate-150 ">
                 THE SOLUTION
             </span>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] h-full items-end pb-8">
-            <div className="relative z-20">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] p-6 h-full items-end ">
+            <div className="relative  z-20">
               <h2 className="text-[#040136] text-[32px] md:text-[48px] leading-[0.95] font-regular mb-4 tracking-normal">
                 {activeSection.solutionTitle.split(' ')[0]} <br /> 
                 <span className="text-[#040136]">{activeSection.solutionTitle.split(' ')[1] || ''}</span>
               </h2>
               
-              <p className="text-[#64748B] text-[18px] md:text-[20px] leading-relaxed max-w-[300px] font-regular animate-in fade-in slide-in-from-bottom-2 duration-700">
-                {activeSection.content}
+              {/* UPDATED TO solutionContent */}
+              <p className="text-[#64748B] text-[18px] md:text-[20px] leading-relaxed max-w-[400px] font-regular animate-in fade-in slide-in-from-bottom-2 duration-700">
+                {activeSection.solutionContent}
               </p>
             </div>
 
-            {/* DYNAMIC IMAGE CONTAINER */}
             <div className="relative h-full w-full pointer-events-none">
               <div 
                 className={`absolute transition-all duration-1000 ease-out ${activeSection.imageStyles.scale}`}
@@ -202,7 +207,7 @@ const WhyStarix = () => {
                   alt="Solution Visual"
                   fill
                   priority
-                  className="object-contain object-right-bottom animate-in fade-in zoom-in-95 slide-in-from-right-12"
+                  className="object-contain p-8 object-right-bottom animate-in fade-in zoom-in-95 slide-in-from-right-12"
                 />
               </div>
             </div>

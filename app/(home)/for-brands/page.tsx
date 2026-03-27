@@ -12,6 +12,7 @@ import StarixSolutionsSection from "@/components/StarixSolutionsSection";
 import KeyFeaturesSection from "@/components/KeyFeaturesSection";
 import BrandHero from "@/components/BrandHero";
 import ProblemsSection from "@/components/ProblemsSection";
+import BrandHowItWorks from "@/components/BrandHowItWorks";
 
 
 const Page = () => {
@@ -158,6 +159,8 @@ const variantMap = ["front", "mid", "back", "far"];
           
             <ProblemsSection />
             <StarixSolutionsSection />
+            <BrandHowItWorks/>
+
             
           
         </main>

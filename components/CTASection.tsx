@@ -18,7 +18,7 @@ const CTASection = () => {
       <div 
         className={`relative w-full max-w-[1340px] rounded-[20px] overflow-hidden flex flex-col shadow-2xl transition-all duration-500
           ${isForCreators 
-            ? "h-auto md:h-[400px] bg-[#001BB7] pt-12 md:pt-0 items-start justify-center" // Creator Path Blue
+            ? "h-auto md:h-[400px] bg-[#001361] pt-12 md:pt-0 items-start justify-center" // Creator Path Blue
             : isForBrands 
             ? "h-auto md:h-[400px] bg-[#020525] pt-12 md:pt-0 items-start justify-center" 
             : "h-auto md:h-[604px] bg-[#001361] pt-16 md:pt-20 items-center" // Hero Path Blue
@@ -26,32 +26,48 @@ const CTASection = () => {
         `}
       >
         
-        {/* WATERMARK - Only for Home Page */}
-        {!isForBrands && !isForCreators && (
-          <div 
-            className="absolute pointer-events-none select-none overflow-hidden"
-            style={{ width: '1407px', height: '434px', top: '230px', left: '-64px' }}
-          >
-            <img 
-                src="/foot.svg" 
-                alt="starix watermark" 
-                className="w-full h-full object-contain brightness-0 invert" 
-            />
-          </div>
-        )}
+        {/* DYNAMIC WATERMARK CONFIG */}
+{(() => {
+  // Define coordinates based on the current page context
+  const watermarkConfig = isForBrands
+    ? { width: '1200px', height: '400px', top: '450px', left: '10%', opacity: 0.4 } // Brands: Lower & Centered
+    : isForCreators
+    ? { width: '1500px', height: '500px', top: '100px', right: '-20px', opacity: 0.6 } // Creators: Top Right Offset
+    : { width: '1407px', height: '434px', top: '100px', left: '-64px', opacity: 1 }; // Home: Original
+
+  return (
+    <div 
+      className="absolute pointer-events-none select-none overflow-hidden transition-all duration-700"
+      style={{ 
+        width: watermarkConfig.width, 
+        height: watermarkConfig.height, 
+        top: watermarkConfig.top, 
+        left: watermarkConfig.left || 'auto',
+        right: watermarkConfig.right || 'auto',
+        opacity: watermarkConfig.opacity
+      }}
+    >
+      <img 
+          src="/foot.svg" 
+          alt="starix watermark" 
+          className="w-full h-full object-contain brightness-0 invert" 
+      />
+    </div>
+  );
+})()}
 
         {/* CONTENT WRAPPER */}
         <div className={`relative z-10 flex flex-col px-10 md:px-20 max-w-7xl w-full 
           ${(isForBrands || isForCreators) ? "text-left items-start" : "items-center text-center mx-auto"}`}
         >
           
-          <h2 className={`font-['Merriweather'] text-white font-light tracking-[-0.02em] mb-10
+          <h2 className={`font-['Geist'] text-white font-light tracking-[-0.02em] mb-6
             ${(isForBrands || isForCreators) ? "text-[48px] md:text-[56px] leading-[58px]" : "text-[56px]"}
           `}>
             {isForCreators || isForBrands ? (
               <>Your next opportunity <br /> is here.</> // Figma Text
             ) : (
-              <>Redefine Your <br /> Creativity & Brand Story contents.</> // Hero Text
+              <>Redefine Your Creativity &  <br /> Brand Story contents.</> // Hero Text
             )}
           </h2>
 

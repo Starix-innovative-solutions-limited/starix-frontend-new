@@ -6,35 +6,35 @@ import { motion } from "framer-motion";
 
 const solutions = [
   {
-    title: "Challenge Marketplace",
-    desc: "Challenges that fit your niche. No pitching required. Challenges that fit your niche.",
+    title: "Challenge ",
+    desc: "Challenges that fit your niche. No pitching required.",
     asset: "/or-trophy.svg",
-    uiImg: "/dash.svg",
+    uiImg: "/recty.png",
     // Individual sizes for this asset
     assetWidth: "w-[651px]",
     assetHeight: "h-[445px]",
   },
   {
     title: "Creator Tag",
-    desc: "Challenges that fit your niche. No pitching required. Challenges that fit your niche.",
+    desc: "Find your people. Share what's working. Rise together.",
     asset: "/or-tag.svg",
-    uiImg: "/dashs.png",
+    uiImg: "/recty.png",
     assetWidth: "w-[432px]",
     assetHeight: "h-[556px]",
   },
   {
     title: "Creator CV",
-    desc: "Challenges that fit your niche. No pitching required. Challenges that fit your niche.",
+    desc: "Brands find you by what you make, not how many follow you.",
     asset: "/slidedown.svg",
-    uiImg: "/dashs.png",
+    uiImg: "/recty.png",
     assetWidth: "w-[387px]",
     assetHeight: "h-[508px]",
   },
   {
     title: "Creator Circle",
-    desc: "Challenges that fit your niche. No pitching required. Challenges that fit your niche.",
+    desc: "One place for your work, your numbers, your proof.",
     asset: "/Stacked-rings.svg",
-    uiImg: "/dashs.png",
+    uiImg: "/recty.png",
     assetWidth: "w-[440px]",
     assetHeight: "h-[535px]",
   },
@@ -55,11 +55,11 @@ const SolutionCard = ({ title, desc, asset, uiImg, index, assetWidth, assetHeigh
       <div className="flex flex-col z-10 max-w-[60%]">
         <h3
           className="text-[#040136] font-light leading-tight mb-3 text-[48px] tracking-[-0.01em]"
-          style={{ fontFamily: "'Merriweather', 'Georgia', serif" }}
+          style={{ fontFamily: "Geist" }}
         >
           {title}
         </h3>
-        <p className="text-[#203646B2] font-normal leading-relaxed text-[32px] min-w-[900px]">
+        <p className="text-[#203646B2] font-normal leading-relaxed text-[32px] max-w-[490px]">
           {desc}
         </p>
       </div>
@@ -97,13 +97,16 @@ const CreatorBuilt = () => {
 
         {/* HEADER */}
         <div className="flex flex-row justify-between items-start mb-12 gap-6">
-          <h2 className="font-regular text-[#040136] leading-[1.1] tracking-tight text-[clamp(28px,4vw,64px)] max-w-[480px]">
-            Built for how you<br />actually work
+          <h2 className="font-regular flex items-center gap-2 text-[#040136] leading-[1.1] tracking-tight text-[clamp(28px,4vw,64px)]">
+            Built for how you
+            <img src="/buttons 3.svg" alt="" className="h-[2em] w-auto inline-block" />
+            actually work
           </h2>
 
-          <button className="shrink-0 bg-[#FD6C1D] text-white rounded-full font-semibold px-[28px] py-[14px] text-[15px] transition-all hover:shadow-sm ">
-            Join as a Creator
-          </button>
+          <p className="text-[#6E6E6E] font-regular text-[20px] self-center">
+            No matter what niche <br/>
+            you create content for
+          </p>
         </div>
 
         {/* CARDS STACK */}

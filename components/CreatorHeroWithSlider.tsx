@@ -36,11 +36,11 @@ const testimonials = [
 
 export default function CreatorHero() {
   return (
-    <div className="min-h-screen bg-white font-sans text-[#0A0A1B]">
+    <div className="min-h-screen font-sans text-[#0A0A1B]">
       
 
       {/* --- HERO SECTION --- */}
-      <section className="pt-32 pb-20 px-6 flex flex-col items-center text-center">
+      <section className="pt-32 pb-20 px-6 flex bg-[#FAFAFA] flex-col items-center text-center">
         <h1 
           className="text-[#040136] text-[80px] font-medium leading-[100%] tracking-[-0.04em] text-center max-w-[1200px]"
           style={{ 
@@ -63,10 +63,10 @@ export default function CreatorHero() {
         </Link>
 
         {/* --- MAIN VISUAL --- */}
-<div className="relative mt-28 w-full max-w-7xl mx-auto aspect-[16/8] md:aspect-[21/9]">
-  
+<div className="relative mt-28 w-full max-w-7xl mx-auto aspect-[16/8]">
+
   {/* 1. The Sky Blue Background Box (Defines the main shape) */}
-  <div className="absolute inset-0 bg-[#5CA4D8] rounded-[40px] shadow-lg pointer-events-none z-0"></div>
+  <img src="/masked.svg" alt="" />
 
   {/* 2. Background Branding Text / Vector (ALLOWED TO OVERFLOW) */}
   {/* Positioned slightly larger and offset to break out of the blue box */}
@@ -92,8 +92,8 @@ export default function CreatorHero() {
 
   {/* 4. Floating Testimonial Slider (Glassmorphism) */}
   {/* We apply overflow-hidden and rounded-b-[40px] ONLY here so it clips to the bottom corners perfectly */}
-  <div className="absolute bottom-0 left-0 w-full z-30 overflow-hidden">
-    <div className="relative w-full py-5 md:py-7 bg-white/50 backdrop-blur-xl  ">
+  <div className="absolute  bottom-0 left-0 w-full z-30 overflow-hidden">
+    <div className="relative w-full py-5 md:py-7 bg-white/40 backdrop-blur-sm">
       <div className="flex overflow-hidden">
         <motion.div 
           className="flex gap-12 md:gap-16 items-center whitespace-nowrap pl-8"

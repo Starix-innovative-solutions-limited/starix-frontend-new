@@ -9,7 +9,7 @@ const solutions = [
     title: "UGC Scoring Engine",
     desc: "Challenges that fit your niche. No pitching required. Challenges that fit your niche.",
     asset: "/handsss.svg",
-    uiImg: "/dash.svg",
+    uiImg: "/recty.png",
     // Individual sizes for this asset
     assetWidth: "w-[400px]",
     assetHeight: "h-[401px]",
@@ -18,23 +18,23 @@ const solutions = [
     title: "Verified Creator Profiles",
     desc: "Challenges that fit your niche. No pitching required. Challenges that fit your niche.",
     asset: "/people.svg",
-    uiImg: "/dashs.png",
+    uiImg: "/recty.png",
     assetWidth: "w-[592px]",
     assetHeight: "h-[600px]",
   },
   {
     title: "Trend Intelligence",
     desc: "Challenges that fit your niche. No pitching required. Challenges that fit your niche.",
-    asset: "/crown.svg",
-    uiImg: "/dashs.png",
+    asset: "/dish.svg",
+    uiImg: "/recty.png",
     assetWidth: "w-[455px]",
     assetHeight: "h-[405px]",
   },
   {
     title: "Challenge Control Center",
     desc: "Challenges that fit your niche. No pitching required. Challenges that fit your niche.",
-    asset: "/purple-trophy.svg",
-    uiImg: "/dashs.png",
+    asset: "/joystick.svg",
+    uiImg: "/recty.png",
     assetWidth: "w-[400px]",
     assetHeight: "h-[420px]",
   },
@@ -55,7 +55,7 @@ const SolutionCard = ({ title, desc, asset, uiImg, index, assetWidth, assetHeigh
       <div className="flex flex-col z-10 max-w-[60%]">
         <h3
           className="text-[#040136] font-light leading-tight mb-3 text-[48px] tracking-[-0.01em]"
-          style={{ fontFamily: "'Merriweather', 'Georgia', serif" }}
+          style={{ fontFamily: "Geist" }}
         >
           {title}
         </h3>
@@ -66,7 +66,7 @@ const SolutionCard = ({ title, desc, asset, uiImg, index, assetWidth, assetHeigh
 
       {/* 3D ASSET — Now uses individual sizes from props */}
       <div 
-        className={`absolute pointer-events-none z-[1] top-[-20px] right-[-10px] ${assetWidth} ${assetHeight}`}
+        className={`absolute pointer-events-none z-[1] top-[-5px] right-[-10px] ${assetWidth} ${assetHeight}`}
       >
         <Image
           src={asset}
@@ -97,13 +97,15 @@ const StarixSolutionsSection = () => {
 
         {/* HEADER */}
         <div className="flex flex-row justify-between items-start mb-12 gap-6">
-          <h2 className="font-regular text-[#040136] leading-[1.1] tracking-tight text-[clamp(28px,4vw,64px)] max-w-[480px]">
-            Built for how you<br />actually work
+          <h2 className="font-regular flex items-center gap-2 text-[#040136] leading-[1.1] tracking-tight text-[clamp(28px,4vw,64px)]">
+            Built for how you
+            <img src="/idaya.svg" alt="" className="h-[1em] w-auto inline-block" />
+            actually work
           </h2>
 
-          <button className="shrink-0 bg-[#050E81] text-white rounded-full font-semibold px-[28px] py-[14px] text-[15px] transition-all hover:shadow-xl ">
-            Join as a Creator
-          </button>
+          <p className="text-[#6E6E6E] font-regular text-right text-[20px] self-center">
+            No matter what niche <br/> of content you need
+          </p>
         </div>
 
         {/* CARDS STACK */}
