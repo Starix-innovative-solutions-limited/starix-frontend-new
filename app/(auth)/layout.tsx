@@ -1,59 +1,34 @@
 "use client";
 
 import React, { Suspense } from "react";
-// import { Geist, Geist_Mono } from "next/font/google";
-import Image from "next/image";
 import AuthBg from "@/components/auth/AuthBg";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
 
-
-
-// Create a small sub-component for the dynamic background
 const DynamicAuthBg = () => {
   const searchParams = useSearchParams();
   const role = searchParams.get("role");
-
-  return <AuthBg brand={role === "brand"} showLabel />;
+  return <AuthBg brand={role === "brand"} />;
 };
 
-const AuthLayout = ({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) => {
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <main className={` md:h-screen p-7`}>
-      <div className="md:min-w-2xl xl:min-w-7xl xl:max-w-7xl mx-auto flex flex-col gap-7">
-       {/* Logo */}
-      <Link href="/" className="w-fit py-3 px-2 block">
-        <Image
-          src="/logoss.svg"
-          width={100}
-          height={100}
-          className="w-24"
-          alt="Logo"
-          priority
-        />
-      </Link>
+    <main className="grid grid-cols-1 md:grid-cols-2 h-screen w-full overflow-hidden bg-white">
+      
+      {/* LEFT SIDE: Visual Content */}
+      <section className="hidden md:block h-full relative overflow-hidden">
+        <Suspense fallback={<div className="h-full w-full bg-[#D6E9FF] animate-pulse" />}>
+          <DynamicAuthBg />
+        </Suspense>
+      </section>
 
-        <div className="md:h-[86vh] grid md:grid-cols-2 gap-10 xl:gap-14 items-center overflow-hidden">
-
-          {/* Wrap only the background logic in Suspense */}
-          <Suspense fallback={<div className="bg-gray-100 animate-pulse h-full w-full rounded-3xl" />}>
-            <DynamicAuthBg />
-          </Suspense>
-
-          <div className="overflow-y-auto md:h-full hide-scrollbar">
-            {/* If your children (like signup page) also use searchParams, 
-               they should also have their own Suspense boundaries inside their files.
-            */}
-            {children}
-          </div>
+      {/* RIGHT SIDE: Form Content */}
+      <section className="h-full overflow-y-auto flex flex-col items-center hide-scrollbar">
+        {/* max-w-[480px] matches your sidebar.png proportions exactly */}
+        <div className="w-full max-w-[650px] px-8 py-16 md:py-24">
+          {children}
         </div>
-      </div>
+      </section>
+      
     </main>
   );
-};
-
-export default AuthLayout;
+}

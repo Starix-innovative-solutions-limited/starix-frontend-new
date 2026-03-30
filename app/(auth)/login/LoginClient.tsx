@@ -65,14 +65,14 @@ const Page = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-2rem)] w-full flex items-center justify-center px-6 py-6">
+    <div className="w-full flex items-center justify-center px-6 py-6">
       <motion.div 
-        className="w-full max-w-[520px]" 
+        className="w-full max-w-[600px]" 
         variants={variants?.containerVariants} 
         initial="hidden" animate="visible"
       >
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <motion.div className="flex flex-col gap-2" variants={variants?.itemVariants}>
+          <motion.div className="flex flex-col items-center" variants={variants?.itemVariants}>
             <h3 className="font-medium text-3xl sm:text-4xl leading-tight text-secondary-100">
               Welcome back
             </h3>
@@ -83,9 +83,9 @@ const Page = () => {
           </motion.div>
 
           <motion.div variants={variants?.itemVariants} className="flex items-center gap-4">
-            <div className="h-px bg-gray-200 w-full" />
+            <div className="h-px  w-full" />
             <span className="text-xs text-gray-400 whitespace-nowrap">or continue with email</span>
-            <div className="h-px bg-gray-200 w-full" />
+            <div className="h-px w-full" />
           </motion.div>
 
           <motion.div variants={variants?.itemVariants} className="flex flex-col gap-4">
@@ -113,7 +113,7 @@ const Page = () => {
               type="submit"
               disabled={isLoading}
               whileTap={{ scale: 0.98 }}
-              className="w-full rounded-full py-4 font-medium text-white bg-dark-navy hover:shadow-lg border-dark-navy transition-all"
+              className="w-full rounded-full py-4 font-medium text-white bg-[#0033FF] hover:shadow-sm transition-all"
             >
               {isLoading ? <Loader /> : "Login"}
             </motion.button>

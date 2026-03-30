@@ -4,141 +4,142 @@
 import { variants } from "@/constant";
 import { motion } from "framer-motion";
 import React, { useState } from "react";
-import CustomInput from "../CustomInput";
+import CustomInput from "../CustomInput"; 
 import Loader from "../Loader";
 import { useCreatorSignup, useGenerateOtp } from "@/hooks/useAuth";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import PhoneInput from "react-phone-number-input";
-import "react-phone-number-input/style.css";
+import { FcGoogle } from "react-icons/fc"; 
+import Link from "next/link";
+import Image from "next/image";
 
-// Based on your backend's behavior with Brand, 
-// these keys are the most likely suspects for the 422 error.
 const initialForm = {
-  full_name: "",   // Changed from full_name
-  email: "",  // Changed from email
+  first_name: "",
+  last_name: "",
+  email: "",
   password: "",
-  phone_number: "",
 };
 
-type CreatorSignupProps = {
-  setIsGoogleAuth: React.Dispatch<React.SetStateAction<boolean>>;
-  role: string;
-};
-
-const CreatorSignup = ({ role }: CreatorSignupProps) => {
+const CreatorSignup = () => {
   const router = useRouter();
   const [form, setForm] = useState(initialForm);
-  const [confirmPassword, setConfirmPassword] = useState("");
 
   const { mutateAsync, isPending } = useCreatorSignup();
   const { mutate: generateOtp } = useGenerateOtp();
 
-  const validatePassword = (password: string) => {
-    return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(password);
-  };
-
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
 
-    // Basic Validation
-    if (!form.full_name || !form.email || !form.password) {
+    const payload = {
+      ...form,
+      full_name: `${form.first_name} ${form.last_name}`.trim(),
+    };
+
+    if (!form.email || !form.password || !form.first_name) {
       return toast.error("Please fill all required fields");
     }
 
-    if (!validatePassword(form.password)) {
-      return toast.error("Password is too weak (needs Uppercase, Lowercase, Number, and Special Char)");
-    }
-
-    if (form.password !== confirmPassword) {
-      return toast.error("Passwords do not match");
-    }
-
     await toast.promise(
-      mutateAsync(form as any),
+      mutateAsync(payload as any),
       {
-        loading: "Creating creator account...",
+        loading: "Creating account...",
         success: () => {
-          // Trigger OTP using the specific key the backend likely uses
-          generateOtp({
-            email: form.email,
-            purpose: "email_verification",
-          } as any);
-
+          generateOtp({ email: form.email, purpose: "email_verification" } as any);
           router.push(`/verify-email?email=${form.email}&role=creator`);
-          return "Signup successful! Check your email.";
+          return "Signup successful!";
         },
-        error: (err: any) => {
-          const details = err?.response?.data?.detail;
-          
-          if (Array.isArray(details)) {
-            // This will show you exactly which 2 fields are failing in the toast
-            const errorFields = details.map((d: any) => d.loc[d.loc.length - 1]).join(" and ");
-            console.error("BACKEND SAYS THESE FIELDS ARE WRONG:", details);
-            return `Backend needs: ${errorFields}`;
-          }
-          
-          return "Signup failed. Check the console.";
-        },
+        error: (err: any) => err?.response?.data?.detail || "Signup failed",
       }
     );
   };
 
   return (
-    <motion.div className="flex flex-col gap-6" variants={variants?.itemVariants}>
-      
-      <CustomInput
-        label="Full Name"
-        placeholder="John Doe"
-        value={form.full_name}
-        onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-      />
+    <motion.div 
+      initial="hidden"
+      animate="visible"
+      variants={variants?.itemVariants}
+      className="bg-[#fff] mx-auto w-full max-w-[650px] py-12 px-6 flex flex-col items-center font-sans"
+    >
+      {/* Logo & Header */}
+      <header className="text-center mb-10">
+        <div className="flex justify-center mb-8">
+          <Image src="/contact star.svg" alt="Starix Logo" width={60} height={60} className="object-contain" />
+        </div>
+        <h1 className="text-[40px] font-medium text-[#040136] tracking-tight mb-3">
+          Create an Account
+        </h1>
+        <p className="text-[#6B7280] text-lg">
+          Sign up to start building your creator profile on Starix.
+        </p>
+      </header>
 
-      <CustomInput
-        label="Email Address"
-        type="email"
-        placeholder="you@example.com"
-        value={form.email}
-        onChange={(e) => setForm({ ...form, email: e.target.value })}
-      />
+      <button className="w-full flex items-center justify-center gap-3 border border-[#E5E7EB] rounded-full py-4 px-4 mb-8 hover:bg-gray-50 transition-all font-semibold text-[#1F2937] text-base">
+        <FcGoogle size={24} />
+        Continue with Google
+      </button>
 
-      <div className="flex flex-col">
-        <label className="text-sm font-medium mb-2 text-dark-navy">Mobile Number</label>
-        <PhoneInput
-          international
-          defaultCountry="NG"
-          value={form.phone_number}
-          onChange={(val) => setForm({ ...form, phone_number: val || "" })}
-          className="flex h-12 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-within:ring-1 focus-within:ring-dark-navy"
-        />
+      {/* Divider - Fixed Colors */}
+      <div className="w-full flex items-center gap-4 mb-8">
+        <div className="bg-[#E5E7EB] flex-1"></div>
+        <span className="text-[#747682] text-sm font-medium">OR</span>
+        <div className="bg-[#E5E7EB] flex-1"></div>
       </div>
 
-      <CustomInput
-        label="Password"
-        type="password"
-        placeholder="Create password"
-        value={form.password}
-        onChange={(e) => setForm({ ...form, password: e.target.value })}
-      />
+      {/* Form Fields - Fixed Spacing */}
+      <form onSubmit={handleSubmit} className="w-full flex flex-col space-y-6">
+        <CustomInput
+          label="Email Address"
+          placeholder="Enter your email"
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
+        />
 
-      <CustomInput
-        label="Confirm Password"
-        type="password"
-        placeholder="Retype password"
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
-      />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <CustomInput
+            label="First Name"
+            placeholder="Enter first name"
+            value={form.first_name}
+            onChange={(e) => setForm({ ...form, first_name: e.target.value })}
+          />
+          <CustomInput
+            label="Last Name"
+            placeholder="Enter last name"
+            value={form.last_name}
+            onChange={(e) => setForm({ ...form, last_name: e.target.value })}
+          />
+        </div>
 
-      <motion.div className="mt-4">
-        <motion.button
+        <CustomInput
+          label="Set Password"
+          type="password"
+          placeholder="Create a password"
+          value={form.password}
+          onChange={(e) => setForm({ ...form, password: e.target.value })}
+        />
+
+        {/* Action Button */}
+        <button
+          type="submit"
           disabled={isPending}
-          whileTap={{ scale: 0.97 }}
-          onClick={handleSubmit}
-          className="w-full rounded-full py-4 font-medium text-white bg-dark-navy disabled:opacity-60"
+          className="w-full rounded-full py-4 font-bold text-white bg-[#0033FF] hover:bg-[#0026CC] transition-all mt-4 flex items-center justify-center text-lg"
         >
-          {isPending ? <Loader /> : "Create Account"}
-        </motion.button>
-      </motion.div>
+          {isPending ? <Loader /> : "Sign Up"}
+        </button>
+      </form>
+
+      {/* Footer Links */}
+      <div className="mt-10 text-center space-y-6">
+        <p className="text-[#4B5563] font-medium">
+          Already have an account?{" "}
+          <Link href="/login" className="text-[#6B7280] font-bold hover:underline ml-1">
+            Sign in
+          </Link>
+        </p>
+
+        <p className="text-[12px] text-[#9CA3AF] leading-relaxed max-w-[300px] mx-auto">
+          By Continuing, you agree to our <Link href="../footer/terms" className="underline hover:text-gray-600">terms</Link> and <Link href="../footer/privacy" className="underline hover:text-gray-600">privacy policy</Link>
+        </p>
+      </div>
     </motion.div>
   );
 };

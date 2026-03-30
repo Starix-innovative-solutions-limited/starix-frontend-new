@@ -1,153 +1,99 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Image from "next/image";
-import { CgArrowLongRight } from "react-icons/cg";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface AuthProps {
   brand?: boolean;
-  creator?: boolean;
-  showLabel?: boolean;
 }
 
-const ellipseLogos = [
-  "/Ellipse 2.svg",
-  "/Ellipse 3.svg",
-  "/Ellipse 4.svg",
-];
+const AuthBg = ({ brand }: AuthProps) => {
+  const colors = {
+    creator: "#B4DFFE",
+    brand: "#EFE6EE"
+  };
 
-const frameLogo = "/Frame 53.svg";
-
-
-
-
-const AuthBg = ({ brand, creator, showLabel }: AuthProps) => {
-
-  const [expanded, setExpanded] = React.useState(false);
-
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      setExpanded(prev => !prev);
-    }, 2200);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const logosToRender = expanded
-  ? [...ellipseLogos, ...ellipseLogos, frameLogo] // 3 + 3 + 1 = 7
-  : [...ellipseLogos, frameLogo];
-
-  
+  const config = {
+    label: brand ? "For Brands" : "For Creators",
+    labelStyles: brand 
+      ? "border-[#A67BA1] text-[#A67BA1] bg-[#EFE6EE]" 
+      : "border-[#054D81] text-[#054D81] bg-[#B4DFFE]",
+    titleColor: brand ? "text-[#C48EBF]" : "text-[#7B96D4]",
+    topAsset: "/stacked.svg", 
+    mainAsset: brand ? "/bigribbon.svg" : "/bigstar.svg",
+  };
 
   return (
-    <div
-      className={`
-        ${brand ? "bg-primary-orange/5 border border-gray-100" : "bg-[#C9D4F5]"}
-        max-md:hidden
-        h-full
-        rounded-3xl
-        py-8
-        px-2
-        grid
-      `}
+    <motion.div 
+      initial={false}
+      animate={{ backgroundColor: brand ? colors.brand : colors.creator }}
+      transition={{ duration: 0.7 }}
+      // h-screen is vital here so absolute children have a reference height
+      className="relative h-screen w-full overflow-hidden flex flex-col"
     >
-      {showLabel && (
-        <span className="bg-[#fafafa] absolute ml-8 w-fit h-fit px-3 py-1.5 font-light text-dark-navy text-sm">
-          FOR {brand ? "BRAND" : "CREATOR"}
-        </span>
-      )}
+      
+      {/* LAYER 1: Top Decorative Shapes (stacked.svg) */}
+      <div className="absolute w-full h-[70%]  pointer-events-none">
+        <Image 
+          src={config.topAsset} 
+          alt="" 
+          fill 
+          className="object-cover object-top"
+          priority
+          // If images aren't showing, check if the console has 404s for these paths
+        />
+      </div>
 
-      <div className="my-auto flex flex-col gap-10">
+      {/* LAYER 2: Floating Center Content */}
+      <div className="relative z-30 flex flex-col items-center pt-32 px-10 pointer-events-none w-full">
+        <motion.div 
+          key={`label-${brand}`}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`mb-10 px-2 py-1 border rounded-full text-[13px] font-medium uppercase tracking-widest transition-colors duration-500 ${config.labelStyles}`}
+        >
+          {config.label}
+        </motion.div>
 
-        {/* DASH IMAGES */}
-        <div className="mx-auto w-fit">
-          <Image src="/dash-section11.svg" width={300} height={100} alt="" className="shadow-lg shadow-[#fbbea4]" />
-          <Image
-            src="/dash-section123.png"
-            width={300}
-            height={100}
-            alt=""
-            className="ml-20 -mt-40"
-          />
-        </div>
-
-        {/* HEADING */}
-        <h2 className="tracking-[-0.02em] text-dark-navy line-clamp-2 text-2xl text-center">
-          {brand && (
-            <span>
-              Redefine your Brand <br /> Story!
-            </span>
-          )}
-          {creator && <span>Redefine Your Creativity,</span>}
-          {!brand && !creator && (
-            <span>
-              Build campaigns, Join <br /> challenges, Earn rewards.
-            </span>
-          )}
-        </h2>
-
-        {/* CTA ROW */}
-<div className="flex flex-col gap-4">
-  <motion.div
-    layout
-    transition={{ duration: 0.6, ease: "easeInOut" }}
-    className={`
-      rounded-full
-      px-5 py-3
-      shadow-2xs
-      flex items-center
-      bg-[#A9BAEF6E]
-      w-fit mx-auto
-      overflow-hidden
-      ${brand ? "bg-primary-orange/10" : ""}
-    `}
-  >
-    {/* LOGOS */}
-    <div className="flex items-center">
-      {logosToRender.map((src, i) => (
-        <motion.div
-          key={i}
-          layout
-          transition={{ duration: 0.6, ease: "easeInOut" }}
-          className="relative"
-          style={{
-            marginLeft:
-              i === 0
-                ? 0
-                : expanded
-                ? -6   // still stacked, just looser
-                : -16, // tightly stacked
-            zIndex: logosToRender.length - i
+        <motion.h1 
+          key={`title-${brand}`}
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+        
+          className="font-medium leading-[1.05] text-center tracking-[-0.04em] whitespace-nowrap text-[80px] transition-colors duration-500"
+          style={{ 
+            color: brand ? "#81056C4D" : "#054D814D" // 4D is roughly 30% opacity
           }}
         >
-          <Image src={src} alt="" width={36} height={36} />
-        </motion.div>
-      ))}
-    </div>
-
-    {/* TEXT */}
-    <motion.span
-      layout
-      transition={{ duration: 0.6, ease: "easeInOut" }}
-      className="italic text-orange-400 text-[24px] ml-3 whitespace-nowrap"
-    >
-      start here
-    </motion.span>
-
-    {/* ARROW */}
-    <motion.div
-      layout
-      transition={{ duration: 0.6, ease: "easeInOut" }}
-      className="ml-2"
-    >
-      <CgArrowLongRight className="text-orange-400" />
-    </motion.div>
-  </motion.div>
-</div>
-
+          Redefine your <br /> Creativity
+        </motion.h1>
       </div>
-    </div>
+
+      
+      {/* We use a large h percentage and absolute positioning to ensure it anchors to the bottom */}
+      <div className="absolute left-1/2 -translate-x-1/2 w-full h-[110%] z-30">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={brand ? "brand-asset" : "creator-asset"}
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -100 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="relative w-full h-full" 
+          >
+            <Image 
+              src={config.mainAsset} 
+              alt="Main Visual" 
+              fill 
+              className="object-contain object-bottom"
+              priority
+            />
+          </motion.div>
+        </AnimatePresence>
+      </div>
+      
+    </motion.div>
   );
 };
 
