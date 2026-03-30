@@ -44,7 +44,7 @@ export default function Navbar() {
         {/* GLASSY CTA BUTTON (Desktop) */}
         <Link
           href="/signup"
-          className="hidden md:block bg-[#040136] backdrop-blur-lg border border-white/40 text-[#fff] px-5 py-2 rounded-full text-[16px] font-semibold"
+          className="hidden md:block bg-[#0033FF] backdrop-blur-lg border border-white/40 text-[#fff] px-5 py-2 rounded-full text-[16px] font-semibold"
         >
           Join Now
         </Link>

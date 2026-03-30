@@ -81,7 +81,7 @@ const CTASection = () => {
                 href="/signup" 
                 className={`inline-flex items-center justify-center w-52 h-16 rounded-[40px] text-white text-lg font-medium transition-all duration-300
                   ${isForCreators 
-                    ? "bg-[#FF6B00] hover:brightness-110 shadow-[0_10px_30px_rgba(255,107,0,0.3)]" // Orange on Creator Page
+                    ? "bg-[#FF6B00] hover:brightness-110 shadow-sm" // Orange on Creator Page
                     : "border border-white hover:bg-white/10" // Outline on Hero Page
                   }
                 `}
@@ -95,7 +95,7 @@ const CTASection = () => {
               <Link
                 href="/signup?role=brand"
                 className={`inline-flex items-center justify-center w-52 h-16 rounded-[40px] text-white text-lg font-medium transition-all duration-300
-                  ${isForBrands ? "bg-[#0033FF] hover:bg-[#0041cc]" : "bg-[#FF6B00] hover:brightness-110 shadow-[0_10px_30px_rgba(255,107,0,0.3)]"}
+                  ${isForBrands ? "bg-[#0033FF] hover:bg-[#0041cc]" : "bg-[#FF6B00] hover:brightness-110 shadow-sm"}
                 `}
               >
                 Join as a Brand

@@ -73,13 +73,13 @@ const BrandHero = () => {
         >
           <Link
             href="/signup"
-            className="w-full sm:w-auto px-10 py-4 rounded-full border-2 border-[#050E81] text-[#050E81] font-medium hover:shadow-sm transition-all text-[20px]"
+            className="w-full sm:w-auto px-10 py-4 rounded-full border-2 border-[#0033FF] text-[#0033FF] font-medium hover:shadow-sm transition-all text-[20px]"
           >
             Join as a Creator
           </Link>
           <Link
             href="/signup?role=brand"
-            className="w-full sm:w-auto px-10 py-4 rounded-full bg-[#050E81] text-white font-medium hover:shadow-sm transition-all shadow-lg text-[20px]"
+            className="w-full sm:w-auto px-10 py-4 rounded-full bg-[#0033FF] text-white font-medium hover:shadow-sm transition-all shadow-lg text-[20px]"
           >
             Join as a Brand
           </Link>

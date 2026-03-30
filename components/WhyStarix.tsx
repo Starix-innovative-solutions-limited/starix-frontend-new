@@ -155,7 +155,7 @@ const WhyStarix = () => {
                         src={item.image}
                         alt="visual"
                         fill
-                        className="object-contain object-right-bottom scale-150"
+                        className="object-contain object-right-bottom scale-160"
                       />
                     </div>
                   )}

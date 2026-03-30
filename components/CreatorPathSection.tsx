@@ -11,9 +11,9 @@ const paths = [
     icon: "/book.svg",
     bg: "bg-[#FEEADF]",
     imgClass: "w-[120%] bottom-[-5%] left-[-5%]",
-    // Fan styling: Tilt left and push down slightly
-    initialRotate: -8,
+    initialRotate: -20,
     initialY: 40,
+    zIndex: 10,
   },
   {
     title: "Micro Creators",
@@ -21,19 +21,19 @@ const paths = [
     icon: "/packer.svg",
     bg: "bg-[#C5E6FE]",
     imgClass: "w-[120%] bottom-[0%] right-[-25%]",
-    // Fan styling: Slight tilt left
-    initialRotate: -3,
+    initialRotate: -10,
     initialY: 10,
+    zIndex: 20,
   },
   {
     title: "Trend Creators",
     desc: "If you love jumping on trends, you’re in the right place. Join fast-moving challenges designed for viral energy and high engagement.",
     icon: "/flash.svg",
     bg: "bg-[#FEEADF]",
-    imgClass: "w-[110%] bottom-[0%] right-[-10%]",
-    // Fan styling: Slight tilt right
-    initialRotate: 3,
+    initialRotate: 10,
     initialY: 10,
+    imgClass: "w-[110%] bottom-[0%] right-[-10%]",
+    zIndex: 30,
   },
   {
     title: "Mega Creators",
@@ -41,32 +41,33 @@ const paths = [
     icon: "/blustar.svg",
     bg: "bg-[#C5E6FE]",
     imgClass: "w-[120%] bottom-[0%] right-[-20%]",
-    // Fan styling: Tilt right and push down
-    initialRotate: 8,
+    initialRotate: 20,
     initialY: 40,
+    zIndex: 40,
   },
 ];
 
-const PathCard = ({ title, desc, icon, bg, imgClass, initialRotate, initialY, index }: any) => (
+const PathCard = ({ title, desc, icon, bg, imgClass, initialRotate, initialY, zIndex, index }: any) => (
   <motion.div
     initial={{ opacity: 0, y: 100 }}
     whileInView={{ 
       opacity: 1, 
       y: initialY, 
-      rotate: initialRotate 
+      rotate: initialRotate,
+      zIndex: zIndex // This ensures the correct fanned stacking order
     }}
-    // RESET ON HOVER: Card straightens up, moves up, and comes to the front
     whileHover={{ 
       rotate: 0, 
       y: 0, 
       scale: 1.05,
-      zIndex: 50,
+      zIndex: 100, // Pops to the very front when hovered
       transition: { duration: 0.3, ease: "easeOut" }
     }}
     viewport={{ once: true }}
     transition={{ duration: 0.6, delay: index * 0.1 }}
-    className={`${bg} rounded-[32px] h-[345px] w-[20px] min-w-[290px] relative overflow-hidden p-6 shadow-sm cursor-pointer transition-shadow hover:shadow-lg`}
-    style={{ transformOrigin: "bottom center" }} // Makes the fan effect feel more natural
+    // Added border-4 border-white to make the "stack" clean
+    className={`${bg} rounded-[32px] h-[345px] w-[20px] min-w-[290px] relative overflow-hidden p-6 shadow-lg cursor-pointer transition-shadow hover:shadow-lg `}
+    style={{ transformOrigin: "bottom center" }}
   >
     {/* TEXT */}
     <div className="relative z-10">
@@ -92,7 +93,7 @@ const PathCard = ({ title, desc, icon, bg, imgClass, initialRotate, initialY, in
 
 const CreatorPathSection = () => {
   return (
-    <section className="py-32 bg-white px-6 overflow-hidden">
+    <section className="py-32 bg-[#FAFAFA] px-6 overflow-hidden">
       <div className="max-w-[1300px] mx-auto">
         
         {/* HEADER */}
@@ -104,10 +105,10 @@ const CreatorPathSection = () => {
         </div>
 
         {/* FAN CONTAINER */}
-        {/* We use negative margins on larger screens to achieve the "overlapping" look */}
-        <div className="flex flex-col md:flex-row justify-center items-center md:gap-[-20px] lg:gap-[-40px] perspective-[1000px]">
+        <div className="flex flex-col md:flex-row justify-center items-center perspective-[1000px]">
           {paths.map((item, i) => (
-            <div key={i} className="w-full md:w-1/4 md:-mr-10 last:mr-0">
+            // Added md:-mr-20 to pull cards closer together for the stacked look
+            <div key={i} className="w-full md:w-auto md:-mr-20 last:mr-0">
               <PathCard {...item} index={i} />
             </div>
           ))}

@@ -10,7 +10,7 @@ const challenges = [
     desc: "Trends move fast. By the time you catch one it's already gone",
     icon: "/or-clock.svg",
     imgClass: "w-[110%] h-[100%] bottom-[-25%] left-[-10%]",
-    titleClass: "top-8 max-w-[150px] left-6",
+    titleClass: "top-8 max-w-[160px] left-6",
     descClass: "top-24  max-w-[115px] right-[4%] text-right"
   },
   {
@@ -86,7 +86,7 @@ const ChallengeCard = ({
 const StarixChallengesSection = () => {
   return (
     <section className="relative py-24 bg-white px-6">
-      <div className="max-w-[1400px] mx-auto">
+      <div className="max-w-[1300px] mx-auto">
         {/* HEADER */}
         <div className="text-center mb-16">
           <h2 className="text-[#040136] text-[48px] md:text-[72px] font-medium leading-none tracking-tight">
