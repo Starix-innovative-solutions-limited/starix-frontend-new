@@ -10,7 +10,7 @@ const Hero = () => {
   useEffect(() => {
     const fetchAnimation = async () => {
       try {
-        const response = await fetch("/animations/hero-anime4.json");
+        const response = await fetch("/animations/hero-anime5.json");
         const data = await response.json();
         setAnimationData(data);
       } catch (error) {
