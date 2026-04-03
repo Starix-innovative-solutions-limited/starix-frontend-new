@@ -10,7 +10,7 @@ const Hero = () => {
   useEffect(() => {
     const fetchAnimation = async () => {
       try {
-        const response = await fetch("/animations/hero-anime.json");
+        const response = await fetch("/animations/hero-anime4.json");
         const data = await response.json();
         setAnimationData(data);
       } catch (error) {
@@ -54,34 +54,29 @@ const Hero = () => {
       </div>
 
       {/* --- UPDATED ANIMATION CONTAINER --- */}
-    {/* --- UPDATED FULL-WIDTH ANIMATION CONTAINER --- */}
-      <div 
-        className="absolute pointer-events-none overflow-hidden"
-        style={{ 
-          width: '100%',     // Spans the full width of the section
-          height: '500px',   // Slightly increased height for better coverage
-          top: '500px',      // Adjusted position to sit below text
-          left: '0',         // Locked to the left edge
-          zIndex: 0 
-        }}
-      >
-        {animationData && (
-          <Lottie 
-            animationData={animationData} 
-            loop={true} 
-            autoplay={true}
-            style={{ 
-              width: '100%', 
-              height: '100%' 
-            }}
-            rendererSettings={{
-              // "slice" acts like object-cover, ensuring it touches edges 
-              // even if the aspect ratio doesn't match perfectly.
-              preserveAspectRatio: "xMidYMid slice" 
-            }}
-          />
-        )}
-      </div>
+    <div
+  className="absolute pointer-events-none overflow-hidden left-0 right-0 w-full"
+  style={{
+    height: "500px",
+    top: "500px",
+    zIndex: 0,
+  }}
+>
+  {animationData && (
+    <Lottie
+      animationData={animationData}
+      loop
+      autoplay
+      style={{
+        width: "100vw",   // 👈 force full viewport width
+        height: "100%",
+      }}
+      rendererSettings={{
+        preserveAspectRatio: "xMidYMid slice",
+      }}
+    />
+  )}
+</div>
 
     </section>
   );
