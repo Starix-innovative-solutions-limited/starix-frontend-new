@@ -1,323 +1,236 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { variants } from "@/constant";
-import { MdStarRate } from "react-icons/md";
-import { FaFire, FaClock, FaChartLine, FaHashtag } from "react-icons/fa";
-import PostCard from "@/components/(creator)/dashboard/PostCard";
-import WeeklyLeaderboard from "@/components/(creator)/dashboard/WeeklyLeaderboard";
-import { useAuthStore } from "@/store/useAuthStore";
-import LinearGradientBorder from "@/components/ui/LinearGradientBorder";
 import Link from "next/link";
+import { HiArrowRight, HiArrowLeft } from "react-icons/hi2";
+import { MdVerified } from "react-icons/md";
+import { FiBarChart2, FiMail, FiClock, FiBookmark, FiShare2 } from "react-icons/fi";
 
 const Page = () => {
-  const { profile } = useAuthStore();
-
-  const container = {
-    hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.1 } },
-  };
-
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 },
-  };
-
-  // ✅ Star level logic (0–100)
-  const star = useMemo(() => {
-    const raw = Number(profile?.reputation_score ?? 0);
-    const pct = Number.isFinite(raw) ? Math.max(0, Math.min(100, raw)) : 0;
-
-    // Names + colors that feel “creator journey”
-    if (pct <= 15) return { label: "SPARK", color: "#9CA3AF", pct }; // gray
-    if (pct <= 35) return { label: "RISING", color: "#22C55E", pct }; // green
-    if (pct <= 60) return { label: "EMERGING", color: "#FD6C1D", pct }; // orange
-    if (pct <= 85) return { label: "PRO", color: "#8B5CF6", pct }; // purple
-    return { label: "ELITE", color: "#06B6D4", pct }; // cyan
-  }, [profile?.reputation_score]);
-
-  const statsCards = [
+  const recommendedChallenges = [
     {
-      label: "Starix Score:",
-      value: profile?.reputation_score ?? 0,
-      valueSize: "text-3xl",
-      image: "/Star 2.svg",
+      id: 1,
+      brand: "Nivea",
+      logo: "/nivea.svg", 
+      time: "12h ago",
+      niche: ["Beauty", "Family and lifestyle"],
+      prize: "₦10M",
+      deadline: "12h",
+      title: "UGC Creators Needed for Skincare Product set Launch",
+      desc: "A real-time measure of your creator performance, visibility, and brand readiness..",
+      thumbnails: ["/left1.svg", "/right1.svg"], 
     },
     {
-      label: "Your Niche:",
-      value: profile?.content_categories ? profile?.content_categories : "Fashion",
-      valueSize: "text-lg",
-      image: "/ball 2.svg",
+      id: 2,
+      brand: "Indomie",
+      logo: "/indomie.svg", 
+      time: "2d ago",
+      niche: ["Food", "Family and lifestyle"],
+      prize: "₦8M",
+      deadline: "12h",
+      title: "UGC Creators Needed for Skincare Product set Launch",
+      desc: "A real-time measure of your creator performance, visibility, and brand readiness..",
+      thumbnails: ["/left2.svg", "/right21.svg"], 
     },
     {
-      label: "Ongoing Challenges:",
-      value: "10",
-      valueSize: "text-3xl",
-      image: "/trophy.svg",
+      id: 3,
+      brand: "Indomie",
+      logo: "/indomie.svg", 
+      time: "2d ago",
+      niche: ["Food", "Family and lifestyle"],
+      prize: "₦8M",
+      deadline: "12h",
+      title: "UGC Creators Needed for Skincare Product set Launch",
+      desc: "A real-time measure of your creator performance, visibility, and brand readiness..",
+      thumbnails: ["/left2.svg", "/right21.svg"], 
     },
   ];
 
-  const trendingInsights = [
-    {
-      icon: FaFire,
-      category: "Hot Topic",
-      text: "Short comedic skits up 34% this week!",
-      gradient: "from-orange-100 via-pink-100 to-purple-100",
-    },
-    {
-      icon: FaFire,
-      category: "Catchy Hook",
-      text: `"People don't talk about this enough..."`,
-      gradient: "from-pink-100 via-purple-100 to-blue-100",
-    },
-    {
-      icon: FaClock,
-      category: "Posting Time",
-      text: "7:30 PM, highest engagement predicted",
-      gradient: "from-blue-100 via-cyan-100 to-teal-100",
-    },
-    {
-      icon: FaFire,
-      category: "Content Idea",
-      text: "Create your routine POV video",
-      gradient: "from-purple-100 via-pink-100 to-rose-100",
-    },
-    {
-      icon: FaChartLine,
-      category: "Top Engagement",
-      text: "Mini product demos are generating 2.1x",
-      gradient: "from-amber-100 via-orange-100 to-red-100",
-    },
-    {
-      icon: FaHashtag,
-      category: "Trending Hashtags",
-      text: "#DayInMyLife #Creator #FYP",
-      gradient: "from-cyan-100 via-blue-100 to-indigo-100",
-    },
+  const activeChallenges = [
+    { brand: "Starbucks", logo: "/starbucks.svg", status: "In Progress", color: "bg-[#FEFCE8] text-[#854D0E]" },
+    { brand: "PlayStation", logo: "/ps.svg", status: "Awaiting Review", color: "bg-[#F5F3FF] text-[#5B21B6]" },
+    { brand: "McDonalds", logo: "/mcdonald.svg", status: "Approved", color: "bg-[#75C0F41A] text-[#2D93D0]" },
   ];
-
-  // ✅ profile image fallback
-  const profileImage =
-    profile?.profile_picture ||
-    profile?.avatar ||
-    profile?.image ||
-    "/avatar.svg"; // put a default avatar in /public/avatar.png
 
   return (
-    <div className="min-h-screen w-full">
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={variants?.containerVariants}
-        className="mx-auto w-full"
-      >
-        {/* Header */}
-        <motion.div
-          variants={variants?.headerVariants}
-          className="
-            flex flex-col gap-4
-            md:flex-row md:items-center md:justify-between
-            mb-4 md:mb-8
-          "
+    <div className="min-h-screen w-full bg-white px-2 md:px-4 py-6">
+      {/* 1. Header Section */}
+      <header className="flex items-center justify-between mb-10">
+        <div>
+          <h1 className="text-[22px] md:text-[24px] font-semibold text-[#1E1F24] flex items-center gap-2 tracking-tight">
+            Welcome Back, Destiny 👋
+          </h1>
+          <p className="text-[#6B7280] text-[14px] mt-1 font-medium">
+            You have 3 new campaign matches today
+          </p>
+        </div>
+        
+        <div
+          className="relative w-[48px] h-[48px] rounded-full flex items-center justify-center overflow-hidden shrink-0"
+          style={{
+            background: "conic-gradient(#0033FF 0% 50%, #FD6C1D 50% 100%)",
+          }}
         >
-          <motion.span
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            className="
-              w-fit
-              flex items-center gap-2
-              py-2 px-3
-              text-xl md:text-2xl
-              font-normal
-              rounded-xl
-              hover:bg-gray-100 transition-colors
-              text-secondary-100
-            "
-          >
-            Overview
-          </motion.span>
-
-          {/* Right header block */}
-          <div
-            className="
-              w-full md:w-fit
-              flex items-center
-              justify-between
-              gap-3 md:gap-5
-              bg-white border border-gray-200 rounded-2xl
-              px-3 py-3 md:py-2
-            "
-          >
-          
-
-            {/* Star badge */}
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="
-                flex items-center justify-between
-                md:justify-start
-                gap-3
-                px-4 py-2
-                border border-gray-200
-                text-secondary-100
-                hover:bg-gray-100
-                rounded-lg
-                bg-[#FFF8F5]
-                
-              "
-            >
-              <div className="flex items-center gap-2">
-                <MdStarRate size={24} color={star.color} />
-                <motion.span className="text-sm tracking-wide">
-                  {star.label} CREATOR
-                </motion.span>
-              </div>
-
-              <span className="text-secondary-100/70 text-xs">
-                Level {Math.round(star.pct)}
-              </span>
-            </motion.div>
-
-
-            {/* Progress ring */}
-            <div
-              className="relative w-11 h-11 rounded-full flex items-center justify-center shrink-0"
-              style={{
-                background: `conic-gradient(${star.color} 0% ${star.pct}%, #e0e0e0 ${star.pct}% 100%)`,
-              }}
-              aria-label={`Progress ${Math.round(star.pct)} percent`}
-            >
-              <div className="w-10 h-10 p-2 rounded-full bg-white flex items-center justify-center">
-                <span className="text-[10px] font-light text-gray-800">
-                  {Math.round(star.pct)}%
-                </span>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Body */}
-        <div className="w-full">
-          {/* Stats Cards */}
-          <motion.div
-            variants={container}
-            initial="hidden"
-            animate="show"
-            className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 my-6 md:my-16"
-          >
-            {statsCards.map((card, index) => (
-              <motion.div
-                key={index}
-                variants={item}
-                className="
-                  bg-white
-                  border border-gray-100
-                  rounded-[20px]
-                  w-full
-                  h-[100px]
-                  md:w-[335px]
-                 
-                  px-4
-                  shadow-xs
-                  
-                  flex items-center justify-between
-                "
-
-              >
-                <div className="space-y-2 min-w-0">
-                  <p className="text-dark text-sm">{card.label}</p>
-                  <span className={`font-normal text-secondary-100 ${card.valueSize} break-words`}>
-                    {card.value}
-                  </span>
-                </div>
-
-                <Image
-                  src={card.image}
-                  width={120}
-                  height={82}
-                  alt={card.label}
-                  className="w-24 md:w-36 h-auto object-contain shrink-0"
-                />
-              </motion.div>
-            ))}
-          </motion.div>
-
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10 mt-8 mb-12">
-            {/* Trending */}
-            <div className="lg:col-span-2">
-              <h2 className="text-xl md:text-2xl font-normal text-gray-800 mb-6">
-                Trending in Your Niche
-              </h2>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-14">
-                {trendingInsights.map((insight, index) => {
-                  const Icon = insight.icon;
-                  return (
-                    <LinearGradientBorder key={index}>
-                      <div className="relative flex items-start gap-3">
-                        <div className="min-w-0">
-                          <p className="text-[10px] md:text-xs text-dark uppercase mb-1 bg-[#F5F5F5] p-1.5 border border-gray-100 shadow-2xs w-fit rounded-md">
-                            {insight.category}
-                          </p>
-
-                          <div className="text-gray-800 font-medium flex items-start gap-2 mt-2">
-                            <Icon className="text-orange-500 text-lg md:text-xl flex-shrink-0 mt-0.5" />
-                            <span className="text-sm md:text-sm break-words">
-                              {insight.text}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </LinearGradientBorder>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Top Creators */}
-            <div className="w-full">
-              <h2 className="text-xl md:text-2xl font-normal text-gray-800 mb-6">
-                Top Creators in Your Niche
-              </h2>
-              <WeeklyLeaderboard />
-            </div>
-          </div>
-
-          {/* Active Challenges */}
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl md:text-2xl font-normal text-gray-800">
-                Active Challenges
-              </h2>
-
-              <Link
-                href="/challenges"
-                className="
-                
-                  text-[#040136]
-                  px-4 py-2
-                  rounded-full
-                  font-normal
-                  transition-all duration-200
-                  hover:opacity-90
-                "
-              >
-                See All
-              </Link>
-
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1,2,3,4,5,6].map((c) => <PostCard key={c} />)}
-            </div>
+          <div className="w-[42px] h-[42px] rounded-full bg-white flex items-center justify-center overflow-hidden">
+            <Image 
+              src="/dp.svg" 
+              width={42} 
+              height={42} 
+              alt="Profile" 
+              className="object-cover" 
+              priority
+            />
           </div>
         </div>
-      </motion.div>
+      </header>
+
+      {/* 2. Recommended Challenges */}
+      <section className="mb-14">
+        <h2 className="text-[18px] md:text-[20px] font-semibold text-[#62636C] mb-6">Recommended Challenges For You</h2>
+        
+        <div className="flex gap-4 overflow-x-auto pb-6 no-scrollbar snap-x snap-mandatory">
+          {recommendedChallenges.map((challenge) => (
+            /* WRAPPED IN LINK FOR ROUTING */
+            <Link 
+              href={`/dashboard/challenge/${challenge.id}`}
+              key={challenge.id} 
+              className="
+                flex-none 
+                basis-[85%] 
+                md:basis-[48%] 
+                snap-start
+                bg-white 
+                border border-[#F3F4F6] 
+                rounded-[24px] md:rounded-[32px] 
+                p-4 md:p-6 
+                shadow-sm
+                hover:border-blue-200
+                transition-all
+                cursor-pointer
+              "
+            >
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-3">
+                  <div className="relative w-10 h-10 md:w-11 md:h-11 rounded-full overflow-hidden border border-gray-50">
+                    <Image src={challenge.logo} alt={challenge.brand} fill className="object-cover" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1">
+                      <span className="font-medium text-[12px] text-[#1E1F24]">{challenge.brand}</span>
+                      <MdVerified className="text-[#22C55E]" size={14} />
+                      <span className="text-[#9CA3AF] text-[10px] md:text-[12px] font-medium ml-1">• {challenge.time}</span>
+                    </div>
+                    <div className="flex gap-1.5 mt-1">
+                      {challenge.niche.map((n) => (
+                        <span key={n} className="text-[9px] bg-[#F5FBFF] text-[#3379A5] px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
+                          {n}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="px-3 py-1.5 border border-[#D1D5DB] rounded-full text-[11px] font-medium text-[#1E1F24] hover:bg-gray-50 transition-colors">
+                  Submit
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 mb-4 text-[10px] md:text-[11px] font-semibold">
+                <span className="text-[#1E1F24]">{challenge.prize} prize pool</span>
+                <span className="text-[#E5E7EB]">|</span>
+                <span className="text-[#D12B1F]">Closes in {challenge.deadline}</span>
+                <span className="text-[#E5E7EB] hidden sm:inline">|</span>
+                <span className="text-[#1E874B] bg-[#ECFEF4] px-2 py-0.5 rounded-md text-[10px] hidden sm:inline">Verified</span>
+              </div>
+
+              <h3 className="font-semibold text-[12px] text-[#62636C] mb-2 leading-tight">{challenge.title}</h3>
+              <p className="text-[#747682] font-normal text-[10px] leading-relaxed mb-6 line-clamp-2">{challenge.desc}</p>
+
+              <div className="grid grid-cols-2 gap-3 mb-5">
+                {challenge.thumbnails.map((img, i) => (
+                  <div key={i} className="h-[140px] md:h-[180px] rounded-[20px] md:rounded-[24px] relative overflow-hidden group">
+                    <Image src={img} alt="Thumbnail" fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <div className="absolute bottom-2 left-2 bg-black/40 backdrop-blur-md text-white text-[9px] px-2 py-0.5 rounded-md flex items-center gap-1 font-bold">
+                      <span className="text-[7px]">▶</span> 0:49
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex items-center justify-between text-[#9CA3AF] pt-2 border-t border-gray-50 mt-2">
+                <div className="flex gap-3 md:gap-5 text-[11px] md:text-[12px] font-bold">
+                  <span className="flex items-center gap-1"><FiBarChart2 size={14}/> 2189</span>
+                  <span className="flex items-center gap-1"><FiMail size={14}/> 87</span>
+                  <span className="flex items-center gap-1"><FiClock size={14}/> 12h</span>
+                </div>
+                <div className="flex gap-3">
+                  <button onClick={(e) => e.preventDefault()} className="hover:text-[#111827] transition-colors"><FiBookmark size={16} /></button>
+                  <button onClick={(e) => e.preventDefault()} className="hover:text-[#111827] transition-colors"><FiShare2 size={16} /></button>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* 3. Active Challenges */}
+      <section className="pb-10">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-[18px] md:text-[20px] font-semibold text-[#62636C]">Active Challenges</h2>
+          <Link href="/challenges" className="flex items-center gap-1.5 text-[13px] md:text-[14px] font-medium text-[#1E1F24] hover:underline">
+            View All <HiArrowRight size={18} />
+          </Link>
+        </div>
+
+        <div className="space-y-1">
+          {activeChallenges.map((active, idx) => (
+            /* WRAPPED IN LINK FOR ROUTING */
+            <Link 
+              key={idx} 
+              href={`/dashboard/challenge/active-${idx}`}
+              className="flex items-center justify-between py-4 md:py-5 border-b border-[#F3F4F6] last:border-0 hover:bg-gray-50/50 transition-colors px-2 rounded-xl"
+            >
+              <div className="flex items-center gap-3 md:gap-5 min-w-0">
+                <div className="relative w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden border border-gray-100 shrink-0">
+                  <Image src={active.logo} alt={active.brand} fill className="object-contain p-1.5 md:p-2" />
+                </div>
+                <div className="truncate">
+                  <h4 className="font-bold text-[#374151] text-[13px] md:text-[14px] truncate">UGC Creators Needed for Skincare Product</h4>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[12px] text-[#6B7280] font-bold">{active.brand}</span>
+                    <MdVerified className="text-[#22C55E]" size={12} />
+                    <span className="text-[11px] text-[#9CA3AF] font-medium">• ₦10M pool</span>
+                  </div>
+                </div>
+              </div>
+              <span className={`px-3 md:px-5 py-1.5 md:py-2 rounded-full text-[10px] md:text-[11px] font-bold tracking-tight shrink-0 ${active.color}`}>
+                {active.status}
+              </span>
+            </Link>
+          ))}
+        </div>
+
+        {/* Pagination */}
+        <div className="flex justify-between items-center w-full mt-12 px-1">
+          <button className="px-3 md:px-5 py-2 border border-[#E5E7EB] rounded-full text-[14px] font-regular text-[#111827] flex items-center gap-1 hover:bg-gray-50 transition-all">
+            <HiArrowLeft size={14} /> Previous
+          </button>
+
+          <div className="flex items-center gap-1 md:gap-2">
+            <button className="w-9 h-9 md:w-11 md:h-11 bg-[#F9F9FB] text-[#1E1F24] rounded-[12px] font-medium text-[14px]">1</button>
+            <button className="w-9 h-9 md:w-11 md:h-11 text-[#6B7280] hover:bg-gray-50 rounded-[12px] font-medium text-[14px]">2</button>
+            <button className="w-9 h-9 md:w-11 md:h-11 text-[#6B7280] font-medium text-[14px]">...</button>
+            <button className="w-9 h-9 md:w-11 md:h-11 text-[#6B7280] hover:bg-gray-50 rounded-[12px] font-medium text-[14px]">4</button>
+            <button className="w-9 h-9 md:w-11 md:h-11 text-[#6B7280] hover:bg-gray-50 rounded-[12px] font-medium text-[14px]">5</button>
+          </div>
+
+          <button className="px-3 md:px-5 py-2 border border-[#E5E7EB] rounded-full text-[14px] font-regular text-[#111827] flex items-center gap-1 hover:bg-gray-50 transition-all">
+            Next <HiArrowRight size={14}/>
+          </button>
+        </div>
+      </section>
     </div>
   );
 };

@@ -2,7 +2,8 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { Work_Sans } from "next/font/google";
-import { SideBar, TopBar } from "@/components/(creator)/dashboard";
+import { SideBar } from "@/components/(creator)/dashboard";
+import RightSideBar from "@/components/(creator)/dashboard/RightSideBar";
 
 const workSans = Work_Sans({
   subsets: ["latin"],
@@ -12,6 +13,28 @@ const workSans = Work_Sans({
 
 const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  // State management for sidebars
+  const [leftCollapsed, setLeftCollapsed] = useState(false);
+  const [rightCollapsed, setRightCollapsed] = useState(true);
+
+  // Logic: Opening Right closes Left
+  const toggleRight = () => {
+    const isOpening = rightCollapsed;
+    setRightCollapsed(!rightCollapsed);
+    if (isOpening) {
+      setLeftCollapsed(true);
+    }
+  };
+
+  // Logic: Opening Left closes Right
+  const toggleLeft = () => {
+    const isOpening = leftCollapsed;
+    setLeftCollapsed(!leftCollapsed);
+    if (isOpening) {
+      setRightCollapsed(true);
+    }
+  };
 
   const [showTopBar, setShowTopBar] = useState(true);
   const lastScrollTop = useRef(0);
@@ -23,21 +46,15 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
 
     const onScroll = () => {
       if (ticking.current) return;
-
       ticking.current = true;
       requestAnimationFrame(() => {
         const current = el.scrollTop;
         const last = lastScrollTop.current;
-
-        // ignore tiny jitter
         const delta = current - last;
 
-        // Scroll down => hide (after user has scrolled a bit)
         if (delta > 6 && current > 60) {
           setShowTopBar(false);
         }
-
-        // Scroll up => show
         if (delta < -6) {
           setShowTopBar(true);
         }
@@ -52,23 +69,18 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
   }, []);
 
   return (
-    <main className={`${workSans.variable} bg-[#f5f5f5] h-screen`}>
-      <div className="md:flex p-4 md:p-6 gap-6 h-full overflow-hidden">
-        <SideBar className={"max-lg:hidden md:max-h-[95vh]"} />
+    <main className={`${workSans.variable} bg-[#fff] h-screen font-sans`}>
+      <div className="flex p-4 md:p-6 gap-6 h-full overflow-hidden">
+        
+        {/* LEFT SIDEBAR */}
+        <SideBar 
+          collapsed={leftCollapsed} 
+          setCollapsed={toggleLeft} 
+          className="max-lg:hidden md:max-h-[95vh] transition-all duration-300" 
+        />
 
-        <div className="flex-1 flex flex-col h-full">
-          {/* ✅ TopBar comes “a bit down” with top-3 */}
-          <div
-            className={`
-              sticky top-3 z-50
-              transition-all duration-300 ease-in-out
-              ${showTopBar ? "translate-y-0 opacity-100" : "-translate-y-[140%] opacity-0 pointer-events-none"}
-            `}
-          >
-            <TopBar />
-          </div>
-
-          {/* ✅ This is the real scroll container */}
+        {/* MAIN CONTENT */}
+        <div className="flex-1 flex flex-col h-full min-w-0">
           <div
             ref={scrollRef}
             className="flex-1 max-md:pt-4 md:p-8 md:py-12 overflow-y-auto scrollbar-none hide-sc"
@@ -76,6 +88,14 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
             {children}
           </div>
         </div>
+
+        {/* RIGHT SIDEBAR */}
+        <RightSideBar 
+          collapsed={rightCollapsed} 
+          setCollapsed={toggleRight}
+          className="max-lg:hidden md:max-h-[95vh] transition-all duration-300"
+        />
+        
       </div>
     </main>
   );
