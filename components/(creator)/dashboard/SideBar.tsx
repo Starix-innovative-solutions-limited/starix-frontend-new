@@ -98,7 +98,7 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
                       `}
                     >
                       {/* ICON */}
-                      <div className="relative w-8 h-8 shrink-0">
+                      <div className="relative w-7 h-7 shrink-0">
                         <Image
                           src={item.icon}
                           alt={item.label}

@@ -1,20 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { HiArrowLeft } from "react-icons/hi2";
 import { MdVerified } from "react-icons/md";
-import { FiBarChart2, FiMail, FiClock, FiDownload } from "react-icons/fi";
+import { FiBarChart2, FiMail, FiClock } from "react-icons/fi";
 import { useParams, useRouter } from "next/navigation";
+import SubmitEntryModal from "@/components/(creator)/dashboard/SubmitEntryModal";
 
+// --- MAIN PAGE ---
 const ChallengeDetailPage = () => {
   const params = useParams();
   const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // In a real app, you'd fetch data based on params.id
-  // For now, we use your Nivea data as the layout template
   return (
     <div className="min-h-screen bg-white px-4 md:px-8 py-8 max-w-[1200px] mx-auto">
       {/* NAVIGATION BAR */}
@@ -30,7 +30,10 @@ const ChallengeDetailPage = () => {
           <button className="px-6 py-2.5 border border-[#E5E7EB] rounded-full text-[14px] font-semibold text-[#1E1F24] hover:bg-gray-50">
             Save Challenge
           </button>
-          <button className="px-8 py-2.5 bg-[#0047FF] text-white rounded-full text-[14px] font-semibold shadow-md hover:bg-blue-700 transition-all">
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="px-8 py-2.5 bg-[#0047FF] text-white rounded-full text-[14px] font-semibold shadow-md hover:bg-blue-700 transition-all"
+          >
             Submit Entry
           </button>
         </div>
@@ -44,6 +47,7 @@ const ChallengeDetailPage = () => {
       {/* BRAND INFO */}
       <div className="flex items-center gap-4 mb-8">
         <div className="relative w-14 h-14 rounded-full overflow-hidden border border-gray-100">
+          {/* Using a placeholder div if the svg isn't found, keep your Image tag as is */}
           <Image src="/nivea.svg" alt="Nivea" fill className="object-cover" />
         </div>
         <div>
@@ -98,12 +102,10 @@ const ChallengeDetailPage = () => {
           <p className="text-[#9CA3AF] text-[12px] mb-4 font-normal">Your Content must meet the requirements below to be considered viable for this challenge</p>
           <div className="flex gap-4 overflow-x-auto no-scrollbar">
             {["/left1.svg", "/skincare.svg", "/pdf.svg", "/products.svg", "/orange.svg"].map((img, i) => (
-              <div key={i} className="min-w-[250px] h-[260px] relative rounded-[24px] overflow-hidden">
+              <div key={i} className="min-w-[250px] h-[260px] relative rounded-[24px] overflow-hidden bg-gray-100">
                 <Image src={img} alt="Sample" fill className="object-cover" />
-                
               </div>
             ))}
-            
           </div>
         </section>
 
@@ -129,7 +131,6 @@ const ChallengeDetailPage = () => {
         </section>
       </div>
 
-      {/* FOOTER METRICS */}
       <footer className=" pt-8 border-t border-[#F3F4F6] flex justify-between items-center text-[#62636C]">
         <div className="flex gap-6 text-[10px] font-medium">
           <span className="flex items-center gap-1.5"><FiBarChart2 size={18}/> 2189</span>
@@ -138,6 +139,12 @@ const ChallengeDetailPage = () => {
         </div>
         <button className="text-[12px] font-medium hover:text-[#111827]">Read Terms of Service Here</button>
       </footer>
+
+      {/* EXTERNAL MODAL COMPONENT */}
+      <SubmitEntryModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </div>
   );
 };
