@@ -91,7 +91,7 @@ const Footer = () => {
             {/* Resources */}
             <div>
               <h3 className="text-white font-semibold mb-6 text-[clamp(20px,1.2vw,18px)]">
-                Resources
+                Company
               </h3>
               <ul className="space-y-4">
                 <li>
@@ -102,6 +102,16 @@ const Footer = () => {
                 <li>
                   <Link href="/for-creators" className="text-white/70 hover:text-white font-medium transition-colors text-[clamp(16px,1vw,15px)]">
                     For Creators
+                  </Link>
+                </li>
+                <li>
+                  <Link href="./terms" className="text-white/70 hover:text-white font-medium transition-colors text-[clamp(16px,1vw,15px)]">
+                    Terms of Services
+                  </Link>
+                </li>
+                <li>
+                  <Link href="./footer/privacy" className="text-white/70 hover:text-white font-medium transition-colors text-[clamp(16px,1vw,15px)]">
+                    Privacy Policy
                   </Link>
                 </li>
               </ul>

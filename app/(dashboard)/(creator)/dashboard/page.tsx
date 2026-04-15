@@ -56,7 +56,7 @@ const Page = () => {
   ];
 
   return (
-    <div className="min-h-screen w-full bg-white px-2 md:px-4 py-6">
+    <div className="min-h-screen w-full bg-white py-6">
       {/* 1. Header Section */}
       <header className="flex items-center justify-between mb-10">
         <div>
@@ -148,10 +148,10 @@ const Page = () => {
               <h3 className="font-semibold text-[12px] text-[#62636C] mb-2 leading-tight">{challenge.title}</h3>
               <p className="text-[#747682] font-normal text-[10px] leading-relaxed mb-6 line-clamp-2">{challenge.desc}</p>
 
-              <div className="grid grid-cols-2 gap-3 mb-5">
+              <div className="grid grid-cols-2 mb-5">
                 {challenge.thumbnails.map((img, i) => (
                   <div key={i} className="h-[140px] md:h-[180px] rounded-[20px] md:rounded-[24px] relative overflow-hidden group">
-                    <Image src={img} alt="Thumbnail" fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <Image src={img} alt="Thumbnail" fill className="object-cover transition-transform duration-500" />
                     <div className="absolute bottom-2 left-2 bg-black/40 backdrop-blur-md text-white text-[9px] px-2 py-0.5 rounded-md flex items-center gap-1 font-bold">
                       <span className="text-[7px]">▶</span> 0:49
                     </div>

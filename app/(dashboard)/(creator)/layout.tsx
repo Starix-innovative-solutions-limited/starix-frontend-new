@@ -18,22 +18,13 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(true);
 
-  // Logic: Opening Right closes Left
+  // Simplified toggles: independent of each other
   const toggleRight = () => {
-    const isOpening = rightCollapsed;
-    setRightCollapsed(!rightCollapsed);
-    if (isOpening) {
-      setLeftCollapsed(true);
-    }
+    setRightCollapsed(prev => !prev);
   };
 
-  // Logic: Opening Left closes Right
   const toggleLeft = () => {
-    const isOpening = leftCollapsed;
-    setLeftCollapsed(!leftCollapsed);
-    if (isOpening) {
-      setRightCollapsed(true);
-    }
+    setLeftCollapsed(prev => !prev);
   };
 
   const [showTopBar, setShowTopBar] = useState(true);
@@ -72,14 +63,14 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
     <main className={`${workSans.variable} bg-[#fff] h-screen font-sans`}>
       <div className="flex p-4 md:p-6 gap-6 h-full overflow-hidden">
         
-        {/* LEFT SIDEBAR */}
+        {/* LEFT SIDEBAR - Added flex-shrink-0 */}
         <SideBar 
           collapsed={leftCollapsed} 
           setCollapsed={toggleLeft} 
-          className="max-lg:hidden md:max-h-[95vh] transition-all duration-300" 
+          className="max-lg:hidden md:max-h-[95vh] transition-all duration-300 flex-shrink-0" 
         />
 
-        {/* MAIN CONTENT */}
+        {/* MAIN CONTENT - min-w-0 allows it to shrink when both sidebars are open */}
         <div className="flex-1 flex flex-col h-full min-w-0">
           <div
             ref={scrollRef}
@@ -89,11 +80,11 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
           </div>
         </div>
 
-        {/* RIGHT SIDEBAR */}
+        {/* RIGHT SIDEBAR - Added flex-shrink-0 */}
         <RightSideBar 
           collapsed={rightCollapsed} 
           setCollapsed={toggleRight}
-          className="max-lg:hidden md:max-h-[95vh] transition-all duration-300"
+          className="max-lg:hidden md:max-h-[95vh] transition-all duration-300 flex-shrink-0"
         />
         
       </div>
