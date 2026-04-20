@@ -8,6 +8,7 @@ import { FiSearch, FiChevronDown, FiInfo } from "react-icons/fi";
 import { GoCheckCircleFill } from "react-icons/go";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import WithdrawModal from "./WithdrawModal";
 
 const LEADERBOARD_DATA = [
   { id: 1, name: "Jason oluwadarijimi", score: 96, trend: "neutral", avatar: "/no1.svg" },
@@ -19,16 +20,16 @@ const LEADERBOARD_DATA = [
 const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
   const pathname = usePathname();
   
-  /**
-   * Local state to cycle through the different Wallet UI instances:
-   * 'positive' | 'negative' | 'neutral' | 'all-time'
-   */
   const [earningsView, setEarningsView] = useState<'positive' | 'negative' | 'neutral' | 'all-time'>('positive');
 
   // Route Detection
   const isChallengeView = pathname.includes("/dashboard/challenge/");
   const isChallengesListPage = pathname.startsWith("/challenges"); 
   const isPortfolioPage = pathname.startsWith("/portfolio");
+
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+
+
 
   return (
     <aside
@@ -145,7 +146,7 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
                     <p className="text-[12px] text-[#62636C] mt-0.5">Desire Destiny Oludara</p>
                   </div>
                 </div>
-                <button className="px-2 py-2 border border-[#E5E7EB] rounded-full text-[11px] font-medium text-[#1E1F24] hover:bg-gray-50 transition-colors">
+                <button onClick={() => setIsWithdrawModalOpen(true)} className="px-2 py-2 border border-[#E5E7EB] rounded-full text-[11px] font-medium text-[#1E1F24] hover:bg-gray-50 transition-colors">
                   Change
                 </button>
               </div>
@@ -280,7 +281,9 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
             ©2026 Starix. All Rights Reserved.
           </p>
         </div>
+        <WithdrawModal isOpen={isWithdrawModalOpen} onClose={() => setIsWithdrawModalOpen(false)} balance={432000} />
       </div>
+      
     </aside>
   );
 };
