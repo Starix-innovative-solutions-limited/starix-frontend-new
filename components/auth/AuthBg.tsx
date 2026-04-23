@@ -1,14 +1,20 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { HiChevronDown } from "react-icons/hi2";
 
 interface AuthProps {
   brand?: boolean;
 }
 
 const AuthBg = ({ brand }: AuthProps) => {
+  const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
+
   const colors = {
     creator: "#B4DFFE",
     brand: "#EFE6EE"
@@ -19,9 +25,14 @@ const AuthBg = ({ brand }: AuthProps) => {
     labelStyles: brand 
       ? "border-[#A67BA1] text-[#A67BA1] bg-[#EFE6EE]" 
       : "border-[#054D81] text-[#054D81] bg-[#B4DFFE]",
-    titleColor: brand ? "text-[#C48EBF]" : "text-[#7B96D4]",
     topAsset: "/stacked.svg", 
     mainAsset: brand ? "/bigribbon.svg" : "/bigstar.svg",
+  };
+
+  const handleSwitch = (type: "brand" | "creator") => {
+    setIsOpen(false);
+    // Adjust these paths to match your actual folder structure
+    router.push(`/signup?role=${type}`); 
   };
 
   return (
@@ -29,50 +40,70 @@ const AuthBg = ({ brand }: AuthProps) => {
       initial={false}
       animate={{ backgroundColor: brand ? colors.brand : colors.creator }}
       transition={{ duration: 0.7 }}
-      // h-screen is vital here so absolute children have a reference height
       className="relative h-screen w-full overflow-hidden flex flex-col"
     >
       
-      {/* LAYER 1: Top Decorative Shapes (stacked.svg) */}
-      <div className="absolute w-full h-[70%]  pointer-events-none">
-        <Image 
-          src={config.topAsset} 
-          alt="" 
-          fill 
-          className="object-cover object-top"
-          priority
-          // If images aren't showing, check if the console has 404s for these paths
-        />
+      {/* LAYER 1: Decorative Top */}
+      <div className="absolute w-full h-[70%] pointer-events-none">
+        <Image src={config.topAsset} alt="" fill className="object-cover object-top" priority />
       </div>
 
-      {/* LAYER 2: Floating Center Content */}
-      <div className="relative z-30 flex flex-col items-center pt-32 px-10 pointer-events-none w-full">
-        <motion.div 
-          key={`label-${brand}`}
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className={`mb-10 px-2 py-1 border rounded-full text-[13px] font-medium uppercase tracking-widest transition-colors duration-500 ${config.labelStyles}`}
-        >
-          {config.label}
-        </motion.div>
+      {/* LAYER 2: Content */}
+      <div className="relative z-50 flex flex-col items-center pt-32 px-10 w-full">
+        
+        {/* DROPDOWN WRAPPER */}
+        <div className="relative mb-10">
+          <motion.button 
+            onClick={() => setIsOpen(!isOpen)}
+            className={`
+              flex items-center gap-2 px-4 py-1.5 border rounded-full text-[13px] 
+              font-medium uppercase tracking-widest transition-all duration-300
+              hover:shadow-md active:scale-95 z-50
+              ${config.labelStyles}
+            `}
+          >
+            {config.label}
+            <HiChevronDown className={`transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
+          </motion.button>
+
+          <AnimatePresence>
+            {isOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 5, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 5, scale: 0.95 }}
+                className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-[160px] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden p-1 z-[100]"
+              >
+                <button
+                  onClick={() => handleSwitch("creator")}
+                  className="w-full text-left px-4 py-3 text-[12px] font-bold uppercase tracking-wider text-[#054D81] hover:bg-[#B4DFFE55] rounded-xl transition-colors"
+                >
+                  For Creators
+                </button>
+                <button
+                  onClick={() => handleSwitch("brand")}
+                  className="w-full text-left px-4 py-3 text-[12px] font-bold uppercase tracking-wider text-[#A67BA1] hover:bg-[#EFE6EE] rounded-xl transition-colors"
+                >
+                  For Brands
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         <motion.h1 
           key={`title-${brand}`}
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
-        
-          className="font-medium leading-[1.05] text-center tracking-[-0.04em] whitespace-nowrap text-[80px] transition-colors duration-500"
-          style={{ 
-            color: brand ? "#81056C4D" : "#054D814D" // 4D is roughly 30% opacity
-          }}
+          className="font-medium leading-[1.05] text-center tracking-[-0.04em] whitespace-nowrap text-[80px]"
+          style={{ color: brand ? "#81056C4D" : "#054D814D" }}
         >
           Redefine your <br /> Creativity
         </motion.h1>
       </div>
 
-      
-      {/* We use a large h percentage and absolute positioning to ensure it anchors to the bottom */}
-      <div className="absolute left-1/2 -translate-x-1/2 w-full h-[110%] z-30">
+      {/* LAYER 3: Main Visual Asset */}
+      <div className="absolute left-1/2 -translate-x-1/2 w-full h-[110%] z-30 pointer-events-none">
         <AnimatePresence mode="wait">
           <motion.div
             key={brand ? "brand-asset" : "creator-asset"}
@@ -82,13 +113,7 @@ const AuthBg = ({ brand }: AuthProps) => {
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="relative w-full h-full" 
           >
-            <Image 
-              src={config.mainAsset} 
-              alt="Main Visual" 
-              fill 
-              className="object-contain object-bottom"
-              priority
-            />
+            <Image src={config.mainAsset} alt="Main Visual" fill className="object-contain object-bottom" priority />
           </motion.div>
         </AnimatePresence>
       </div>
