@@ -1,13 +1,11 @@
-// components/OtpInput.tsx
 "use client";
-
 
 import React, { useEffect, useRef, useState } from "react";
 
 type OtpInputProps = {
-  length?: number; // number of digits (default 6)
-  value?: string; // controlled value (optional)
-  onChange?: (code: string) => void; // gets full code
+  length?: number;
+  value?: string;
+  onChange?: (code: string) => void;
   autoFocus?: boolean;
   disabled?: boolean;
   className?: string;
@@ -21,49 +19,28 @@ export default function OtpInput({
   disabled = false,
   className = "",
 }: OtpInputProps) {
-  const [internalValue, setInternalValue] = useState<string[]>(() => {
-    const arr = Array?.from({ length }, (_, i) => value[i] ?? "");
-    return arr;
-  });
+  const [internalValue, setInternalValue] = useState<string[]>(() => 
+    Array.from({ length }, (_, i) => value[i] ?? "")
+  );
 
   const RESEND_TIME = 45;
-
   const [secondsLeft, setSecondsLeft] = useState(RESEND_TIME);
+  const inputsRef = useRef<Array<HTMLInputElement | null>>(Array(length).fill(null));
 
+  // Timer logic
   useEffect(() => {
     if (secondsLeft === 0) return;
-
-    const timer = setInterval(() => {
-      setSecondsLeft((prev) => prev - 1);
-    }, 1000);
-
+    const timer = setInterval(() => setSecondsLeft((prev) => prev - 1), 1000);
     return () => clearInterval(timer);
   }, [secondsLeft]);
 
-
-  const handleResend = () => {
-    if (secondsLeft > 0) return;
-
-    // call resend OTP API here
-    // resendOtp({ email, purpose: "email_verification" });
-
-    setSecondsLeft(RESEND_TIME);
-  };
-
-  const inputsRef = useRef<Array<HTMLInputElement | null>>(
-    Array(length).fill(null)
-  );
-
+  // Sync internal state with external 'value' prop safely
   useEffect(() => {
-  // 💡 Add a check to prevent infinite loops and use a timeout to avoid the render warning
-  if (value !== undefined && value !== internalValue.join("")) {
-    const timeout = setTimeout(() => {
+    if (value !== undefined && value !== internalValue.join("")) {
       const arr = Array.from({ length }, (_, i) => value[i] ?? "");
       setInternalValue(arr);
-    }, 0);
-    return () => clearTimeout(timeout);
-  }
-}, [value, length]);
+    }
+  }, [value, length]);
 
   useEffect(() => {
     if (autoFocus && inputsRef.current[0]) inputsRef.current[0].focus();
@@ -71,62 +48,57 @@ export default function OtpInput({
 
   const getCode = (arr: string[]) => arr.join("").slice(0, length);
 
+  const triggerChange = (nextValue: string[]) => {
+    const code = getCode(nextValue);
+    // Wrap in setTimeout to prevent "SetState during render" warning
+    setTimeout(() => {
+      onChange?.(code);
+    }, 0);
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
     const raw = e.target.value;
-    const char = raw.replace(/[^0-9]/g, "");
+    // ALLOW letters and numbers, remove everything else
+    const char = raw.replace(/[^a-zA-Z0-9]/g, ""); 
     if (!char) return;
 
     const next = [...internalValue];
-    next[idx] = char.slice(-1);
+    next[idx] = char.slice(-1).toUpperCase(); // Force uppercase for cleaner look
 
+    // Handle character overflow (if user types fast)
     if (char.length > 1) {
       for (let i = 1; i < char.length && idx + i < length; i++) {
-        next[idx + i] = char[i];
+        next[idx + i] = char[i].toUpperCase();
       }
     }
 
     setInternalValue(next);
-    // onChange?.(getCode(next));
+    triggerChange(next);
 
+    // Focus management
     const nextIndex = Math.min(idx + 1, length - 1);
-    setTimeout(() => {
-    onChange?.(getCode(next));
-  }, 0);
+    if (nextIndex !== idx) {
+      inputsRef.current[nextIndex]?.focus();
+    }
   };
 
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    idx: number
-  ) => {
-    const key = e.key;
-    const target = e.currentTarget;
-
-    if (key === "Backspace") {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, idx: number) => {
+    if (e.key === "Backspace") {
       e.preventDefault();
-      setInternalValue((prev) => {
-        const next = [...prev];
-        if (next[idx]) {
-          next[idx] = "";
-          onChange?.(getCode(next));
-          // keep focus here
-          setTimeout(() => target.focus(), 0);
-        } else {
-          // move to previous
-          const prevIndex = Math.max(0, idx - 1);
-          next[prevIndex] = "";
-          onChange?.(getCode(next));
-          setTimeout(() => inputsRef.current[prevIndex]?.focus(), 0);
-        }
-        return next;
-      });
-    } else if (key === "ArrowLeft") {
-      e.preventDefault();
-      const prevIndex = Math.max(0, idx - 1);
-      inputsRef.current[prevIndex]?.focus();
-    } else if (key === "ArrowRight") {
-      e.preventDefault();
-      const nextIndex = Math.min(length - 1, idx + 1);
-      inputsRef.current[nextIndex]?.focus();
+      const next = [...internalValue];
+      if (next[idx]) {
+        next[idx] = "";
+      } else {
+        const prevIndex = Math.max(0, idx - 1);
+        next[prevIndex] = "";
+        inputsRef.current[prevIndex]?.focus();
+      }
+      setInternalValue(next);
+      triggerChange(next);
+    } else if (e.key === "ArrowLeft") {
+      inputsRef.current[Math.max(0, idx - 1)]?.focus();
+    } else if (e.key === "ArrowRight") {
+      inputsRef.current[Math.min(length - 1, idx + 1)]?.focus();
     }
   };
 
@@ -135,81 +107,43 @@ export default function OtpInput({
     const paste = e.clipboardData
       .getData("text")
       .replace(/\s+/g, "")
-      .replace(/[^0-9]/g, "");
+      .replace(/[^a-zA-Z0-9]/g, "") // Allow alphanumeric in paste
+      .toUpperCase();
+    
     if (!paste) return;
 
-    setInternalValue((prev) => {
-      const next = Array.from({ length }, (_, i) => paste[i] ?? prev[i] ?? "");
-      onChange?.(getCode(next));
-      // focus last pasted or final
-      const focusIndex = Math.min(paste.length - 1, length - 1);
-      setTimeout(() => inputsRef.current[focusIndex]?.focus(), 0);
-      return next;
-    });
+    const next = [...internalValue];
+    for (let i = 0; i < paste.length && i < length; i++) {
+      next[i] = paste[i];
+    }
+
+    setInternalValue(next);
+    triggerChange(next);
+
+    const focusIndex = Math.min(paste.length, length - 1);
+    inputsRef.current[focusIndex]?.focus();
   };
 
   return (
-    <div className="flex flex-col gap-2">
-
-      <p className="text-[#000] text-xl font-light mb-2 ">Enter OTP</p>
-      <div className={`flex gap-2 items-center flex-between  ${className}`}>
-        {Array.from({ length }, (_, i) => (
+    <div className={`flex flex-col gap-2 items-center w-full ${className}`}>
+      <div className="flex gap-2 md:gap-3 items-center justify-center w-full">
+        {internalValue.map((char, i) => (
           <input
             key={i}
-            ref={(el) => {
-              inputsRef.current[i] = el;
-            }}
-            inputMode="numeric"
-            pattern="[0-9]*"
+            ref={(el) => { inputsRef.current[i] = el; }}
+            // Changed to 'text' to support letters. 'one-time-code' helps iOS auto-fill
+            type="text"
+            autoComplete="one-time-code"
             maxLength={1}
-            value={internalValue[i] ?? ""}
+            value={char}
             onChange={(e) => handleChange(e, i)}
             onKeyDown={(e) => handleKeyDown(e, i)}
             onPaste={handlePaste}
             disabled={disabled}
-            aria-label={`Digit ${i + 1}`}
-            className={`w-12 h-12 rounded-2xl md:w-14 md:h-14 text-center text-lg md:text-xl border-[1px] border-[#99999966] bg-[#F5F5F5] focus:outline-none focus:ring-0 focus:border-blue-500`}
+            className="w-11 h-14 md:w-14 md:h-16 text-center text-xl font-bold border border-[#E5E7EB] bg-[#F9FAFB] rounded-2xl focus:border-[#0033FF] focus:bg-white focus:ring-4 focus:ring-blue-50 outline-none transition-all"
           />
         ))}
       </div>
-      {/* < className="flex-between mt-2"> */}
-      <div className="flex-between mt-2">
-        <span className="text-dark font-light text-xl">
-          {`00:${secondsLeft.toString().padStart(2, "0")} secs left`}
-        </span>
-
-        <button
-          type="button"
-          disabled={secondsLeft > 0}
-          onClick={handleResend}
-          className={`font-light text-xl transition
-      ${secondsLeft > 0
-              ? "text-gray-400 cursor-not-allowed"
-              : "text-dark-navy hover:underline"
-            }`}
-        >
-          Resend
-        </button>
-      </div>
-
-
     </div>
   );
 }
-
-/*
-USAGE:
-
-import OtpInput from "@/components/OtpInput";
-
-function Page() {
-  const [code, setCode] = useState("");
-
-  return (
-    <div>
-      <OtpInput length={6} value={code} onChange={(c) => setCode(c)} />
-      <p>Entered: {code}</p>
-    </div>
-  );
-}
-*/
