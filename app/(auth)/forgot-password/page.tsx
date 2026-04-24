@@ -129,7 +129,7 @@ const PasswordResetPage = () => {
           disabled={isSendingOtp || isResetting}
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
-          className="w-full py-4 rounded-full font-medium text-white bg-dark-navy transition-all hover:opacity-90 disabled:opacity-50"
+          className="w-full py-4 rounded-full font-medium text-white bg-[#0033FF] transition-all hover:opacity-90 disabled:opacity-50"
         >
           {otpSuccess ? "Update Password" : "Send Reset Code"}
         </motion.button>
