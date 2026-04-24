@@ -7,11 +7,13 @@ import { FiX, FiSearch, FiCheckCircle } from "react-icons/fi";
 import { HiArrowLeft } from "react-icons/hi2";
 import Image from "next/image";
 
+// 1. UPDATE THE INTERFACE HERE
 interface WalletSettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   isFirstTimeUser: boolean;
   onSuccess?: () => void;
+  onChangeWithdrawalAccount?: () => void; // Added this line
 }
 
 const BANKS = [
@@ -22,11 +24,13 @@ const BANKS = [
   { name: "Zenith Bank", id: "5", icon: "/zenith.svg" },
 ];
 
+// 2. DESTRUCTURE THE PROP HERE
 const WalletSettingsModal: React.FC<WalletSettingsModalProps> = ({ 
   isOpen, 
   onClose, 
   isFirstTimeUser,
-  onSuccess 
+  onSuccess,
+  onChangeWithdrawalAccount // Destructured here
 }) => {
   const [step, setStep] = useState<"settings" | "set-pin" | "change-pin" | "change-account">("settings");
   
@@ -43,6 +47,7 @@ const WalletSettingsModal: React.FC<WalletSettingsModalProps> = ({
   
   // Form States
   const [pins, setPins] = useState({ current: "", new: "", confirm: "" });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [errors, setErrors] = useState({ pin: "", account: "" });
 
   const filteredBanks = useMemo(() => {
@@ -116,7 +121,14 @@ const WalletSettingsModal: React.FC<WalletSettingsModalProps> = ({
                     Change Wallet PIN
                   </button>
                   <button 
-                    onClick={() => setStep("change-account")}
+                    // OPTIONAL: You can use the prop here if you want the parent's logic to trigger
+                    onClick={() => {
+                        if (onChangeWithdrawalAccount) {
+                            onChangeWithdrawalAccount();
+                        } else {
+                            setStep("change-account");
+                        }
+                    }}
                     className="w-full text-left py-4 text-[14px] font-semibold text-[#62636C] hover:text-blue-600 transition-colors"
                   >
                     Change Withdrawal Account
@@ -124,7 +136,7 @@ const WalletSettingsModal: React.FC<WalletSettingsModalProps> = ({
                 </div>
               )}
 
-              {/* --- STEP: PIN FLOWS (Set/Change) --- */}
+              {/* ... The rest of your steps (set-pin, change-account) remain exactly the same ... */}
               {(step === "set-pin" || step === "change-pin") && (
                 <div className="space-y-4">
                    {!isFirstTimeUser && (
@@ -159,7 +171,6 @@ const WalletSettingsModal: React.FC<WalletSettingsModalProps> = ({
                 </div>
               )}
 
-              {/* --- STEP: CHANGE ACCOUNT (Integrated logic from WithdrawModal) --- */}
               {step === "change-account" && (
                 <div className="space-y-5">
                   <div className="space-y-1.5">
