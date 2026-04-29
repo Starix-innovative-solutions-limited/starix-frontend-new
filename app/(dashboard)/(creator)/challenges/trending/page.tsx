@@ -36,20 +36,21 @@ const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: b
             </p>
           </div>
 
-          <div className="flex items-center gap-3 w-full md:w-auto">
-            <button className="flex items-center gap-2 px-6 py-2.5 border border-[#E5E7EB] rounded-full text-[14px] font-medium text-[#374151] hover:bg-gray-50 transition-all shrink-0">
-              <FiSliders className="rotate-90" />
-              Filter
+          <div className="flex items-center gap-2 md:gap-3 flex-1 justify-end">
+            <button className="flex items-center gap-2 px-3 py-2 md:px-5 md:py-2.5 border border-[#8B8D98] rounded-full text-[11px] md:text-sm font-medium text-[#374151] hover:bg-gray-50 transition-all flex-shrink-0">
+            <FiSliders className="text-sm md:text-lg" />
+            <span className="hidden xs:inline">Filter</span>
             </button>
-            <div className="relative w-full md:w-80">
-              <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-[#62636C] text-lg" />
-              <input 
+            
+            <div className="relative w-full max-w-[120px] xs:max-w-[180px] md:max-w-md transition-all duration-300">
+            <FiSearch className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-[#62636C] text-sm md:text-lg" />
+            <input 
                 type="text" 
-                placeholder="Search Challenges"
-                className="w-full pl-12 pr-4 py-2.5 bg-[#F9F9FB] border border-[#EFF0F3] rounded-full text-[14px] focus:outline-none focus:ring-1 focus:ring-blue-100"
-              />
+                placeholder="Search"
+                className="w-full pl-8 md:pl-12 pr-4 py-2 md:py-2.5 bg-[#F9F9FB] border border-[#EFF0F3] rounded-full text-[11px] md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            />
             </div>
-          </div>
+        </div>
         </header>
 
         {/* GRID WITH OVERFLOW:

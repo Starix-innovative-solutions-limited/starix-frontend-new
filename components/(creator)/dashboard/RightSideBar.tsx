@@ -153,53 +153,100 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
             </div>
           </div>
 
-        /* CASE 2: CHALLENGES LIST VIEW */
-        ) : isChallengesListPage ? (
-          <div className="space-y-6">
-            <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
-              <div className="flex items-center justify-between px-5 py-4">
-                <h4 className="font-bold text-[#1E1F24] text-[16px]">Recommended For You</h4>
-                <Link href="/challenges/recommended">
-                    <HiArrowRight className="text-[#1E1F24] cursor-pointer hover:text-blue-600 transition-colors" size={20} />
-                </Link>
-              </div>
-              <div className="px-2 pb-2 space-y-1">
-                {[1, 2, 3].map((item) => (
-                  <div key={item} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-2xl transition-all">
-                    <div className="flex items-center gap-1">
-                      <Image src="/Spotify.svg" width={40} height={40} alt="Brand" />
-                      <div>
-                        <h5 className="text-[13px] font-semibold text-[#62636C] truncate w-32">Join Our Fitness App Beta Tes..</h5>
-                        <div className="flex items-center gap-1 mt-0.5 text-[12px] text-[#747682]">
-                          <span>FitLife</span> <GoCheckCircleFill className="text-green-500 text-[10px]" />
-                          <span className="text-[#D9D9D9]">•</span> <span>₦5M prize pool</span>
-                        </div>
-                      </div>
-                    </div>
-                    <button className="px-4 py-2 border border-[#E5E7EB] rounded-full text-[12px] font-semibold text-[#1E1F24]">Submit</button>
-                  </div>
-                ))}
+        /* CASE 2: CHALLENGES LIST VIEW - UPDATED TRENDING SECTION */
+) : isChallengesListPage ? (
+  <div className="space-y-6">
+    {/* Recommended For You - Same as before */}
+    <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
+      <div className="flex items-center justify-between px-5 py-4">
+        <h4 className="font-bold text-[#1E1F24] text-[16px]">Recommended For You</h4>
+        <Link href="/challenges/recommended">
+            <HiArrowRight className="text-[#1E1F24] cursor-pointer hover:text-blue-600 transition-colors" size={20} />
+        </Link>
+      </div>
+      <div className="px-2 pb-2 space-y-1">
+        {[
+          { name: "Nivea", icon: "/nivea.svg", prize: "₦5M" },
+          { name: "Spotify", icon: "/spotify.svg", prize: "₦5M" },
+          { name: "Tesla", icon: "/tesla.svg", prize: "₦5M" }
+        ].map((item, idx) => (
+          <div key={idx} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-2xl transition-all">
+            <div className="flex items-center gap-1">
+              <Image src={item.icon} width={40} height={40} alt={item.name} className="rounded-full" />
+              <div>
+                <h5 className="text-[13px] font-semibold text-[#62636C] truncate w-32">Join Our Fitness App Beta Tes..</h5>
+                <div className="flex items-center gap-1 mt-0.5 text-[12px] text-[#747682]">
+                  <span>{item.name}</span> <GoCheckCircleFill className="text-green-500 text-[10px]" />
+                  <span className="text-[#D9D9D9]">•</span> <span>{item.prize} prize pool</span>
+                </div>
               </div>
             </div>
+            <button className="px-4 py-2 border border-[#E5E7EB] rounded-full text-[12px] font-semibold text-[#1E1F24] hover:bg-white transition-all">Submit</button>
+          </div>
+        ))}
+      </div>
+    </div>
 
-            <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
-              <div className="flex items-center justify-between px-5 py-4">
-                <h4 className="font-semibold text-[#1E1F24] text-[16px]">Trending Challenges</h4>
-                <HiArrowRight className="text-[#1E1F24]" size={20} />
-              </div>
-              <div className="px-5 pb-6 space-y-6">
-                {[{ title: "UGC Creators Needed...", brand: "Nivea" }].map((c, i) => (
-                  <div key={i} className="space-y-3">
-                    <h5 className="text-[14px] font-semibold text-[#62636C]">{c.title}</h5>
-                    <div className="flex items-center gap-2 text-[12px] text-[#747682]">
-                      <span>18k views</span> <span className="text-[#D9D9D9]">•</span> <span>{c.brand}</span>
-                    </div>
+    {/* TRENDING CHALLENGES - UPDATED TO MATCH FIGMA */}
+    <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
+      <div className="flex items-center justify-between px-5 py-4">
+        <h4 className="font-bold text-[#1E1F24] text-[16px]">Trending Challenges</h4>
+        <Link href="/challenges/trending">
+          <HiArrowRight className="text-[#1E1F24] hover:text-blue-600 transition-colors" size={20} />
+        </Link>
+      </div>
+      
+      <div className="px-5 pb-6 space-y-8">
+        {[
+          { 
+            title: "UGC Creators Needed for Skincare Product set La..", 
+            views: "18k views", 
+            brand: "Nivea", 
+            avatars: ["/grp.svg", "/grp1.svg", "/grp2.svg"]
+          },
+          { 
+            title: "Seeking Artists for Limited Edition Sneakers Colla..", 
+            views: "30k views", 
+            brand: "Lobster and Beer", 
+            avatars: ["/grp.svg", "/grp1.svg", "/grp2.svg"]
+          },
+          { 
+            title: "Influencer Partnerships for New Fitness App Rele..", 
+            views: "24k views", 
+            brand: "FitLife", 
+            avatars: ["/grp.svg", "/grp1.svg", "/grp2.svg"]
+          }
+        ].map((c, i) => (
+          <div key={i} className="space-y-3">
+            <h5 className="text-[15px] font-semibold text-[#62636C] leading-tight leading-snug">
+              {c.title}
+            </h5>
+            <div className="flex items-center gap-2">
+              {/* Overlapping Avatar Stack */}
+              <div className="flex -space-x-2 mr-1">
+                {c.avatars.map((img, index) => (
+                  <div key={index} className="w-6 h-6 rounded-full border-2 border-white overflow-hidden relative">
+                    <div className="w-full h-full bg-gray-200" />
+                    <Image src={img} fill alt="user" className="object-cover" />
                   </div>
                 ))}
+              </div>
+              
+              {/* Meta Info */}
+              <div className="flex items-center gap-1.5 text-[13px] text-[#747682] font-medium">
+                <span>{c.views}</span>
+                <span className="text-[#D9D9D9]">•</span>
+                <span>{c.brand}</span>
+                {(c.brand === "Nivea" || c.brand === "FitLife") && (
+                  <GoCheckCircleFill className="text-green-500 text-[11px]" />
+                )}
               </div>
             </div>
           </div>
-
+        ))}
+      </div>
+    </div>
+  </div>
         /* CASE 3: CHALLENGE DETAIL VIEW */
         ) : isChallengeView ? (
           <div className="space-y-6">
