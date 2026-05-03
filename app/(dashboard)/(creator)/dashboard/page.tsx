@@ -56,7 +56,7 @@ const Page = () => {
   ];
 
   return (
-    <div className="min-h-screen w-full bg-white py-6">
+    <div className="min-h-screen w-full bg-white ">
       {/* 1. Header Section */}
       <header className="flex items-center justify-between mb-10">
         <div>

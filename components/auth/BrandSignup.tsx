@@ -164,7 +164,7 @@ const BrandSignup = () => {
 
       <div className="mt-10 text-center">
         <p className="text-[#4B5563] font-medium">
-          Already have an account? <Link href="/login" className="text-[#0033FF] font-bold hover:underline ml-1">Sign in</Link>
+          Already have an account? <Link href="/coming-soon" className="text-[#0033FF] font-bold hover:underline ml-1">Sign in</Link>
         </p>
       </div>
     </div>

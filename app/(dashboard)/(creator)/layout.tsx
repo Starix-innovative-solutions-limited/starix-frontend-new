@@ -61,7 +61,7 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
 
   return (
     <main className={`${workSans.variable} bg-[#fff] h-screen font-sans`}>
-      <div className="flex p-4 md:p-6 gap-6 h-full overflow-hidden">
+      <div className="flex   h-full overflow-hidden">
         
         {/* LEFT SIDEBAR - Added flex-shrink-0 */}
         <SideBar 
@@ -74,7 +74,7 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
         <div className="flex-1 flex flex-col h-full min-w-0">
           <div
             ref={scrollRef}
-            className="flex-1 max-md:pt-4 md:p-8 md:py-12 overflow-y-auto scrollbar-none hide-sc"
+            className="flex-1 max-md:pt-4 md:p-8 md:py-6 overflow-y-auto scrollbar-none hide-sc"
           >
             {children}
           </div>

@@ -24,8 +24,8 @@ const ChallengesPage = () => {
   const tabs = ["Active", "Completed", "Saved"];
 
   return (
-    <div className="min-h-screen bg-white p-4 lg:p-8 font-['Geist']">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-white font-['Geist']">
+      <div className="max-w-6xl ">
         
         {/* TOP HEADER SECTION */}
         <div className="flex items-center justify-between gap-4 mb-10">
@@ -84,8 +84,8 @@ const ChallengesPage = () => {
               className="flex items-center justify-between py-5 border-b border-[#F3F4F6] hover:bg-gray-50/50 transition-all px-1 md:px-4 group gap-4"
             >
               <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
-                <div className="w-10 h-10 md:w-14 md:h-14 rounded-full flex-shrink-0 relative overflow-hidden flex items-center justify-center border border-gray-50">
-                  <Image src={`${item.brand.toLowerCase()}.svg`} alt={item.brand} fill className="object-cover" />
+                <div className="w-10 h-10 md:w-14 md:h-14 rounded-full flex-shrink-0 relative overflow-hidden flex items-center justify-center">
+                  <Image src={`${item.brand}.svg`} alt={item.brand} fill className="object-cover" />
                 </div>
                 
                 <div className="min-w-0">

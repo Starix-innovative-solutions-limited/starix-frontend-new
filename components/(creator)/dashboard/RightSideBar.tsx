@@ -9,6 +9,7 @@ import { GoCheckCircleFill } from "react-icons/go";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import WithdrawModal from "./WithdrawModal";
+import JoinRequestModal from "./JoinRequestModal";
 
 const LEADERBOARD_DATA = [
   { id: 1, name: "Jason oluwadarijimi", score: 96, trend: "neutral", avatar: "/no1.svg" },
@@ -26,10 +27,19 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
   const isChallengeView = pathname.includes("/dashboard/challenge/");
   const isChallengesListPage = pathname.startsWith("/challenges"); 
   const isPortfolioPage = pathname.startsWith("/portfolio");
+  // Detection for Creator Circles pages
+  const isCreatorCirclesPage = pathname.includes("/creator-circles");
 
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
 
+  // NEW STATES for Join Request
+  const [isJoinRequestModalOpen, setIsJoinRequestModalOpen] = useState(false);
+  const [selectedCircleLogo, setSelectedCircleLogo] = useState("");
 
+  const handleJoinClick = (logo: string) => {
+    setSelectedCircleLogo(logo);
+    setIsJoinRequestModalOpen(true);
+  };
 
   return (
     <aside
@@ -74,8 +84,51 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
       {/* CONTENT AREA */}
       <div className={`flex-1 overflow-y-auto px-4 space-y-6 no-scrollbar ${collapsed ? "hidden" : "block"}`}>
         
-        {/* CASE 1: PORTFOLIO / WALLET VIEWS */}
-        {isPortfolioPage ? (
+        {/* CASE: CREATOR CIRCLES VIEW */}
+{isCreatorCirclesPage ? (
+  <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
+    <div className="flex items-center justify-between px-5 py-5 border-b border-[#F8FAFC]">
+      <h4 className="font-semibold text-[#1E1F24] text-[16px]">Open Circles</h4>
+      <Link href="/creator-circles/explore" className="flex items-center gap-1.5 text-[14px] font-semibold text-[#1E1F24] hover:text-blue-600 transition-all">
+        View All <HiArrowRight size={16} />
+      </Link>
+    </div>
+    
+    <div className="p-2 space-y-1">
+      {[
+        { name: "PixelPerfect Toronto", members: "3 Members", logo: "/tesla-circle.svg", rank: "250k", badge: 3 },
+        { name: "Design Studio NYC", members: "7 Members", logo: "/nvidia-circle.svg", rank: "250k", badge: 7 },
+        { name: "CreativeCorp London", members: "3 Members", logo: "/fw-circle.svg", rank: "250k", badge: 3 },
+        { name: "InnovateX Berlin", members: "5 Members", logo: "/purple-circle.svg", rank: "250k", badge: 5 }
+      ].map((circle, idx) => (
+        <div key={idx} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-2xl transition-all">
+          <div className="flex items-center gap-3">
+            {/* LOGO WITH CORNER BADGE */}
+            <div className="relative w-12 h-12 shrink-0">
+              <Image src={circle.logo} fill alt={circle.name} className="object-contain" />
+              {/* The Blue Badge from Figma */}
+              <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-[#C9E9FF] border-2 border-white rounded-full flex items-center justify-center">
+                <span className="text-[#050E81] text-[12px] font-semibold leading-none">{circle.badge}</span>
+              </div>
+            </div>
+
+            <div>
+              <h5 className="text-[14px] font-semibold text-[#62636C] leading-tight">{circle.name}</h5>
+              <p className="text-[12px] text-[#747682] font-medium mt-0.5">
+                {circle.members} <span className="text-[#D9D9D9] mx-1">•</span> Ranked {circle.rank} Globally
+              </p>
+            </div>
+          </div>
+
+          <button onClick={() => handleJoinClick(circle.logo)} className="px-2 py-2 border border-[#8B8D98] rounded-full text-[12px] font-medium text-[#1E1F24] hover:bg-white hover:border-blue-600 hover:text-blue-600 transition-all">
+            Join
+          </button>
+        </div>
+      ))}
+    </div>
+  </div>
+)  : isPortfolioPage ? (
+          /* CASE 1: PORTFOLIO / WALLET VIEWS */
           <div className="space-y-6">
             <div className="bg-white border border-[#EFF0F3] rounded-[24px] p-6 shadow-xs">
               <div className="flex justify-between items-center mb-4">
@@ -84,7 +137,6 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
                   <button className="flex items-center gap-1 text-[14px] font-medium text-[#1E1F24]">
                     {earningsView === 'all-time' ? 'All Time' : 'This Month'} <FiChevronDown size={16} />
                   </button>
-                  {/* Dropdown to switch between the 4 figma instances */}
                   <div className="hidden group-hover:block absolute right-0 top-full bg-white border border-gray-100 rounded-xl shadow-xl z-20 py-2 w-32">
                     {(['positive', 'negative', 'neutral', 'all-time'] as const).map(v => (
                       <button 
@@ -104,7 +156,6 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
                 <span className="text-[24px] font-semibold text-[#80828D]">.00</span>
               </div>
 
-              {/* DYNAMIC EARNINGS INSTANCES BASED ON FIGMA UI */}
               {earningsView === 'positive' && (
                 <div className="flex items-center gap-1.5 text-[#22C55E] text-[14px] font-medium">
                   <span className="text-[18px]">+</span>
@@ -133,7 +184,6 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
               )}
             </div>
 
-            {/* WITHDRAWAL ACCOUNT CARD */}
             <div className="bg-[#F9F9FB] border border-[#EFF0F3] rounded-[24px] p-6 shadow-xs">
               <h4 className="text-[16px] font-semibold text-[#1E1F24] mb-5">Withdrawal Account</h4>
               <div className="flex items-center justify-between">
@@ -152,103 +202,76 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
               </div>
             </div>
           </div>
-
-        /* CASE 2: CHALLENGES LIST VIEW - UPDATED TRENDING SECTION */
-) : isChallengesListPage ? (
-  <div className="space-y-6">
-    {/* Recommended For You - Same as before */}
-    <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
-      <div className="flex items-center justify-between px-5 py-4">
-        <h4 className="font-bold text-[#1E1F24] text-[16px]">Recommended For You</h4>
-        <Link href="/challenges/recommended">
-            <HiArrowRight className="text-[#1E1F24] cursor-pointer hover:text-blue-600 transition-colors" size={20} />
-        </Link>
-      </div>
-      <div className="px-2 pb-2 space-y-1">
-        {[
-          { name: "Nivea", icon: "/nivea.svg", prize: "₦5M" },
-          { name: "Spotify", icon: "/spotify.svg", prize: "₦5M" },
-          { name: "Tesla", icon: "/tesla.svg", prize: "₦5M" }
-        ].map((item, idx) => (
-          <div key={idx} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-2xl transition-all">
-            <div className="flex items-center gap-1">
-              <Image src={item.icon} width={40} height={40} alt={item.name} className="rounded-full" />
-              <div>
-                <h5 className="text-[13px] font-semibold text-[#62636C] truncate w-32">Join Our Fitness App Beta Tes..</h5>
-                <div className="flex items-center gap-1 mt-0.5 text-[12px] text-[#747682]">
-                  <span>{item.name}</span> <GoCheckCircleFill className="text-green-500 text-[10px]" />
-                  <span className="text-[#D9D9D9]">•</span> <span>{item.prize} prize pool</span>
-                </div>
+        ) : isChallengesListPage ? (
+          /* CASE 2: CHALLENGES LIST VIEW */
+          <div className="space-y-6">
+            <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
+              <div className="flex items-center justify-between px-5 py-4">
+                <h4 className="font-bold text-[#1E1F24] text-[16px]">Recommended For You</h4>
+                <Link href="/challenges/recommended">
+                    <HiArrowRight className="text-[#1E1F24] cursor-pointer hover:text-blue-600 transition-colors" size={20} />
+                </Link>
               </div>
-            </div>
-            <button className="px-4 py-2 border border-[#E5E7EB] rounded-full text-[12px] font-semibold text-[#1E1F24] hover:bg-white transition-all">Submit</button>
-          </div>
-        ))}
-      </div>
-    </div>
-
-    {/* TRENDING CHALLENGES - UPDATED TO MATCH FIGMA */}
-    <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
-      <div className="flex items-center justify-between px-5 py-4">
-        <h4 className="font-bold text-[#1E1F24] text-[16px]">Trending Challenges</h4>
-        <Link href="/challenges/trending">
-          <HiArrowRight className="text-[#1E1F24] hover:text-blue-600 transition-colors" size={20} />
-        </Link>
-      </div>
-      
-      <div className="px-5 pb-6 space-y-8">
-        {[
-          { 
-            title: "UGC Creators Needed for Skincare Product set La..", 
-            views: "18k views", 
-            brand: "Nivea", 
-            avatars: ["/grp.svg", "/grp1.svg", "/grp2.svg"]
-          },
-          { 
-            title: "Seeking Artists for Limited Edition Sneakers Colla..", 
-            views: "30k views", 
-            brand: "Lobster and Beer", 
-            avatars: ["/grp.svg", "/grp1.svg", "/grp2.svg"]
-          },
-          { 
-            title: "Influencer Partnerships for New Fitness App Rele..", 
-            views: "24k views", 
-            brand: "FitLife", 
-            avatars: ["/grp.svg", "/grp1.svg", "/grp2.svg"]
-          }
-        ].map((c, i) => (
-          <div key={i} className="space-y-3">
-            <h5 className="text-[15px] font-semibold text-[#62636C] leading-tight leading-snug">
-              {c.title}
-            </h5>
-            <div className="flex items-center gap-2">
-              {/* Overlapping Avatar Stack */}
-              <div className="flex -space-x-2 mr-1">
-                {c.avatars.map((img, index) => (
-                  <div key={index} className="w-6 h-6 rounded-full border-2 border-white overflow-hidden relative">
-                    <div className="w-full h-full bg-gray-200" />
-                    <Image src={img} fill alt="user" className="object-cover" />
+              <div className="px-2 pb-2 space-y-1">
+                {[
+                  { name: "Nivea", icon: "/nivea.svg", prize: "₦5M" },
+                  { name: "Spotify", icon: "/spotify.svg", prize: "₦5M" },
+                  { name: "Tesla", icon: "/tesla.svg", prize: "₦5M" }
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-2xl transition-all">
+                    <div className="flex items-center gap-1">
+                      <Image src={item.icon} width={40} height={40} alt={item.name} className="rounded-full" />
+                      <div>
+                        <h5 className="text-[13px] font-semibold text-[#62636C] truncate w-32">Join Our Fitness App Beta Tes..</h5>
+                        <div className="flex items-center gap-1 mt-0.5 text-[12px] text-[#747682]">
+                          <span>{item.name}</span> <GoCheckCircleFill className="text-green-500 text-[10px]" />
+                          <span className="text-[#D9D9D9]">•</span> <span>{item.prize} prize pool</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button className="px-4 py-2 border border-[#E5E7EB] rounded-full text-[12px] font-semibold text-[#1E1F24] hover:bg-white transition-all">Submit</button>
                   </div>
                 ))}
               </div>
-              
-              {/* Meta Info */}
-              <div className="flex items-center gap-1.5 text-[13px] text-[#747682] font-medium">
-                <span>{c.views}</span>
-                <span className="text-[#D9D9D9]">•</span>
-                <span>{c.brand}</span>
-                {(c.brand === "Nivea" || c.brand === "FitLife") && (
-                  <GoCheckCircleFill className="text-green-500 text-[11px]" />
-                )}
+            </div>
+
+            <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
+              <div className="flex items-center justify-between px-5 py-4">
+                <h4 className="font-bold text-[#1E1F24] text-[16px]">Trending Challenges</h4>
+                <Link href="/challenges/trending">
+                  <HiArrowRight className="text-[#1E1F24] hover:text-blue-600 transition-colors" size={20} />
+                </Link>
+              </div>
+              <div className="px-5 pb-6 space-y-8">
+                {[
+                  { title: "UGC Creators Needed for Skincare Product set La..", views: "18k views", brand: "Nivea", avatars: ["/grp.svg", "/grp1.svg", "/grp2.svg"] },
+                  { title: "Seeking Artists for Limited Edition Sneakers Colla..", views: "30k views", brand: "Lobster and Beer", avatars: ["/grp.svg", "/grp1.svg", "/grp2.svg"] },
+                  { title: "Influencer Partnerships for New Fitness App Rele..", views: "24k views", brand: "FitLife", avatars: ["/grp.svg", "/grp1.svg", "/grp2.svg"] }
+                ].map((c, i) => (
+                  <div key={i} className="space-y-3">
+                    <h5 className="text-[15px] font-semibold text-[#62636C] leading-snug">{c.title}</h5>
+                    <div className="flex items-center gap-2">
+                      <div className="flex -space-x-2 mr-1">
+                        {c.avatars.map((img, index) => (
+                          <div key={index} className="w-6 h-6 rounded-full border-2 border-white overflow-hidden relative">
+                            <Image src={img} fill alt="user" className="object-cover" />
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[13px] text-[#747682] font-medium">
+                        <span>{c.views}</span>
+                        <span className="text-[#D9D9D9]">•</span>
+                        <span>{c.brand}</span>
+                        {(c.brand === "Nivea" || c.brand === "FitLife") && <GoCheckCircleFill className="text-green-500 text-[11px]" />}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
-        ))}
-      </div>
-    </div>
-  </div>
-        /* CASE 3: CHALLENGE DETAIL VIEW */
         ) : isChallengeView ? (
+          /* CASE 3: CHALLENGE DETAIL VIEW */
           <div className="space-y-6">
             <div className="bg-[#F5FBFF] border border-[#EBF2FF] rounded-[32px] p-4 relative overflow-hidden">
               <p className="text-[#1E1F24] text-[16px] font-semibold">Prize Pool</p>
@@ -258,7 +281,6 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
                  <Image src="/gem.svg" alt="Prize" width={180} height={180} className="object-contain" />
               </div>
             </div>
-
             <div className="bg-[#F9FAFB] border border-[#F3F4F6] rounded-[32px] overflow-hidden">
               <div className="flex items-center justify-between px-6 py-5">
                 <h4 className="font-semibold text-[#1E1F24] text-[15px]">Leaderboard</h4>
@@ -279,9 +301,8 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
               </div>
             </div>
           </div>
-
-        /* CASE 4: INITIAL DASHBOARD VIEW */
         ) : (
+          /* CASE 4: INITIAL DASHBOARD VIEW */
           <div className="space-y-6">
             <div className="bg-[#F5FBFF] border border-[#EBF2FF] rounded-[32px] p-6 relative overflow-hidden">
               <div className="flex justify-between items-start mb-2">
@@ -299,7 +320,6 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
                 <button className="bg-white border border-[#8B8D98] text-[#111827] px-3 py-3 rounded-full text-[12px] font-medium">Improve Score</button>
               </div>
             </div>
-
             <div className="bg-white border border-[#F3F4F6] rounded-[32px] p-2">
               <div className="flex items-center justify-between px-4 py-4"><h4 className="font-semibold text-[#1E1F24]">Global Leaderboard</h4><HiArrowRight className="text-[#9CA3AF]" size={18} /></div>
               {LEADERBOARD_DATA.map((user) => (
@@ -318,7 +338,7 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
         {/* FOOTER */}
         <div className="pt-4 pb-8">
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-[12px] text-[#62636C] font-medium">
-            <Link href="#" className="hover:text-[#111827]">About</Link>
+            <Link href="#" className="hover:text-[#111827]">Creators</Link>
             <Link href="#" className="hover:text-[#111827]">Terms</Link>
             <Link href="#" className="hover:text-[#111827]">Privacy</Link>
             <Link href="#" className="hover:text-[#111827]">Brands</Link>
@@ -329,8 +349,14 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
           </p>
         </div>
         <WithdrawModal isOpen={isWithdrawModalOpen} onClose={() => setIsWithdrawModalOpen(false)} balance={432000} />
+        
+        {/* New Join Request Modal */}
+        <JoinRequestModal 
+            isOpen={isJoinRequestModalOpen} 
+            onClose={() => setIsJoinRequestModalOpen(false)} 
+            circleLogo={selectedCircleLogo}
+        />
       </div>
-      
     </aside>
   );
 };

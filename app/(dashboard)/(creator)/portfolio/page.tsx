@@ -37,8 +37,8 @@ const WalletPage = () => {
   const currentData = activeTab === "Earnings" ? earnings : withdrawals;
 
   return (
-    <div className="min-h-screen bg-white py-10 font-['Geist']">
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+    <div className="min-h-screen bg-white font-['Geist']">
+      <div className="max-w-[1200px] ">
         
         {/* TOP HEADER */}
         <header className="flex justify-between items-start mb-8">

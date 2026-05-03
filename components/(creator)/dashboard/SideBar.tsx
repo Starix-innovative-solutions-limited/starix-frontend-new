@@ -9,7 +9,7 @@ import { LuPanelLeftClose } from "react-icons/lu";
 const NAV_ITEMS = [
   { label: "Home", icon: "/dashboard.svg", href: "/dashboard" },
   { label: "Challenges", icon: "/clipboard.svg", href: "/challenges" },
-  { label: "Creator Circles", icon: "/box.svg", href: "/circles", badge: 3 },
+  { label: "Creator Circles", icon: "/box.svg", href: "/creator-circles", badge: 3 },
   { label: "Wallet", icon: "/walletss.svg", href: "/portfolio" },
   { label: "Analytics", icon: "/pie.svg", href: "/analytics" },
   { label: "Profile", icon: "/user.svg", href: "/profile" },
