@@ -190,3 +190,19 @@ export function useRefreshToken() {
     },
   });
 }
+
+export const useJoinWaitlist = () => {
+  return useMutation({
+    mutationFn: (data: { email: string }) => 
+      api.post("/waitlist", data),
+
+    onSuccess: (res: any) => {
+      console.log("WAITLIST SUCCESS:", res.data);
+    },
+
+    onError: (err: any) => {
+      console.error("WAITLIST ERROR:", err.response?.data || err.message);
+      throw err;
+    },
+  });
+};

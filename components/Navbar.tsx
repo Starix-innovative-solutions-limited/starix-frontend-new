@@ -14,7 +14,7 @@ export default function Navbar() {
     { href: "/for-brands", label: "For Brands" },
     { href: "/for-creators", label: "For Creators" },
     { href: "/contact", label: "Contact Us" },
-    { href: "/login", label: "Log in" },
+    { href: "/coming-soon", label: "Log in" },
   ];
 
   return (
@@ -43,7 +43,7 @@ export default function Navbar() {
 
         {/* GLASSY CTA BUTTON (Desktop) */}
         <Link
-          href="/signup"
+          href="/coming-soon"
           className="hidden md:block bg-[#0033FF] backdrop-blur-lg border border-white/40 text-[#fff] px-5 py-2 rounded-full text-[16px] font-semibold"
         >
           Join Now
@@ -71,7 +71,7 @@ export default function Navbar() {
           
           {/* GLASSY CTA BUTTON (Mobile) */}
           <Link 
-            href="/signup" 
+            href="/coming-soon" 
             className="bg-[#040136] backdrop-blur-md border border-white/20 text-[#fff] text-center py-4 rounded-full font-bold shadow-lg active:scale-[0.98] transition-all"
             onClick={() => setIsOpen(false)}
           >

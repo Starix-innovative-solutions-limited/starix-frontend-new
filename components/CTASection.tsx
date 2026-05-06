@@ -78,7 +78,7 @@ const CTASection = () => {
             {/* 1. Join as a Creator - Always shows on Hero, hidden on Brands page */}
             {!isForBrands && (
               <Link 
-                href="/signup" 
+                href="/coming-soon" 
                 className={`inline-flex items-center justify-center w-52 h-16 rounded-[40px] text-white text-lg font-medium transition-all duration-300
                   ${isForCreators 
                     ? "bg-[#FF6B00] hover:brightness-110 shadow-sm" // Orange on Creator Page
@@ -93,7 +93,7 @@ const CTASection = () => {
             {/* 2. Join as a Brand - Shows side-by-side on Hero, and on Brands page */}
             {!isForCreators && (
               <Link
-                href="/signup?role=brand"
+                href="/coming-soon"
                 className={`inline-flex items-center justify-center w-52 h-16 rounded-[40px] text-white text-lg font-medium transition-all duration-300
                   ${isForBrands ? "bg-[#0033FF] hover:bg-[#0041cc]" : "bg-[#FF6B00] hover:brightness-110 shadow-sm"}
                 `}

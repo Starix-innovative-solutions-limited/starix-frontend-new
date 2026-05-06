@@ -38,14 +38,14 @@ const Hero = () => {
         {/* BUTTONS */}
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-5">
           <Link
-            href="/signup"
+            href="/coming-soon"
             className="px-8 py-4 rounded-full border-2 border-[#0033FF] text-[#0033FF] text-[16px] md:text-[20px] font-medium hover:shadow-sm transition-all"
           >
             Join as a Creator
           </Link>
 
           <Link
-            href="/signup?role=brand"
+            href="/coming-soon"
             className="px-8 py-4 rounded-full bg-[#0033FF] border-2 border-[#0033FF] text-white text-[16px] md:text-[20px] font-medium hover:shadow-sm transition-all"
           >
             Join as a Brand
