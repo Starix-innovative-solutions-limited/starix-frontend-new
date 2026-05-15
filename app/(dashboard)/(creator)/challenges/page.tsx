@@ -39,7 +39,7 @@ const ChallengesPage = () => {
           <div className="flex items-center gap-2 md:gap-3 flex-1 justify-end">
             <button className="flex items-center gap-2 px-3 py-2 md:px-5 md:py-2.5 border border-[#8B8D98] rounded-full text-[11px] md:text-sm font-medium text-[#374151] hover:bg-gray-50 transition-all flex-shrink-0">
               <FiSliders className="text-sm md:text-lg" />
-              <span className="hidden xs:inline">Filter</span>
+              <span className=" xs:inline">Filter</span>
             </button>
             
             <div className="relative w-full max-w-[120px] xs:max-w-[180px] md:max-w-md transition-all duration-300">
@@ -107,7 +107,7 @@ const ChallengesPage = () => {
                     Continue Submission
                   </button>
                 ) : (
-                  <div className={`px-2 py-1 md:px-4 md:py-1.5 rounded-full text-[9px] md:text-xs font-bold uppercase tracking-wider whitespace-nowrap ${item.statusColor}`}>
+                  <div className={`px-2 py-1 md:px-4 md:py-1.5 rounded-full text-[9px] md:text-xs font-semibold uppercase tracking-wider whitespace-nowrap ${item.statusColor}`}>
                     {item.status}
                   </div>
                 )}
@@ -124,7 +124,7 @@ const ChallengesPage = () => {
           </button>
 
           <div className="flex items-center gap-1 md:gap-2 text-[10px] md:text-sm">
-            <button className="w-7 h-7 md:w-10 md:h-10 flex items-center justify-center rounded-lg bg-[#F9F9FB] text-[#1E1F24] font-bold">1</button>
+            <button className="w-7 h-7 md:w-10 md:h-10 flex items-center justify-center rounded-lg bg-[#F9F9FB] text-[#1E1F24] font-semibold">1</button>
             <span className="text-gray-400">...</span>
             <button className="w-7 h-7 md:w-10 md:h-10 flex items-center justify-center rounded-lg text-[#6B7280]">4</button>
           </div>

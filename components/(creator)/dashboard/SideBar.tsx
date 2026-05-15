@@ -7,9 +7,9 @@ import Image from "next/image";
 import { LuPanelLeftClose } from "react-icons/lu";
 
 const NAV_ITEMS = [
-  { label: "Home", icon: "/dashboard.svg", href: "/dashboard" },
+  { label: "Home", icon: "/home.svg", href: "/dashboard" },
   { label: "Challenges", icon: "/clipboard.svg", href: "/challenges" },
-  { label: "Creator Circles", icon: "/box.svg", href: "/creator-circles", badge: 3 },
+  { label: "Creator Circles", icon: "/circles.svg", href: "/creator-circles", badge: 3 },
   { label: "Wallet", icon: "/walletss.svg", href: "/portfolio" },
   { label: "Analytics", icon: "/pie.svg", href: "/analytics" },
   { label: "Profile", icon: "/user.svg", href: "/profile" },
@@ -34,7 +34,7 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
           h-screen bg-white border-r border-gray-100 flex flex-col
           /* Butter-smooth width transition */
           transition-[width] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
-          ${collapsed ? "w-[88px]" : "w-[280px]"}
+          ${collapsed ? "w-[88px]" : "w-[240px]"}
           transform
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
           md:translate-x-0
@@ -142,18 +142,18 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
   ) : (
     /* EXPANDED STATE - Your Original Promo Card */
     <div className={`
-      bg-[#F9F9FB] border border-[#EFF0F3] rounded-[32px] p-5 text-center shadow-sm
+      bg-[#F9F9FB] border border-[#EFF0F3] rounded-[32px] p-2 text-center shadow-sm
       transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] origin-top
       opacity-100 scale-100 h-auto
     `}>
       <div className="w-full h-[140px] mt-2 flex items-center justify-center ">
-        <img src="/dash-group.svg" alt="Challenges" className="object-contain w-full h-full mt-11 scale-170" />
+        <img src="/dash-group.svg" alt="Challenges" className="object-contain w-full h-full mt-11 scale-145" />
       </div>
-      <h4 className="text-[#1A1A1A] text-[16px] font-semibold mt-4 leading-tight">Earn from Challenges</h4>
-      <p className="text-[#6B7280] text-[11px] mt-2 mb-5 leading-relaxed px-1">
+      <h4 className="text-[#1A1A1A] text-[14px] font-semibold leading-tight">Earn from Challenges</h4>
+      <p className="text-[#62636C] text-[10px] mt-2 mb-4 text-center leading-snug">
         Submit your content to Campaign based Challenges to earn rewards
       </p>
-      <button className="w-full bg-[#0033FF] text-white py-3 rounded-full font-semibold text-[12px] hover:bg-blue-700 transition shadow-lg shadow-blue-100 active:scale-95">
+      <button className="px-3 bg-[#0033FF] text-white mr-10 py-3 mb-3 rounded-full font-semibold text-[12px] hover:bg-blue-700 transition shadow-lg shadow-blue-100 active:scale-95">
         Submit Entries
       </button>
     </div>

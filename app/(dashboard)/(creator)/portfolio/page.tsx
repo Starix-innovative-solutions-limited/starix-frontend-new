@@ -184,12 +184,12 @@ const WalletPage = () => {
           </button>
           
           <div className="flex items-center gap-2">
-            <button className="w-10 h-10 bg-[#F9F9FB] text-[#1E1F24] rounded-xl font-bold text-[14px] border border-[#EFF0F3]">1</button>
-            <span className="text-[#9CA3AF] px-1 font-bold">...</span>
-            <button className="w-10 h-10 text-[#6B7280] hover:bg-gray-50 rounded-xl font-bold text-[14px]">4</button>
+            <button className="w-10 h-10 bg-[#F9F9FB] text-[#1E1F24] rounded-xl font-semibold text-[14px] border border-[#EFF0F3]">1</button>
+            <span className="text-[#9CA3AF] px-1 font-semibold">...</span>
+            <button className="w-10 h-10 text-[#6B7280] hover:bg-gray-50 rounded-xl font-semibold text-[14px]">4</button>
           </div>
 
-          <button className="flex items-center gap-2 px-4 md:px-6 py-2.5 border border-[#E5E7EB] rounded-full text-[12px] md:text-[14px] font-bold text-[#62636C] hover:bg-gray-50 transition-all active:scale-95">
+          <button className="flex items-center gap-2 px-4 md:px-6 py-2.5 border border-[#E5E7EB] rounded-full text-[12px] md:text-[14px] font-semibold text-[#62636C] hover:bg-gray-50 transition-all active:scale-95">
             Next <HiArrowRight size={18} />
           </button>
         </div>

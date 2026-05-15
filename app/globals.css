@@ -52,6 +52,11 @@ html {
     var(--color-secondary-l)
   );
 
+  /* ADD THESE SO THEY ARE PERMANENTLY AVAILABLE */
+  --color-mint: #E5FFE5;
+  --color-pink: #FFF0FD;
+  --color-sky: #EAF5FE;
+
   /* Derived shades (lighter → darker) */
   --color-secondary-200: hsl(
     var(--color-secondary-h),

@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { HiArrowRight } from "react-icons/hi2";
 import { FiSearch, FiChevronDown, FiInfo } from "react-icons/fi";
-import { GoCheckCircleFill } from "react-icons/go";
+import { GoCheckCircleFill, GoPlus } from "react-icons/go";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import WithdrawModal from "./WithdrawModal";
@@ -32,22 +32,40 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
 
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
 
-  // NEW STATES for Join Request
   const [isJoinRequestModalOpen, setIsJoinRequestModalOpen] = useState(false);
   const [selectedCircleLogo, setSelectedCircleLogo] = useState("");
+  
+
+  const isCreatorProfileView = 
+  pathname.includes("/creator-circles/creator-profile") || 
+  pathname.includes("/creator-circles/circle-profile");
+
+  // NEW: Detection for Earning Insight route
+  const isEarningInsightPage = pathname.includes("/creator-circles/earning-insight"); 
 
   const handleJoinClick = (logo: string) => {
     setSelectedCircleLogo(logo);
     setIsJoinRequestModalOpen(true);
   };
 
+  // Data for Transaction Detail payout list
+  const payoutMembers = [
+    { name: "Sangotofunmi Oluwadarasimi (you)", percentage: "20%", avatar: "/no1.svg" },
+    { name: "Kwame Nkrumah", percentage: "20%", avatar: "/no2.svg" },
+    { name: "Adebayo Chidera", percentage: "10%", avatar: "/no3.svg" },
+    { name: "Isabella Martinez", percentage: "10%", avatar: "/no1.svg" },
+    { name: "Agbarapo Omolile", percentage: "10%", avatar: "/no2.svg" },
+    { name: "Alayemi Konibaje", percentage: "10%", avatar: "/no3.svg" },
+    { name: "Ekotibaje Already", percentage: "10%", avatar: "/no1.svg" },
+    { name: "Ogunonipami Tijesunimi", percentage: "10%", avatar: "/no2.svg" },
+  ];
   return (
     <aside
       className={`
         fixed md:static top-0 right-0 z-50
         h-screen bg-white border-l border-gray-100 flex flex-col
         transition-all duration-300 ease-in-out
-        ${collapsed ? "w-[88px]" : "w-[360px]"}
+        ${collapsed ? "w-[88px]" : "w-[416px]"}
         ${className}
       `}
     >
@@ -82,51 +100,176 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
       </div>
 
       {/* CONTENT AREA */}
-      <div className={`flex-1 overflow-y-auto px-4 space-y-6 no-scrollbar ${collapsed ? "hidden" : "block"}`}>
-        
-        {/* CASE: CREATOR CIRCLES VIEW */}
-{isCreatorCirclesPage ? (
-  <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
-    <div className="flex items-center justify-between px-5 py-5 border-b border-[#F8FAFC]">
-      <h4 className="font-semibold text-[#1E1F24] text-[16px]">Open Circles</h4>
-      <Link href="/creator-circles/explore" className="flex items-center gap-1.5 text-[14px] font-semibold text-[#1E1F24] hover:text-blue-600 transition-all">
-        View All <HiArrowRight size={16} />
-      </Link>
-    </div>
-    
-    <div className="p-2 space-y-1">
-      {[
-        { name: "PixelPerfect Toronto", members: "3 Members", logo: "/tesla-circle.svg", rank: "250k", badge: 3 },
-        { name: "Design Studio NYC", members: "7 Members", logo: "/nvidia-circle.svg", rank: "250k", badge: 7 },
-        { name: "CreativeCorp London", members: "3 Members", logo: "/fw-circle.svg", rank: "250k", badge: 3 },
-        { name: "InnovateX Berlin", members: "5 Members", logo: "/purple-circle.svg", rank: "250k", badge: 5 }
-      ].map((circle, idx) => (
-        <div key={idx} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-2xl transition-all">
-          <div className="flex items-center gap-3">
-            {/* LOGO WITH CORNER BADGE */}
-            <div className="relative w-12 h-12 shrink-0">
-              <Image src={circle.logo} fill alt={circle.name} className="object-contain" />
-              {/* The Blue Badge from Figma */}
-              <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-[#C9E9FF] border-2 border-white rounded-full flex items-center justify-center">
-                <span className="text-[#050E81] text-[12px] font-semibold leading-none">{circle.badge}</span>
+      <div className={`flex-1 overflow-y-auto px-2 space-y-6 no-scrollbar ${collapsed ? "hidden" : "block"}`}>
+
+       {/* CASE: EARNING INSIGHT / TRANSACTION DETAIL (Matches Right Content Size (6)_2.png) */}
+        {isEarningInsightPage ? (
+          <div className="space-y-8 py-2">
+            <div className="px-2">
+              <h3 className="text-[20px] font-semibold text-[#1E1F24] mb-8">Transaction Detail</h3>
+              
+              <div className="flex items-start gap-4 mb-4">
+                <div className="relative shrink-0">
+                  <Image src="/cocacola.svg" width={56} height={56} alt="Coca Cola" className="rounded-full" />
+                  <div className="absolute bottom-0 right-0 bg-[#0CC963] rounded-full p-1 border-2 border-white leading-none flex items-center justify-center">
+                    <GoPlus className="text-white text-[10px] rotate-45" />
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-[14px] font-semibold text-[#62636C] leading-snug">
+                    Content Writers for Travel Guide Collaboration
+                  </h4>
+                  <p className="text-[12px] text-[#747682] font-medium mt-1">
+                    8 members payout <span className="mx-0.5">•</span> 5 minutes ago
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <span className="text-[16px] font-semibold text-[#62636C]">+ ₦35,000</span>
+                <span className="px-3 py-1 bg-[#FFF8DB] text-[#665201] rounded-full text-[10px] font-medium">
+                  Pending
+                </span>
               </div>
             </div>
 
-            <div>
-              <h5 className="text-[14px] font-semibold text-[#62636C] leading-tight">{circle.name}</h5>
-              <p className="text-[12px] text-[#747682] font-medium mt-0.5">
-                {circle.members} <span className="text-[#D9D9D9] mx-1">•</span> Ranked {circle.rank} Globally
-              </p>
+            <hr className="border-[#F8FAFC]" />
+
+            <div className="px-2 pb-10">
+              <h4 className="text-[16px] font-semibold text-[#1E1F24] mb-8">
+                Payout Autosplitting on this Challenge
+              </h4>
+              
+              <div className="space-y-6">
+                {payoutMembers.map((member, idx) => (
+                  <div key={idx} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-10 h-10 rounded-full overflow-hidden">
+                        <Image src={member.avatar} fill alt={member.name} className="object-cover" />
+                      </div>
+                      <span className="text-[14px] font-medium text-[#62636C]">
+                        {member.name}
+                      </span>
+                    </div>
+                    <span className="text-[14px] font-semibold text-[#62636C]">
+                      {member.percentage}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
+        ) : isCreatorProfileView ? (
+          <div className="space-y-6">
+            {/* Challenges For Your Circle Section */}
+            <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-5">
+                <h4 className="font-semibold text-[#1E1F24] text-[16px]">Challenges For Your Circle</h4>
+                <HiArrowRight className="text-[#1E1F24]" size={20} />
+              </div>
+              <div className="px-2 pb-4 space-y-1">
+                {[
+                  { name: "FitLife", icon: "/nivea.svg" },
+                  { name: "FitLife", icon: "/spotify.svg" },
+                  { name: "FitLife", icon: "/tesla.svg" }
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-2xl transition-all">
+                    <div className="flex items-center gap-3">
+                      <Image src={item.icon} width={40} height={40} alt={item.name} className="rounded-full" />
+                      <div>
+                        <h5 className="text-[12px] font-semibold text-[#62636C] leading-tight">Join Our Fitness App Beta Tes..</h5>
+                        <div className="flex items-center gap-1 mt-1 text-[12px] text-[#747682] font-medium">
+                          <span>{item.name}</span> <GoCheckCircleFill className="text-green-500 text-[10px]" />
+                          <span className="text-[#D9D9D9]">•</span> <span>₦5M prize pool</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button className="px-2 py-2 bg-white border border-[#E5E7EB] rounded-full text-[12px] font-medium text-[#1E1F24] hover:bg-gray-50 transition-all">Submit</button>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-          <button onClick={() => handleJoinClick(circle.logo)} className="px-2 py-2 border border-[#8B8D98] rounded-full text-[12px] font-medium text-[#1E1F24] hover:bg-white hover:border-blue-600 hover:text-blue-600 transition-all">
-            Join
-          </button>
-        </div>
-      ))}
-    </div>
-  </div>
+            {/* Circle Leaderboard Section */}
+            <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-5">
+                <h4 className="font-semibold text-[#1E1F24] text-[16px]">Circle Leaderboard</h4>
+                <HiArrowRight className="text-[#1E1F24]" size={20} />
+              </div>
+              <div className="pb-4">
+                {[
+                  { id: 1, trend: "star", name: "PixelPerfect Toronto", score: 96, logo: "/tesla-circle.svg", badge: 3 },
+                  { id: 2, name: "CreativeCorp London", score: 96, logo: "/fw-circle.svg", badge: 3, trend: "up" },
+                  { id: 3, name: "InnovateX Berlin", score: 96, logo: "/purple-circle.svg", badge: 3, trend: "down" },
+                  { id: 127, name: "Design Studio NYC", score: 96, logo: "/nvidia-circle.svg", badge: 3, trend: "up" }
+                ].map((circle, idx) => (
+                  <div key={idx} className="flex items-center justify-between py-4 px-5 border-t border-[#F8FAFC] first:border-t-0">
+                    <div className="flex items-center gap-3">
+                      <span className="text-[14px] font-semibold text-[#62636C] w-6">#{circle.id}</span>
+                      <div className="relative w-10 h-10 shrink-0">
+                        <Image src={circle.logo} fill alt={circle.name} className="object-contain" />
+                        <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-[#C9E9FF] border border-white rounded-full flex items-center justify-center">
+                          <span className="text-[#050E81] text-[10px] font-semibold leading-none">{circle.badge}</span>
+                        </div>
+                      </div>
+                      <span className="text-[14px] font-semibold text-[#62636C] truncate w-32">{circle.name}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                       {circle.trend === "up" ? (
+                         <span className="text-green-500 text-[16px]">↑</span>
+                       ) : circle.trend === "down" ? (
+                         <span className="text-red-500 text-[16px]">↓</span>
+                       ) : circle.trend === "star" ? (
+                         <span className="text-yellow-400 text-[16px]">★</span>
+                       ) : (
+                         <span className="w-2 h-2 rounded-full bg-gray-300"></span>
+                       )}
+                       <span className="text-[14px] font-semibold text-[#1E1F24]">{circle.score}</span>
+                       <Image src="/contact star.svg" width={16} height={16} alt="points" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : isCreatorCirclesPage ? (
+          /* CASE: OPEN CIRCLES LIST */
+          <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
+            <div className="flex items-center justify-between px-5 py-5 border-b border-[#F8FAFC]">
+              <h4 className="font-semibold text-[#1E1F24] text-[16px]">Open Circles</h4>
+              <Link href="/creator-circles/explore" className="flex items-center gap-1.5 text-[14px] font-semibold text-[#1E1F24] hover:text-blue-600 transition-all">
+                View All <HiArrowRight size={16} />
+              </Link>
+            </div>
+            <div className="p-2 space-y-1">
+              {[
+                { name: "PixelPerfect Toronto", members: "3 Members", logo: "/tesla-circle.svg", rank: "250k", badge: 3 },
+                { name: "Design Studio NYC", members: "7 Members", logo: "/nvidia-circle.svg", rank: "250k", badge: 7 },
+                { name: "CreativeCorp London", members: "3 Members", logo: "/fw-circle.svg", rank: "250k", badge: 3 },
+                { name: "InnovateX Berlin", members: "5 Members", logo: "/purple-circle.svg", rank: "250k", badge: 5 }
+              ].map((circle, idx) => (
+                <div key={idx} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-2xl transition-all">
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-12 h-12 shrink-0">
+                      <Image src={circle.logo} fill alt={circle.name} className="object-contain" />
+                      <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-[#C9E9FF] border-2 border-white rounded-full flex items-center justify-center">
+                        <span className="text-[#050E81] text-[12px] font-semibold leading-none">{circle.badge}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <h5 className="text-[14px] font-semibold text-[#62636C] leading-tight">{circle.name}</h5>
+                      <p className="text-[12px] text-[#747682] font-medium mt-0.5">
+                        {circle.members} <span className="text-[#D9D9D9] mx-1">•</span> Ranked {circle.rank} Globally
+                      </p>
+                    </div>
+                  </div>
+                  <button onClick={() => handleJoinClick(circle.logo)} className="px-2 py-2 border border-[#8B8D98] rounded-full text-[12px] font-medium text-[#1E1F24] hover:bg-white hover:border-blue-600 hover:text-blue-600 transition-all">
+                    Join
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
 )  : isPortfolioPage ? (
           /* CASE 1: PORTFOLIO / WALLET VIEWS */
           <div className="space-y-6">
@@ -192,7 +335,7 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
                     <Image src="/zenith.svg" width={40} height={40} alt="Zenith Bank" className="object-contain" />
                   </div>
                   <div>
-                    <h5 className="text-[14px] font-bold text-[#1E1F24]">0691081727 <span className="text-[#9CA3AF] font-medium">• Zenith</span></h5>
+                    <h5 className="text-[14px] font-semibold text-[#1E1F24]">0691081727 <span className="text-[#9CA3AF] font-medium">• Zenith</span></h5>
                     <p className="text-[12px] text-[#62636C] mt-0.5">Desire Destiny Oludara</p>
                   </div>
                 </div>
@@ -207,7 +350,7 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
           <div className="space-y-6">
             <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
               <div className="flex items-center justify-between px-5 py-4">
-                <h4 className="font-bold text-[#1E1F24] text-[16px]">Recommended For You</h4>
+                <h4 className="font-semibold text-[#1E1F24] text-[16px]">Recommended For You</h4>
                 <Link href="/challenges/recommended">
                     <HiArrowRight className="text-[#1E1F24] cursor-pointer hover:text-blue-600 transition-colors" size={20} />
                 </Link>
@@ -237,7 +380,7 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
 
             <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
               <div className="flex items-center justify-between px-5 py-4">
-                <h4 className="font-bold text-[#1E1F24] text-[16px]">Trending Challenges</h4>
+                <h4 className="font-semibold text-[#1E1F24] text-[16px]">Trending Challenges</h4>
                 <Link href="/challenges/trending">
                   <HiArrowRight className="text-[#1E1F24] hover:text-blue-600 transition-colors" size={20} />
                 </Link>
@@ -249,7 +392,7 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
                   { title: "Influencer Partnerships for New Fitness App Rele..", views: "24k views", brand: "FitLife", avatars: ["/grp.svg", "/grp1.svg", "/grp2.svg"] }
                 ].map((c, i) => (
                   <div key={i} className="space-y-3">
-                    <h5 className="text-[15px] font-semibold text-[#62636C] leading-snug">{c.title}</h5>
+                    <h5 className="text-[14px] font-semibold text-[#62636C] leading-snug">{c.title}</h5>
                     <div className="flex items-center gap-2">
                       <div className="flex -space-x-2 mr-1">
                         {c.avatars.map((img, index) => (
@@ -290,7 +433,7 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
                 {LEADERBOARD_DATA.map((user, idx) => (
                   <div key={idx} className="flex items-center justify-between py-4 px-6">
                     <div className="flex items-center gap-3">
-                      <span className="text-[14px] font-bold text-[#62636C] w-8">#{user.id}</span>
+                      <span className="text-[14px] font-semibold text-[#62636C] w-8">#{user.id}</span>
                       <div className="relative w-8 h-8 rounded-full overflow-hidden border border-gray-100">
                         <Image src={user.avatar} fill alt={user.name} className="object-cover" />
                       </div>

@@ -194,14 +194,15 @@ export function useRefreshToken() {
 export const useJoinWaitlist = () => {
   return useMutation({
     mutationFn: (data: { email: string }) => 
-      api.post("/waitlist", data),
+      // Using '../' tells Axios to go back one level from the /api base
+      api.post("../waitlist", data), 
 
     onSuccess: (res: any) => {
       console.log("WAITLIST SUCCESS:", res.data);
+      return res.data;
     },
-
     onError: (err: any) => {
-      console.error("WAITLIST ERROR:", err.response?.data || err.message);
+      console.error("DEBUG URL:", err.config.url); // Check the console to see the final URL
       throw err;
     },
   });

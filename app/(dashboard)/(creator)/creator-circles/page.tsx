@@ -65,7 +65,7 @@ const CreatorCircles = () => {
             {/* UPDATED: onClick sets forceEmptyState to true */}
             <button 
               onClick={() => setForceEmptyState(true)}
-              className="w-fit px-6 py-2.5 bg-transparent border border-[#8B8D98] rounded-full font-bold text-[12px] z-10 hover:bg-gray-50 transition-all"
+              className="w-fit px-6 py-2.5 bg-transparent border border-[#8B8D98] rounded-full font-semibold text-[12px] z-10 hover:bg-gray-50 transition-all"
             >
                 Create Circle
             </button>
@@ -80,7 +80,7 @@ const CreatorCircles = () => {
                 <h2 className="text-[16px] md:text-[18px] font-semibold text-[#1E1F24] mb-2">Join a Circle</h2>
                 <p className="text-[#62636C] min-w-[200px] text-[10px] md:text-[12px]">Enter a circle using an invitation code and start collaborating.</p>
             </div>
-            <button onClick={() => setIsJoinModalOpen(true)} className="w-fit px-6 py-2.5 bg-transparent border border-[#8B8D98] rounded-full font-bold text-[12px] z-10 hover:bg-gray-50 transition-all">
+            <button onClick={() => setIsJoinModalOpen(true)} className="w-fit px-6 py-2.5 bg-transparent border border-[#8B8D98] rounded-full font-semibold text-[12px] z-10 hover:bg-gray-50 transition-all">
                 Enter Code
             </button>
             <div className="absolute top-0 right-0 h-full w-[100%] pointer-events-none">
@@ -126,11 +126,11 @@ const CreatorCircles = () => {
                <span className="text-gray-300 text-6xl">○</span>
             </div>
           </div>
-          <h3 className="text-[22px] md:text-[26px] font-bold text-[#1E1F24] mb-3">No circles yet</h3>
+          <h3 className="text-[22px] md:text-[26px] font-semibold text-[#1E1F24] mb-3">No circles yet</h3>
           <p className="text-[#62636C] text-[14px] md:text-[16px] max-w-[340px] leading-relaxed mb-8">
             Create a circle or join one to start collaborating on challenges.
           </p>
-          <button onClick={() => setIsCreateModalOpen(true)} className="px-10 py-4 bg-[#0047FF] text-white rounded-full font-bold text-[15px] transition-all shadow-lg shadow-blue-200">
+          <button onClick={() => setIsCreateModalOpen(true)} className="px-10 py-4 bg-[#0047FF] text-white rounded-full font-semibold text-[15px] transition-all shadow-lg shadow-blue-200">
             Create Circle
           </button>
         </div>
@@ -138,8 +138,8 @@ const CreatorCircles = () => {
         /* INSTANCE: SEARCH RETURNED NO RESULTS */
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <div className="w-48 h-48 md:w-64 md:h-64 bg-[#F3F4F6] rounded-full mb-8" />
-          <h3 className="text-[22px] md:text-[26px] font-bold text-[#1E1F24] mb-3">No circles found</h3>
-          <p className="text-[#62636C] text-[14px] md:text-[16px] max-w-[340px] leading-relaxed">
+          <h3 className="text-[22px] md:text-[26px] font-semibold text-[#1E1F24] mb-3">No circles found</h3>
+          <p className="text-[#62636C] text-[14px] md:text-[16px] max-w-[300px] leading-relaxed">
             We couldn't find any circles matching your search. Try a different name or keyword.
           </p>
         </div>
@@ -172,7 +172,7 @@ const CreatorCircles = () => {
                         </div>
                       ))}
                       {circle.extra > 0 && (
-                        <div className="w-9 h-9 rounded-full border-2 border-white bg-[#D6E9FF] flex items-center justify-center text-[11px] font-bold text-[#2D93D0]">+{circle.extra}</div>
+                        <div className="w-9 h-9 rounded-full border-2 border-white bg-[#D6E9FF] flex items-center justify-center text-[11px] font-semibold text-[#2D93D0]">+{circle.extra}</div>
                       )}
                     </div>
                     <span className={`px-5 py-2 rounded-full text-[12px] font-medium min-w-[90px] text-center ${circle.color}`}>{circle.role}</span>
@@ -184,10 +184,10 @@ const CreatorCircles = () => {
 
           {/* PAGINATION */}
           <div className="flex items-center justify-between mt-10">
-            <button className="flex items-center gap-2 px-8 py-3 border border-[#E5E7EB] rounded-full text-[14px] font-bold text-[#4B5563] hover:bg-gray-50 transition-all"><HiArrowLeft size={18} /> Previous</button>
+            <button className="flex items-center gap-2 px-8 py-3 border border-[#E5E7EB] rounded-full text-[14px] font-semibold text-[#4B5563] hover:bg-gray-50 transition-all"><HiArrowLeft size={18} /> Previous</button>
             <div className="flex items-center gap-3">
               <button className="w-11 h-11 flex items-center justify-center rounded-xl bg-[#F9F9FB] text-[14px] text-[#1E1F24] font-medium">1</button>
-              <span className="text-gray-400 font-bold px-1">...</span>
+              <span className="text-gray-400 font-semibold px-1">...</span>
               <button className="w-11 h-11 flex items-center justify-center rounded-xl text-gray-500 text-[14px] font-medium hover:bg-gray-50">2</button>
             </div>
             <button className="flex items-center gap-2 px-8 py-3 border border-[#E5E7EB] rounded-full text-[14px] font-medium text-[#4B5563] hover:bg-gray-50 transition-all">Next <HiArrowRight size={18} /></button>
