@@ -2,9 +2,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import React, { useState, useRef, ChangeEvent } from "react";
+import React, { useState, useRef, ChangeEvent, useEffect } from "react";
 import { FiX, FiUploadCloud, FiPlus, FiChevronDown, FiCopy, FiCheck, FiRefreshCcw, FiTrash2 } from "react-icons/fi";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 type ModalStep = "CREATE" | "SUCCESS" | "INVITE";
 
@@ -16,10 +17,12 @@ interface MemberInvite {
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  initialStep?: ModalStep; // 1. Added optional configuration prop
 }
 
-const CreateCircleModal = ({ isOpen, onClose }: Props) => {
-  const [step, setStep] = useState<ModalStep>("CREATE");
+const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) => {
+  const router = useRouter();
+  const [step, setStep] = useState<ModalStep>(initialStep);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -34,7 +37,22 @@ const CreateCircleModal = ({ isOpen, onClose }: Props) => {
     { email: "", role: "Member" },
   ]);
 
+  // 2. Sync internal step tracking when modal visibility or initial targets change
+  useEffect(() => {
+    if (isOpen) {
+      setStep(initialStep);
+    }
+  }, [isOpen, initialStep]);
+
   if (!isOpen) return null;
+
+  const handleSendInvitesSubmission = () => {
+    router.push("/creator-circles/circle-profile");
+    onClose();
+    setTimeout(() => {
+      setStep("CREATE"); 
+    }, 300);
+  };
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -42,7 +60,6 @@ const CreateCircleModal = ({ isOpen, onClose }: Props) => {
     if (file) {
       if (!["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
         setImageError("Only PNG and JPG files are supported.");
-        // If they click 'Replace' but choose wrong type, keep old preview
         if (!imagePreview) {
           setImagePreview(null);
         }
@@ -57,7 +74,7 @@ const CreateCircleModal = ({ isOpen, onClose }: Props) => {
   const removeImage = () => {
     setImagePreview(null);
     if (fileInputRef.current) {
-        fileInputRef.current.value = ""; // Clear input so they can re-upload same file
+        fileInputRef.current.value = ""; 
     }
   };
 
@@ -97,7 +114,6 @@ const CreateCircleModal = ({ isOpen, onClose }: Props) => {
               <div className="space-y-3">
                 <label className="block text-[15px] font-semibold text-[#1E1F24]">Logo or Display Picture</label>
                 
-                {/* Image Upload/Preview Flow Area */}
                 <div className="flex items-center gap-5">
                   <div className="w-[100px] h-[100px] md:w-24 md:h-24 bg-[#F9FAFB] rounded-[24px] flex items-center justify-center border-2 border-dashed border-gray-200 overflow-hidden relative">
                     {imagePreview ? (
@@ -111,7 +127,6 @@ const CreateCircleModal = ({ isOpen, onClose }: Props) => {
                     <input type="file" ref={fileInputRef} onChange={handleImageUpload} className="hidden" accept="image/png, image/jpeg" />
                     
                     {imagePreview ? (
-                        /* --- Case 2: IMAGE UPLOADED (Matches image_11.png flow) --- */
                         <div className="flex items-center gap-3">
                             <button 
                                 onClick={() => fileInputRef.current?.click()} 
@@ -127,13 +142,11 @@ const CreateCircleModal = ({ isOpen, onClose }: Props) => {
                             </button>
                         </div>
                     ) : (
-                        /* --- Case 1: NO IMAGE --- */
                         <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-2 px-5 py-2 border border-[#E5E7EB] rounded-full text-[12px] font-semibold text-[#1E1F24] hover:bg-gray-50 transition-all">
                             <FiUploadCloud size={16} /> Upload Image
                         </button>
                     )}
                     
-                    {/* Instructions Text (Updated to match image_11.png) */}
                     <p className="text-[12px] text-[#9CA3AF] leading-snug">Upload 400x400 clear PNG or JPEG image of 20MB max size</p>
                     {imageError && <p className="text-[12px] text-red-500 font-medium pt-1">{imageError}</p>}
                   </div>
@@ -169,17 +182,14 @@ const CreateCircleModal = ({ isOpen, onClose }: Props) => {
 
         {step === "SUCCESS" && (
           <div className="animate-in zoom-in duration-300 flex flex-col md:flex-row items-center gap-8 py-2">
-            {/* Left Side: Image Preview */}
             <div className="w-[160px] h-[160px] flex-shrink-0 rounded-[40px] overflow-hidden bg-gray-100 border border-gray-100 shadow-sm">
               {imagePreview ? (
                 <img src={imagePreview} alt="Success" className="w-full h-full object-cover" />
               ) : (
-                /*Verbatim reference to requested file if no upload exists*/
                 <img src="/White BG logo.jpg" alt="Default Success" className="w-full h-full object-cover" />
               )}
             </div>
 
-            {/* Right Side: Content */}
             <div className="flex-1 text-center md:text-left">
               <h2 className="text-[24px] font-semibold text-[#1E1F24] mb-2 tracking-tight">Circle Created!</h2>
               <p className="text-[#62636C] text-[15px] leading-relaxed mb-6">
@@ -201,13 +211,12 @@ const CreateCircleModal = ({ isOpen, onClose }: Props) => {
                 >
                     Invite Members
                 </button>
-                </div>
+              </div>
             </div>
           </div>
         )}
 
         {step === "INVITE" && (
-          /* INVITE STEP REMAINS UNCHANGED */
           <div className="animate-in slide-in-from-right-4 duration-300">
              <div className="flex justify-between items-start mb-6">
               <div>
@@ -222,7 +231,7 @@ const CreateCircleModal = ({ isOpen, onClose }: Props) => {
                 <div key={idx} className="space-y-2">
                     <label className="text-[12px] font-semibold text-[#1E1F24]">{idx + 1} Creator's email</label>
                     <div className="relative">
-                        <input value={invite.email} onChange={(e) => handleInviteEmailChange(idx, e.target.value)} placeholder="Enter email address" className="w-full border rounded-xl py-3 px-4 text-[14px] outline-none" />
+                        <input value={invite.email} onChange={(e) => handleInviteEmailChange(idx, e.target.value)} placeholder="Enter email address" className="w-full border rounded-xl py-3 px-4 text-[#14px] outline-none" />
                         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 bg-gray-50 border px-2 py-1 rounded-lg text-[12px] font-semibold text-gray-600">
                             {invite.role} <FiChevronDown />
                         </div>
@@ -234,7 +243,12 @@ const CreateCircleModal = ({ isOpen, onClose }: Props) => {
                 <FiPlus /> Add User
               </button>
 
-              <button onClick={onClose} className="w-full mt-8 py-4 bg-[#0047FF] text-white rounded-full font-semibold">Send Invites</button>
+              <button 
+                onClick={handleSendInvitesSubmission} 
+                className="w-full mt-8 py-4 bg-[#0047FF] text-white rounded-full font-semibold transition-colors hover:bg-blue-700"
+              >
+                Send Invites
+              </button>
             </div>
           </div>
         )}

@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation"; // Imported the router hook
 import { 
   GoSearch, 
   GoArrowLeft, 
@@ -10,10 +11,12 @@ import {
 } from "react-icons/go";
 
 interface EarningsHistoryProps {
-  onBack: () => void;
+  onBack?: () => void; // Made optional just in case it's loaded as a direct route
 }
 
 const EarningsHistory = ({ onBack }: EarningsHistoryProps) => {
+  const router = useRouter(); // Initialized the router hook
+
   const historyItems = [
     { id: 1, title: "Content Writers for Travel Guide Collaboration", members: 8, time: "5 minutes ago", amount: "+ ₦35,000", status: "Pending", statusColor: "bg-[#FFF8DB] text-[#665201]", logo: "/nivea.svg" },
     { id: 2, title: "Graphic Designers for Social Media Campaign", members: 6, time: "5 minutes ago", amount: "+ ₦42,000", status: "Successful", statusColor: "bg-[#03FC6C1A] text-[#27AE60]", logo: "/mcdonald.svg" },
@@ -22,14 +25,24 @@ const EarningsHistory = ({ onBack }: EarningsHistoryProps) => {
     { id: 5, title: "Graphic Designers for Social Media Campaign", members: 2, time: "5 minutes ago", amount: "+ ₦64,700", status: "Successful", statusColor: "bg-[#03FC6C1A] text-[#27AE60]", logo: "/indomie.svg" },
   ];
 
+  const handleBackNavigation = () => {
+    // 1. Direct programmatic navigation to your circle profile route
+    router.push("/creator-circles/circle-profile");
+    
+    // 2. Clear parent layout state if a state handler was passed down
+    if (onBack) {
+      onBack();
+    }
+  };
+
   return (
     <div className="w-full min-h-screen bg-white font-sans text-[#1E1F24] antialiased">
       <div className="max-w-[1240px] mx-auto">
         
         {/* Back Button */}
         <button 
-          onClick={onBack} 
-          className="-ml-2 hover:bg-gray-50 rounded-full transition-colors cursor-pointer"
+          onClick={handleBackNavigation} // Updated handler call
+          className="-ml-2 hover:bg-gray-50 rounded-full transition-colors cursor-pointer p-1"
         >
           <GoArrowLeft size={32} />
         </button>
@@ -38,7 +51,7 @@ const EarningsHistory = ({ onBack }: EarningsHistoryProps) => {
           Circle Total Earnings
         </h1>
 
-        {/* Hero Stats Card - Matching Main Middle Area (13).png */}
+        {/* Hero Stats Card */}
         <div className="bg-[#F9FAFB] rounded-[32px] p-3 md:p-6 mb-10 ">
           <div className="flex items-center gap-2 mb-2">
             <img src="/coin.svg" alt="Coin Icon" className="w-6 h-6" />

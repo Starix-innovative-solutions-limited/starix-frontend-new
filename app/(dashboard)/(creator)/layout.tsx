@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { Work_Sans } from "next/font/google";
+import { usePathname } from "next/navigation"; // Added to monitor the route
 import { SideBar } from "@/components/(creator)/dashboard";
 import RightSideBar from "@/components/(creator)/dashboard/RightSideBar";
 
@@ -13,18 +14,48 @@ const workSans = Work_Sans({
 
 const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const pathname = usePathname(); // Initialize the pathname hook
 
   // State management for sidebars
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(true);
 
-  // Simplified toggles: independent of each other
+  // Check if we are currently inside the circle routes
+  const isCircleRoute = pathname?.startsWith('/creator-circle');
+
+  // Handle route-specific behavior when path changes
+  useEffect(() => {
+    if (isCircleRoute) {
+      setLeftCollapsed(true);       // Collapse left sidebar
+      setRightCollapsed(false);     // Expand right sidebar
+    } else {
+      // Optional defaults for non-circle routes
+      setLeftCollapsed(false);
+      setRightCollapsed(true);
+    }
+  }, [pathname, isCircleRoute]);
+
+  // Modified toggle controls based on your logic rules
   const toggleRight = () => {
-    setRightCollapsed(prev => !prev);
+    setRightCollapsed(prev => {
+      const nextState = !prev;
+      // If we are opening the right sidebar on a circle route, keep left sidebar collapsed
+      if (!nextState && isCircleRoute) {
+        setLeftCollapsed(true);
+      }
+      return nextState;
+    });
   };
 
   const toggleLeft = () => {
-    setLeftCollapsed(prev => !prev);
+    setLeftCollapsed(prev => {
+      const nextState = !prev;
+      // If the left sidebar button is clicked to OPEN (collapsed becomes false)
+      if (!nextState) {
+        setRightCollapsed(true); // Automatically close the right sidebar
+      }
+      return nextState;
+    });
   };
 
   const [showTopBar, setShowTopBar] = useState(true);
@@ -61,16 +92,16 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
 
   return (
     <main className={`${workSans.variable} bg-[#fff] h-screen font-sans`}>
-      <div className="flex   h-full overflow-hidden">
+      <div className="flex h-full overflow-hidden">
         
-        {/* LEFT SIDEBAR - Added flex-shrink-0 */}
+        {/* LEFT SIDEBAR - Controlled via updated toggleLeft */}
         <SideBar 
           collapsed={leftCollapsed} 
           setCollapsed={toggleLeft} 
           className="max-lg:hidden md:max-h-[95vh] transition-all duration-300 flex-shrink-0" 
         />
 
-        {/* MAIN CONTENT - min-w-0 allows it to shrink when both sidebars are open */}
+        {/* MAIN CONTENT */}
         <div className="flex-1 flex flex-col h-full min-w-0">
           <div
             ref={scrollRef}
@@ -80,7 +111,7 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
           </div>
         </div>
 
-        {/* RIGHT SIDEBAR - Added flex-shrink-0 */}
+        {/* RIGHT SIDEBAR - Controlled via updated toggleRight */}
         <RightSideBar 
           collapsed={rightCollapsed} 
           setCollapsed={toggleRight}

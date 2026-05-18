@@ -8,7 +8,7 @@ import { LuPanelLeftClose } from "react-icons/lu";
 
 const NAV_ITEMS = [
   { label: "Home", icon: "/home.svg", href: "/dashboard" },
-  { label: "Challenges", icon: "/clipboard.svg", href: "/challenges" },
+  { label: "Challenges", icon: "/challenges.svg", href: "/challenges" },
   { label: "Creator Circles", icon: "/circles.svg", href: "/creator-circles", badge: 3 },
   { label: "Wallet", icon: "/walletss.svg", href: "/portfolio" },
   { label: "Analytics", icon: "/pie.svg", href: "/analytics" },
@@ -98,7 +98,7 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
                       className={`
                         flex items-center px-4 py-3.5 rounded-full transition-all duration-300
                         ${isActive ? "bg-[#EAF1FF] text-[#0047FF]" : "text-[#6B7280] hover:bg-gray-50"}
-                        ${collapsed ? "justify-center" : "gap-4"}
+                        ${collapsed ? "justify-center" : "gap-3"}
                       `}
                     >
                       <div className="relative w-5 h-5 shrink-0">
@@ -120,7 +120,7 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
                       </span>
 
                       {!collapsed && item.badge && (
-                        <span className="ml-auto w-6 h-6 flex items-center justify-center bg-[#0033FF] text-white text-[12px] font-bold rounded-full border-2 border-white animate-in fade-in zoom-in duration-500">
+                        <span className="ml-auto w-5 h-5 flex items-center justify-center bg-[#0033FF] text-white text-[10px] font-bold rounded-full border-2 border-white animate-in fade-in zoom-in duration-500">
                           {item.badge}
                         </span>
                       )}
@@ -132,33 +132,32 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
           </nav>
 
           {/* PROMO CARD / COLLAPSED ICON */}
-<div className="mt-8 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]">
-  {collapsed ? (
-    /* COLLAPSED STATE - Paper Airplane Icon */
-    <div className="flex flex-col items-center justify-center py-28 group cursor-pointer">
-      <img src="/bluplay.svg" className="w-16 h-16" alt="" />
+          <div className="mt-8 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]">
+            {collapsed ? (
+              <div className="flex flex-col items-center justify-center py-28 group cursor-pointer">
+                <img src="/bluplay.svg" className="w-16 h-16" alt="" />
 
-    </div>
-  ) : (
-    /* EXPANDED STATE - Your Original Promo Card */
-    <div className={`
-      bg-[#F9F9FB] border border-[#EFF0F3] rounded-[32px] p-2 text-center shadow-sm
-      transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] origin-top
-      opacity-100 scale-100 h-auto
-    `}>
-      <div className="w-full h-[140px] mt-2 flex items-center justify-center ">
-        <img src="/dash-group.svg" alt="Challenges" className="object-contain w-full h-full mt-11 scale-145" />
-      </div>
-      <h4 className="text-[#1A1A1A] text-[14px] font-semibold leading-tight">Earn from Challenges</h4>
-      <p className="text-[#62636C] text-[10px] mt-2 mb-4 text-center leading-snug">
-        Submit your content to Campaign based Challenges to earn rewards
-      </p>
-      <button className="px-3 bg-[#0033FF] text-white mr-10 py-3 mb-3 rounded-full font-semibold text-[12px] hover:bg-blue-700 transition shadow-lg shadow-blue-100 active:scale-95">
-        Submit Entries
-      </button>
-    </div>
-  )}
-</div>
+              </div>
+            ) : (
+              
+              <div className={`
+                bg-[#F9F9FB] border border-[#EFF0F3] rounded-[32px] p-2 text-center shadow-sm
+                transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] origin-top
+                opacity-100 scale-100 h-auto
+              `}>
+                <div className="w-full h-[140px] mt-2 flex items-center justify-center ">
+                  <img src="/dash-group.svg" alt="Challenges" className="object-contain w-full h-full mt-11 scale-145" />
+                </div>
+                <h4 className="text-[#1A1A1A] text-[14px] font-semibold leading-tight">Earn from Challenges</h4>
+                <p className="text-[#62636C] text-[10px] mt-2 mb-4 text-center leading-snug">
+                  Submit your content to Campaign based Challenges to earn rewards
+                </p>
+                <button className="px-3 bg-[#0033FF] text-white mr-10 py-3 mb-3 rounded-full font-semibold text-[12px] hover:bg-blue-700 transition shadow-lg shadow-blue-100 active:scale-95">
+                  Submit Entries
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* LOGOUT */}

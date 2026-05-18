@@ -34,7 +34,7 @@ const CreatorCircles = () => {
   );
 
   return (
-    <div className="max-w-[1200px] font-sans text-[#111827]">
+    <div className="max-w-[1200px] font-geist text-[#111827]">
       
       {/* HEADER SECTION */}
       <header className="flex justify-between items-center mb-10">
@@ -195,7 +195,6 @@ const CreatorCircles = () => {
         </>
       )}
 
-      {/* MODAL INSTANCE */}
       <JoinCircleModal 
         isOpen={isJoinModalOpen} 
         onClose={() => setIsJoinModalOpen(false)} 
