@@ -56,11 +56,11 @@ const CreatorCircles = () => {
       </header>
 
       {/* TOP ACTION CARDS */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-16">
-        <div className="group relative overflow-hidden bg-[#FFEBE4] rounded-[24px] md:rounded-[32px] p-4 md:p-6 h-[180px] md:h-[230px] flex flex-col justify-between border border-[#FBE8E5]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-8">
+        <div className="group relative overflow-hidden bg-[#FFEBE4] rounded-[24px] md:rounded-[32px] p-4 md:p-5 h-[180px] md:h-[200px] flex flex-col justify-between border border-[#FBE8E5]">
             <div className="w-[55%] sm:w-[180px] z-10">
-                <h2 className="text-[16px] md:text-[18px] font-semibold mb-2">Start a Circle</h2>
-                <p className="text-[#62636C] min-w-[200px] text-[10px] md:text-[12px]">Build your own team and invite creators to earn and grow together</p>
+                <h2 className="text-[16px] md:text-[18px] font-semibold mb-1">Start a Circle</h2>
+                <p className="text-[#62636C] min-w-[200px] text-[10px]  md:text-[12px]">Build your own team and invite creators to earn and grow together</p>
             </div>
             {/* UPDATED: onClick sets forceEmptyState to true */}
             <button 
@@ -75,9 +75,9 @@ const CreatorCircles = () => {
             </div>
         </div>
 
-        <div className="group relative overflow-hidden bg-[#E9F6FF] rounded-[24px] md:rounded-[32px] p-4 md:p-6 h-[180px] md:h-[230px] flex flex-col justify-between border border-[#E5F1FF]">
+        <div className="group relative overflow-hidden bg-[#E9F6FF] rounded-[24px] md:rounded-[32px] p-4 md:p-5 h-[180px] md:h-[200px] flex flex-col justify-between border border-[#E5F1FF]">
             <div className="w-[55%] sm:w-[180px] z-10">
-                <h2 className="text-[16px] md:text-[18px] font-semibold text-[#1E1F24] mb-2">Join a Circle</h2>
+                <h2 className="text-[16px] md:text-[18px] font-semibold text-[#1E1F24] mb-1">Join a Circle</h2>
                 <p className="text-[#62636C] min-w-[200px] text-[10px] md:text-[12px]">Enter a circle using an invitation code and start collaborating.</p>
             </div>
             <button onClick={() => setIsJoinModalOpen(true)} className="w-fit px-6 py-2.5 bg-transparent border border-[#8B8D98] rounded-full font-semibold text-[12px] z-10 hover:bg-gray-50 transition-all">
@@ -90,7 +90,7 @@ const CreatorCircles = () => {
       </div>
 
       {/* SEARCH AND TITLE */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
         <div className="flex items-center gap-4">
           <h3 className="text-[20px] font-semibold text-[#1E1F24]">Your Circles</h3>
           {forceEmptyState && (
