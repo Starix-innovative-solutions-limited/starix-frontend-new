@@ -64,7 +64,7 @@ const CircleProfilePage = ({ setIsEarningsHistoryOpen }: any) => {
   const [activeTab, setActiveTab] = useState("Active (12)");
 
   // Toggle this to true to see or test the live empty state view
-  const [isEmpty, setIsEmpty] = useState(true);
+  const [isEmpty, setIsEmpty] = useState(false);
 
   const [showHistory, setShowHistory] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
