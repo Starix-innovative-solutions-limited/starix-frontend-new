@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -29,10 +29,20 @@ const AuthBg = ({ brand }: AuthProps) => {
     mainAsset: brand ? "/bigribbon.svg" : "/bigstar.svg",
   };
 
+  // Optional: Automatically redirect them to coming-soon the moment this auth page mounts 
+  // Remove this useEffect if you still want them to see the background screen before clicking a role!
+  useEffect(() => {
+    router.prefetch("/coming-soon");
+  }, [router]);
+
   const handleSwitch = (type: "brand" | "creator") => {
     setIsOpen(false);
-    // Adjust these paths to match your actual folder structure
-    router.push(`/signup?role=${type}`); 
+    
+    // Redirecting directly to the temporary page as requested
+    router.push("/coming-soon"); 
+    
+    // Kept here for your future launch reference:
+    // router.push(`/signup?role=${type}`); 
   };
 
   return (
