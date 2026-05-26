@@ -343,7 +343,7 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[180%] h-[180%] bg-[linear-gradient(135deg,rgba(255,255,255,1)_0%,rgba(255,255,255,0)_30%,rgba(255,255,255,0.2)_50%,rgba(255,255,255,0)_100%)] rotate-12" />
             
             <Image 
-              src="/candyyy.svg" 
+              src="/icon-logs.svg" 
               alt="Starix Candy Logo" 
               width={64} 
               height={64} 
@@ -355,7 +355,7 @@ export default function GlobalPreloader({ children }: { children: React.ReactNod
 
         {/* LOADING PROGRESS STRIP TEXT */}
         <div className="flex flex-col items-center w-full max-w-[340px] px-6 text-center">
-          <p className="text-[18px] font-bold text-[#1A1A1A] mb-5 tracking-tight">
+          <p className="text-[18px] font-semibold text-[#1A1A1A] mb-5 tracking-tight">
             Preparing your Starix experience...
           </p>
           
