@@ -27,20 +27,17 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
   const isChallengeView = pathname.includes("/dashboard/challenge/");
   const isChallengesListPage = pathname.startsWith("/challenges"); 
   const isPortfolioPage = pathname.startsWith("/portfolio");
-  // Detection for Creator Circles pages
   const isCreatorCirclesPage = pathname.includes("/creator-circles");
 
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
-
   const [isJoinRequestModalOpen, setIsJoinRequestModalOpen] = useState(false);
   const [selectedCircleLogo, setSelectedCircleLogo] = useState("");
   
 
   const isCreatorProfileView = 
-  pathname.includes("/creator-circles/creator-profile") || 
-  pathname.includes("/creator-circles/circle-profile");
+    pathname.includes("/creator-circles/creator-profile") || 
+    pathname.includes("/creator-circles/circle-profile");
 
-  // NEW: Detection for Earning Insight route
   const isEarningInsightPage = pathname.includes("/creator-circles/earning-insight"); 
 
   const handleJoinClick = (logo: string) => {
@@ -48,7 +45,6 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
     setIsJoinRequestModalOpen(true);
   };
 
-  // Data for Transaction Detail payout list
   const payoutMembers = [
     { name: "Sangotofunmi Oluwadarasimi (you)", percentage: "20%", avatar: "/no1.svg" },
     { name: "Kwame Nkrumah", percentage: "20%", avatar: "/no2.svg" },
@@ -59,6 +55,7 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
     { name: "Ekotibaje Already", percentage: "10%", avatar: "/no1.svg" },
     { name: "Ogunonipami Tijesunimi", percentage: "10%", avatar: "/no2.svg" },
   ];
+
   return (
     <aside
       className={`
@@ -70,7 +67,7 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
       `}
     >
       {/* TOP SECTION: Search & Toggle */}
-      <div className={`flex items-center pt-8 pb-6 px-6 gap-4 ${collapsed ? "flex-col justify-start" : "justify-between"}`}>
+      <div className={`flex items-center pt-6 pb-6 px-6 gap-4 ${collapsed ? "flex-col justify-start" : "justify-between"}`}>
         <button
           onClick={setCollapsed}
           className={`
@@ -100,9 +97,8 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
       </div>
 
       {/* CONTENT AREA */}
-      <div className={`flex-1 overflow-y-auto px-2 space-y-6 no-scrollbar ${collapsed ? "hidden" : "block"}`}>
+      <div className={`flex-1 overflow-y-auto p-6 space-y-6 no-scrollbar ${collapsed ? "hidden" : "block"}`}>
 
-       {/* CASE: EARNING INSIGHT / TRANSACTION DETAIL (Matches Right Content Size (6)_2.png) */}
         {isEarningInsightPage ? (
           <div className="space-y-8 py-2">
             <div className="px-2">
@@ -161,7 +157,6 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
           </div>
         ) : isCreatorProfileView ? (
           <div className="space-y-6">
-            {/* Challenges For Your Circle Section */}
             <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden">
               <div className="flex items-center justify-between px-5 py-5">
                 <h4 className="font-semibold text-[#1E1F24] text-[16px]">Challenges For Your Circle</h4>
@@ -190,7 +185,6 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
               </div>
             </div>
 
-            {/* Circle Leaderboard Section */}
             <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden">
               <div className="flex items-center justify-between px-5 py-5">
                 <h4 className="font-semibold text-[#1E1F24] text-[16px]">Circle Leaderboard</h4>
@@ -233,7 +227,6 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
             </div>
           </div>
         ) : isCreatorCirclesPage ? (
-          /* CASE: OPEN CIRCLES LIST */
           <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
             <div className="flex items-center justify-between px-5 py-5 border-b border-[#F8FAFC]">
               <h4 className="font-semibold text-[#1E1F24] text-[16px]">Open Circles</h4>
@@ -270,8 +263,7 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
               ))}
             </div>
           </div>
-)  : isPortfolioPage ? (
-          /* CASE 1: PORTFOLIO / WALLET VIEWS */
+        ) : isPortfolioPage ? (
           <div className="space-y-6">
             <div className="bg-white border border-[#EFF0F3] rounded-[24px] p-6 shadow-xs">
               <div className="flex justify-between items-center mb-4">
@@ -346,10 +338,9 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
             </div>
           </div>
         ) : isChallengesListPage ? (
-          /* CASE 2: CHALLENGES LIST VIEW */
           <div className="space-y-6">
             <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
-              <div className="flex items-center justify-between px-5 py-4">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-[#EFF0F3]">
                 <h4 className="font-semibold text-[#1E1F24] text-[16px]">Recommended For You</h4>
                 <Link href="/challenges/recommended">
                     <HiArrowRight className="text-[#1E1F24] cursor-pointer hover:text-blue-600 transition-colors" size={20} />
@@ -379,21 +370,21 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
             </div>
 
             <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
-              <div className="flex items-center justify-between px-5 py-4">
+              <div className="flex items-center justify-between px-5 py-4 border-b mb-4 border-[#EFF0F3]">
                 <h4 className="font-semibold text-[#1E1F24] text-[16px]">Trending Challenges</h4>
                 <Link href="/challenges/trending">
                   <HiArrowRight className="text-[#1E1F24] hover:text-blue-600 transition-colors" size={20} />
                 </Link>
               </div>
-              <div className="px-5 pb-6 space-y-8">
+              <div className="px-5 pb-6 space-y-6">
                 {[
                   { title: "UGC Creators Needed for Skincare Product set La..", views: "18k views", brand: "Nivea", avatars: ["/grp.svg", "/grp1.svg", "/grp2.svg"] },
                   { title: "Seeking Artists for Limited Edition Sneakers Colla..", views: "30k views", brand: "Lobster and Beer", avatars: ["/grp.svg", "/grp1.svg", "/grp2.svg"] },
                   { title: "Influencer Partnerships for New Fitness App Rele..", views: "24k views", brand: "FitLife", avatars: ["/grp.svg", "/grp1.svg", "/grp2.svg"] }
                 ].map((c, i) => (
-                  <div key={i} className="space-y-3">
-                    <h5 className="text-[14px] font-semibold text-[#62636C] leading-snug">{c.title}</h5>
-                    <div className="flex items-center gap-2">
+                  <div key={i} className="space-y-1">
+                    <h5 className="text-[13px] font-semibold text-[#62636C] leading-snug">{c.title}</h5>
+                    <div className="flex items-center">
                       <div className="flex -space-x-2 mr-1">
                         {c.avatars.map((img, index) => (
                           <div key={index} className="w-6 h-6 rounded-full border-2 border-white overflow-hidden relative">
@@ -401,7 +392,7 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
                           </div>
                         ))}
                       </div>
-                      <div className="flex items-center gap-1.5 text-[13px] text-[#747682] font-medium">
+                      <div className="flex items-center gap-1 text-[12px] text-[#747682] font-medium">
                         <span>{c.views}</span>
                         <span className="text-[#D9D9D9]">•</span>
                         <span>{c.brand}</span>
@@ -414,19 +405,18 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
             </div>
           </div>
         ) : isChallengeView ? (
-          /* CASE 3: CHALLENGE DETAIL VIEW */
           <div className="space-y-6">
             <div className="bg-[#F5FBFF] border border-[#EBF2FF] rounded-[32px] p-4 relative overflow-hidden">
               <p className="text-[#1E1F24] text-[16px] font-semibold">Prize Pool</p>
               <h3 className="text-[#0047FF] text-[24px] font-semibold mt-1">₦10,550,000</h3>
-              <p className="text-[#62636C] text-[14px] mt-3 max-w-[220px]">Reward distributed among top 15 ranked submissions.</p>
-              <div className="absolute -bottom-10 -right-12 opacity-20">
-                 <Image src="/gem.svg" alt="Prize" width={180} height={180} className="object-contain" />
+              <p className="text-[#62636C] font-medium leading-tight text-[14px] mt-3 max-w-[220px]">Prize pool will be shared equally between the <span className="text-[#FD6C1D]">top 15 submissions</span> for this challenge.</p>
+              <div className="absolute -bottom-10 -right-12">
+                 <Image src="/gem.svg" alt="Prize" width={200} height={200} className="object-contain" />
               </div>
             </div>
             <div className="bg-[#F9FAFB] border border-[#F3F4F6] rounded-[32px] overflow-hidden">
               <div className="flex items-center justify-between px-6 py-5">
-                <h4 className="font-semibold text-[#1E1F24] text-[15px]">Leaderboard</h4>
+                <h4 className="font-semibold text-[#1E1F24] text-[15px]">Challenge Leaderboard</h4>
                 <HiArrowRight className="text-[#9CA3AF]" size={18} />
               </div>
               <div className="bg-white rounded-t-[32px] pt-4">
@@ -445,35 +435,91 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
             </div>
           </div>
         ) : (
-          /* CASE 4: INITIAL DASHBOARD VIEW */
+          /* CASE 4: INITIAL DASHBOARD VIEW - RECONFIGURED FOR FIGMA UI ACCURACY */
           <div className="space-y-6">
-            <div className="bg-[#F5FBFF] border border-[#EBF2FF] rounded-[32px] p-6 relative overflow-hidden">
-              <div className="flex justify-between items-start mb-2">
+            {/* Starix Score Panel */}
+            <div className="bg-[#F5FBFF] border border-[#EBF2FF] rounded-[24px] p-6 relative">
+              <div className="flex justify-between items-start">
                 <div>
-                  <h4 className="text-[#111827] text-[20px] font-semibold">Starix Score</h4>
-                  <p className="text-[#747682] text-[10px] mt-1 max-w-[180px]">Real-time measure of performance...</p>
+                  <h4 className="text-[#1E1F24] text-[20px] font-semibold tracking-tight">Starix Score</h4>
+                  <p className="text-[#62636C] text-[10px] font-regular mt-1 leading-normal max-w-[240px]">
+                    A real-time measure of your creator performance, visibility, and brand readiness
+                  </p>
                 </div>
-                <div className="relative w-10 h-10"><Image src="/dashlogo.svg" fill alt="Star" /></div>
+                <div className="relative w-12 h-12 shrink-0">
+                  <Image src="/dashlogo.svg" fill alt="Star Icon" className="object-contain" />
+                </div>
               </div>
-              <div className="w-full h-2.5 bg-[#C9E9FF] rounded-full mt-4 overflow-hidden"> 
-                <div className="w-[89%] h-full bg-[#73A4FF] rounded-full" />
+
+              {/* Progress Container */}
+              <div className="w-full h-[10px] bg-[#D4EBFF] rounded-full mt-6 overflow-hidden"> 
+                <div className="w-[89%] h-full bg-[#4082FF] rounded-full" />
               </div>
-              <div className="flex justify-between items-end mt-4">
-                <div className="text-[40px] font-medium text-[#111827]">89<span className="text-[24px] ml-1">/100</span></div>
-                <button className="bg-white border border-[#8B8D98] text-[#111827] px-3 py-3 rounded-full text-[12px] font-medium">Improve Score</button>
+
+              {/* Score Value & CTA Action */}
+              <div className="flex justify-between items-center mt-6">
+                <div className="text-[40px] font-medium text-[#1E1F24] leading-none tracking-tight">
+                  89<span className="text-[20px] text-[#747682] font-medium ml-0.5">/100</span>
+                </div>
+                <button className="border border-[#8B8D98] text-[#1E1F24] px-5 py-2.5 rounded-full text-[12px] font-medium  hover:bg-gray-50 transition-colors cursor-pointer">
+                  Improve Score
+                </button>
               </div>
             </div>
-            <div className="bg-white border border-[#F3F4F6] rounded-[32px] p-2">
-              <div className="flex items-center justify-between px-4 py-4"><h4 className="font-semibold text-[#1E1F24]">Global Leaderboard</h4><HiArrowRight className="text-[#9CA3AF]" size={18} /></div>
-              {LEADERBOARD_DATA.map((user) => (
-                <div key={user.id} className="flex items-center justify-between p-3 hover:bg-gray-50/50 rounded-2xl transition-colors">
-                  <div className="flex items-center gap-3">
-                    <span className="text-[14px] font-semibold text-[#62636C] w-6">#{user.id}</span>
-                    <div className="relative w-10 h-10 rounded-full overflow-hidden border border-gray-100"><Image src={user.avatar} fill alt={user.name} /></div>
-                    <span className={`text-[14px] ${user.isUser ? "text-[#0047FF] font-semibold" : "text-[#62636C]"}`}>{user.name}</span>
+
+            {/* Global Leaderboard Container Panel */}
+            <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
+              <div className="flex items-center justify-between px-5 py-5 border-b border-[#F8FAFC]">
+                <h4 className="font-semibold text-[#1E1F24] text-[16px] tracking-tight">Global Leaderboard</h4>
+                <HiArrowRight className="text-[#62636C] cursor-pointer hover:text-blue-600 transition-colors" size={26} />
+              </div>
+              
+              <div className="divide-y divide-[#F8FAFC]">
+                {LEADERBOARD_DATA.map((user) => (
+                  <div key={user.id} className="flex items-center justify-between py-4 px-5 transition-colors hover:bg-gray-50/40">
+                    <div className="flex items-center gap-3 overflow-hidden">
+                    <span className="text-[14px] font-semibold text-[#62636C] w-6 shrink-0">#{user.id}</span>
+                    
+                    {/* PROFILE IMAGE WITH GRADIENT SPLIT RING CONDITION */}
+                    <div 
+                      className={`
+                        relative w-10 h-10 shrink-0 rounded-full flex items-center justify-center p-[2px]
+                        ${user.isUser 
+                          ? "[background-image:conic-gradient(#0047FF_0deg_180deg,#FD6C1D_180deg_360deg)]" 
+                          : "border-2 border-[#73A4FF]"}
+                      `}
+                    >
+                      {/* Inner structural mask container for the avatar image */}
+                      <div className="w-full h-full rounded-full overflow-hidden relative bg-white">
+                        <Image src={user.avatar} fill alt={user.name} className="object-cover" />
+                      </div>
+                    </div>
+                    
+                    <span className={`text-[14px] font-semibold truncate ${user.isUser ? "text-[#1E1F24]" : "text-[#62636C]"}`}>
+                      {user.id === 127 ? "You" : user.name}
+                    </span>
                   </div>
-                </div>
-              ))}
+
+                    {/* Right-aligned Score Metrics & Status indicators */}
+                    <div className="flex items-center gap-1.5 shrink-0 pl-2">
+                      {user.trend === "up" && (
+                        <span className="text-[#22C55E] text-[15px] font-semibold leading-none">↑</span>
+                      )}
+                      {user.trend === "down" && (
+                        <span className="text-[#EF4444] text-[15px] font-semibold leading-none">↓</span>
+                      )}
+                      {user.trend === "neutral" && (
+                        <span className="text-[#9CA3AF] text-[26px] font-semibold leading-none select-none">•</span>
+                      )}
+                      
+                      <span className="text-[14px] font-semibold text-[#1E1F24]">{user.score}</span>
+                      <div className="relative w-4 h-4">
+                        <Image src="/contact star.svg" fill alt="Star Point Asset" className="object-contain" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -493,7 +539,6 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
         </div>
         <WithdrawModal isOpen={isWithdrawModalOpen} onClose={() => setIsWithdrawModalOpen(false)} balance={432000} />
         
-        {/* New Join Request Modal */}
         <JoinRequestModal 
             isOpen={isJoinRequestModalOpen} 
             onClose={() => setIsJoinRequestModalOpen(false)} 

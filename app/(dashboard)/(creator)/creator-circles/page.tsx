@@ -37,17 +37,18 @@ const CreatorCircles = () => {
     <div className="max-w-[1200px] font-geist text-[#111827]">
       
       {/* HEADER SECTION */}
-      <header className="flex justify-between items-center mb-10">
+      <header className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-[20px] md:text-[24px] text-[#1E1F24] font-semibold tracking-tight">Creator Circles</h1>
           <p className="text-[#62636C] text-[15px] font-normal md:text-[12px]">Collaborate and grow with creators in your network</p>
         </div>
         <div className="flex items-center gap-4">
-          <div className="relative p-3 bg-white border border-gray-100 rounded-full shadow-sm cursor-pointer hover:bg-gray-50 transition-colors">
+          <div className="relative p-3 bg-[#F9F9FB]  rounded-full cursor-pointer hover:bg-gray-50 transition-colors">
             <FiBell size={24} className="text-[#111827]" />
             <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-blue-600 border-2 border-white rounded-full"></span>
-          </div>
-          <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-[#FFB800] p-0.5 cursor-pointer">
+          </div> 
+          
+          <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-blue-600 p-0.5 cursor-pointer">
             <div className="w-full h-full rounded-full bg-gray-200 overflow-hidden relative">
               <Image src="/avatar.svg" fill alt="Profile" className="object-cover" />
             </div>
@@ -65,7 +66,7 @@ const CreatorCircles = () => {
             {/* UPDATED: onClick sets forceEmptyState to true */}
             <button 
               onClick={() => setForceEmptyState(true)}
-              className="w-fit px-6 py-2.5 bg-transparent border border-[#8B8D98] rounded-full font-semibold text-[12px] z-10 hover:bg-gray-50 transition-all"
+              className="w-fit px-6 py-2.5 bg-transparent border border-[#8B8D98] rounded-full font-semibold text-[12px] z-10 hover:shadow-sm transition-all"
             >
                 Create Circle
             </button>
@@ -90,9 +91,9 @@ const CreatorCircles = () => {
       </div>
 
       {/* SEARCH AND TITLE */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
         <div className="flex items-center gap-4">
-          <h3 className="text-[20px] font-semibold text-[#1E1F24]">Your Circles</h3>
+          <h3 className="text-[20px] font-semibold text-[#62636C]">Your Circles</h3>
           {forceEmptyState && (
             <button 
               onClick={() => setForceEmptyState(false)}
@@ -149,7 +150,7 @@ const CreatorCircles = () => {
           <div className="bg-white overflow-x-auto no-scrollbar mb-12">
             <div className="min-w-[800px] md:min-w-full divide-y divide-[#EFF0F3]">
               {filteredCircles.map((circle) => (
-                <div key={circle.id} className="flex items-center justify-between p-4 hover:bg-gray-50/50 transition-all cursor-pointer">
+                <div key={circle.id} className="flex items-center justify-between py-2 hover:bg-gray-50/50 transition-all cursor-pointer">
                   {/* ... same circle content as before ... */}
                   <div className="flex items-center gap-5">
                     <div className="w-12 h-12 flex items-center justify-center">
@@ -159,7 +160,7 @@ const CreatorCircles = () => {
                       <h4 className="font-semibold text-[14px] text-[#62636C]">{circle.name}</h4>
                       <div className="flex items-center gap-2 text-[12px] text-[#747682] mt-1 font-medium">
                         <span>28 Active Challenges</span>
-                        <span className="text-gray-300">•</span>
+                        <span className="text-gray-300 text-[16px]">•</span>
                         <span>Ranked 250k Globally</span>
                       </div>
                     </div>
@@ -172,10 +173,10 @@ const CreatorCircles = () => {
                         </div>
                       ))}
                       {circle.extra > 0 && (
-                        <div className="w-9 h-9 rounded-full border-2 border-white bg-[#D6E9FF] flex items-center justify-center text-[11px] font-semibold text-[#2D93D0]">+{circle.extra}</div>
+                        <div className="w-9 h-9 rounded-full border-2 border-white bg-[#D6E9FF] flex items-center justify-center text-[11px] font-semibold text-[#050E81]">+{circle.extra}</div>
                       )}
                     </div>
-                    <span className={`px-5 py-2 rounded-full text-[12px] font-medium min-w-[90px] text-center ${circle.color}`}>{circle.role}</span>
+                    <span className={`px-2 py-1 rounded-full text-[12px] font-medium  text-center ${circle.color}`}>{circle.role}</span>
                   </div>
                 </div>
               ))}

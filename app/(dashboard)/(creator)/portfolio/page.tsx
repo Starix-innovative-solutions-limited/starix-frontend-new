@@ -41,9 +41,9 @@ const WalletPage = () => {
       <div className="max-w-[1200px] ">
         
         {/* TOP HEADER */}
-        <header className="flex justify-between items-start mb-8">
+        <header className="flex justify-between items-start mb-6">
           <div>
-            <h1 className="text-[24px] font-semibold mb-2 text-[#000000] tracking-tight">Wallet</h1>
+            <h1 className="text-[24px] font-semibold mb- text-[#000000] tracking-tight">Wallet</h1>
             <p className="text-[#62636C] font-regular text-[12px]">Track your balance and manage your payouts</p>
           </div>
           <button 
@@ -55,52 +55,52 @@ const WalletPage = () => {
         </header>
 
         {/* BALANCE CARD */}
-<div className="relative w-full h-[240px] rounded-[32px] overflow-hidden mb-12 bg-[#E9F6FF]">
-  
-  {/* DECORATIVE BACKGROUND LAYER */}
-  {/* Logic: 
-    1. We give the wrapper a width that is slightly larger than the graphic usually needs (e.g., 60%).
-    2. We use flex and justify-end to keep it pinned to the right.
-    3. 'object-contain' ensures the full SVG is always visible within that scaling box.
-  */}
-  <div className="absolute right-0 bottom-0 h-full w-[50%] md:w-[60%] pointer-events-none flex items-end justify-end p-4 md:p-0">
-    <div className="relative h-[90%] w-full transition-all duration-500 ease-in-out">
-      <Image 
-        src="/groupss.svg" 
-        alt="Decorative background" 
-        fill 
-        className="object-contain object-right-bottom"
-        priority
-      />
-    </div>
-  </div>
+        <div className="relative w-full h-[200px] rounded-[32px] overflow-hidden mb-8 bg-[#E9F6FF]">
+          
+          {/* DECORATIVE BACKGROUND LAYER */}
+          {/* Logic: 
+            1. We give the wrapper a width that is slightly larger than the graphic usually needs (e.g., 60%).
+            2. We use flex and justify-end to keep it pinned to the right.
+            3. 'object-contain' ensures the full SVG is always visible within that scaling box.
+          */}
+          <div className="absolute right-0 bottom-0 h-full w-[50%] md:w-[60%] pointer-events-none flex items-end justify-end">
+            <div className="relative h-[90%] w-full transition-all duration-500 ease-in-out">
+              <Image 
+                src="/groupss.svg" 
+                alt="Decorative background" 
+                fill 
+                className="object-contain object-right-bottom"
+                priority
+              />
+            </div>
+          </div>
 
-  {/* MAIN CONTENT LAYER */}
-  <div className="relative z-10 p-10 flex flex-col justify-between h-full">
-    <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-2">
-         <img src="/candyyy.svg" alt="Icon" className="w-5 h-5" />
-         <span className="text-[12px] font-semibold text-[#747682] uppercase tracking-[0.1em]">
-           Wallet Balance
-         </span>
-      </div>
-      <div className="flex items-baseline gap-1 mt-2">
-        <span className="text-[40px] font-semibold text-[#000000]">₦800,000</span>
-        <span className="text-[40px] font-semibold text-[#8B8D98]">.00</span>
-      </div>
-    </div>
+          {/* MAIN CONTENT LAYER */}
+          <div className="relative z-10 p-10 flex flex-col justify-between h-full">
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <img src="/candyyy.svg" alt="Icon" className="w-5 h-5" />
+                <span className="text-[12px] font-semibold text-[#747682] uppercase tracking-[0.1em]">
+                  Wallet Balance
+                </span>
+              </div>
+              <div className="flex items-baseline gap-1 mb-3 mt-2">
+                <span className="text-[40px] font-semibold text-[#000000]">₦800,000</span>
+                <span className="text-[40px] font-semibold text-[#8B8D98]">.00</span>
+              </div>
+            </div>
 
-    <button 
-      onClick={() => setIsWithdrawModalOpen(true)}
-      className="w-fit px-6 py-3.5 bg-[#0033FF] text-white rounded-full font-semibold text-[12px] hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 active:scale-95"
-    >
-      Withdraw
-    </button>
-  </div>
-</div>
+            <button 
+              onClick={() => setIsWithdrawModalOpen(true)}
+              className="w-fit px-3 py-2 bg-[#0033FF] text-white rounded-full font-semibold text-[12px] hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 active:scale-95"
+            >
+              Withdraw
+            </button>
+          </div>
+        </div>
 
         {/* TABS */}
-        <div className="flex gap-10 border-b border-[#F3F4F6] mb-8">
+        <div className="flex mx-2 gap-10 border-b border-[#F3F4F6]">
           {["Earnings", "Withdrawals"].map((tab) => (
             <button
               key={tab}
@@ -133,10 +133,10 @@ const WalletPage = () => {
               {currentData.map((item) => (
                 <div 
                   key={item.id} 
-                  className="flex items-center justify-between border-b border-[#F9FAFB] hover:bg-[#F9FAFB]/50 transition-colors"
+                  className="flex items-center justify-between border-b border-[#EFF0F3] hover:bg-[#F9FAFB]/50 transition-colors"
                 >
                   <div className="flex items-center gap-5">
-                    <div className="relative overflow-hidden flex items-center justify-center p-2.5">
+                    <div className="relative overflow-hidden flex items-center justify-center py-2">
                       <Image 
                         src={item.icon} 
                         alt={item.title} 

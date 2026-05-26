@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { Work_Sans } from "next/font/google";
-import { usePathname } from "next/navigation"; // Added to monitor the route
+import { usePathname } from "next/navigation"; 
 import { SideBar } from "@/components/(creator)/dashboard";
 import RightSideBar from "@/components/(creator)/dashboard/RightSideBar";
 
@@ -14,32 +14,37 @@ const workSans = Work_Sans({
 
 const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const pathname = usePathname(); // Initialize the pathname hook
+  const pathname = usePathname(); 
 
   // State management for sidebars
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(true);
 
-  // Check if we are currently inside the circle routes
-  const isCircleRoute = pathname?.startsWith('/creator-circle');
+  // Check if we are currently inside any of the circle route variations
+  const isCircleRoute = pathname?.startsWith('/creator-circle') || pathname?.startsWith('/creator-circles');
+  
+  /* Updated to isolate BOTH the circle-profile view and the standard user profile view 
+    for zero-padding flush alignment against layout borders.
+  */
+  const isFlushProfileView = 
+    pathname?.includes('/creator-circles/circle-profile') || 
+    pathname === '/profile' || 
+    pathname?.endsWith('/profile');
 
   // Handle route-specific behavior when path changes
   useEffect(() => {
     if (isCircleRoute) {
       setLeftCollapsed(true);       // Collapse left sidebar
-      setRightCollapsed(false);     // Expand right sidebar
+      setRightCollapsed(false);     // Keep right sidebar visible and open
     } else {
-      // Optional defaults for non-circle routes
       setLeftCollapsed(false);
       setRightCollapsed(true);
     }
   }, [pathname, isCircleRoute]);
 
-  // Modified toggle controls based on your logic rules
   const toggleRight = () => {
     setRightCollapsed(prev => {
       const nextState = !prev;
-      // If we are opening the right sidebar on a circle route, keep left sidebar collapsed
       if (!nextState && isCircleRoute) {
         setLeftCollapsed(true);
       }
@@ -50,9 +55,8 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
   const toggleLeft = () => {
     setLeftCollapsed(prev => {
       const nextState = !prev;
-      // If the left sidebar button is clicked to OPEN (collapsed becomes false)
       if (!nextState) {
-        setRightCollapsed(true); // Automatically close the right sidebar
+        setRightCollapsed(true); 
       }
       return nextState;
     });
@@ -91,27 +95,34 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
   }, []);
 
   return (
-    <main className={`${workSans.variable} bg-[#fff] h-screen font-sans`}>
+    <main className={`${workSans.variable} bg-[#fff] h-screen font-sans overflow-hidden`}>
       <div className="flex h-full overflow-hidden">
         
-        {/* LEFT SIDEBAR - Controlled via updated toggleLeft */}
+        {/* LEFT SIDEBAR */}
         <SideBar 
           collapsed={leftCollapsed} 
           setCollapsed={toggleLeft} 
           className="max-lg:hidden md:max-h-[95vh] transition-all duration-300 flex-shrink-0" 
         />
 
-        {/* MAIN CONTENT */}
+        {/* MAIN CONTENT AREA */}
         <div className="flex-1 flex flex-col h-full min-w-0">
           <div
             ref={scrollRef}
-            className="flex-1 max-md:pt-4 md:p-8 md:py-6 overflow-y-auto scrollbar-none hide-sc"
+            /* When on a profile page view, padding is exactly 'p-0' so your banner 
+              stretches and touches both sidebars seamlessly without layout gaps.
+            */
+            className={`flex-1 overflow-y-auto scrollbar-none hide-sc transition-all duration-300 ${
+              isFlushProfileView 
+                ? "p-0" 
+                : "max-md:pt-4 md:p-8 md:py-6"
+            }`}
           >
             {children}
           </div>
         </div>
 
-        {/* RIGHT SIDEBAR - Controlled via updated toggleRight */}
+        {/* RIGHT SIDEBAR */}
         <RightSideBar 
           collapsed={rightCollapsed} 
           setCollapsed={toggleRight}

@@ -19,56 +19,52 @@ const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: b
   ];
 
   return (
-    <div className="min-h-screen bg-white py-6 font-['Geist']">
+    <div className="min-h-screen bg-white py-2 font-['Geist']">
       <div className="max-w-7xl mx-auto px-4 md:px-1">
         
         {/* HEADER */}
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
           <div>
-            <Link href="/challenges" className="inline-flex items-center gap-2 text-[#1E1F24] mb-4 hover:opacity-70 transition-opacity">
+            <Link href="/challenges" className="inline-flex items-center gap-2 text-[#1E1F24] mb-3 hover:opacity-70 transition-opacity">
               <HiArrowLeft size={20} />
             </Link>
             <h1 className="text-[22px] md:text-[24px] font-semibold text-[#000000] tracking-tight">
               Trending Challenges
             </h1>
-            <p className="text-[#62636C] text-[12px] mt-1 font-medium">
-              You have {cards.length} new campaign matches today
+            <p className="text-[#62636C] text-[12px] mt-1 font-normal">
+              Discover trending challenges and compete where the spotlight is
             </p>
           </div>
 
           <div className="flex items-center gap-2 md:gap-3 flex-1 justify-end">
             <button className="flex items-center gap-2 px-3 py-2 md:px-5 md:py-2.5 border border-[#8B8D98] rounded-full text-[11px] md:text-sm font-medium text-[#374151] hover:bg-gray-50 transition-all flex-shrink-0">
-            <FiSliders className="text-sm md:text-lg" />
-            <span className="hidden xs:inline">Filter</span>
+              <FiSliders className="text-sm md:text-lg" />
+              <span className=" xs:inline">Filter</span>
             </button>
             
-            <div className="relative w-full max-w-[120px] xs:max-w-[180px] md:max-w-md transition-all duration-300">
-            <FiSearch className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-[#62636C] text-sm md:text-lg" />
-            <input 
+            <div className="relative w-full max-w-xs xs:max-w-[180px] md:max-w-sm transition-all duration-300">
+              <FiSearch className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-[#62636C] text-sm md:text-lg" />
+              <input 
                 type="text" 
-                placeholder="Search"
+                placeholder="Search Trending Challenges"
                 className="w-full pl-8 md:pl-12 pr-4 py-2 md:py-2.5 bg-[#F9F9FB] border border-[#EFF0F3] rounded-full text-[11px] md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            />
+              />
             </div>
-        </div>
+          </div>
         </header>
 
-        {/* GRID WITH OVERFLOW:
-          - We use auto-cols to set a FIXED width for the cards.
-          - This ensures that on smaller screens or when sidebars open, 
-            the cards stay exactly the same size and just overflow.
-        */}
-        <div className="relative w-full overflow-hidden">
+        {/* RESTRUCTURED 3-COLUMN RESPONSIVE GRID LAYOUT */}
+        <div className="relative w-full">
           <div className={`
-            grid grid-flow-col gap-6 overflow-x-auto pb-10 no-scrollbar snap-x snap-mandatory
+            grid gap-6 pb-10
             ${isAnySidebarOpen 
-              ? 'auto-cols-[calc(50%-12px)] md:auto-cols-[440px]' 
-              : 'auto-cols-[calc(100%-40px)] md:auto-cols-[380px] lg:auto-cols-[350px] xl:auto-cols-[385px]'}
+              ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3' 
+              : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}
           `}>
             {cards.map((card) => (
               <div 
                 key={card.id} 
-                className="bg-white border border-[#F3F4F6] rounded-[24px] md:rounded-[32px] p-4 md:p-6 shadow-xs hover:border-blue-200 transition-all group flex flex-col h-full snap-start"
+                className="bg-white border border-[#F3F4F6] rounded-[24px] md:rounded-[32px] p-4 md:p-4 shadow-sm hover:border-blue-200 transition-all group flex flex-col h-full"
               >
                 {/* Card Top Info */}
                 <div className="flex items-center justify-between mb-5">
@@ -91,25 +87,25 @@ const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: b
                       </div>
                     </div>
                   </div>
-                  <div className="px-3 py-1.5 border border-[#D1D5DB] rounded-full text-[11px] font-medium text-[#1E1F24] hover:bg-gray-50 transition-colors shrink-0">
+                  <div className="px-3 py-1.5 border border-[#D1D5DB] rounded-full text-[11px] font-medium text-[#1E1F24] hover:bg-gray-50 transition-colors shrink-0 cursor-pointer">
                     Submit
                   </div>
                 </div>
 
                 {/* Prize & Status Labels */}
-                <div className="flex items-center gap-2 mb-4 font-semibold">
-                  <span className="text-[#1E1F24] text-[12px]">{card.prize} prize pool</span>
+                <div className="flex items-center gap-2 mb-2 ">
+                  <span className="text-[#1E1F24] font-semibold text-[12px]">{card.prize} prize pool</span>
                   <span className="text-[#E5E7EB]">|</span>
-                  <span className="text-[#D12B1F] text-[10px]">Closes in {card.deadline}</span>
+                  <span className="text-[#D12B1F] font-medium text-[10px]">Closes in {card.deadline}</span>
                   <span className="text-[#E5E7EB]">|</span>
-                  <span className="text-[#1E874B] bg-[#ECFEF4] text-[10px] px-1.5 py-0.5 rounded">Verified</span>
+                  <span className="text-[#1E874B] bg-[#ECFEF4] font-medium text-[10px] px-1 py-0.5 rounded-2xl">Verified Challenge</span>
                 </div>
 
-                <h3 className="font-semibold text-[11px] text-[#62636C] leading-tight line-clamp-2 mb-1">
+                <h3 className="font-semibold text-[12px] text-[#62636C]  line-clamp-2 mb-1">
                   UGC Creators Needed for Skincare Product set Launch
                 </h3>
                 <p className="text-[#747682] text-[10px] mb-2.5 font-normal line-clamp-2">
-                 NIVEA is launching its new Radiance Boost Skincare Collection and is now looking for authentic...
+                 NIVEA is launching its new Radiance Boost Skincare Collection and is now looking for authentic, engaging user-generated content that highlights rea...
                 </p>
 
                 {/* FIXED-SIZE DYNAMIC IMAGE PREVIEW */}
@@ -131,15 +127,15 @@ const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: b
                 </div>
 
                 {/* Metrics row */}
-                <div className="flex items-center justify-between text-[#9CA3AF] pt-2 border-t border-gray-50 mt-auto">
-                  <div className="flex gap-3 md:gap-5 text-[11px] md:text-[12px] font-bold">
+                <div className="flex items-center justify-between text-[#62636C] border-t border-gray-50 mt-auto">
+                  <div className="flex gap-3 md:gap-5 text-[11px] md:text-[10px] font-medium">
                     <span className="flex items-center gap-1"><FiBarChart2 size={14}/> 2.1k</span>
                     <span className="flex items-center gap-1"><FiMail size={14}/> 87</span>
                     <span className="flex items-center gap-1"><FiClock size={14}/> 12h</span>
                   </div>
                   <div className="flex gap-3">
-                    <button className="hover:text-[#111827] transition-colors"><FiBookmark size={16} /></button>
-                    <button className="hover:text-[#111827] transition-colors"><FiShare2 size={16} /></button>
+                    <button className="hover:text-[#111827] transition-colors cursor-pointer"><FiBookmark size={16} /></button>
+                    <button className="hover:text-[#111827] transition-colors cursor-pointer"><FiShare2 size={16} /></button>
                   </div>
                 </div>
               </div>
@@ -149,23 +145,18 @@ const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: b
 
         {/* Pagination */}
         <div className="flex justify-between items-center w-full mt-6 px-1 pb-10">
-          <button className="px-3 md:px-5 py-2 border border-[#E5E7EB] rounded-full text-[14px] font-regular text-[#111827] flex items-center gap-1 hover:bg-gray-50 transition-all">
+          <button className="px-3 md:px-5 py-2 border border-[#E5E7EB] rounded-full text-[14px] font-regular text-[#111827] flex items-center gap-1 hover:bg-gray-50 transition-all cursor-pointer">
             <HiArrowLeft size={14} /> Previous
           </button>
           <div className="hidden sm:flex items-center gap-2">
-            <button className="w-11 h-11 bg-[#F9F9FB] text-[#1E1F24] rounded-[12px] font-medium text-[14px]">1</button>
-            <button className="w-11 h-11 text-[#6B7280] hover:bg-gray-50 rounded-[12px] font-medium text-[14px]">2</button>
+            <button className="w-11 h-11 bg-[#F9F9FB] text-[#1E1F24] rounded-[12px] font-medium text-[14px] cursor-pointer">1</button>
+            <button className="w-11 h-11 text-[#6B7280] hover:bg-gray-50 rounded-[12px] font-medium text-[14px] cursor-pointer">2</button>
           </div>
-          <button className="px-3 md:px-5 py-2 border border-[#E5E7EB] rounded-full text-[14px] font-regular text-[#111827] flex items-center gap-1 hover:bg-gray-50 transition-all">
+          <button className="px-3 md:px-5 py-2 border border-[#E5E7EB] rounded-full text-[14px] font-regular text-[#111827] flex items-center gap-1 hover:bg-gray-50 transition-all cursor-pointer">
             Next <HiArrowRight size={14}/>
           </button>
         </div>
       </div>
-
-      <style jsx global>{`
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
     </div>
   );
 };

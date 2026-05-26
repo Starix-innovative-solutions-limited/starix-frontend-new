@@ -13,8 +13,22 @@ import { useRouter } from "next/navigation";
 import EarningsHistory from "../earning-insight/page";
 import SettingsModal from "@/components/(creator)/dashboard/SettingsModal";
 import CreateCircleModal from "@/components/(creator)/dashboard/CreateCircleModal";
+import BannerUploadModal from "@/components/(creator)/dashboard/BannerUploadModal";
+import ConnectSocialsModal from "@/components/(creator)/dashboard/ConnectSocialsModal";
 
 const tabs = ["Active (12)", "Completed", "Saved"];
+
+// Mock array of members for the hover card breakdown
+const circleMembers = [
+  { name: "Jason oluwadarijimi", role: "Admin", avatar: "/grp1.svg" },
+  { name: "Sally Rivera", role: "Member", avatar: "/grp2.svg" },
+  { name: "Sangotofunmi Oluwadar..", role: "Member", avatar: "/grp3.svg" },
+  { name: "You", role: "Member", avatar: "/grp1.svg" },
+  { name: "Esther Howard", role: "Member", avatar: "/grp2.svg" },
+  { name: "Adewale Yusuf", role: "Member", avatar: "/grp3.svg" },
+  { name: "Jane Doe", role: "Member", avatar: "/grp1.svg" },
+  { name: "John Smith", role: "Member", avatar: "/grp2.svg" },
+];
 
 const challenges = [
   {
@@ -63,12 +77,17 @@ const CircleProfilePage = ({ setIsEarningsHistoryOpen }: any) => {
   const router = useRouter(); 
   const [activeTab, setActiveTab] = useState("Active (12)");
 
-  // Toggle this to true to see or test the live empty state view
+  // Toggle this to true to see or test the exact empty state matching the design mockup image
   const [isEmpty, setIsEmpty] = useState(false);
 
   const [showHistory, setShowHistory] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
+  // Banner & Social Upload Modal State Logic Integrations
+  const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
+  const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
+  const [bannerImage, setBannerImage] = useState<string | null>(null);
+
   // Modal tracking states
   const [isCreateCircleOpen, setIsCreateCircleOpen] = useState(false);
   const [modalInitialStep, setModalInitialStep] = useState<"CREATE" | "SUCCESS" | "INVITE">("CREATE");
@@ -97,108 +116,180 @@ const CircleProfilePage = ({ setIsEarningsHistoryOpen }: any) => {
   }
 
   return (
-    /* Layout Breakout Wrapper:
-      - Neutralizes the main layout's 'md:p-8' using negative horizontal/top margins.
-      - Keeps the bottom padding isolated so the layout scrolls cleanly without clipping.
-    */
-    <div className="w-full min-h-screen bg-white font-sans text-[#1E1F24] antialiased md:-mx-8 md:-mt-8 md:-mr-8 overflow-x-hidden">
-  <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
-  
-  {/* Create Circle / Invite Members Overlay Modal */}
-  <CreateCircleModal 
-    isOpen={isCreateCircleOpen} 
-    onClose={() => setIsCreateCircleOpen(false)} 
-    initialStep={modalInitialStep}
-  />
-  
-  {/* ================= HERO BANNER ================= */}
-  {/* This will now span exactly 100% of the available layout viewport channel */}
-  <div className="relative w-full h-[240px] md:h-[280px]">
-    <Image 
-      src="/Header.png" 
-      alt="NYC Skyline Banner" 
-      fill 
-      className="object-cover" 
-      priority 
-    />
+    <div className="w-full min-h-screen bg-white font-sans text-[#1E1F24] antialiased overflow-x-hidden">
+      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      
+      {/* Create Circle / Invite Members Overlay Modal */}
+      <CreateCircleModal 
+        isOpen={isCreateCircleOpen} 
+        onClose={() => setIsCreateCircleOpen(false)} 
+        initialStep={modalInitialStep}
+      />
 
-    {/* Settings Icon */}
-    <button 
-      onClick={() => setIsSettingsOpen(true)}
-      className="absolute right-6 md:right-12 bottom-[-84px] z-20 w-[48px] h-[48px] rounded-full bg-white flex items-center justify-center border hover:bg-gray-50 transition"
-    >
-      <FiSettings size={24} className="text-[#6B7280]" />
-    </button>
+      {/* Banner Upload & Social Connector Modals */}
+      <BannerUploadModal 
+        isOpen={isBannerModalOpen} 
+        onClose={() => setIsBannerModalOpen(false)} 
+        onUploadSuccess={(url) => setBannerImage(url)} 
+      />
 
-    {/* Invite Member Button */}
-    <button 
-      onClick={handleOpenInviteOnly} 
-      className="absolute right-6 md:right-26 bottom-[-84px] z-20 px-6 h-[48px] rounded-full bg-white flex items-center justify-center border hover:bg-gray-50 transition cursor-pointer"
-    >
-      <span className="text-[14px] font-semibold text-[#1E1F24]">Invite Member</span>
-    </button>
+      <ConnectSocialsModal 
+        isOpen={isConnectModalOpen} 
+        onClose={() => setIsConnectModalOpen(false)} 
+      />
+      
+      {/* ================= HERO BANNER ================= */}
+      <div className="relative w-full h-[220px] md:h-[250px] lg:h-[280px] bg-[#F3F4F6]">
+        {bannerImage ? (
+          <Image 
+            src={bannerImage} 
+            alt="Uploaded Banner Image" 
+            fill 
+            className="object-cover" 
+            priority 
+          />
+        ) : (
+          <Image 
+            src="/Header.png" 
+            alt="NYC Skyline Banner" 
+            fill 
+            className="object-cover" 
+            priority 
+          />
+        )}
 
-    {/* Profile Logo Overlap */}
-    <div className="absolute -bottom-16 left-6 md:left-8 z-10">
-      <div className="w-[120px] h-[120px] md:w-[150px] md:h-[150px] rounded-[32px] flex items-center justify-center">
-        <Image src="/brands.svg" alt="Logo" width={120} height={120} className="object-contain" />
+        {/* Action Button Row Overlayed Right aligned — Upgraded for iPad/Tablet boundaries */}
+        <div className="absolute right-4 md:right-6 lg:right-8 bottom-[-72px] md:bottom-[-24px] lg:bottom-[-84px] z-20 flex flex-wrap items-center justify-end gap-2 max-w-[70%] md:max-w-none">
+          {isEmpty && (
+            <>
+              <button 
+                onClick={() => setIsConnectModalOpen(true)}
+                className="px-4 lg:px-6 h-[40px] lg:h-[48px] rounded-full bg-white flex items-center justify-center border hover:bg-gray-50 transition cursor-pointer text-[13px] lg:text-[14px] font-semibold text-[#1E1F24] whitespace-nowrap shadow-sm"
+              >
+                Connect Socials
+              </button>
+              <button 
+                onClick={() => setIsBannerModalOpen(true)}
+                className="px-4 lg:px-6 h-[40px] lg:h-[48px] rounded-full bg-white flex items-center justify-center border hover:bg-gray-50 transition cursor-pointer text-[13px] lg:text-[14px] font-semibold text-[#1E1F24] whitespace-nowrap shadow-sm"
+              >
+                Upload Banner
+              </button>
+            </>
+          )}
+          <button 
+            onClick={handleOpenInviteOnly} 
+            className="px-4 lg:px-6 h-[40px] lg:h-[48px] rounded-full bg-white flex items-center justify-center border border-[#8B8D98] hover:bg-gray-50 transition cursor-pointer text-[13px] lg:text-[14px] font-semibold text-[#1E1F24] whitespace-nowrap shadow-sm"
+          >
+            Invite Member
+          </button>
+          <button 
+            onClick={() => setIsSettingsOpen(true)}
+            className="w-[40px] h-[40px] lg:w-[48px] lg:h-[48px] rounded-full bg-white flex items-center justify-center border border-[#8B8D98] hover:bg-gray-50 transition shadow-sm"
+          >
+            <img src="/vectros.svg" alt="" />
+          </button>
+        </div>
+
+        {/* Profile Logo Overlap — Responsive sizing for iPad screens */}
+        <div className="absolute -bottom-12 md:-bottom-16 left-4 md:left-6 lg:left-8 z-10">
+          <div className="w-[100px] h-[100px] md:w-[120px] md:h-[120px] lg:w-[150px] lg:h-[150px] rounded-[24px] lg:rounded-[32px] overflow-hidden  flex items-center justify-center">
+            <Image src="/brands.svg" alt="Logo" width={150} height={150} className="object-contain w-full h-full" />
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
 
-      {/* ================= CONTENT SECTION ================= */}
-      {/* Retains standard clean padding layout behavior internally below the fluid header bar */}
-      <div className="mx-auto px-6 md:px-6 pt-16 pb-24">
+      {/* CONTENT SECTION */}
+      <div className="mx-auto px-4 md:px-6 lg:px-8 pt-16 md:pt-10 lg:pt-16 pb-24">
         
         {/* Header Info */}
         <div className="mb-10">
-          <h1 className="text-[34px] md:text-[26px] font-semibold tracking-tight mb-2">The New Yorker</h1>
+          <h1 className="text-[28px] md:text-[32px] lg:text-[26px] font-semibold tracking-tight mb-2">The New Yorker</h1>
           
           <div className="flex items-center gap-3 mb-2">
-            <div className="flex -space-x-2">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="relative w-7 h-7 rounded-full overflow-hidden border-2 border-white bg-gray-200">
-                  <Image src={`/grp${i}.svg`} alt="Avatar" fill className="object-cover" />
+            {isEmpty ? (
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-full overflow-hidden relative bg-orange-500">
+                  <Image src="/avatar.svg" fill alt="Admin Avatar" className="object-cover" />
                 </div>
-              ))}
-              <div className="w-7 h-7 rounded-full bg-[#EAF2FF] border-2 border-white flex items-center justify-center text-[10px] font-semibold text-[#245BFF]">
-                +5
+                <span className="text-[#6B7280] text-[15px] font-medium">1 member</span>
               </div>
-            </div>
-            <span className="text-[#6B7280] text-[15px] font-medium">8 members</span>
+            ) : (
+              /* Group container allowing children interactions via continuous group targeting hover transitions */
+              <div className="relative group/avatar flex items-center gap-3">
+                <div className="flex -space-x-2 group-hover/avatar:space-x-1 transition-all duration-300 ease-out">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="relative w-7 h-7 rounded-full overflow-hidden border-2 border-white bg-gray-200 transition-transform duration-300 ease-out group-hover/avatar:scale-105">
+                      <Image src={`/grp${i}.svg`} alt="Avatar" fill className="object-cover" />
+                    </div>
+                  ))}
+                  <div className="w-7 h-7 rounded-full bg-[#EAF2FF] border-2 border-white flex items-center justify-center text-[10px] font-semibold text-[#245BFF] transition-transform duration-300 ease-out group-hover/avatar:scale-105">
+                    +5
+                  </div>
+                </div>
+                <span className="text-[#6B7280] text-[15px] font-medium">8 members</span>
+
+                {/* Floating Breakdown Card matching the exact UX/Typography guidelines */}
+                <div className="absolute top-9 left-0 z-30 w-[280px] bg-white rounded-2xl border border-gray-100 shadow-xl opacity-0 scale-95 invisible group-hover/avatar:opacity-100 group-hover/avatar:scale-100 group-hover/avatar:visible transition-all duration-200 ease-out p-3 pointer-events-auto">
+                  <div className="text-[12px] font-semibold text-[#7B8190] uppercase tracking-wider mb-2 px-1">
+                    Circle Members ({circleMembers.length})
+                  </div>
+                  <div className="max-h-[220px] overflow-y-auto space-y-1.5 pr-0.5 custom-scrollbar">
+                    {circleMembers.map((member, index) => (
+                      <div key={index} className="flex items-center justify-between p-1.5 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="relative w-6 h-6 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
+                            <Image src={member.avatar} alt={member.name} fill className="object-cover" />
+                          </div>
+                          <span className="text-[13px] font-medium text-[#1E1F24] truncate">
+                            {member.name}
+                          </span>
+                        </div>
+                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                          member.role === "Admin" ? "bg-amber-50 text-amber-700" : "bg-gray-100 text-gray-500"
+                        }`}>
+                          {member.role}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-2 text-[14px] text-[#6B7280] font-medium mb-3">
-            <span>{isEmpty ? "0" : "12"} Active Challenges</span>
+            <span>{isEmpty ? "No Active Challenges" : "12 Active Challenges"}</span>
             <span className="text-gray-300">•</span>
-            <span>Ranked 251 Globally</span>
+            <span>{isEmpty ? "Unranked" : "Ranked 251 Globally"}</span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2 mr-2">
-               <Image src="/yt.svg" alt="YT" width={22} height={22} />
-               <Image src="/ig.svg" alt="IG" width={20} height={20} />
-               <Image src="/tt.svg" alt="TK" width={18} height={18} />
-            </div>
+          <div className="flex flex-wrap items-center gap-2 lg:gap-3">
+            {!isEmpty && (
+              <div className="flex items-center gap-2 mr-2">
+                 <Image src="/yt.svg" alt="YT" width={22} height={22} />
+                 <Image src="/ig.svg" alt="IG" width={20} height={20} />
+                 <Image src="/tt.svg" alt="TK" width={18} height={18} />
+              </div>
+            )}
             {["Beauty", "family and lifestyle", "skincare"].map((tag) => (
-              <span key={tag} className="px-2 text-[#3379A5] bg-[#F5FBFF] text-[12px] rounded-md font-medium cursor-pointer">
+              <span key={tag} className="px-2 py-0.5 text-[#3379A5] bg-[#F5FBFF] text-[12px] rounded-md font-medium cursor-pointer whitespace-nowrap">
                 {tag}
               </span>
             ))}
           </div>
         </div>
 
-        {/* ================= STATS CARDS ================= */}
-        <div className="grid grid-cols-1 md:grid-cols-[0.3fr_0.3fr_0.4fr] gap-4 mb-12">
+        {/* ================= STATS CARDS — Fully optimized for iPad 2-Column Grid splitting up to Desktop layout ================= */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[0.3fr_0.3fr_0.4fr] gap-4 mb-12">
           
           {/* 1. Total Earnings */}
-          <div className="group relative overflow-hidden bg-[#E5FFE5] rounded-[24px] md:rounded-[32px] p-4 md:p-8 h-[180px] flex flex-col justify-between border border-[#E5FFE5]">
+          <div className="group relative overflow-hidden bg-[#E5FFE5] rounded-[24px] md:rounded-[28px] lg:rounded-[32px] p-6 h-[140px] flex flex-col justify-between border border-[#E5FFE5]">
               <div>
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-2 mb-3 lg:mb-4">
                       <img src="/coin.svg" alt="Earnings Icon" className="w-6 h-6" />
-                      <h3 className="text-[16px] font-medium text-[#1E1F24]">Total Earnings</h3>
+                      <h3 className="text-[15px] lg:text-[16px] font-medium text-[#1E1F24]">Total Earnings</h3>
                   </div>
-                  <h2 className="text-[26px] font-semibold text-[#1E1F24] leading-none tracking-tight">
+                  <h2 className="text-[24px] lg:text-[26px] font-semibold text-[#1E1F24] leading-none tracking-tight">
                       {isEmpty ? "₦0" : "₦800,000"}<span className="text-[#80828D] font-medium">.00</span>
                   </h2>
               </div>
@@ -208,27 +299,27 @@ const CircleProfilePage = ({ setIsEarningsHistoryOpen }: any) => {
           </div>
 
           {/* 2. Total Engagement */}
-          <div className="group relative overflow-hidden bg-[#FFF0FD] rounded-[24px] md:rounded-[32px] p-6 md:p-8 h-[180px] flex flex-col border border-[#FFF0FD] w-full">
-              <div className="flex items-center gap-2 mb-4 shrink-0">
+          <div className="group relative overflow-hidden bg-[#FFF0FD] rounded-[24px] md:rounded-[28px] lg:rounded-[32px] p-5 h-[140px] flex flex-col border border-[#FFF0FD] w-full">
+              <div className="flex items-center gap-2 mb-3 lg:mb-6 shrink-0">
                   <img src="/diamonddd.svg" alt="Engagement Icon" className="w-6 h-6 shrink-0" />
-                  <h3 className="text-[16px] font-medium text-[#1E1F24] truncate">Total Engagement</h3>
+                  <h3 className="text-[15px] lg:text-[16px] font-medium text-[#1E1F24] truncate">Total Engagement</h3>
               </div>
               
-              <div className="flex-1 flex items-end justify-between gap-4 min-h-0 relative z-10 w-full">
+              <div className="flex-1 flex items-end justify-between min-h-0 relative z-10 w-full">
                   <div className="flex flex-col justify-end h-full">
-                      <div className="flex items-baseline gap-1 mb-4">
-                          <h2 className="text-[26px] font-semibold text-[#1E1F24] leading-none tracking-tight">
+                      <div className="flex items-baseline gap-1 mb-3 lg:mb-4">
+                          <h2 className="text-[24px] lg:text-[26px] font-semibold text-[#1E1F24] leading-none tracking-tight">
                               {isEmpty ? "0" : "24K"}
                           </h2>
                           <span className="text-[#1E1F24] text-[10px] font-semibold">Views</span>
                       </div>
-                      <button className="flex items-center gap-2 text-[#62636C] text-[12px] font-medium hover:opacity-70 transition-opacity whitespace-nowrap">
+                      <button className="flex items-center  gap-2 text-[#62636C] text-[12px] font-medium hover:opacity-70 transition-opacity whitespace-nowrap">
                           View Trend <GoArrowRight size={22} className="shrink-0" />
                       </button>
                   </div>
 
-                  <div className="bg-white rounded-[10px] flex flex-col w-[35%] max-w-[120px] min-w-[75px] h-[70px] justify-between p-1 shrink-0">
-                      <span className="text-[12px] text-[#EE0001] font-medium leading-none">
+                  <div className="bg-white rounded-[10px] flex flex-col w-[35%] max-w-[120px] min-w-[75px] h-[65px] lg:h-[70px] justify-between p-1.5 shrink-0">
+                      <span className="text-[11px] lg:text-[12px] text-[#EE0001] font-medium leading-none">
                           {isEmpty ? "0%" : "15% ↓"}
                       </span>
                       <div className="w-full flex-1 flex items-end min-h-0 mt-1">
@@ -242,15 +333,15 @@ const CircleProfilePage = ({ setIsEarningsHistoryOpen }: any) => {
               </div>
           </div>
 
-          {/* 3. Circle Score */}
-          <div className="group relative overflow-hidden bg-[#E9F6FF] rounded-[24px] md:rounded-[32px] p-8 h-[180px] flex flex-row items-center justify-between border border-[#E9F6FF]">
-              <div className="flex flex-col justify-between h-full max-w-[62%]">
+          {/* 3. Circle Score — Full-width stretch on tablets for optimal spacing */}
+          <div className="group relative overflow-hidden bg-[#E9F6FF] rounded-[24px] md:rounded-[28px] lg:rounded-[32px] p-6 h-[140px] flex flex-row items-center justify-between border border-[#E9F6FF] md:col-span-2 lg:col-span-1">
+              <div className="flex flex-col justify-between h-full max-w-[65%]">
                   <div>
-                      <div className="flex items-center gap-2 mb-3">
+                      <div className="flex items-center gap-2 mb-2 lg:mb-3">
                           <img src="/candyyy.svg" alt="Score Icon" className="w-6 h-6" />
-                          <h3 className="text-[16px] font-medium text-[#1E1F24]">Circle Score</h3>
+                          <h3 className="text-[15px] lg:text-[16px] font-medium text-[#1E1F24]">Circle Score</h3>
                       </div>
-                      <p className="text-[12px] text-[#62636C] leading-snug font-medium">
+                      <p className="text-[11px] lg:text-[12px] text-[#62636C] mb-3 leading-snug font-medium">
                           Circle score is the average of the starix score of all the members.
                       </p>
                   </div>
@@ -260,21 +351,22 @@ const CircleProfilePage = ({ setIsEarningsHistoryOpen }: any) => {
               </div>
 
               <div className="relative flex items-center justify-center flex-shrink-0">
-                  <svg className="w-[120px] h-[120px] -rotate-90">
-                      <circle cx="60" cy="60" r="44" stroke="#D1E9FF" strokeWidth="5" fill="transparent" />
+                  <svg className="w-[105px] h-[105px] lg:w-[120px] lg:h-[120px] -rotate-90">
+                      <circle cx="52" cy="52" r="42" stroke="#D1E9FF" strokeWidth="5" fill="transparent" className="lg:cx-60 lg:cy-60 lg:r-44" />
                       <circle
-                          cx="60"
-                          cy="60"
-                          r="44"
-                          stroke="#245BFF"
+                          cx="52"
+                          cy="52"
+                          r="42"
+                          className="lg:cx-60 lg:cy-60 lg:r-44"
+                          stroke="#0033FF"
                           strokeWidth="5"
                           fill="transparent"
-                          strokeDasharray="276.46"
-                          strokeDashoffset={276.46 * (1 - (isEmpty ? 0 : 82) / 100)}
+                          strokeDasharray="263.89"
+                          strokeDashoffset={263.89 * (1 - (isEmpty ? 0 : 82) / 100)}
                           strokeLinecap="round"
                       />
                   </svg>
-                  <span className="absolute text-[32px] font-bold text-[#245BFF]">
+                  <span className="absolute text-[28px] lg:text-[32px] left-[30px] bottom-[28px] font-medium text-[#0033FF]">
                       {isEmpty ? "0" : "82"}
                   </span>
               </div>
@@ -284,98 +376,98 @@ const CircleProfilePage = ({ setIsEarningsHistoryOpen }: any) => {
         {/* ================= CHALLENGES SECTION ================= */}
         <div className="mt-12">
           {isEmpty ? (
-            <div className="flex flex-col items-center justify-center text-center py-16 border-t border-[#EFF0F3]">
-              <div className="w-[140px] h-[140px] relative mb-6">
-                <div className="w-full h-full bg-[#F5F6F8] rounded-full flex items-center justify-center text-5xl">
-                  
-                </div>
+            /* ================= FIGMA CONTAINER EMPTY SLATE ================= */
+            <div className="w-full flex flex-col items-center justify-center text-center py-16 border-t border-[#EFF0F3]">
+              <div className="block rounded-full mb-8 lg:mb-10 max-w-[140px] md:max-w-[180px]">
+                <img src="/circle.svg" alt="Empty Slate Visual Indicator" className="w-full h-auto" />
               </div>
-              <h3 className="text-[20px] md:text-[22px] font-semibold text-[#1E1F24] mb-2">
-                No challenges yet
+              <h3 className="text-[20px] md:text-[24px] font-semibold mb-3 tracking-tight text-[#1E1F24]">
+                Your circle has not joined any Challenges
               </h3>
-              <p className="text-[14px] text-[#7B8190] max-w-[360px] mb-8 leading-relaxed">
-                Join challenges together as a circle to earn rewards, grow engagement metrics, and rank up globally.
+              <p className="text-gray-500 text-[14px] md:text-[16px] max-w-[450px] mb-8 lg:mb-10 leading-normal px-4">
+                Your team hasn't joined any challenges yet. Pick a campaign 
+                and submit as a team for a chance to win.
               </p>
               <button 
                 onClick={() => router.push("/challenges")}
-                className="bg-[#0033FF] text-white font-semibold text-[14px] px-8 py-4 rounded-full shadow-md hover:bg-blue-700 transition duration-200"
+                className="px-10 lg:px-12 py-3.5 lg:py-4 bg-[#0033FF] text-white rounded-full font-semibold text-[15px] lg:text-[16px] hover:bg-[#0026CC] transition-all shadow-lg shadow-blue-600/10"
               >
-                Explore Challenges
+                Find Challenges
               </button>
             </div>
           ) : (
             <>
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-8">
-                <h2 className="text-[16px] md:text-[20px] text-[#1E1F24] font-semibold">
-                  Circle Challenges <span className="text-[#7B8190] font-semibold text-[20px]">(79)</span>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-2">
+                <h2 className="text-[18px] md:text-[20px] text-[#1E1F24] font-semibold">
+                  Circle Challenges <span className="text-[#7B8190] font-semibold text-[18px] md:text-[20px]">(79)</span>
                 </h2>
-                <div className="relative w-full max-w-[340px]">
+                <div className="relative w-full sm:max-w-[340px]">
                   <GoSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input 
                     type="text" 
                     placeholder="Search Challenges"
-                    className="w-full pl-12 pr-4 py-3 border border-gray-100 rounded-full text-[14px] outline-none focus:border-blue-400 transition"
+                    className="w-full pl-12 pr-4 py-2.5 lg:py-3 border border-gray-100 rounded-full text-[14px] outline-none focus:border-blue-400 transition"
                   />
                 </div>
               </div>
 
               {/* Tabs */}
-              <div className="flex gap-6 border-b border-[#EFF0F3] mb-3">
+              <div className="flex px-2 gap-6 border-b border-[#EFF0F3] mb-">
                 {tabs.map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`pb-4 text-[16px] transition-all relative ${
+                    className={`pb-2 text-[12px] lg:text-[16px] transition-all relative ${
                       activeTab === tab ? "text-[#0033FF] font-semibold" : "text-[#7B8190] font-medium"
                     }`}
                   >
                     {tab}
                     {activeTab === tab && (
-                      <div className="absolute bottom-0 left-0 w-full h-[3px] bg-[#245BFF] rounded-full" />
+                      <div className="absolute bottom-0 left-0 w-full h-[4px] bg-[#0033FF] rounded-full" />
                     )}
                   </button>
                 ))}
               </div>
 
               {/* Challenge List */}
-              <div className="divide-y divide-[#EFF0F3]">
+              <div className="divide-y border-b border-[#EFF0F3] divide-[#EFF0F3]">
                 {challenges.map((challenge, idx) => (
-                  <div key={idx} className="flex flex-col md:flex-row md:items-center justify-between py-3 gap-4">
-                    <div className="flex items-center gap-4">
-                      <img src={challenge.logo} alt="Logo" className="w-15 h-15" />
-                      <div>
-                        <h4 className="text-[14px] font-semibold text-[#62636C] leading-tight">
+                  <div key={idx} className="flex flex-row items-center justify-between py-2 gap-4">
+                    <div className="flex items-center gap-3 lg:gap-4 min-w-0">
+                      <img src={challenge.logo} alt="Logo" className="w-12 h-12 lg:w-15 lg:h-15 flex-shrink-0" />
+                      <div className="min-w-0">
+                        <h4 className="text-[12px] lg:text-[14px] font-semibold text-[#62636C] leading-snug truncate">
                           {challenge.title}
                         </h4>
-                        <div className="flex items-center gap-2 text-[#747682] text-[12px] mt-1 font-medium">
-                          <span className="flex items-center gap-1">
-                            {challenge.company} <GoCheckCircleFill className="text-[#0CC963] mx-1 shrink-0" />
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[#747682] text-[11px] lg:text-[12px] mt-0.5 font-medium">
+                          <span className="flex items-center gap-0.5 whitespace-nowrap">
+                            {challenge.company} <GoCheckCircleFill className="text-[#0CC963] ml-1 shrink-0" />
                           </span>
-                          <span className="text-gray-300">•</span>
-                          <span>{challenge.prize}</span>
+                          <span className="text-gray-300 hidden xl:inline">•</span>
+                          <span className="whitespace-nowrap text-blue-600 sm:text-[#747682]">{challenge.prize}</span>
                         </div>
                       </div>
                     </div>
-                    <div className={`px-5 py-1.5 rounded-full text-[12px] font-medium w-fit ${challenge.statusColor}`}>
+                    <div className={`px-3 lg:px-2 py-1 rounded-full text-[10px] lg:text-[12px] font-medium whitespace-nowrap flex-shrink-0 ${challenge.statusColor}`}>
                       {challenge.status}
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* Pagination */}
+              {/* Pagination Row */}
               <div className="flex items-center justify-between mt-12 gap-4">
-                <button className="flex items-center gap-2 px-6 py-3 border border-gray-200 rounded-full text-[14px] font-semibold text-[#5C6473] hover:bg-gray-50 transition">
+                <button className="flex items-center gap-2 px-4 lg:px-6 py-2.5 lg:py-3 border border-gray-200 rounded-full text-[13px] lg:text-[14px] font-regular text-[#5C6473] hover:bg-gray-50 transition">
                   <GoArrowLeft /> Previous
                 </button>
 
-                <div className="flex items-center gap-4 text-[15px] font-medium">
-                  <button className="w-10 h-10 bg-[#F3F4F6] rounded-xl font-semibold flex items-center justify-center">1</button>
+                <div className="flex items-center gap-3 lg:gap-4 text-[14px] lg:text-[15px] font-medium">
+                  <button className="w-9 h-9 lg:w-10 lg:h-10 bg-[#F3F4F6] rounded-xl font-semibold flex items-center justify-center">1</button>
                   <span className="text-[#9CA3AF]">...</span>
                   <button className="text-[#6B7280]">4</button>
                 </div>
 
-                <button className="flex items-center gap-2 px-6 py-3 border border-gray-200 rounded-full text-[14px] font-semibold text-[#5C6473] hover:bg-gray-50 transition">
+                <button className="flex items-center gap-2 px-4 lg:px-6 py-2.5 lg:py-3 border border-gray-200 rounded-full text-[13px] lg:text-[14px] font-regular text-[#5C6473] hover:bg-gray-50 transition">
                   Next <GoArrowRight />
                 </button>
               </div>

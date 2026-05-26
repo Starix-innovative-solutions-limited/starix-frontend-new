@@ -19,7 +19,7 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
   ];
 
   return (
-    <div className="min-h-screen bg-white py-6 font-['Geist']">
+    <div className="min-h-screen bg-white font-['Geist'] py-2">
       <div className="max-w-7xl mx-auto px-4 md:px-1">
         
         {/* HEADER */}
@@ -31,38 +31,40 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
             <h1 className="text-[22px] md:text-[24px] font-semibold text-[#000000] tracking-tight">
               Recommended For You
             </h1>
-            <p className="text-[#62636C] text-[12px] mt-1 font-medium">
-              You have {cards.length} new campaign matches today
+            <p className="text-[#62636C] text-[12px] mt-1 font-regular">
+              Earn from challenges tailored to your content, style, and potential
             </p>
           </div>
 
-          <div className="flex items-center gap-3 w-full md:w-auto">
-            <button className="flex items-center gap-2 px-6 py-2.5 border border-[#E5E7EB] rounded-full text-[14px] font-medium text-[#374151] hover:bg-gray-50 transition-all shrink-0">
-              <FiSliders className="rotate-90" />
-              Filter
+          <div className="flex items-center gap-2 md:gap-3 flex-1 justify-end">
+            <button className="flex items-center gap-2 px-3 py-2 md:px-5 md:py-2.5 border border-[#8B8D98] rounded-full text-[11px] md:text-sm font-medium text-[#374151] hover:bg-gray-50 transition-all flex-shrink-0 cursor-pointer">
+              <FiSliders className="text-sm md:text-lg" />
+              <span className=" xs:inline">Filter</span>
             </button>
-            <div className="relative w-full md:w-80">
-              <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-[#62636C] text-lg" />
+            
+            <div className="relative w-full max-w-xs xs:max-w-[180px] md:max-w-sm transition-all duration-300">
+              <FiSearch className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-[#62636C] text-sm md:text-lg" />
               <input 
                 type="text" 
                 placeholder="Search Challenges"
-                className="w-full pl-12 pr-4 py-2.5 bg-[#F9F9FB] border border-[#EFF0F3] rounded-full text-[14px] focus:outline-none focus:ring-1 focus:ring-blue-100"
+                className="w-full pl-8 md:pl-12 pr-4 py-2 md:py-2.5 bg-[#F9F9FB] border border-[#EFF0F3] rounded-full text-[11px] md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
           </div>
         </header>
 
-        {/* REFINED GRID PEEK LOGIC */}
-        <div className="w-full relative">
+        {/* 3-COLUMN CONTROL GRID */}
+        <div className="relative w-full">
           <div className={`
-            grid grid-flow-col gap-6 overflow-x-auto pb-10 no-scrollbar snap-x snap-mandatory
-            /* We set explicit widths here so they never squish or stretch weirdly */
-            auto-cols-[300px] md:auto-cols-[360px] lg:auto-cols-[380px]
+            grid gap-6 pb-10
+            ${isAnySidebarOpen 
+              ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3' 
+              : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}
           `}>
             {cards.map((card) => (
               <div 
                 key={card.id} 
-                className="bg-white border border-[#F3F4F6] rounded-[24px] md:rounded-[32px] p-4 md:p-6 shadow-xs hover:border-blue-200 transition-all group flex flex-col h-full snap-start"
+                className="bg-white border border-[#F3F4F6] rounded-[24px] md:rounded-[32px] p-4 md:p-4 shadow-sm hover:border-blue-200 transition-all group flex flex-col h-full"
               >
                 {/* Card Top Info */}
                 <div className="flex items-center justify-between mb-5">
@@ -85,13 +87,13 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
                       </div>
                     </div>
                   </div>
-                  <div className="px-3 py-1.5 border border-[#D1D5DB] rounded-full text-[11px] font-medium text-[#1E1F24] hover:bg-gray-50 transition-colors shrink-0">
+                  <div className="px-3 py-1.5 border border-[#D1D5DB] rounded-full text-[11px] font-medium text-[#1E1F24] hover:bg-gray-50 transition-colors shrink-0 cursor-pointer">
                     Submit
                   </div>
                 </div>
 
                 {/* Prize & Status Labels */}
-                <div className="flex items-center gap-2 mb-4 font-semibold">
+                <div className="flex items-center gap-2 mb-2 font-semibold">
                   <span className="text-[#1E1F24] text-[12px] whitespace-nowrap">{card.prize} prize pool</span>
                   <span className="text-[#E5E7EB]">|</span>
                   <span className="text-[#D12B1F] text-[10px] whitespace-nowrap">Closes in {card.deadline}</span>
@@ -99,15 +101,15 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
                   <span className="text-[#1E874B] bg-[#ECFEF4] text-[10px] px-1.5 py-0.5 rounded">Verified</span>
                 </div>
 
-                <h3 className="font-semibold text-[11px] text-[#62636C] leading-tight line-clamp-2 mb-1 min-h-[28px]">
+                <h3 className="font-semibold text-[11px] text-[#62636C] leading-tight line-clamp-2 mb-3">
                   UGC Creators Needed for Skincare Product set Launch
                 </h3>
                 <p className="text-[#747682] text-[10px] mb-2.5 font-normal line-clamp-2">
-                 NIVEA is launching its new Radiance Boost Skincare Collection and is now looking for authentic content...
+                 NIVEA is launching its new Radiance Boost Skincare Collection and is now looking for authentic, engaging user-generated content that highlights rea...
                 </p>
 
                 {/* IMAGE PREVIEW */}
-                <div className="relative h-[157px] w-full mb-3 rounded-[20px] md:rounded-[24px] overflow-hidden bg-gray-50">
+                <div className="relative h-[157px] w-full mb-1 rounded-[20px] md:rounded-[24px] overflow-hidden bg-gray-50">
                   <div className={`
                     grid h-full w-full gap-0.5
                     ${card.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}
@@ -125,15 +127,15 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
                 </div>
 
                 {/* Metrics row */}
-                <div className="flex items-center justify-between text-[#9CA3AF] pt-2 border-t border-gray-50 mt-auto">
-                  <div className="flex gap-3 md:gap-5 text-[11px] md:text-[12px] font-bold">
+                <div className="flex items-center justify-between text-[#62636C] pt-2 border-t border-gray-50 mt-auto">
+                  <div className="flex gap-3 md:gap-5 text-[10px] md:text-[12px] font-medium">
                     <span className="flex items-center gap-1"><FiBarChart2 size={14}/> 2.1k</span>
                     <span className="flex items-center gap-1"><FiMail size={14}/> 87</span>
                     <span className="flex items-center gap-1"><FiClock size={14}/> 12h</span>
                   </div>
                   <div className="flex gap-3">
-                    <button className="hover:text-[#111827] transition-colors"><FiBookmark size={16} /></button>
-                    <button className="hover:text-[#111827] transition-colors"><FiShare2 size={16} /></button>
+                    <button className="hover:text-[#111827] transition-colors cursor-pointer"><FiBookmark size={16} /></button>
+                    <button className="hover:text-[#111827] transition-colors cursor-pointer"><FiShare2 size={16} /></button>
                   </div>
                 </div>
               </div>
@@ -143,23 +145,18 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
 
         {/* Pagination */}
         <div className="flex justify-between items-center w-full mt-6 px-1 pb-10">
-          <button className="px-3 md:px-5 py-2 border border-[#E5E7EB] rounded-full text-[14px] font-regular text-[#111827] flex items-center gap-1 hover:bg-gray-50 transition-all">
+          <button className="px-3 md:px-5 py-2 border border-[#E5E7EB] rounded-full text-[14px] font-regular text-[#111827] flex items-center gap-1 hover:bg-gray-50 transition-all cursor-pointer">
             <HiArrowLeft size={14} /> Previous
           </button>
           <div className="hidden sm:flex items-center gap-2">
-            <button className="w-11 h-11 bg-[#F9F9FB] text-[#1E1F24] rounded-[12px] font-medium text-[14px]">1</button>
-            <button className="w-11 h-11 text-[#6B7280] hover:bg-gray-50 rounded-[12px] font-medium text-[14px]">2</button>
+            <button className="w-11 h-11 bg-[#F9F9FB] text-[#1E1F24] rounded-[12px] font-medium text-[14px] cursor-pointer">1</button>
+            <button className="w-11 h-11 text-[#6B7280] hover:bg-gray-50 rounded-[12px] font-medium text-[14px] cursor-pointer">2</button>
           </div>
-          <button className="px-3 md:px-5 py-2 border border-[#E5E7EB] rounded-full text-[14px] font-regular text-[#111827] flex items-center gap-1 hover:bg-gray-50 transition-all">
+          <button className="px-3 md:px-5 py-2 border border-[#E5E7EB] rounded-full text-[14px] font-regular text-[#111827] flex items-center gap-1 hover:bg-gray-50 transition-all cursor-pointer">
             Next <HiArrowRight size={14}/>
           </button>
         </div>
       </div>
-
-      <style jsx global>{`
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
     </div>
   );
 };

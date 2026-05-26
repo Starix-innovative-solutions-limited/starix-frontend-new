@@ -25,12 +25,12 @@ const ChallengesPage = () => {
 
   return (
     <div className="min-h-screen bg-white font-['Geist']">
-      <div className="max-w-6xl ">
+      <div className=" ">
         
         {/* TOP HEADER SECTION */}
-        <div className="flex items-center justify-between gap-4 mb-10">
+        <div className="flex items-center justify-between gap-4 mb-6">
           <div className="flex-shrink-0">
-            <h1 className="text-lg md:text-xl xl:text-2xl font-semibold text-[#000000]">Challenges</h1>
+            <h1 className="text-lg md:text-xl xl:text-[24px] font-semibold text-[#000000]">Challenges</h1>
             <p className="text-[#62636C] text-[10px] md:text-[12px] hidden sm:block">
               You have 3 new campaign matches today
             </p>
@@ -42,7 +42,7 @@ const ChallengesPage = () => {
               <span className=" xs:inline">Filter</span>
             </button>
             
-            <div className="relative w-full max-w-[120px] xs:max-w-[180px] md:max-w-md transition-all duration-300">
+            <div className="relative w-1/3 max-w-[120px] xs:max-w-[180px] md:max-w-md transition-all duration-300">
               <FiSearch className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-[#62636C] text-sm md:text-lg" />
               <input 
                 type="text" 
@@ -54,13 +54,13 @@ const ChallengesPage = () => {
         </div>
 
         {/* TAB NAVIGATION */}
-        <div className="flex items-center gap-4 md:gap-8 border-b border-[#F3F4F6] mb-8">
+        <div className="flex items-center mx-3 gap-4 md:gap-8 border-b border-[#F3F4F6]">
           {tabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`pb-4 text-xs md:text-base font-semibold transition-all relative whitespace-nowrap ${
-                activeTab === tab ? "text-[#0033FF]" : "text-[#747682] hover:text-gray-900"
+              className={`pb-2 text-xs md:text-[14px] font-medium transition-all relative whitespace-nowrap ${
+                activeTab === tab ? "text-[#0033FF] font-semibold" : "text-[#747682] hover:text-gray-900"
               }`}
             >
               {tab}
@@ -81,18 +81,18 @@ const ChallengesPage = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               key={item.id}
-              className="flex items-center justify-between py-5 border-b border-[#F3F4F6] hover:bg-gray-50/50 transition-all px-1 md:px-4 group gap-4"
+              className="flex items-center justify-between py-2 border-b border-[#F3F4F6] hover:bg-gray-50/50 transition-all group"
             >
-              <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
-                <div className="w-10 h-10 md:w-14 md:h-14 rounded-full flex-shrink-0 relative overflow-hidden flex items-center justify-center">
+              <div className="flex items-center gap-2 md:gap-2 min-w-0 ">
+                <div className="w-10 h-10 md:w-16 md:h-16 rounded-full flex-shrink-0 relative overflow-hidden flex items-center justify-center">
                   <Image src={`${item.brand}.svg`} alt={item.brand} fill className="object-cover" />
                 </div>
                 
                 <div className="min-w-0">
-                  <h3 className="text-[#62636C] font-semibold text-[11px] md:text-sm xl:text-[16px] leading-tight truncate">
+                  <h3 className="text-[#62636C] font-semibold text-[10px] md:text-sm xl:text-[14px] leading-tight truncate">
                     {item.title}
                   </h3>
-                  <div className="flex items-center mt-0.5 text-[9px] md:text-[12px] text-[#747682]">
+                  <div className="flex items-center text-[10px] md:text-[12px] text-[#747682]">
                     <span className="truncate max-w-[60px] md:max-w-none">{item.brand}</span>
                     <GoCheckCircleFill className="text-[#0CC963] mx-1 shrink-0" />
                     <span className="mx-1">•</span>
@@ -103,11 +103,11 @@ const ChallengesPage = () => {
 
               <div className="flex-shrink-0">
                 {activeTab === "Saved" ? (
-                  <button className="px-3 py-1.5 md:px-6 md:py-2 border border-[#8B8D98] rounded-full text-[9px] md:text-sm font-semibold text-[#1E1F24] hover:bg-gray-100 whitespace-nowrap transition-all">
+                  <button className="px-3 py-2 border border-[#8B8D98] rounded-full text-[9px] md:text-[12px] font-semibold text-[#1E1F24] hover:bg-gray-100 whitespace-nowrap transition-all">
                     Continue Submission
                   </button>
                 ) : (
-                  <div className={`px-2 py-1 md:px-4 md:py-1.5 rounded-full text-[9px] md:text-xs font-semibold uppercase tracking-wider whitespace-nowrap ${item.statusColor}`}>
+                  <div className={`p-1.5 rounded-full text-[12px] font-medium tracking-wider whitespace-nowrap ${item.statusColor}`}>
                     {item.status}
                   </div>
                 )}
@@ -118,7 +118,7 @@ const ChallengesPage = () => {
 
         {/* PAGINATION */}
         <div className="flex items-center justify-between mt-10 pb-20">
-          <button className="p-2 md:px-6 md:py-2 border border-[#E5E7EB] rounded-full text-[10px] md:text-sm font-medium text-[#62636C]">
+          <button className="p-2 md:px-6 md:py-2 border border-[#B9BBC6] rounded-full text-[10px] md:text-sm font-medium text-[#62636C]">
             <span className="hidden md:inline">← Previous</span>
             <span className="md:hidden">←</span>
           </button>
@@ -129,7 +129,7 @@ const ChallengesPage = () => {
             <button className="w-7 h-7 md:w-10 md:h-10 flex items-center justify-center rounded-lg text-[#6B7280]">4</button>
           </div>
 
-          <button className="p-2 md:px-6 md:py-2 border border-[#E5E7EB] rounded-full text-[10px] md:text-sm font-medium text-[#62636C]">
+          <button className="p-2 md:px-6 md:py-2 border border-[#B9BBC6] rounded-full text-[10px] md:text-sm font-medium text-[#62636C]">
             <span className="hidden md:inline">Next →</span>
             <span className="md:hidden">→</span>
           </button>
