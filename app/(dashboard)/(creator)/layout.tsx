@@ -16,8 +16,8 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname(); 
 
-  // State management for sidebars
-  const [leftCollapsed, setLeftCollapsed] = useState(false);
+  // State management for sidebars — both initialized to true so they start closed on load
+  const [leftCollapsed, setLeftCollapsed] = useState(true);
   const [rightCollapsed, setRightCollapsed] = useState(true);
 
   // Check if we are currently inside any of the circle route variations
@@ -34,10 +34,10 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
   // Handle route-specific behavior when path changes
   useEffect(() => {
     if (isCircleRoute) {
-      setLeftCollapsed(true);       // Collapse left sidebar
-      setRightCollapsed(false);     // Keep right sidebar visible and open
+      setLeftCollapsed(true);       // Keeps left sidebar collapsed
+      setRightCollapsed(true);      // Force right sidebar to stay closed on creator circle page load
     } else {
-      setLeftCollapsed(false);
+      setLeftCollapsed(true);       
       setRightCollapsed(true);
     }
   }, [pathname, isCircleRoute]);
@@ -112,7 +112,7 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
             /* When on a profile page view, padding is exactly 'p-0' so your banner 
               stretches and touches both sidebars seamlessly without layout gaps.
             */
-            className={`flex-1 overflow-y-auto scrollbar-none hide-sc transition-all duration-300 ${
+            className={`flex-1 overflow-y-auto scrollbar-none hide-sc  ${
               isFlushProfileView 
                 ? "p-0" 
                 : "max-md:pt-4 md:p-8 md:py-6"

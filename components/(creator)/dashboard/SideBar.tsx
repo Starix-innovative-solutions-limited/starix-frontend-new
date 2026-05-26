@@ -47,9 +47,12 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
             
             {/* LOGO CONTAINER */}
             <div className="relative flex items-center h-10 w-full group">
-              {/* CANDY LOGO (Shown when collapsed) */}
+              {/* CANDY LOGO (Shown when collapsed - opens sidebar on click) */}
               <button
-                onClick={() => collapsed && setCollapsed()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (collapsed) setCollapsed(false); // Explicitly open
+                }}
                 className={`
                   absolute right-2 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
                   ${collapsed 
@@ -72,10 +75,10 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
               </div>
             </div>
 
-            {/* CLOSE BUTTON */}
+            {/* CLOSE BUTTON (Closes sidebar on click) */}
             {!collapsed && (
               <button
-                onClick={setCollapsed}
+                onClick={() => setCollapsed(true)} // Explicitly close
                 className="p-2 rounded-xl hover:bg-gray-50 text-gray-400 hover:text-[#0047FF] transition-all duration-300 shrink-0"
               >
                 <LuPanelLeftClose size={32} />
@@ -92,7 +95,13 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
                 const isActive = active === item.label;
 
                 return (
-                  <li key={item.label} onClick={() => { setActive(item.label); if(isOpen) onClose?.(); }}>
+                  <li 
+                    key={item.label} 
+                    onClick={() => { 
+                      setActive(item.label); 
+                      if (isOpen) onClose?.(); 
+                    }}
+                  >
                     <Link
                       href={item.href}
                       className={`
@@ -136,10 +145,8 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
             {collapsed ? (
               <div className="flex flex-col items-center justify-center py-28 group cursor-pointer">
                 <img src="/bluplay.svg" className="w-16 h-16" alt="" />
-
               </div>
             ) : (
-              
               <div className={`
                 bg-[#F9F9FB] border border-[#EFF0F3] rounded-[32px] p-2 text-center shadow-sm
                 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] origin-top

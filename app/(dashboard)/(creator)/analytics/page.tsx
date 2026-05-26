@@ -139,7 +139,7 @@ const AnalyticsPage = () => {
   const activeEarnings = EARNINGS_DATASETS[earningsTimeframe];
 
   return (
-    <div className="w-full min-h-screen bg-white font-sans text-[#1E1F24] antialiased overflow-x-hidden">
+    <div className="w-full min-h-screen bg-white font-sans text-[#1E1F24] overflow-x-hidden">
       <div className="mx-auto pb-24 max-w-[1400px]">
         
         {/* ================= HEADER NAVIGATION BAR AREA ================= */}
