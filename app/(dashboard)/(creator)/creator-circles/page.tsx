@@ -7,6 +7,7 @@ import { FiSearch, FiBell, FiX } from "react-icons/fi";
 import { HiArrowLeft, HiArrowRight } from "react-icons/hi2";
 import JoinCircleModal from "@/components/(creator)/dashboard/JoinCircleModal";
 import CreateCircleModal from "@/components/(creator)/dashboard/CreateCircleModal";
+import Link from "next/dist/client/link";
 
 const INITIAL_DATA = [
   { id: 1, name: "InnovateTech San Francisco", role: "Member", logo: "/chase-circle.svg", color: "text-[#2D93D0] bg-[#75C0F41A]", extra: 2 },
@@ -50,7 +51,9 @@ const CreatorCircles = () => {
           
           <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-blue-600 p-0.5 cursor-pointer">
             <div className="w-full h-full rounded-full bg-gray-200 overflow-hidden relative">
-              <Image src="/avatar.svg" fill alt="Profile" className="object-cover" />
+              <Link href="/creator-circles/circle-profile">
+                <Image src="/avatar.svg" fill alt="Profile" className="object-cover" />
+              </Link>
             </div>
           </div>
         </div>
@@ -81,7 +84,7 @@ const CreatorCircles = () => {
                 <h2 className="text-[16px] md:text-[18px] font-semibold text-[#1E1F24] mb-1">Join a Circle</h2>
                 <p className="text-[#62636C] min-w-[200px] text-[10px] md:text-[12px]">Enter a circle using an invitation code and start collaborating.</p>
             </div>
-            <button onClick={() => setIsJoinModalOpen(true)} className="w-fit px-6 py-2.5 bg-transparent border border-[#8B8D98] rounded-full font-semibold text-[12px] z-10 hover:bg-gray-50 transition-all">
+            <button onClick={() => setIsJoinModalOpen(true)} className="w-fit px-6 py-2.5 bg-transparent border border-[#8B8D98] rounded-full font-semibold text-[12px] z-10 hover:shadow-sm transition-all">
                 Enter Code
             </button>
             <div className="absolute top-0 right-0 h-full w-[100%] pointer-events-none">
@@ -110,7 +113,7 @@ const CreatorCircles = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search your Circles"
-            className="w-full bg-white border border-[#E5E7EB] rounded-full py-3.5 pl-12 pr-12 text-sm focus:ring-2 focus:ring-blue-100 outline-none"
+            className="w-full bg-white border border-[#E5E7EB] rounded-full py-3.5 pl-12 pr-12 text-sm focus:ring-1 focus:ring-[#1E1F24] outline-none"
           />
           {searchQuery && (
             <button onClick={() => setSearchQuery("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"><FiX size={18} /></button>

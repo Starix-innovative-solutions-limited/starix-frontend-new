@@ -349,8 +349,8 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
               <div className="px-2 pb-2 space-y-1">
                 {[
                   { name: "Nivea", icon: "/nivea.svg", prize: "₦5M" },
-                  { name: "Spotify", icon: "/spotify.svg", prize: "₦5M" },
-                  { name: "Tesla", icon: "/tesla.svg", prize: "₦5M" }
+                  { name: "Spotify", icon: "/Spotify.svg", prize: "₦5M" },
+                  { name: "Tesla", icon: "/Tesla.svg", prize: "₦5M" }
                 ].map((item, idx) => (
                   <div key={idx} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-2xl transition-all">
                     <div className="flex items-center gap-1">

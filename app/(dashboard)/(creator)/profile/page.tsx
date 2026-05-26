@@ -68,7 +68,7 @@ const UserProfilePage = () => {
         <div className="absolute right-4 md:right-6 lg:right-8 bottom-[-60px] md:bottom-[-24px] lg:bottom-[-70px] z-20">
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="px-6 h-[40px] md:h-[44px] rounded-full bg-white flex items-center justify-center border border-gray-200 hover:bg-gray-50 transition font-semibold text-[14px] text-[#1E1F24] cursor-pointer shadow-sm"
+            className="px-6 h-[40px] md:h-[44px] rounded-full bg-white flex items-center justify-center border border-gray-200 hover:bg-gray-50 transition font-semibold text-[14px] text-[#1E1F24] cursor-pointer shadow-xs"
           >
             Edit Profile
           </button>

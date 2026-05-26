@@ -283,9 +283,9 @@ const CircleProfilePage = ({ setIsEarningsHistoryOpen }: any) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[0.3fr_0.3fr_0.4fr] gap-4 mb-12">
           
           {/* 1. Total Earnings */}
-          <div className="group relative overflow-hidden bg-[#E5FFE5] rounded-[24px] md:rounded-[28px] lg:rounded-[32px] p-6 h-[140px] flex flex-col justify-between border border-[#E5FFE5]">
+          <div className="group relative overflow-hidden bg-[#E5FFE5] rounded-[24px] md:rounded-[28px] lg:rounded-[32px] p-4 h-[150px] flex flex-col justify-between border border-[#E5FFE5]">
               <div>
-                  <div className="flex items-center gap-2 mb-3 lg:mb-4">
+                  <div className="flex items-center gap-2 mb-3 lg:mb-6">
                       <img src="/coin.svg" alt="Earnings Icon" className="w-6 h-6" />
                       <h3 className="text-[15px] lg:text-[16px] font-medium text-[#1E1F24]">Total Earnings</h3>
                   </div>
@@ -293,13 +293,13 @@ const CircleProfilePage = ({ setIsEarningsHistoryOpen }: any) => {
                       {isEmpty ? "₦0" : "₦800,000"}<span className="text-[#80828D] font-medium">.00</span>
                   </h2>
               </div>
-              <button onClick={handleViewHistory} className="w-fit flex items-center gap-2 text-[#5C6473] text-[12px] font-medium hover:opacity-70 mt-4 transition-opacity">
+              <button onClick={handleViewHistory} className="w-fit flex items-center gap-2 text-[#5C6473] text-[12px] font-medium hover:opacity-90 transition-opacity">
                   View History <GoArrowRight size={20} />
               </button>
           </div>
 
           {/* 2. Total Engagement */}
-          <div className="group relative overflow-hidden bg-[#FFF0FD] rounded-[24px] md:rounded-[28px] lg:rounded-[32px] p-5 h-[140px] flex flex-col border border-[#FFF0FD] w-full">
+          <div className="group relative overflow-hidden bg-[#FFF0FD] rounded-[24px] md:rounded-[28px] lg:rounded-[32px] p-4 h-[150px] flex flex-col border border-[#FFF0FD] w-full">
               <div className="flex items-center gap-2 mb-3 lg:mb-6 shrink-0">
                   <img src="/diamonddd.svg" alt="Engagement Icon" className="w-6 h-6 shrink-0" />
                   <h3 className="text-[15px] lg:text-[16px] font-medium text-[#1E1F24] truncate">Total Engagement</h3>
@@ -334,7 +334,7 @@ const CircleProfilePage = ({ setIsEarningsHistoryOpen }: any) => {
           </div>
 
           {/* 3. Circle Score — Full-width stretch on tablets for optimal spacing */}
-          <div className="group relative overflow-hidden bg-[#E9F6FF] rounded-[24px] md:rounded-[28px] lg:rounded-[32px] p-6 h-[140px] flex flex-row items-center justify-between border border-[#E9F6FF] md:col-span-2 lg:col-span-1">
+          <div className="group relative overflow-hidden bg-[#E9F6FF] rounded-[24px] md:rounded-[28px] lg:rounded-[32px] p-4 h-[150px] flex flex-row items-center justify-between border border-[#E9F6FF] md:col-span-2 lg:col-span-1">
               <div className="flex flex-col justify-between h-full max-w-[65%]">
                   <div>
                       <div className="flex items-center gap-2 mb-2 lg:mb-3">
