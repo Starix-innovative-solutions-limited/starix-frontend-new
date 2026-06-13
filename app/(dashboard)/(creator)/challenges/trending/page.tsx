@@ -7,9 +7,14 @@ import { MdVerified } from "react-icons/md";
 import { HiArrowRight, HiArrowLeft } from "react-icons/hi2";
 import Image from "next/image";
 import Link from "next/link";
+import { useGetTrendingChallenges } from "@/hooks/useChallenges";
 
 const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean }) => {
-  const cards = [
+  // 1. Integrated trending API custom hook query
+  const { data: apiResponse } = useGetTrendingChallenges();
+
+  // Your original static template array matching your design specs perfectly
+  const staticCards = [
     { id: 1, brand: "Nivea", logo: "/nivea.svg", time: "12h ago", niche: ["Beauty", "Family"], prize: "₦10M", deadline: "12h", verified: true, images: ["/left1.svg", "/right1.svg"] },
     { id: 2, brand: "Indomie", logo: "/indomie.svg", time: "2d ago", niche: ["Food", "Family"], prize: "₦8m", deadline: "12h", verified: false, images: ["/right21.svg", "/right22.svg", "/right21.svg"] },
     { id: 3, brand: "Nivea", logo: "/nivea.svg", time: "12h ago", niche: ["Beauty", "Family"], prize: "₦10M", deadline: "12h", verified: true, images: ["/left1.svg", "/right1.svg"] },
@@ -17,6 +22,38 @@ const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: b
     { id: 5, brand: "Indomie", logo: "/indomie.svg", time: "2d ago", niche: ["Food", "Family"], prize: "₦8m", deadline: "12h", verified: false, images: ["/right22.svg", "/right21.svg"] },
     { id: 6, brand: "Nivea", logo: "/nivea.svg", time: "12h ago", niche: ["Beauty", "Family"], prize: "₦10M", deadline: "12h", verified: true, images: ["/left1.svg", "/right1.svg"] },
   ];
+
+  // Helper utility mapping timestamp tokens safely
+  const formatTimeAgo = (dateString: string) => {
+    if (!dateString) return "12h ago";
+    const hours = Math.floor((new Date().getTime() - new Date(dateString).getTime()) / (1000 * 60 * 60));
+    return hours < 24 ? `${hours || 12}h ago` : `${Math.floor(hours / 24)}d ago`;
+  };
+
+  // 2. Map dynamic payload into structured cards with native design protections
+  const cards = React.useMemo(() => {
+    if (apiResponse && apiResponse.challenges && apiResponse.challenges.length > 0) {
+      return apiResponse.challenges.map((challenge: any, idx: number) => {
+        const mediaUrls = challenge.media?.sort((a: any, b: any) => a.display_order - b.display_order).map((m: any) => m.media_url) || [];
+        return {
+          id: challenge.id || idx + 1,
+          brand: challenge.brand_name || "Brand",
+          logo: challenge.brand_profile_picture_url || "/nivea.svg",
+          time: formatTimeAgo(challenge.created_at),
+          niche: challenge.category_name ? [challenge.category_name, "Family"] : ["Beauty", "Family"],
+          prize: challenge.prize_pool_display || "₦10M",
+          deadline: "12h",
+          verified: challenge.is_funded ?? true,
+          title: challenge.title, 
+          desc: challenge.description, 
+          images: mediaUrls.length > 0 ? mediaUrls : ["/left1.svg", "/right1.svg"],
+          views: challenge.viewer_count ? `${(challenge.viewer_count / 1000).toFixed(1)}k` : "2.1k",
+          mail: challenge.participant_count?.toString() || "87",
+        };
+      });
+    }
+    return staticCards;
+  }, [apiResponse]);
 
   return (
     <div className="min-h-screen bg-white py-2 font-['Geist']">
@@ -97,15 +134,19 @@ const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: b
                   <span className="text-[#1E1F24] font-semibold text-[12px]">{card.prize} prize pool</span>
                   <span className="text-[#E5E7EB]">|</span>
                   <span className="text-[#D12B1F] font-medium text-[10px]">Closes in {card.deadline}</span>
-                  <span className="text-[#E5E7EB]">|</span>
-                  <span className="text-[#1E874B] bg-[#ECFEF4] font-medium text-[10px] px-1 py-0.5 rounded-2xl">Verified Challenge</span>
+                  {card.verified && (
+                    <>
+                      <span className="text-[#E5E7EB]">|</span>
+                      <span className="text-[#1E874B] bg-[#ECFEF4] font-medium text-[10px] px-1 py-0.5 rounded-2xl">Verified Challenge</span>
+                    </>
+                  )}
                 </div>
 
-                <h3 className="font-semibold text-[12px] text-[#62636C]  line-clamp-2 mb-1">
-                  UGC Creators Needed for Skincare Product set Launch
+                <h3 className="font-semibold text-[12px] text-[#62636C] line-clamp-2 mb-1">
+                  {card.title || "UGC Creators Needed for Skincare Product set Launch"}
                 </h3>
                 <p className="text-[#747682] text-[10px] mb-2.5 font-normal line-clamp-2">
-                 NIVEA is launching its new Radiance Boost Skincare Collection and is now looking for authentic, engaging user-generated content that highlights rea...
+                  {card.desc || "NIVEA is launching its new Radiance Boost Skincare Collection and is now looking for authentic, engaging user-generated content that highlights rea..."}
                 </p>
 
                 {/* FIXED-SIZE DYNAMIC IMAGE PREVIEW */}
@@ -127,11 +168,11 @@ const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: b
                 </div>
 
                 {/* Metrics row */}
-                <div className="flex items-center justify-between text-[#62636C] border-t border-gray-50 mt-auto">
+                <div className="flex items-center justify-between text-[#62636C] border-t border-gray-50 mt-auto pt-2">
                   <div className="flex gap-3 md:gap-5 text-[11px] md:text-[10px] font-medium">
-                    <span className="flex items-center gap-1"><FiBarChart2 size={14}/> 2.1k</span>
-                    <span className="flex items-center gap-1"><FiMail size={14}/> 87</span>
-                    <span className="flex items-center gap-1"><FiClock size={14}/> 12h</span>
+                    <span className="flex items-center gap-1"><FiBarChart2 size={14}/> {card.views || "2.1k"}</span>
+                    <span className="flex items-center gap-1"><FiMail size={14}/> {card.mail || "87"}</span>
+                    <span className="flex items-center gap-1"><FiClock size={14}/> {card.deadline}</span>
                   </div>
                   <div className="flex gap-3">
                     <button className="hover:text-[#111827] transition-colors cursor-pointer"><FiBookmark size={16} /></button>

@@ -1,11 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiX, FiSearch, FiCheckCircle } from "react-icons/fi";
+import { useQueryClient } from "@tanstack/react-query";
+import { 
+  useGetWithdrawalAccount, 
+  useUpdateWithdrawalAccount, 
+  useExecuteWithdrawal,
+  useGetBanksList,
+  useGetWithdrawalQuote // 👈 Added custom hook hook invocation mapping
+} from "@/hooks/useWallet";
+import { FiX, FiSearch } from "react-icons/fi";
 import { HiArrowLeft } from "react-icons/hi2";
-import Image from "next/image";
+import { AxiosError } from "axios";
 
 interface WithdrawModalProps {
   isOpen: boolean;
@@ -13,82 +21,200 @@ interface WithdrawModalProps {
   balance: number;
 }
 
-// Design Update: Data structure with unique icons
-const BANKS = [
-  { name: "Access Bank", id: "1", icon: "/access.svg" },
-  { name: "FCMB", id: "2", icon: "/fcmb.svg" },
-  { name: "Guaranty Trust Bank", id: "3", icon: "/gtb.svg" },
-  { name: "Moniepoint", id: "4", icon: "/moniepoint.svg" },
-  { name: "Zenith Bank", id: "5", icon: "/zenith.svg" },
-];
+export default function WithdrawModal({ isOpen, onClose, balance: initialBalance }: WithdrawModalProps) {
+  const queryClient = useQueryClient();
+  
+  // 🧪 TESTING OVERRIDE: Hardcoding wallet layer context to 100,000 Naira
+  const balance = 100000;
 
-const WithdrawModal: React.FC<WithdrawModalProps> = ({ isOpen, onClose, balance }) => {
-  const [step, setStep] = useState<"withdraw" | "change-bank">("withdraw");
+  const { data: activeAccount, isLoading: isLoadingAccount } = useGetWithdrawalAccount();
+  const { data: NIGERIAN_BANKS = [], isLoading: isLoadingBanks } = useGetBanksList();
+  
+  const updateAccountMutation = useUpdateWithdrawalAccount();
+  const executeWithdrawalMutation = useExecuteWithdrawal();
+  const getQuoteMutation = useGetWithdrawalQuote(); // 👈 Mutation tracking instance
+
+  // Managed Wizard Layout: "withdraw" | "preview" | "change-bank"
+  const [step, setStep] = useState<"withdraw" | "preview" | "change-bank">("withdraw");
   const [rawAmount, setRawAmount] = useState<string>(""); 
   const [displayAmount, setDisplayAmount] = useState<string>(""); 
   const [pin, setPin] = useState("");
   
-  // Bank Selection States
-  const [accountNumber, setAccountNumber] = useState("0691081727");
+  const [accountNumber, setAccountNumber] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedBank, setSelectedBank] = useState<{name: string, icon: string} | null>(null);
+  const [selectedBank, setSelectedBank] = useState<{name: string; code: string} | null>(null);
   const [showResults, setShowResults] = useState(false);
   const [newAccountPin, setNewAccountPin] = useState("");
 
-  const [errors, setErrors] = useState({ amount: "", pin: "" });
+  const [errors, setErrors] = useState({ amount: "", pin: "", global: "" });
 
   const MINIMUM_WITHDRAWAL = 2000;
-  const WITHDRAWAL_FEE = 50;
+
+  const updateError = updateAccountMutation.error as AxiosError<{ message?: string; detail?: string }> | null;
+  const withdrawError = executeWithdrawalMutation.error as AxiosError<{ message?: string; detail?: string }> | null;
+  const quoteError = getQuoteMutation.error as AxiosError<{ message?: string; detail?: string }> | null;
+
+  let activeGlobalErrorMessage = errors.global;
+  if (updateError?.response) {
+    activeGlobalErrorMessage = updateError.response.data?.detail || updateError.response.data?.message || "Failed to save bank account parameters.";
+  } else if (withdrawError?.response) {
+    activeGlobalErrorMessage = withdrawError.response.data?.detail || withdrawError.response.data?.message || "Withdrawal failed.";
+  } else if (quoteError?.response) {
+    activeGlobalErrorMessage = quoteError.response.data?.detail || quoteError.response.data?.message || "Could not fetch withdrawal preview confirmation parameters.";
+  }
+
+  useEffect(() => {
+    if (errors.global) {
+      setErrors((prev) => ({ ...prev, global: "" }));
+    }
+  }, [accountNumber, selectedBank, step]);
+
+  useEffect(() => {
+    if (updateAccountMutation.isSuccess) {
+      queryClient.invalidateQueries({ queryKey: ["withdrawalAccount"] });
+      const timer = setTimeout(() => {
+        setStep("withdraw");
+        resetBankSelectionSubForm();
+        updateAccountMutation.reset(); 
+      }, 1800);
+      return () => clearTimeout(timer);
+    }
+  }, [updateAccountMutation.isSuccess]);
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, "");
     if (!value) {
       setRawAmount("");
       setDisplayAmount("");
+      setErrors((prev) => ({ ...prev, amount: "" }));
       return;
     }
     const numberValue = parseInt(value);
     setRawAmount(value);
-    const formatted = new Intl.NumberFormat("en-NG").format(numberValue);
-    setDisplayAmount(formatted);
+    setDisplayAmount(new Intl.NumberFormat("en-NG").format(numberValue));
+
+    if (numberValue > balance) {
+      setErrors((prev) => ({ ...prev, amount: "Insufficient funds" }));
+    } else if (numberValue < MINIMUM_WITHDRAWAL) {
+      setErrors((prev) => ({ ...prev, amount: `Minimum is ₦${MINIMUM_WITHDRAWAL.toLocaleString()}` }));
+    } else {
+      setErrors((prev) => ({ ...prev, amount: "" }));
+    }
   };
 
   const filteredBanks = useMemo(() => {
-    if (!searchQuery) return BANKS; // Design: show all initially when focused
-    return BANKS.filter((bank) =>
-      bank.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [searchQuery]);
+    const rawBanksArray = Array.isArray(NIGERIAN_BANKS) 
+      ? NIGERIAN_BANKS 
+      : (NIGERIAN_BANKS as any)?.data || (NIGERIAN_BANKS as any)?.banks || [];
 
-  const handleSelectBank = (bank: {name: string, icon: string}) => {
+    if (!searchQuery) return rawBanksArray;
+    
+    const query = searchQuery.toLowerCase();
+    return rawBanksArray.filter((bank: any) =>
+      bank.name?.toLowerCase().includes(query) || bank.code?.includes(query)
+    );
+  }, [searchQuery, NIGERIAN_BANKS]);
+
+  const handleSelectBank = (bank: {name: string; code: string}) => {
     setSelectedBank(bank);
     setSearchQuery(bank.name);
     setShowResults(false);
   };
 
-  useEffect(() => {
-    const numAmount = parseInt(rawAmount);
-    if (rawAmount && numAmount > balance) {
-      setErrors((prev) => ({ ...prev, amount: "Insufficient funds" }));
-    } else {
-      setErrors((prev) => ({ ...prev, amount: "" }));
-    }
-  }, [rawAmount, balance]);
+  // Step 1: Request live validation preview data block
+  const handleProceedToPreview = () => {
+    if (!rawAmount || !!errors.amount || !activeAccount?.id || getQuoteMutation.isPending) return;
+    
+    getQuoteMutation.mutate({
+      amount: parseInt(rawAmount),
+      bank_detail_id: activeAccount.id,
+      currency: "NGN"
+    }, {
+      onSuccess: (data) => {
+        if (!data.sufficient) {
+          setErrors((prev) => ({ ...prev, amount: "Insufficient balance for this tier execution." }));
+          return;
+        }
+        setStep("preview");
+      }
+    });
+  };
+
+  const handleSaveNewAccount = () => {
+    if (!isNewAccountValid || updateAccountMutation.isPending) return;
+    const currentOrigin = typeof window !== "undefined" ? window.location.origin : "https://example.com";
+
+    updateAccountMutation.mutate({
+      bank_name: selectedBank!.name,
+      bank_code: selectedBank!.code,
+      account_number: accountNumber,
+      pin: newAccountPin, 
+      revert_redirect_url: `${currentOrigin}/wallet`,
+    });
+  };
+
+  // Step 2: Live ultimate movement validation block execution
+  const handleWithdrawalSubmission = () => {
+    if (!rawAmount || !pin || !activeAccount?.id || executeWithdrawalMutation.isPending) return;
+    
+    executeWithdrawalMutation.mutate({
+      amount: parseInt(rawAmount),
+      bank_detail_id: activeAccount.id, // 👈 Passing your active UUID bank reference
+      pin: pin,
+      currency: "NGN"
+    }, {
+      onSuccess: (data) => {
+        // 🎉 If the transaction immediately accepted or replayed:
+        if (data.status === "processing") {
+          // You could easily fire a success toast notification here
+          queryClient.invalidateQueries({ queryKey: ["walletBalance"] }); 
+        }
+        handleClose();
+      },
+      onError: (err: any) => {
+        const statusCode = err.response?.status;
+        const serverMessage = err.response?.data?.detail || err.response?.data?.message;
+
+        // Custom descriptive feedback mapped from your documentation codes
+        if (statusCode === 401) {
+          setErrors((prev) => ({ ...prev, global: "Incorrect wallet PIN. Please try again." }));
+        } else if (statusCode === 429) {
+          setErrors((prev) => ({ ...prev, global: "Security Lockout: Your wallet PIN is locked due to too many failed attempts." }));
+        } else if (statusCode === 409) {
+          setErrors((prev) => ({ ...prev, global: serverMessage || "Transaction failed: Insufficient balance or limit reached." }));
+        } else {
+          setErrors((prev) => ({ ...prev, global: serverMessage || "An error occurred during withdrawal processing." }));
+        }
+      }
+    });
+  };
+
+  const resetBankSelectionSubForm = () => {
+    setAccountNumber("");
+    setSearchQuery("");
+    setSelectedBank(null);
+    setNewAccountPin("");
+    setErrors({ amount: "", pin: "", global: "" });
+  };
 
   const handleClose = () => {
     setStep("withdraw");
     setRawAmount("");
     setDisplayAmount("");
     setPin("");
-    setSearchQuery("");
-    setSelectedBank(null);
-    setNewAccountPin("");
-    setErrors({ amount: "", pin: "" });
+    resetBankSelectionSubForm();
+    updateAccountMutation.reset();
+    executeWithdrawalMutation.reset();
+    getQuoteMutation.reset();
     onClose();
   };
 
-  // Validation for Step 2 Save button
-  const isNewAccountValid = accountNumber.length >= 10 && !!selectedBank && newAccountPin.length >= 4;
+  const isNewAccountValid = accountNumber.length === 10 && !!selectedBank && newAccountPin.length === 4;
+  
+  // Validation checks to manage clean UX colors natively
+  const isWithdrawSetupDisabled = !rawAmount || !!errors.amount || !activeAccount?.is_active || getQuoteMutation.isPending;
+  const isConfirmWithdrawDisabled = pin.length < 4 || executeWithdrawalMutation.isPending;
+  const isBankButtonDisabled = !isNewAccountValid || updateAccountMutation.isPending;
 
   return (
     <AnimatePresence>
@@ -111,24 +237,37 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({ isOpen, onClose, balance 
                 </header>
 
                 <div className="p-8 pt-6 flex flex-col gap-6">
-                  {/* Account Selection */}
+                  {getQuoteMutation.isError && activeGlobalErrorMessage && (
+                    <p className="text-xs font-bold text-red-500 bg-red-50 p-3 rounded-xl border border-red-100">{activeGlobalErrorMessage}</p>
+                  )}
+
                   <div className="space-y-4">
                     <h4 className="text-[14px] font-semibold text-[#1E1F24]">Withdrawal Account</h4>
-                    <div className="bg-[#F9F9FB] border border-[#EFF0F3] rounded-[24px] p-4 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="relative flex items-center justify-center p-3 shrink-0">
-                           <Image src="/zenith.svg" alt="Zenith" width={40} height={40} className="object-contain" priority />
+                    <div className="bg-[#F9F9FB] border border-[#EFF0F3] rounded-[24px] p-5 flex items-center justify-between min-h-[88px]">
+                      {isLoadingAccount ? (
+                        <div className="flex items-center justify-center w-full py-2">
+                          <div className="w-5 h-5 border-2 border-[#0047FF] border-t-transparent rounded-full animate-spin" />
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <h5 className="text-[14px] font-bold text-[#1E1F24] truncate">0691081727 <span className="text-[#9CA3AF] font-medium">• Zenith Bank</span></h5>
-                          <p className="text-[12px] text-[#62636C] truncate">Desire Destiny Oludara</p>
+                      ) : activeAccount && activeAccount.is_active ? (
+                        <>
+                          <div className="min-w-0 flex-1 mr-2">
+                            <h5 className="text-[14px] font-bold text-[#1E1F24] truncate">
+                              {activeAccount.account_number} 
+                              <span className="text-[#9CA3AF] font-medium"> • {activeAccount.bank_name}</span>
+                            </h5>
+                            <p className="text-[12px] text-[#62636C] truncate mt-0.5">{activeAccount.account_name}</p>
+                          </div>
+                          <button onClick={() => setStep("change-bank")} className="px-4 py-2 border border-[#8B8D98] rounded-full text-[12px] font-bold text-[#1E1F24] hover:bg-white active:scale-95 transition-all shrink-0">Change</button>
+                        </>
+                      ) : (
+                        <div className="flex items-center justify-between w-full">
+                          <p className="text-sm font-medium text-[#62636C]">No withdrawal account linked yet.</p>
+                          <button onClick={() => setStep("change-bank")} className="px-4 py-2 bg-[#111827] text-white rounded-full text-[12px] font-bold hover:bg-black active:scale-95 transition-all shrink-0">Link Bank</button>
                         </div>
-                      </div>
-                      <button onClick={() => setStep("change-bank")} className="px-4 py-2 border border-[#8B8D98] rounded-full text-[12px] font-bold text-[#1E1F24] hover:bg-white active:scale-95 transition-all shrink-0">Change</button>
+                      )}
                     </div>
                   </div>
 
-                  {/* Balance Divider */}
                   <div className="flex justify-between items-center text-[14px] font-semibold text-[#62636C] py-1">
                     <span className="shrink-0">Wallet Balance</span>
                     <div className="flex-1 border-t-2 border-dashed border-[#E5E7EB] mx-4" />
@@ -138,7 +277,6 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({ isOpen, onClose, balance 
                     </div>
                   </div>
 
-                  {/* Amount Input */}
                   <div className="space-y-2">
                     <label className="text-[14px] font-semibold text-[#1E1F24]">Amount</label>
                     <div className={`flex items-center border rounded-[16px] px-5 py-4 transition-all ${errors.amount ? "border-red-500 bg-red-50/5" : "border-[#E5E7EB] focus-within:border-[#111827]"}`}>
@@ -147,35 +285,101 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({ isOpen, onClose, balance 
                       {displayAmount && <span className="text-[#9CA3AF] font-bold ml-1">.00</span>}
                       {errors.amount && <span className="text-[12px] font-bold text-red-500 whitespace-nowrap ml-2">{errors.amount}</span>}
                     </div>
-                    <p className="text-[11px] font-medium text-[#747682]">Withdrawal Fee: ₦{WITHDRAWAL_FEE}</p>
                   </div>
 
-                  {/* PIN Input */}
-                  <div className="space-y-2">
-                    <label className="text-[14px] font-semibold text-[#1E1F24]">PIN</label>
-                    <div className="relative">
-                      <input type="password" value={pin} maxLength={6} onChange={(e) => { setPin(e.target.value); setErrors(p => ({ ...p, pin: "" })); }} placeholder="Enter your PIN" className={`w-full px-5 py-4 border rounded-[16px] text-[16px] focus:outline-none transition-all ${errors.pin ? "border-red-500" : "border-[#E5E7EB] focus:border-[#111827]"}`} />
-                      {errors.pin && <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[12px] font-bold text-red-500">{errors.pin}</span>}
+                  <button 
+                    onClick={handleProceedToPreview} 
+                    disabled={isWithdrawSetupDisabled} 
+                    className={`w-full py-4.5 text-white rounded-full font-bold text-[16px] transition-all flex items-center justify-center h-[54px]
+                      ${isWithdrawSetupDisabled 
+                        ? "bg-[#8C9FFF] opacity-60 cursor-not-allowed shadow-none" 
+                        : "bg-[#0047FF] shadow-lg shadow-blue-100/50 active:scale-[0.98]"
+                      }
+                    `}
+                  >
+                    {getQuoteMutation.isPending ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : "Review Withdrawal"}
+                  </button>
+                </div>
+              </>
+            ) : step === "preview" ? (
+              /* PREVIEW BREAKDOWN DESIGN LAYER DEFINITION */
+              <>
+                <header className="flex items-center gap-4 p-8 pb-6 border-b border-gray-50">
+                  <button onClick={() => setStep("withdraw")} className="text-[#111827] p-1.5 rounded-full hover:bg-gray-50"><HiArrowLeft size={20} /></button>
+                  <h2 className="text-[20px] font-bold text-[#111827]">Confirm Payout</h2>
+                  <button onClick={handleClose} className="ml-auto text-[#9CA3AF] hover:text-[#111827] transition-colors"><FiX size={24} /></button>
+                </header>
+
+                <div className="p-8 pt-6 flex flex-col gap-6">
+                  {executeWithdrawalMutation.isError && activeGlobalErrorMessage && (
+                    <p className="text-xs font-bold text-red-500 bg-red-50 p-3 rounded-xl border border-red-100">{activeGlobalErrorMessage}</p>
+                  )}
+
+                  {/* Authorization Breakdown Context Records Mapping */}
+                  <div className="bg-[#F9F9FB] border border-[#EFF0F3] rounded-[24px] p-6 space-y-4">
+                    <div className="flex justify-between items-center text-[14px]">
+                      <span className="text-[#62636C] font-medium">Withdrawal Amount</span>
+                      <span className="text-[#111827] font-bold">{getQuoteMutation.data?.amount}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[14px]">
+                      <span className="text-[#62636C] font-medium">Provider Fee (Flutterwave)</span>
+                      <span className="text-red-500 font-semibold">+ {getQuoteMutation.data?.fee}</span>
+                    </div>
+                    <hr className="border-[#EFF0F3] border-dashed" />
+                    <div className="flex justify-between items-center text-[15px]">
+                      <span className="text-[#111827] font-bold">Net Payout Deducted</span>
+                      <span className="text-[#0047FF] font-bold text-[16px]">{getQuoteMutation.data?.net_amount}</span>
                     </div>
                   </div>
 
-                  {/* Design Update: Matches image_0.png style */}
-                  <button disabled={!rawAmount || !pin || !!errors.amount} className="w-full py-4.5 bg-[#8C9FFF] text-white rounded-full font-bold text-[16px] shadow-lg shadow-blue-100 disabled:opacity-60 active:scale-[0.98] transition-all">Withdraw</button>
+                  <div className="space-y-2">
+                    <label className="text-[14px] font-semibold text-[#1E1F24]">Secure 4-Digit Wallet PIN</label>
+                    <input 
+                      type="password" 
+                      value={pin} 
+                      maxLength={4} 
+                      onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))} 
+                      placeholder="••••" 
+                      className="w-full px-5 py-4 border border-[#E5E7EB] rounded-[16px] text-center tracking-widest text-[20px] focus:outline-none focus:border-[#0047FF]" 
+                    />
+                  </div>
+
+                  <button 
+                    onClick={handleWithdrawalSubmission} 
+                    disabled={isConfirmWithdrawDisabled} 
+                    className={`w-full py-4.5 text-white rounded-full font-bold text-[16px] transition-all flex items-center justify-center h-[54px]
+                      ${isConfirmWithdrawDisabled 
+                        ? "bg-[#8C9FFF] opacity-60 cursor-not-allowed shadow-none" 
+                        : "bg-[#0047FF] shadow-xs shadow-blue-100/50 active:scale-[0.98]"
+                      }
+                    `}
+                  >
+                    {executeWithdrawalMutation.isPending ? (
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      "Confirm & Execute"
+                    )}
+                  </button>
                 </div>
               </>
             ) : (
               <>
-                {/* Step 2 View */}
                 <header className="flex items-center gap-4 p-8 pb-6 border-b border-gray-50">
-                  <button onClick={() => setStep("withdraw")} className="text-[#111827] p-1.5 rounded-full hover:bg-gray-50"><HiArrowLeft size={20} /></button>
+                  <button onClick={() => { setStep("withdraw"); resetBankSelectionSubForm(); }} className="text-[#111827] p-1.5 rounded-full hover:bg-gray-50"><HiArrowLeft size={20} /></button>
                   <h2 className="text-[20px] font-bold text-[#111827]">Change Withdrawal Account</h2>
                   <button onClick={handleClose} className="ml-auto text-[#9CA3AF]"><FiX size={24} /></button>
                 </header>
 
                 <div className="p-8 pt-6 space-y-6">
+                  {updateAccountMutation.isError && activeGlobalErrorMessage && (
+                    <p className="text-xs font-bold text-red-500 bg-red-50 p-3 rounded-xl border border-red-100">{activeGlobalErrorMessage}</p>
+                  )}
+
                   <div className="space-y-2">
                     <label className="text-[14px] font-semibold text-[#1E1F24]">Account Number</label>
-                    <input type="text" value={accountNumber} onChange={e => setAccountNumber(e.target.value.replace(/\D/g, ""))} placeholder="Enter your account number" className="w-full px-5 py-4 border border-[#E5E7EB] rounded-[16px] focus:outline-none focus:border-[#111827] placeholder:text-[#9CA3AF] text-[14px]" />
+                    <div className="relative flex items-center">
+                      <input type="text" maxLength={10} value={accountNumber} onChange={e => setAccountNumber(e.target.value.replace(/\D/g, ""))} placeholder="Enter your 10-digit account number" className="w-full px-5 py-4 border border-[#E5E7EB] rounded-[16px] focus:outline-none focus:border-[#111827] placeholder:text-[#9CA3AF] text-[14px]" />
+                    </div>
                   </div>
 
                   <div className="space-y-2 relative">
@@ -184,33 +388,25 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({ isOpen, onClose, balance 
                       <FiSearch className="absolute left-6 top-1/2 -translate-y-1/2 text-[#111827]" size={18} />
                       <input 
                         type="text" value={searchQuery} onFocus={() => setShowResults(true)}
+                        disabled={isLoadingBanks}
                         onChange={(e) => { setSearchQuery(e.target.value); setShowResults(true); if(selectedBank && e.target.value !== selectedBank.name) setSelectedBank(null); }}
-                        className="w-full pl-14 pr-6 py-4 border border-[#111827] rounded-full text-[14px] focus:outline-none placeholder:text-[#9CA3AF]" placeholder="Find your bank"
+                        className="w-full pl-14 pr-6 py-4 border border-[#E5E7EB] focus:border-[#111827] rounded-full text-[14px] focus:outline-none placeholder:text-[#9CA3AF] disabled:bg-gray-50" 
+                        placeholder={isLoadingBanks ? "Loading available banks..." : "Find your bank"}
                       />
                     </div>
                     
-                    {/* Design Update: unique icons list */}
                     {showResults && (
-                      <div className="absolute z-20 left-0 right-0 mt-2 border border-[#E5E7EB] rounded-[24px] bg-white shadow-xl max-h-[250px] overflow-y-auto">
-                        {filteredBanks.map((bank) => (
+                      <div className="absolute z-20 left-0 right-0 mt-2 border border-[#E5E7EB] rounded-[24px] bg-white shadow-xl max-h-[250px] overflow-y-auto scrollbar-none">
+                        {filteredBanks.map((bank: any, index: number) => (
                           <div 
-                            key={bank.id} onClick={() => handleSelectBank({name: bank.name, icon: bank.icon})}
+                            key={`${bank.code}-${index}`} 
+                            onClick={() => handleSelectBank({name: bank.name, code: bank.code})}
                             className="flex items-center justify-between p-4 hover:bg-gray-50 border-b border-[#F9F9FB] cursor-pointer last:border-none"
                           >
-                            <div className="flex items-center gap-3 min-w-0">
-                               {/* unique bank logo */}
-                               <div className="w-10 h-10 rounded-full border border-gray-100 bg-white flex items-center justify-center p-1.5 shrink-0">
-                                 <Image src={bank.icon} alt={bank.name} width={32} height={32} className="object-contain" />
-                               </div>
-                               <span className="text-[14px] font-bold text-[#111827] truncate">{bank.name}</span>
+                            <div className="flex flex-col min-w-0 py-0.5">
+                              <span className="text-[14px] font-bold text-[#111827] truncate">{bank.name}</span>
+                              <span className="text-[11px] text-[#9CA3AF] font-medium mt-0.5">Code: {bank.code}</span>
                             </div>
-                            {/* Auto Confirmation */}
-                            {selectedBank?.name === bank.name && bank.name === "Guaranty Trust Bank" && (
-                              <div className="flex items-center gap-2 shrink-0">
-                                <span className="text-[12px] text-[#9CA3AF] font-medium">Desire Destiny Oludara</span>
-                                <FiCheckCircle className="text-[#22C55E]" size={20} />
-                              </div>
-                            )}
                           </div>
                         ))}
                       </div>
@@ -219,16 +415,27 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({ isOpen, onClose, balance 
 
                   <div className="space-y-2">
                     <label className="text-[14px] font-semibold text-[#1E1F24]">PIN</label>
-                    <input type="password" value={newAccountPin} maxLength={6} onChange={e => setNewAccountPin(e.target.value)} placeholder="Enter your PIN" className="w-full px-5 py-4 border border-[#E5E7EB] rounded-[16px] focus:outline-none focus:border-[#111827] placeholder:text-[#9CA3AF]" />
+                    <input 
+                      type="password" 
+                      value={newAccountPin} 
+                      maxLength={4} 
+                      onChange={e => setNewAccountPin(e.target.value.replace(/\D/g, ""))} 
+                      placeholder="Enter 4-digit PIN to confirm"
+                      className="w-full px-5 py-4 border border-[#E5E7EB] rounded-[16px] focus:outline-none focus:border-[#111827] placeholder:text-[#9CA3AF] text-[14px]" 
+                    />
                   </div>
 
-                  {/* Design Update: opacity control */}
                   <button 
-                    onClick={() => setStep("withdraw")} 
-                    disabled={!isNewAccountValid}
-                    className="w-full py-4.5 bg-[#8C9FFF] text-white rounded-full font-bold text-[16px] shadow-lg shadow-blue-100 disabled:opacity-60 transition-all"
+                    onClick={handleSaveNewAccount} 
+                    disabled={isBankButtonDisabled}
+                    className={`w-full py-4.5 text-white rounded-full font-bold text-[16px] transition-all flex items-center justify-center h-[54px]
+                      ${isBankButtonDisabled 
+                        ? "bg-[#8C9FFF] opacity-60 cursor-not-allowed shadow-none" 
+                        : "bg-[#0047FF] shadow-lg shadow-blue-100/50 active:scale-[0.98]"
+                      }
+                    `}
                   >
-                    Save New Account
+                    {updateAccountMutation.isPending ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : "Save New Account"}
                   </button>
                 </div>
               </>
@@ -238,6 +445,4 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({ isOpen, onClose, balance 
       )}
     </AnimatePresence>
   );
-};
-
-export default WithdrawModal;
+}

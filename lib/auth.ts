@@ -11,11 +11,12 @@ export const loginUser = async (data: {
 
 /* CREATOR SIGNUP */
 export const signupCreator = async (data: {
+  first_name: string;
+  last_name: string;
   email: string;
   password: string;
-  username: string;
 }) => {
-  const res = await api.post("/auth/signup_creator", data);
+  const res = await api.post("/auth/signup/creator", data);
   return res.data;
 };
 
@@ -25,6 +26,6 @@ export const signupBrand = async (data: {
   password: string;
   company_name: string;
 }) => {
-  const res = await api.post("/auth/signup_brand", data);
+  const res = await api.post("/auth/signup/brand", data);
   return res.data;
 };

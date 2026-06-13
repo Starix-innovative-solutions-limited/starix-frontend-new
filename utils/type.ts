@@ -4,8 +4,8 @@
 export type CreatorSignupPayload = {
   email: string;
   password: string;
-  full_name: string;
-  phone_number?: string;
+  first_name: string;
+  last_name: string;
 };
 
 export type BrandSignupPayload = {
@@ -52,6 +52,17 @@ export interface PendingSignup {
   role?: string;
   access_token?: string;
   token_type?: string;
+}
+
+export interface Member {
+  id: string; // Change from number to string
+  name: string;
+  role: "Admin" | "Member";
+  isYou: boolean;
+  avatar: string;
+  percentage: number;
+  status: string;
+  color: string;
 }
 
 export interface User {

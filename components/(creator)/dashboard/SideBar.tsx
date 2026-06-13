@@ -5,6 +5,9 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { LuPanelLeftClose } from "react-icons/lu";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/useAuthStore";
+import { sessionAuth } from "@/utils/sessionAuth";
 
 const NAV_ITEMS = [
   { label: "Home", icon: "/home.svg", href: "/dashboard" },
@@ -16,7 +19,26 @@ const NAV_ITEMS = [
 ];
 
 const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) => {
+  const router = useRouter();
   const [active, setActive] = useState("Home");
+  const { clearAuth } = useAuthStore() as any; // Destructure the clear action from your store
+
+  const handleLogout = () => {
+    // 1. Clear tokens from browser memory/session utils safely
+    if (sessionAuth && typeof sessionAuth.clear === "function") {
+      sessionAuth.clear();
+    } else {
+      localStorage.removeItem("auth-storage");
+    }
+
+    // 2. Clear state inside Zustand global store if method exists
+    if (clearAuth) {
+      clearAuth();
+    }
+
+    // 3. Clear transient storage window fields and redirect to access entry
+    router.push("/coming-soon"); 
+  };
 
   return (
     <>
@@ -169,7 +191,12 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
 
         {/* LOGOUT */}
         <div className="px-4 py-6 border-t border-gray-50 shrink-0">
-          <button className={`flex items-center transition-all duration-300 w-full ${collapsed ? "justify-center" : "px-5 gap-4"}`}>
+          <button 
+            onClick={handleLogout}
+            className={`flex items-center transition-all duration-300 w-full hover:bg-red-50/40 rounded-full py-2.5 cursor-pointer ${
+              collapsed ? "justify-center" : "px-5 gap-4"
+            }`}
+          >
             <div className="relative w-6 h-6 shrink-0">
               <Image src="/logout.svg" alt="logout" fill className="object-contain"
                 style={{ filter: "brightness(0) saturate(100%) invert(21%) sepia(90%) saturate(4649%) hue-rotate(352deg) brightness(89%) contrast(92%)" }} 

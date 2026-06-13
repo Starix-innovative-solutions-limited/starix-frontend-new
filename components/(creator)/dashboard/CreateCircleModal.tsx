@@ -6,6 +6,8 @@ import React, { useState, useRef, ChangeEvent, useEffect } from "react";
 import { FiX, FiUploadCloud, FiPlus, FiChevronDown, FiCopy, FiCheck, FiRefreshCcw, FiTrash2 } from "react-icons/fi";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useCreateCircle } from "@/hooks/useCircles";
+import { useUploadMedia } from "@/hooks/useMedia";
 
 type ModalStep = "CREATE" | "SUCCESS" | "INVITE";
 
@@ -20,6 +22,8 @@ interface Props {
   initialStep?: ModalStep; // 1. Added optional configuration prop
 }
 
+
+
 const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) => {
   const router = useRouter();
   const [step, setStep] = useState<ModalStep>(initialStep);
@@ -27,6 +31,10 @@ const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) =
   const [imageError, setImageError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [copied, setCopied] = useState(false);
+  const createMutation = useCreateCircle();
+  const uploadMedia = useUploadMedia();
+
+  
 
   // Form States
   const [circleName, setCircleName] = useState("");
@@ -37,6 +45,38 @@ const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) =
     { email: "", role: "Member" },
   ]);
 
+  const handleCreateCircle = async () => {
+    // 1. Upload the logo (if one was selected) to get a hosted URL first —
+    // the create-circle endpoint only accepts a URL, not a file.
+    let uploadedImageUrl: string | null = null;
+    const file = fileInputRef.current?.files?.[0];
+
+    if (file) {
+      try {
+        const result = await uploadMedia.mutateAsync(file);
+        uploadedImageUrl = result.url;
+      } catch (err: any) {
+        alert(err?.response?.data?.detail || "Failed to upload image. Please try again.");
+        return; // stop here so the circle isn't created without its image
+      }
+    }
+
+    createMutation.mutate({
+      name: circleName,
+      description: description,
+      privacy: privacy.includes("code") ? "private" : "public",
+      niches: [], // Add niche state if you have one
+      ...(uploadedImageUrl ? { profile_picture_url: uploadedImageUrl } : {}),
+    }, {
+      onSuccess: (data) => {
+        // data.join_code will be available here
+        setStep("SUCCESS");
+      },
+      onError: (err: any) => {
+        alert(err?.response?.data?.detail || "Error creating circle");
+      }
+    });
+  };
   // 2. Sync internal step tracking when modal visibility or initial targets change
   useEffect(() => {
     if (isOpen) {
@@ -91,10 +131,17 @@ const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) =
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText("1234CF");
+  const joinCode = createMutation.data?.join_code;
+  
+  if (joinCode) {
+    navigator.clipboard.writeText(joinCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }
+};
+
+  // Combined pending state — image upload (if any) runs before circle creation
+  const isSubmitting = uploadMedia.isPending || createMutation.isPending;
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-2 bg-black/50 backdrop-blur-sm">
@@ -175,13 +222,25 @@ const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) =
                 <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Pentagram is the world's most acclaimed creative collective..." rows={4} className="w-full border border-[#E5E7EB] rounded-xl py-4 px-4 text-[14px] outline-none focus:ring-2 focus:ring-blue-100 resize-none leading-relaxed" />
               </div>
 
-              <button onClick={() => setStep("SUCCESS")} disabled={!circleName} className={`w-full py-4.5 rounded-full font-semibold text-[16px] transition-all ${circleName ? 'bg-[#0047FF] text-white shadow-lg shadow-blue-100' : 'bg-[#8EAAFF] text-white cursor-not-allowed'}`}>Next</button>
+              <button 
+                onClick={handleCreateCircle} 
+                disabled={!circleName || isSubmitting} 
+                className={`w-full py-4.5 rounded-full font-semibold text-[16px] transition-all 
+                  ${circleName ? 'bg-[#0047FF] text-white shadow-lg shadow-blue-100' : 'bg-[#8EAAFF] text-white cursor-not-allowed'}`}
+              >
+                {uploadMedia.isPending
+                  ? "Uploading image..."
+                  : createMutation.isPending
+                    ? "Creating..."
+                    : "Next"}
+              </button> 
             </div>
           </div>
         )}
 
         {step === "SUCCESS" && (
           <div className="animate-in zoom-in duration-300 flex flex-col md:flex-row items-center gap-8 py-2">
+            {/* ... Image container remains the same ... */}
             <div className="w-[160px] h-[160px] flex-shrink-0 rounded-[40px] overflow-hidden bg-gray-100 border border-gray-100 shadow-sm">
               {imagePreview ? (
                 <img src={imagePreview} alt="Success" className="w-full h-full object-cover" />
@@ -192,18 +251,34 @@ const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) =
 
             <div className="flex-1 text-center md:text-left">
               <h2 className="text-[24px] font-semibold text-[#1E1F24] mb-2 tracking-tight">Circle Created!</h2>
+              
+              {/* Dynamic text based on privacy selection */}
               <p className="text-[#62636C] text-[15px] leading-relaxed mb-6">
-                Your circle is ready. Share your invite code <span className="font-semibold text-[#1E1F24]">(1234CF)</span> to start adding members.
+                {privacy.includes("code") ? (
+                  <>
+                    Your circle is ready. Share your invite code <span className="font-semibold text-[#1E1F24]">({createMutation.data?.join_code || "N/A"})</span> to start adding members.
+                  </>
+                ) : (
+                  "Your circle is ready. You can now invite members to join your community."
+                )}
               </p>
+
+              {/* 
+                This diagram illustrates how your UI component evaluates the 'privacy' state 
+                to decide which interface elements to mount/unmount in the DOM.
+              */}
               
               <div className="flex flex-row items-center gap-3">
-                <button 
-                    onClick={copyToClipboard} 
-                    className="flex-1 whitespace-nowrap px-6 py-3 border border-[#E5E7EB] rounded-full font-semibold text-[14px] text-[#1E1F24] flex items-center justify-center gap-2 hover:bg-gray-50 transition-all"
-                >
-                    {copied ? <FiCheck className="text-green-500" /> : null}
-                    {copied ? "Copied" : "Copy Code"}
-                </button>
+                {/* Only show "Copy Code" if it is private/invite-only */}
+                {privacy.includes("code") && (
+                  <button 
+                      onClick={copyToClipboard} 
+                      className="flex-1 whitespace-nowrap px-6 py-3 border border-[#E5E7EB] rounded-full font-semibold text-[14px] text-[#1E1F24] flex items-center justify-center gap-2 hover:bg-gray-50 transition-all"
+                  >
+                      {copied ? <FiCheck className="text-green-500" /> : null}
+                      {copied ? "Copied" : "Copy Code"}
+                  </button>
+                )}
                 
                 <button 
                     onClick={() => setStep("INVITE")} 

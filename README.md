@@ -1,36 +1,398 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Starix
 
-## Getting Started
+Starix is a creator economy platform designed to connect creators with opportunities, campaigns, communities, and earnings management tools.
 
-First, run the development server:
+The platform enables creators to:
+
+* Participate in brand challenges
+* Join creator communities (Creator Circles)
+* Build professional portfolios
+* Track analytics and performance
+* Manage earnings and withdrawals
+* Configure wallet security settings
+* Securely reset wallet PINs using security questions
+
+---
+
+# Overview
+
+Starix is built using modern web technologies and follows a frontend-driven architecture powered by external APIs and backend services.
+
+## Core Modules
+
+### Creator Dashboard
+
+Provides creators with:
+
+* Account overview
+* Earnings insights
+* Portfolio statistics
+* Challenge participation metrics
+
+### Challenges
+
+Creators can:
+
+* Browse active campaigns
+* Participate in challenges
+* Submit entries
+* Earn rewards
+
+### Creator Circles
+
+Community-focused engagement features:
+
+* Creator networking
+* Discussions
+* Collaboration opportunities
+
+### Portfolio
+
+Creators can showcase:
+
+* Creative work
+* Campaign submissions
+* Professional achievements
+
+### Analytics
+
+Provides:
+
+* Performance insights
+* Engagement metrics
+* Earnings tracking
+
+### Wallet
+
+Supports:
+
+* Wallet balance retrieval
+* Earnings management
+* Withdrawal requests
+* Withdrawal account configuration
+* Transaction history
+
+### Security
+
+Supports:
+
+* Wallet PIN setup
+* Security questions
+* PIN recovery workflows
+* Withdrawal verification
+
+---
+
+# Technology Stack
+
+## Frontend
+
+* Next.js (App Router)
+* React
+* TypeScript
+* Tailwind CSS
+* Framer Motion
+* Recharts
+* React Icons
+* Lucide React
+
+## Backend Services
+
+Integrated via REST APIs:
+
+* Authentication APIs
+* Wallet APIs
+* Withdrawal APIs
+* Creator APIs
+* Analytics APIs
+
+## Third-Party Services
+
+* Supabase
+* Gemini AI
+* GitHub
+* Netlify
+
+---
+
+# Project Structure
+
+```text
+src/
+├── app/
+├── components/
+├── hooks/
+├── services/
+├── lib/
+├── utils/
+├── types/
+├── public/
+└── styles/
+```
+
+---
+
+# Environment Variables
+
+Create a `.env.local` file in the project root.
+
+```env
+NEXT_PUBLIC_API_URL=
+```
+
+Additional environment variables may be required depending on the deployment environment.
+
+---
+
+# Local Development Setup
+
+This is a Next.js project bootstrapped using Create Next App.
+
+## Install Dependencies
+
+```bash
+npm install
+```
+
+or
+
+```bash
+yarn
+```
+
+or
+
+```bash
+pnpm install
+```
+
+---
+
+## Start Development Server
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
+```
+
+or
+
+```bash
 yarn dev
-# or
+```
+
+or
+
+```bash
 pnpm dev
-# or
+```
+
+or
+
+```bash
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+in your browser.
 
-## Learn More
+The application supports hot reload and will automatically refresh when files change.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Development Notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+You can begin development by editing:
 
-## Deploy on Vercel
+```text
+app/page.tsx
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Changes are reflected automatically without restarting the development server.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Fonts
+
+The project uses:
+
+* Geist Font Family
+
+via Next.js font optimization.
+
+This is configured using:
+
+```typescript
+next/font
+```
+
+for optimized loading and performance.
+
+---
+
+# Build
+
+Create a production build:
+
+```bash
+npm run build
+```
+
+---
+
+# Run Production Build
+
+```bash
+npm run start
+```
+
+---
+
+# Deployment
+
+## Netlify
+
+Current deployment target.
+
+### Build Command
+
+```bash
+npm run build
+```
+
+### Publish Directory
+
+```text
+.next
+```
+
+### Deployment Checklist
+
+* Configure environment variables
+* Verify API endpoints
+* Verify Supabase configuration
+* Verify authentication configuration
+* Verify wallet service configuration
+* Run production build validation
+
+---
+
+## Alternative Deployment
+
+The application can also be deployed using:
+
+* Vercel
+* AWS Amplify
+* Azure Static Web Apps
+* DigitalOcean App Platform
+
+---
+
+# Security Considerations
+
+Wallet-related actions implement additional protection mechanisms:
+
+### Wallet PIN
+
+Required for:
+
+* Withdrawals
+* Sensitive wallet actions
+
+### Security Questions
+
+Required for:
+
+* PIN recovery
+* Identity verification
+
+### Withdrawal Verification
+
+Users must:
+
+1. Configure wallet security.
+2. Verify identity.
+3. Complete withdrawal validation.
+
+---
+
+# API Integration Notes
+
+The frontend relies heavily on backend APIs.
+
+Important integrations include:
+
+* Authentication
+* Wallet
+* Withdrawals
+* Earnings
+* Security Questions
+* PIN Recovery
+* Analytics
+* Creator Profiles
+
+Cloud engineers should ensure:
+
+* API URLs are environment-driven
+* Secrets are never committed
+* CORS policies are configured correctly
+* SSL/TLS termination is properly configured
+* Rate limiting is implemented at the API layer
+
+---
+
+# Cloud Infrastructure Notes
+
+Recommended production architecture:
+
+```text
+GitHub
+   ↓
+CI/CD Pipeline
+   ↓
+Netlify
+   ↓
+Starix Frontend
+   ↓
+Backend APIs
+   ↓
+Database / Wallet Services
+```
+
+Recommended monitoring:
+
+* Netlify Analytics
+* Sentry
+* Log aggregation
+* API health monitoring
+
+---
+
+# Learn More
+
+Useful resources:
+
+* [Next.js Documentation](https://nextjs.org/docs?utm_source=chatgpt.com)
+* [Learn Next.js](https://nextjs.org/learn?utm_source=chatgpt.com)
+* [Next.js GitHub Repository](https://github.com/vercel/next.js?utm_source=chatgpt.com)
+
+---
+
+# Future Roadmap
+
+* Enhanced creator-brand matching
+* AI-powered creator assistance
+* Mobile applications
+* Advanced creator analytics
+* Referral systems
+* Creator reputation scoring
+* Real-time notifications
+* Expanded wallet services
+
+

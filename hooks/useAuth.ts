@@ -11,7 +11,7 @@ import {
 } from "@/utils/type";
 import { useMutation } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/useAuthStore";
-
+import { useQuery } from "@tanstack/react-query";
 interface LoginPayload {
   email: string;
   password: string;
@@ -51,16 +51,25 @@ export const useCreatorSignup = () => {
     mutationFn: (data: CreatorSignupPayload) =>
       api.post("/auth/signup/creator", data),
 
-    onSuccess: (res: any) => {
-      sessionAuth.save({
-        email: res?.data?.user?.email,
-        role: "creator",
-        access_token: res?.data?.access_token,
-        token_type: res?.data?.token_type,
-      });
-      console.log("CREATOR SIGNUP SUCCESS:", res.data);
-      return res?.data;
-    },
+      onSuccess: (res: any) => {
+        const token = res?.data?.access_token;
+        
+        // Save to sessionAuth for app state
+        sessionAuth.save({
+          email: res?.data?.user?.email,
+          role: "creator",
+          access_token: token,
+          token_type: res?.data?.token_type,
+        });
+
+        // CRITICAL: Save to localStorage as 'token' so api.ts interceptor finds it
+        if (token) {
+          localStorage.setItem("token", token);
+        }
+        
+        console.log("Signup success, token stored:", token);
+        return res?.data;
+      },
 
     onError: (err: any) => {
       console.log("CREATOR SIGNUP ERROR:", err.response?.data);
@@ -121,7 +130,6 @@ export function useVerifyEmailOtp() {
   });
 }
 
-// Add this to your useAuth.ts if it's not there
 export const useForgotPassword = () => {
   return useMutation({
     mutationFn: async (email: string) => {
@@ -207,3 +215,50 @@ export const useJoinWaitlist = () => {
     },
   });
 };
+
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  user_type: "creator" | "brand" | string;
+  phone_number: string | null;
+  bio: string | null;
+  profile_picture_url: string | null;
+  is_email_verified: boolean;
+  is_phone_verified: boolean;
+  is_verified: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export function useGetMe() {
+  return useQuery<UserProfile>({
+    queryKey: ["me"],
+    queryFn: async () => {
+      const res = await api.get("/auth/me");
+      return res.data;
+    },
+    staleTime: 1000 * 60 * 5, // cache for 5 minutes
+    retry: false,
+  });
+}
+
+
+export interface ContactPayload {
+  full_name: string;
+  email: string;
+  role: "creator" | "brand"; // Matches backend casing variants
+  message: string;
+}
+
+export const useCreateContactMessage = () => {
+  return useMutation({
+    mutationFn: async (payload: ContactPayload) => {
+      const { data } = await api.post("/contact", payload);
+      return data;
+    },
+  });
+};
+

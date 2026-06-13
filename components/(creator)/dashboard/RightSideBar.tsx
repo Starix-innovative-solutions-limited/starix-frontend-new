@@ -10,18 +10,31 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import WithdrawModal from "./WithdrawModal";
 import JoinRequestModal from "./JoinRequestModal";
-
-const LEADERBOARD_DATA = [
-  { id: 1, name: "Jason oluwadarijimi", score: 96, trend: "neutral", avatar: "/no1.svg" },
-  { id: 2, name: "Sally Rivera", score: 96, trend: "up", avatar: "/no2.svg" },
-  { id: 3, name: "Sangotofunmi Oluwadar..", score: 96, trend: "down", avatar: "/no3.svg" },
-  { id: 127, name: "You", score: 96, trend: "up", avatar: "/no127.svg", isUser: true },
-];
+import { useGetMe } from "@/hooks/useAuth"; 
+import { useGetMyStarixScore, useGetGlobalLeaderboard } from "@/hooks/useProfile";
+import { useGetWithdrawalAccount, useGetEarningsSummary } from "@/hooks/useWallet";
 
 const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
   const pathname = usePathname();
+
+  const { data: userProfile } = useGetMe();
+
+ // Only use username if it's a proper string, not an email-derived fallback
+  const currentUsername = (userProfile as any)?.username ?? null;
+
+  const { data: scoreData } = useGetMyStarixScore(currentUsername);
+  const { data: leaderboardData } = useGetGlobalLeaderboard(currentUsername);
+  const { data: activeAccount, isLoading: isLoadingAccount } = useGetWithdrawalAccount();
   
-  const [earningsView, setEarningsView] = useState<'positive' | 'negative' | 'neutral' | 'all-time'>('positive');
+  // Dynamic switch period to support backend query schemas
+  const [earningsPeriod, setEarningsPeriod] = useState<'this_month' | 'all_time'>('this_month');
+
+  // Consume live API endpoint summaries cleanly
+  const { data: earningsSummary, isLoading: isLoadingEarnings } = useGetEarningsSummary({
+    period: earningsPeriod,
+    currency: "NGN",
+    tz: "Africa/Lagos"
+  });
 
   // Route Detection
   const isChallengeView = pathname.includes("/dashboard/challenge/");
@@ -32,7 +45,6 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   const [isJoinRequestModalOpen, setIsJoinRequestModalOpen] = useState(false);
   const [selectedCircleLogo, setSelectedCircleLogo] = useState("");
-  
 
   const isCreatorProfileView = 
     pathname.includes("/creator-circles/creator-profile") || 
@@ -55,6 +67,63 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
     { name: "Ekotibaje Already", percentage: "10%", avatar: "/no1.svg" },
     { name: "Ogunonipami Tijesunimi", percentage: "10%", avatar: "/no2.svg" },
   ];
+
+  // Dynamic Fallback state matching original scores
+  const activeStarixScore = scoreData?.starix_score ?? 0;
+
+  // Process leaderboard dynamic data logic
+  const renderedLeaderboard = React.useMemo(() => {
+  const currentUser = {
+    id: 0,  // 0 = unranked
+    name: userProfile?.first_name
+      ? `${userProfile.first_name} ${userProfile.last_name ?? ""}`.trim()
+      : currentUsername ?? "You",
+    score: activeStarixScore,
+    trend: "neutral",
+    avatar: (userProfile as any)?.profile_picture_url || "/no127.svg",
+    isUser: true,
+  };
+
+  if (!leaderboardData?.entries) {
+    return [
+      { id: 1, name: "—", score: 0, trend: "neutral", avatar: "/no1.svg", isUser: false },
+      { id: 2, name: "—", score: 0, trend: "neutral", avatar: "/no2.svg", isUser: false },
+      { id: 3, name: "—", score: 0, trend: "neutral", avatar: "/no3.svg", isUser: false },
+      currentUser,
+    ];
+  }
+
+  const list = leaderboardData.entries.map((entry) => ({
+    id: entry.rank,
+    name: entry.full_name || entry.username || "Creator",
+    score: entry.starix_score,
+    trend: entry.rank_direction === "stable" ? "neutral" : entry.rank_direction,
+    avatar: entry.profile_picture_url || "/no1.svg",
+    isUser: entry.user_id === leaderboardData.viewer_entry?.user_id,
+  }));
+
+  const userInList = list.some((item) => item.isUser);
+  if (!userInList) {
+    const viewer = leaderboardData.viewer_entry;
+    list.push({
+      id: viewer?.rank ?? 0,
+      name: currentUser.name,
+      score: viewer?.starix_score ?? activeStarixScore,
+      trend: viewer
+        ? viewer.rank_direction === "stable" ? "neutral" : viewer.rank_direction
+        : "neutral",
+      avatar: currentUser.avatar,
+      isUser: true,
+    });
+  }
+
+  return list;
+}, [leaderboardData, activeStarixScore, userProfile, currentUsername]);
+
+  // Extract plain balance value for WithdrawModal from structural pre-formatted string securely
+  const plainBalanceValue = earningsSummary?.total 
+    ? parseFloat(earningsSummary.total.replace(/[^0-9.]/g, '')) 
+    : 0;
 
   return (
     <aside
@@ -269,72 +338,91 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
               <div className="flex justify-between items-center mb-4">
                 <h4 className="text-[16px] font-semibold text-[#1E1F24]">Total Earnings</h4>
                 <div className="relative group">
-                  <button className="flex items-center gap-1 text-[14px] font-medium text-[#1E1F24]">
-                    {earningsView === 'all-time' ? 'All Time' : 'This Month'} <FiChevronDown size={16} />
+                  <button className="flex items-center gap-1 text-[14px] font-medium text-[#1E1F24] bg-gray-50 px-3 py-1.5 rounded-full hover:bg-gray-100 transition-all">
+                    {earningsPeriod === 'all_time' ? 'All Time' : 'This Month'} <FiChevronDown size={16} />
                   </button>
                   <div className="hidden group-hover:block absolute right-0 top-full bg-white border border-gray-100 rounded-xl shadow-xl z-20 py-2 w-32">
-                    {(['positive', 'negative', 'neutral', 'all-time'] as const).map(v => (
-                      <button 
-                        key={v} 
-                        onClick={() => setEarningsView(v)} 
-                        className="block w-full text-left px-4 py-2 text-xs capitalize hover:bg-gray-50 text-[#62636C]"
-                      >
-                        {v}
-                      </button>
-                    ))}
+                    <button 
+                      onClick={() => setEarningsPeriod('this_month')} 
+                      className={`block w-full text-left px-4 py-2 text-xs font-medium hover:bg-gray-50 ${earningsPeriod === 'this_month' ? 'text-[#0047FF]' : 'text-[#62636C]'}`}
+                    >
+                      This Month
+                    </button>
+                    <button 
+                      onClick={() => setEarningsPeriod('all_time')} 
+                      className={`block w-full text-left px-4 py-2 text-xs font-medium hover:bg-gray-50 ${earningsPeriod === 'all_time' ? 'text-[#0047FF]' : 'text-[#62636C]'}`}
+                    >
+                      All Time
+                    </button>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-baseline gap-1 mb-2">
-                <span className="text-[24px] font-semibold text-[#1E1F24]">₦432,000</span>
-                <span className="text-[24px] font-semibold text-[#80828D]">.00</span>
-              </div>
-
-              {earningsView === 'positive' && (
-                <div className="flex items-center gap-1.5 text-[#22C55E] text-[14px] font-medium">
-                  <span className="text-[18px]">+</span>
-                  <span>12% higher than last month</span>
+              {isLoadingEarnings ? (
+                <div className="py-4 flex items-center gap-2">
+                  <div className="w-5 h-5 border-2 border-[#8C9FFF] border-t-transparent rounded-full animate-spin" />
+                  <span className="text-xs text-gray-400 font-medium">Fetching summary...</span>
                 </div>
-              )}
+              ) : (
+                <>
+                  <div className="flex items-baseline mb-2">
+                    <span className="text-[28px] font-bold text-[#1E1F24] tracking-tight">
+                      {earningsSummary?.total || "₦0.00"}
+                    </span>
+                  </div>
 
-              {earningsView === 'negative' && (
-                <div className="flex items-center gap-1.5 text-[#FD6C1D] text-[14px] font-medium">
-                  <span className="text-[18px]">—</span>
-                  <span>4% lower than last month</span>
-                </div>
-              )}
-
-              {earningsView === 'neutral' && (
-                <div className="text-[#747682] text-[14px] font-medium">
-                  Same as last month
-                </div>
-              )}
-
-              {earningsView === 'all-time' && (
-                <div className="flex items-center gap-1.5 text-[#747682] text-[12px] font-medium">
-                  <FiInfo size={14} className="text-[#9CA3AF]" />
-                  <span>Recommended challenges increase chances to Earn</span>
-                </div>
+                  {earningsSummary?.comparison ? (
+                    <div className={`flex items-center gap-1 text-[13px] font-semibold ${earningsSummary.comparison.positive ? "text-[#22C55E]" : "text-red-500"}`}>
+                      <span>
+                        {earningsSummary.comparison.positive ? "↑" : "↓"} {earningsSummary.comparison.percentage}%
+                      </span>
+                      <span className="text-[#747682] font-medium">
+                        {earningsSummary.comparison.positive ? "higher" : "lower"} than {earningsSummary.comparison.label}
+                      </span>
+                    </div>
+                  ) : (
+                    earningsPeriod === 'all_time' && (
+                      <div className="flex items-center gap-1.5 text-[#747682] text-[12px] font-medium">
+                        <FiInfo size={14} className="text-[#9CA3AF]" />
+                        <span>Recommended challenges increase chances to Earn</span>
+                      </div>
+                    )
+                  )}
+                </>
               )}
             </div>
 
             <div className="bg-[#F9F9FB] border border-[#EFF0F3] rounded-[24px] p-6 shadow-xs">
               <h4 className="text-[16px] font-semibold text-[#1E1F24] mb-5">Withdrawal Account</h4>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className=" flex items-center justify-center ">
-                    <Image src="/zenith.svg" width={40} height={40} alt="Zenith Bank" className="object-contain" />
-                  </div>
-                  <div>
-                    <h5 className="text-[14px] font-semibold text-[#1E1F24]">0691081727 <span className="text-[#9CA3AF] font-medium">• Zenith</span></h5>
-                    <p className="text-[12px] text-[#62636C] mt-0.5">Desire Destiny Oludara</p>
-                  </div>
+              {isLoadingAccount ? (
+                <div className="flex items-center gap-2 py-1">
+                  <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
                 </div>
-                <button onClick={() => setIsWithdrawModalOpen(true)} className="px-2 py-2 border border-[#E5E7EB] rounded-full text-[11px] font-medium text-[#1E1F24] hover:bg-gray-50 transition-colors">
-                  Change
-                </button>
-              </div>
+              ) : activeAccount && activeAccount.is_active ? (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex items-center justify-center shrink-0 w-10 h-10 bg-white rounded-full border border-gray-50 p-1">
+                      <Image src="/zenith.svg" width={32} height={32} alt="Bank Logo" className="object-contain" onError={(e)=>{(e.target as any).src="/dashlogo.svg"}} />
+                    </div>
+                    <div className="min-w-0">
+                      <h5 className="text-[14px] font-bold text-[#1E1F24] truncate">
+                        {activeAccount.account_number} <span className="text-[#9CA3AF] font-medium">• {activeAccount.bank_name}</span>
+                      </h5>
+                      <p className="text-[12px] text-[#62636C] mt-0.5 truncate">{activeAccount.account_name}</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setIsWithdrawModalOpen(true)} className="px-3 py-2 bg-white border border-[#E5E7EB] rounded-full text-[11px] font-bold text-[#1E1F24] hover:bg-gray-50 active:scale-95 transition-all shrink-0">
+                    Change
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-medium text-[#62636C]">No payout destination saved.</p>
+                  <button onClick={() => setIsWithdrawModalOpen(true)} className="px-3 py-2 bg-[#111827] text-white rounded-full text-[11px] font-bold hover:bg-black active:scale-95 transition-all">
+                    Link Bank
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         ) : isChallengesListPage ? (
@@ -420,10 +508,12 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
                 <HiArrowRight className="text-[#9CA3AF]" size={18} />
               </div>
               <div className="bg-white rounded-t-[32px] pt-4">
-                {LEADERBOARD_DATA.map((user, idx) => (
+                {renderedLeaderboard.map((user, idx) => (
                   <div key={idx} className="flex items-center justify-between py-4 px-6">
                     <div className="flex items-center gap-3">
-                      <span className="text-[14px] font-semibold text-[#62636C] w-8">#{user.id}</span>
+                      <span className="text-[14px] font-semibold text-[#62636C] w-8">
+                        {user.id === 0 ? "—" : `#${user.id}`}
+                      </span>
                       <div className="relative w-8 h-8 rounded-full overflow-hidden border border-gray-100">
                         <Image src={user.avatar} fill alt={user.name} className="object-cover" />
                       </div>
@@ -435,14 +525,14 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
             </div>
           </div>
         ) : (
-          /* CASE 4: INITIAL DASHBOARD VIEW - RECONFIGURED FOR FIGMA UI ACCURACY */
+          /* CASE 4: INITIAL DASHBOARD VIEW - DRIVEN BY REAL LEADERBOARD SCHEMA */
           <div className="space-y-6">
             {/* Starix Score Panel */}
             <div className="bg-[#F5FBFF] border border-[#EBF2FF] rounded-[24px] p-6 relative">
               <div className="flex justify-between items-start">
                 <div>
                   <h4 className="text-[#1E1F24] text-[20px] font-semibold tracking-tight">Starix Score</h4>
-                  <p className="text-[#62636C] text-[10px] font-regular mt-1 leading-normal max-w-[240px]">
+                  <p className="text-[#62636C] text-[10px] font-normal mt-1 leading-normal max-w-[240px]">
                     A real-time measure of your creator performance, visibility, and brand readiness
                   </p>
                 </div>
@@ -451,17 +541,20 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
                 </div>
               </div>
 
-              {/* Progress Container */}
+              {/* Progress Container - Dynamic single bar schema styled inline */}
               <div className="w-full h-[10px] bg-[#D4EBFF] rounded-full mt-6 overflow-hidden"> 
-                <div className="w-[89%] h-full bg-[#4082FF] rounded-full" />
+                <div 
+                  className="h-full bg-[#4082FF] rounded-full transition-all duration-500 ease-out" 
+                  style={{ width: `${Math.min(Math.max(activeStarixScore, 0), 100)}%` }}
+                />
               </div>
 
               {/* Score Value & CTA Action */}
               <div className="flex justify-between items-center mt-6">
                 <div className="text-[40px] font-medium text-[#1E1F24] leading-none tracking-tight">
-                  89<span className="text-[20px] text-[#747682] font-medium ml-0.5">/100</span>
+                  {activeStarixScore}<span className="text-[20px] text-[#747682] font-medium ml-0.5">/100</span>
                 </div>
-                <button className="border border-[#8B8D98] text-[#1E1F24] px-5 py-2.5 rounded-full text-[12px] font-medium  hover:bg-gray-50 transition-colors cursor-pointer">
+                <button className="border border-[#8B8D98] text-[#1E1F24] px-5 py-2.5 rounded-full text-[12px] font-medium hover:bg-gray-50 transition-colors cursor-pointer">
                   Improve Score
                 </button>
               </div>
@@ -469,82 +562,44 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
 
             {/* Global Leaderboard Container Panel */}
             <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
-              <div className="flex items-center justify-between px-5 py-5 border-b border-[#F8FAFC]">
-                <h4 className="font-semibold text-[#1E1F24] text-[16px] tracking-tight">Global Leaderboard</h4>
-                <HiArrowRight className="text-[#62636C] cursor-pointer hover:text-blue-600 transition-colors" size={26} />
+              <div className="flex items-center justify-between px-6 py-5">
+                <h4 className="font-semibold text-[#1E1F24] text-[16px]">Global Leaderboard</h4>
+                <HiArrowRight className="text-[#1E1F24]" size={20} />
               </div>
-              
-              <div className="divide-y divide-[#F8FAFC]">
-                {LEADERBOARD_DATA.map((user) => (
-                  <div key={user.id} className="flex items-center justify-between py-4 px-5 transition-colors hover:bg-gray-50/40">
-                    <div className="flex items-center gap-3 overflow-hidden">
-                    <span className="text-[14px] font-semibold text-[#62636C] w-6 shrink-0">#{user.id}</span>
-                    
-                    {/* PROFILE IMAGE WITH GRADIENT SPLIT RING CONDITION */}
-                    <div 
-                      className={`
-                        relative w-10 h-10 shrink-0 rounded-full flex items-center justify-center p-[2px]
-                        ${user.isUser 
-                          ? "[background-image:conic-gradient(#0047FF_0deg_180deg,#FD6C1D_180deg_360deg)]" 
-                          : "border-2 border-[#73A4FF]"}
-                      `}
-                    >
-                      {/* Inner structural mask container for the avatar image */}
-                      <div className="w-full h-full rounded-full overflow-hidden relative bg-white">
-                        <Image src={user.avatar} fill alt={user.name} className="object-cover" />
-                      </div>
-                    </div>
-                    
-                    <span className={`text-[14px] font-semibold truncate ${user.isUser ? "text-[#1E1F24]" : "text-[#62636C]"}`}>
-                      {user.id === 127 ? "You" : user.name}
+              <div className="pb-2">
+                {renderedLeaderboard.map((user, idx) => (
+                <div key={idx} className={`flex items-center justify-between py-4 px-6 border-t border-[#F8FAFC] first:border-t-0 ${user.isUser ? "bg-[#FFF7ED]" : ""}`}>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[14px] font-semibold text-[#62636C] w-8">
+                      {user.id === 0 ? "—" : `#${user.id}`}
                     </span>
-                  </div>
-
-                    {/* Right-aligned Score Metrics & Status indicators */}
-                    <div className="flex items-center gap-1.5 shrink-0 pl-2">
-                      {user.trend === "up" && (
-                        <span className="text-[#22C55E] text-[15px] font-semibold leading-none">↑</span>
-                      )}
-                      {user.trend === "down" && (
-                        <span className="text-[#EF4444] text-[15px] font-semibold leading-none">↓</span>
-                      )}
-                      {user.trend === "neutral" && (
-                        <span className="text-[#9CA3AF] text-[26px] font-semibold leading-none select-none">•</span>
-                      )}
-                      
-                      <span className="text-[14px] font-semibold text-[#1E1F24]">{user.score}</span>
-                      <div className="relative w-4 h-4">
-                        <Image src="/contact star.svg" fill alt="Star Point Asset" className="object-contain" />
-                      </div>
+                    <div className={`relative w-8 h-8 rounded-full overflow-hidden border-2 ${user.isUser ? "border-orange-400" : "border-[#0047FF]"}`}>
+                      <Image src={user.avatar} fill alt={user.name} className="object-cover" />
                     </div>
+                    <span className={`text-[14px] font-semibold ${user.isUser ? "text-orange-500" : "text-[#62636C]"}`}>{user.name}</span>
                   </div>
-                ))}
+                  <div className="flex items-center gap-1.5">
+                    {user.trend === "up" ? (
+                      <span className="text-green-500 text-[14px] font-bold">↑</span>
+                    ) : user.trend === "down" ? (
+                      <span className="text-red-500 text-[14px] font-bold">↓</span>
+                    ) : (
+                      <span className="text-gray-300 text-[14px] font-bold">—</span>
+                    )}
+                    <span className="text-[14px] font-bold text-[#1E1F24]">{user.score}</span>
+                    <Image src="/contact star.svg" width={16} height={16} alt="points" />
+                  </div>
+                </div>
+              ))}
               </div>
             </div>
           </div>
         )}
-
-        {/* FOOTER */}
-        <div className="pt-4 pb-8">
-          <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-[12px] text-[#62636C] font-medium">
-            <Link href="#" className="hover:text-[#111827]">Creators</Link>
-            <Link href="#" className="hover:text-[#111827]">Terms</Link>
-            <Link href="#" className="hover:text-[#111827]">Privacy</Link>
-            <Link href="#" className="hover:text-[#111827]">Brands</Link>
-            <Link href="#" className="hover:text-[#111827]">Contact</Link>
-          </div>
-          <p className="text-center text-[10px] text-[#62636C] mt-5 font-regular">
-            ©2026 Starix. All Rights Reserved.
-          </p>
-        </div>
-        <WithdrawModal isOpen={isWithdrawModalOpen} onClose={() => setIsWithdrawModalOpen(false)} balance={432000} />
-        
-        <JoinRequestModal 
-            isOpen={isJoinRequestModalOpen} 
-            onClose={() => setIsJoinRequestModalOpen(false)} 
-            circleLogo={selectedCircleLogo}
-        />
       </div>
+
+      {/* MODAL INJECTIONS */}
+      <WithdrawModal isOpen={isWithdrawModalOpen} onClose={() => setIsWithdrawModalOpen(false)} balance={plainBalanceValue} />
+      <JoinRequestModal isOpen={isJoinRequestModalOpen} onClose={() => setIsJoinRequestModalOpen(false)} circleLogo={selectedCircleLogo} />
     </aside>
   );
 };

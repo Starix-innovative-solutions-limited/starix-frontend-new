@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { FiX, FiArrowLeft } from "react-icons/fi";
+import { useJoinCircle } from "@/hooks/useCircles";
 
 interface JoinCircleModalProps {
   isOpen: boolean;
@@ -10,13 +11,21 @@ interface JoinCircleModalProps {
 
 const JoinCircleModal = ({ isOpen, onClose }: JoinCircleModalProps) => {
   const [code, setCode] = useState("");
+  const joinMutation = useJoinCircle();
 
   if (!isOpen) return null;
 
   const handleJoin = () => {
-    // Logic to join circle with the code
-    console.log("Joining circle with code:", code);
-    onClose();
+    joinMutation.mutate(code, {
+      onSuccess: () => {
+        onClose();
+        setCode("");
+        // Add success handling/navigation here
+      },
+      onError: (err: any) => {
+        alert(err?.response?.data?.detail || "Failed to join circle.");
+      },
+    });
   };
 
   return (
@@ -59,14 +68,14 @@ const JoinCircleModal = ({ isOpen, onClose }: JoinCircleModalProps) => {
         {/* Action Button */}
         <button
           onClick={handleJoin}
-          disabled={code.length < 6}
+          disabled={code.length < 6 || joinMutation.isPending}
           className={`w-full py-5 rounded-full font-bold text-[16px] transition-all
-            ${code.length === 6 
+            ${code.length === 6 && !joinMutation.isPending
               ? "bg-[#0047FF] text-white hover:bg-blue-700 shadow-lg shadow-blue-100" 
               : "bg-[#93B1FF] text-white cursor-not-allowed opacity-80"}
           `}
         >
-          Join Circle
+          {joinMutation.isPending ? "Joining..." : "Join Circle"}
         </button>
       </div>
     </div>

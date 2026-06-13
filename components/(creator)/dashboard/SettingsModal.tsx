@@ -1,37 +1,99 @@
 import React, { useState, useRef, useEffect } from "react";
 import { GoX, GoArrowLeft, GoCopy, GoSearch, GoInfo } from "react-icons/go";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
+import { useGetCircle, useUpdateCircle, useRotateJoinCode, useClearJoinCode, useUpdateMemberRole, useGetCircleMembers } from "@/hooks/useCircles";
 
-// Mock data with placeholder avatars per your request
-const initialMembers = [
-  { id: 1, name: "Sangotofunmi Oluwadarasimi", role: "Admin", isYou: true, avatar: "https://i.pravatar.cc/150?u=1", percentage: 20, status: "Confirmed", color: "#F87171" },
-  { id: 2, name: "Kwame Nkrumah", role: "Admin", isYou: false, avatar: "https://i.pravatar.cc/150?u=2", percentage: 20, status: "Pending", color: "#60A5FA" },
-  { id: 3, name: "Adebayo Chidera", role: "Admin", isYou: false, avatar: "https://i.pravatar.cc/150?u=3", percentage: 10, status: "Confirmed", color: "#FBBF24" },
-  { id: 4, name: "Isabella Martinez", role: "Member", isYou: false, avatar: "https://i.pravatar.cc/150?u=4", percentage: 10, status: "Confirmed", color: "#34D399" },
-  { id: 5, name: "Agbarapo Omolile", role: "Member", isYou: false, avatar: "https://i.pravatar.cc/150?u=5", percentage: 10, status: "Confirmed", color: "#FCA5A5" },
-  { id: 6, name: "Alayemi Konibaje", role: "Member", isYou: false, avatar: "https://i.pravatar.cc/150?u=6", percentage: 10, status: "Confirmed", color: "#A5B4FC" },
-  { id: 7, name: "Ekotibaje Already", role: "Member", isYou: false, avatar: "https://i.pravatar.cc/150?u=7", percentage: 10, status: "Confirmed", color: "#F9A8D4" },
-  { id: 8, name: "Ogunonipami Tijesunimi", role: "Member", isYou: false, avatar: "https://i.pravatar.cc/150?u=8", percentage: 10, status: "Confirmed", color: "#99F6E4" },
-];
-
-const initialNiches = ["Beauty", "family and lifestyle", "skincare"];
 const suggestedNiches = ["Fashion", "Design & Arts", "IT & Communication", "Food & Drink"];
 
-const SettingsModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
-  const [activeTab, setActiveTab] = useState("Payout"); 
+// Maps the circle's `privacy` value to the read-only copy shown in the main view
+const PRIVACY_DESCRIPTIONS: Record<string, string> = {
+  public: "Anyone can request to join, subject to approval.",
+  private: "Only people with the invite code can join.",
+};
+
+interface SettingsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  circleId: string;
+}
+
+
+
+const SettingsModal = ({ isOpen, onClose, circleId }: SettingsModalProps) => {
+  // ── Live circle data
+  const { data: circle, isLoading: isCircleLoading } = useGetCircle(circleId);
+
+  const { data: members = [], isLoading: isMembersLoading } = useGetCircleMembers(circleId);
+
+  const [rotateSuccess, setRotateSuccess] = useState(false);
+  const updateCircle = useUpdateCircle(circleId);
+
+  const [activeTab, setActiveTab] = useState("Payout");
   const [view, setView] = useState<"main" | "edit" | "payout_setup" | "payout_edit">("main");
-  const [payoutSet, setPayoutSet] = useState(true); 
-  
-  const [members, setMembers] = useState(initialMembers);
-  const [selectedNiches, setSelectedNiches] = useState<string[]>(initialNiches);
+  const [payoutSet, setPayoutSet] = useState(true);
+
+
+  const [selectedNiches, setSelectedNiches] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
-  
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+
+  // ── Editable General-tab fields, synced from the live circle record
+  const [nameInput, setNameInput] = useState("");
+  const [descriptionInput, setDescriptionInput] = useState("");
+  const [justCopied, setJustCopied] = useState(false);
+
   const dropdownRef = useRef<HTMLDivElement>(null);
   const actionMenuRef = useRef<HTMLDivElement>(null);
 
-  const isAdminView = members.find(m => m.isYou)?.role === "Admin";
+  const currentUserId = "your-current-user-id"; 
+  const isAdminView = members.find(m => m.user_id === currentUserId)?.role === "Admin";
+  const rotateMutation = useRotateJoinCode(circleId);
+
+  const handleUpdateRole = async (userId: string, newRole: "admin" | "manager" | "member") => {
+    try {
+      await updateRoleMutation.mutateAsync({ userId, role: newRole });
+      setOpenDropdownId(null);
+    } catch (err: any) {
+      console.error("Failed to update role:", err);
+    }
+  };
+
+  const handleRotate = async () => {
+  setRotateSuccess(false);
+  
+  try {
+    await rotateMutation.mutateAsync();
+    
+    // Success feedback
+    setRotateSuccess(true);
+    setTimeout(() => setRotateSuccess(false), 3000); 
+  } catch (err: any) {
+    console.error("Failed to rotate:", err);
+  }
+};
+
+const clearCodeMutation = useClearJoinCode(circleId);
+
+const handleClearCode = async () => {
+  // Simple, clean UI logic without alerts
+  try {
+    await clearCodeMutation.mutateAsync();
+  } catch (err: any) {
+    console.error("Failed to clear code:", err);
+  }
+};
+
+const updateRoleMutation = useUpdateMemberRole(circleId);
+
+  // Populate edit fields + display niches whenever fresh circle data arrives
+  useEffect(() => {
+    if (circle) {
+      setNameInput(circle.name ?? "");
+      setDescriptionInput(circle.description ?? "");
+      setSelectedNiches(circle.niches ?? []);
+    }
+  }, [circle]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -60,6 +122,27 @@ const SettingsModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
     if (trimmed && !selectedNiches.includes(trimmed)) setSelectedNiches([...selectedNiches, trimmed]);
     setInputValue("");
     setIsDropdownOpen(false);
+  };
+
+  // ── PATCH /circles/:id — General settings save
+  const handleSaveGeneral = () => {
+    updateCircle.mutate(
+      {
+        name: nameInput,
+        description: descriptionInput,
+        niches: selectedNiches,
+      },
+      {
+        onSuccess: () => setView("main"),
+      }
+    );
+  };
+
+  const handleCopyJoinCode = () => {
+    if (!circle?.join_code) return;
+    navigator.clipboard.writeText(circle.join_code);
+    setJustCopied(true);
+    setTimeout(() => setJustCopied(false), 1500);
   };
 
   if (!isOpen) return null;
@@ -111,12 +194,14 @@ const SettingsModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
               <div className="space-y-6">
                 <div>
                   <label className="text-[12px] font-semibold text-[#1E1F24] block mb-1">Circle Name</label>
-                  <p className="text-[14px] text-[#62636C]">The New Yorker</p>
+                  <p className="text-[14px] text-[#62636C]">
+                    {isCircleLoading ? "Loading..." : circle?.name}
+                  </p>
                 </div>
                 <div className="border-t border-gray-50 pt-4">
                   <label className="text-[12px] font-semibold text-[#1E1F24] block mb-1">Description</label>
                   <p className="text-[14px] text-[#62636C] leading-relaxed">
-                    Pentagram is the world's most acclaimed creative collective, where 23 partners work independently and collaboratively.
+                    {isCircleLoading ? "Loading..." : circle?.description}
                   </p>
                 </div>
                 <div className="border-t border-gray-50 pt-4">
@@ -129,14 +214,52 @@ const SettingsModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                 </div>
                 <div className="border-t border-gray-50 pt-4">
                   <label className="text-[12px] font-semibold text-[#1E1F24] block mb-1">Who can join this circle?</label>
-                  <p className="text-[14px] text-[#62636C]">Anyone can request to join, subject to approval.</p>
+                  <p className="text-[14px] text-[#62636C]">
+                    {isCircleLoading
+                      ? "Loading..."
+                      : circle?.privacy
+                        ? PRIVACY_DESCRIPTIONS[circle.privacy]
+                        : "—"}
+                  </p>
                 </div>
-                <div className="border-t border-gray-50 pt-4 flex justify-between items-center">
-                  <div>
-                    <label className="text-[12px] font-semibold text-[#1E1F24] block mb-1">Circle Invitation Code</label>
-                    <p className="text-[14px] text-[#62636C]">1234AB</p>
+                <div className="border-t border-gray-50 pt-4 flex flex-col gap-3">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <label className="text-[12px] font-semibold text-[#1E1F24] block mb-1">Circle Invitation Code</label>
+                      <p className="text-[14px] text-[#62636C] font-mono tracking-wider">
+                        {isCircleLoading ? "Loading..." : circle?.join_code ?? "—"}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <GoCopy
+                        onClick={handleCopyJoinCode}
+                        className={`cursor-pointer transition-colors ${justCopied ? "text-green-500" : "text-gray-400 hover:text-blue-600"}`}
+                        size={20}
+                      />
+                    </div>
                   </div>
-                  <GoCopy className="text-gray-400 cursor-pointer hover:text-blue-600" size={20} />
+                  
+                  {/* Rotate Code Button */}
+                  <div className="flex gap-2 mt-2">
+                    <button 
+                      onClick={handleRotate}
+                      disabled={rotateMutation.isPending || clearCodeMutation.isPending}
+                      className="flex-1 py-3 border border-blue-100 rounded-xl text-[12px] font-semibold text-[#62636C] hover:bg-gray-50 disabled:opacity-50 transition"
+                    >
+                      {rotateMutation.isPending ? "Updating..." : "Update Code"}
+                    </button>
+                    
+                    <button 
+                      onClick={handleClearCode}
+                      disabled={rotateMutation.isPending || clearCodeMutation.isPending}
+                      className="flex-1 py-3 border border-red-100 rounded-xl text-[12px] font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50 transition"
+                    >
+                      {clearCodeMutation.isPending ? "Clearing..." : "Disable Code"}
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-red-600 text-center">
+                    Clicking this will immediately invalidate your current code.
+                  </p>
                 </div>
                 <button onClick={() => setView("edit")} className="w-full mt-2 bg-[#0033FF] text-white py-4 rounded-full font-semibold text-[14px] hover:bg-blue-700 transition">
                   Edit General Settings
@@ -146,7 +269,12 @@ const SettingsModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
               <div className="space-y-6">
                 <div>
                     <label className="text-[14px] font-semibold mb-2 block">Circle Name</label>
-                    <input type="text" defaultValue="Pentagram" className="w-full p-4 border border-gray-200 rounded-xl outline-none focus:border-blue-500" />
+                    <input
+                      type="text"
+                      value={nameInput}
+                      onChange={(e) => setNameInput(e.target.value)}
+                      className="w-full p-4 border border-gray-200 rounded-xl outline-none focus:border-blue-500"
+                    />
                 </div>
                 <div className="relative" ref={dropdownRef}>
                     <label className="text-[14px] font-semibold mb-2 block">Select 3 Niches for your Circles</label>
@@ -171,62 +299,55 @@ const SettingsModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                 </div>
                 <div>
                     <label className="text-[14px] font-semibold mb-2 block">Circle Description</label>
-                    <textarea rows={3} className="w-full p-4 border border-gray-200 rounded-xl resize-none outline-none focus:border-blue-500" defaultValue="Pentagram is the world's most acclaimed creative collective" />
+                    <textarea
+                      rows={3}
+                      value={descriptionInput}
+                      onChange={(e) => setDescriptionInput(e.target.value)}
+                      className="w-full p-4 border border-gray-200 rounded-xl resize-none outline-none focus:border-blue-500"
+                    />
                 </div>
-                <button className="w-full py-4 rounded-full font-semibold text-[14px] bg-[#0033FF] text-white">Save Changes</button>
+                {updateCircle.isError && (
+                  <p className="text-[12px] text-red-500">
+                    {(updateCircle.error as any)?.response?.data?.detail ?? "Failed to update circle. Please try again."}
+                  </p>
+                )}
+                <button
+                  onClick={handleSaveGeneral}
+                  disabled={updateCircle.isPending}
+                  className="w-full py-4 rounded-full font-semibold text-[14px] bg-[#0033FF] text-white disabled:opacity-60"
+                >
+                  {updateCircle.isPending ? "Saving..." : "Save Changes"}
+                </button>
               </div>
             )
           )}
 
           {/* ================= MEMBERSHIP TAB ================= */}
           {activeTab === "Membership" && (
-            <div className="space-y-6">
-                <div className="flex items-start gap-3 p-4 bg-[#F9FAFB] rounded-2xl border border-gray-100">
-                    <GoInfo className="text-[#9CA3AF] mt-0.5 shrink-0" size={18} />
-                    <p className="text-[12px] text-[#62636C] leading-tight">A Circle can only have 2-8 members. Only 2 out of the creators can be admins.</p>
-                </div>
-                <div className="space-y-6">
-                    {members.map((member) => (
-                        <div key={member.id} className="flex items-center justify-between relative">
-                            <div className="flex items-center gap-3">
-                                <img src={member.avatar} className="w-10 h-10 rounded-full border border-gray-100" alt="" />
-                                <span className="text-[14px] font-semibold">{member.name} {member.isYou && <span className="text-[#9CA3AF] font-normal">(you)</span>}</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <span className={`text-[12px] font-semibold px-3 py-1 rounded-full ${member.role === "Admin" ? "text-[#D847FF] bg-[#FDF2FF]" : "text-[#0085FF] bg-[#F0F7FF]"}`}>{member.role}</span>
-                                
-                                {isAdminView && !member.isYou && (
-                                  <div className="relative">
-                                    <button 
-                                      onClick={() => setOpenDropdownId(openDropdownId === member.id ? null : member.id)}
-                                      className="p-1 text-gray-400 hover:bg-gray-100 rounded-lg transition"
-                                    >
-                                      <HiOutlineDotsHorizontal size={20} />
-                                    </button>
-                                    
-                                    {/* ACTIONS DROPDOWN */}
-                                    {openDropdownId === member.id && (
-                                      <div 
-                                        ref={actionMenuRef}
-                                        className="absolute right-0 mt-2 w-[180px] bg-white border border-gray-100 rounded-2xl shadow-xl z-[110] py-2 animate-in fade-in zoom-in duration-150"
-                                      >
-                                        <button className="w-full text-left px-4 py-2 text-[13px] font-medium text-[#1E1F24] hover:bg-gray-50">
-                                          {member.role === "Admin" ? "Remove as Admin" : "Make Admin"}
-                                        </button>
-                                        <button className="w-full text-left px-4 py-2 text-[13px] font-medium text-[#FF3B30] hover:bg-red-50">
-                                          Remove from circle
-                                        </button>
-                                      </div>
-                                    )}
-                                  </div>
-                                )}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-                {isAdminView && <button className="w-fit bg-[#0033FF] text-white px-8 py-4 rounded-full font-semibold text-[14px] mt-4">Invite Members</button>}
-            </div>
-          )}
+          <div className="space-y-6">
+            {isMembersLoading ? (
+              <p className="text-sm text-gray-500">Loading members...</p>
+            ) : (
+              <div className="space-y-6">
+                {members.map((member: any) => (
+                  <div key={member.user_id} className="flex items-center justify-between">
+                    <span className="text-[14px] font-semibold">{member.name}</span>
+                    <button 
+                      onClick={() => handleUpdateRole(
+                        member.user_id, 
+                        member.role.toLowerCase() === "admin" ? "member" : "admin"
+                      )}
+                      className="text-[12px] font-medium text-blue-600 hover:underline disabled:opacity-50"
+                      disabled={updateRoleMutation.isPending}
+                    >
+                      {member.role.toLowerCase() === "admin" ? "Remove Admin" : "Make Admin"}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
           {/* ================= PAYOUT TAB ================= */}
           {activeTab === "Payout" && (
@@ -266,19 +387,20 @@ const SettingsModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
 
                         <div className="space-y-5 pt-4">
                             {members.map((m) => (
-                                <div key={m.id} className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: m.color }} />
-                                        <img src={m.avatar} className="w-8 h-8 rounded-full border border-gray-100" alt="" />
-                                        <span className="text-[14px] font-medium text-[#1E1F24]">
-                                            {m.name} {m.isYou && <span className="text-[#9CA3AF]">(you)</span>}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center gap-4">
-                                        <span className="text-[14px] font-semibold text-[#1E1F24]">{m.percentage}%</span>
-                                        <span className={`text-[10px] font-semibold px-3 py-1 rounded-md ${m.status === "Confirmed" ? "text-[#059669] bg-[#ECFDF5]" : "text-[#D97706] bg-[#FFFBEB]"}`}>{m.status}</span>
-                                    </div>
-                                </div>
+                              <div key={m.user_id} className="flex items-center justify-between">
+                                  <div className="flex items-center gap-3">
+                                      {/* Ensure these properties exist in your API response */}
+                                      <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: m.color }} />
+                                      <img src={m.avatar} className="w-8 h-8 rounded-full border border-gray-100" alt="" />
+                                      <span className="text-[14px] font-medium text-[#1E1F24]">
+                                          {m.name} {m.isYou && <span className="text-[#9CA3AF]">(you)</span>}
+                                      </span>
+                                  </div>
+                                  <div className="flex items-center gap-4">
+                                      <span className="text-[14px] font-semibold text-[#1E1F24]">{m.percentage}%</span>
+                                      <span className={`text-[10px] font-semibold px-3 py-1 rounded-md ${m.status === "Confirmed" ? "text-[#059669] bg-[#ECFDF5]" : "text-[#D97706] bg-[#FFFBEB]"}`}>{m.status}</span>
+                                  </div>
+                              </div>
                             ))}
                         </div>
                         <button onClick={() => setView("payout_edit")} className="w-full bg-[#0033FF] text-white py-4 rounded-full font-semibold text-[14px]">Change Payout Percentages</button>

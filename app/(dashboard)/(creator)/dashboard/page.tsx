@@ -7,8 +7,15 @@ import Link from "next/link";
 import { HiArrowRight, HiArrowLeft } from "react-icons/hi2";
 import { MdVerified } from "react-icons/md";
 import { FiBarChart2, FiMail, FiClock, FiBookmark, FiShare2 } from "react-icons/fi";
+import { useGetMe } from "@/hooks/useAuth";
+import { useGetJoinedActiveChallenges } from "@/hooks/useChallenges";
 
 const Page = () => {
+  const { data: user } = useGetMe();
+  
+  // 1. Fetch real-time active joined challenges from the server
+  const { data: joinedData, isLoading: isChallengesLoading } = useGetJoinedActiveChallenges();
+
   const recommendedChallenges = [
     {
       id: 1,
@@ -48,23 +55,90 @@ const Page = () => {
     },
   ];
 
-  const activeChallenges = [
-    { brand: "Starbucks", logo: "/starbucks.svg", status: "In Progress", color: "bg-[#FEFCE8] text-[#854D0E]" },
-    { brand: "PlayStation", logo: "/ps.svg", status: "Awaiting Review", color: "bg-[#F5F3FF] text-[#5B21B6]" },
-    { brand: "McDonalds", logo: "/mcdonald.svg", status: "Approved", color: "bg-[#75C0F41A] text-[#2D93D0]" },
+  // Static fallback data matrix used if database returns zero rows
+  const staticActiveChallenges = [
+    { 
+      id: "active-0",
+      title: "UGC Creators Needed for Skincare Product",
+      brand: "Starbucks", 
+      logo: "/starbucks.svg", 
+      status: "In Progress", 
+      pool: "₦10M pool",
+      color: "bg-[#FEFCE8] text-[#854D0E]" 
+    },
+    { 
+      id: "active-1",
+      title: "UGC Creators Needed for Skincare Product",
+      brand: "PlayStation", 
+      logo: "/ps.svg", 
+      status: "Awaiting Review", 
+      pool: "₦10M pool",
+      color: "bg-[#F5F3FF] text-[#5B21B6]" 
+    },
+    { 
+      id: "active-2",
+      title: "UGC Creators Needed for Skincare Product",
+      brand: "McDonalds", 
+      logo: "/mcdonald.svg", 
+      status: "Approved", 
+      pool: "₦10M pool",
+      color: "bg-[#75C0F41A] text-[#2D93D0]" 
+    },
   ];
 
+  // Helper function to dynamically map arbitrary backend string tokens to pristine styling tags
+  const getStatusColorStyle = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case "in_progress":
+      case "in progress":
+        return "bg-[#FEFCE8] text-[#854D0E]";
+      case "awaiting_review":
+      case "awaiting review":
+      case "under_review":
+        return "bg-[#F5F3FF] text-[#5B21B6]";
+      case "approved":
+      case "completed":
+        return "bg-[#75C0F41A] text-[#2D93D0]";
+      default:
+        return "bg-[#F3F4F6] text-[#6B7280]";
+    }
+  };
+
+  // Helper function to clarify machine-friendly status variants into gorgeous text symbols
+  const formatStatusText = (status: string) => {
+    if (!status) return "In Progress";
+    return status
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
+  // 2. Compute dynamic dataset: Use database response if items exist, otherwise fall back to static list
+  const activeChallenges = React.useMemo(() => {
+    if (joinedData && joinedData.items && joinedData.items.length > 0) {
+      return joinedData.items.map((item) => ({
+        id: item.challenge_id,
+        title: item.title,
+        brand: item.brand_name,
+        logo: item.brand_logo_url || "/dash-logo.svg",
+        status: formatStatusText(item.status),
+        pool: `${item.prize_pool_formatted} pool`,
+        color: getStatusColorStyle(item.status),
+      }));
+    }
+    return staticActiveChallenges;
+  }, [joinedData]);
+
   return (
-    /* Added min-w-0 to prevent layout blowout when trapped between open sidebars */
     <div className="min-h-screen w-full bg-white min-w-0 overflow-hidden">
       {/* 1. Header Section */}
       <header className="flex items-center justify-between mb-10">
         <div>
           <h1 className="text-[22px] md:text-[24px] font-semibold text-[#1E1F24] flex items-center gap-2 tracking-tight">
-            Welcome Back, Destiny 👋
+            Welcome Back {user ? user.first_name : "Creator"}!
           </h1>
           <p className="text-[#6B7280] text-[14px] mt-1 font-medium">
-            You have 3 new campaign matches today
+            You have {activeChallenges.length} campaign matches moving today
           </p>
         </div>
         
@@ -107,7 +181,6 @@ const Page = () => {
           </Link>
         </div>
           
-        {/* SLIDER WRAPPER CONTAINER */}
         <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory w-full min-w-0">
           {recommendedChallenges.map((challenge) => (
             <Link 
@@ -175,7 +248,6 @@ const Page = () => {
               </div>
 
               <div>
-                {/* Optimized thumbnail grid with aspect ratio tracking for lower dynamic profile height */}
                 <div className="grid grid-cols-2 gap-2 mb-4">
                   {challenge.thumbnails.map((img, i) => (
                     <div key={i} className="aspect-[4/3] w-full rounded-[16px] relative overflow-hidden group bg-gray-50">
@@ -204,7 +276,7 @@ const Page = () => {
         </div>
       </section>
 
-      {/* 3. Active Challenges */}
+      {/* 3. Active Challenges Section */}
       <section className="pb-2">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-[18px] md:text-[20px] font-semibold text-[#62636C]">Active Challenges</h2>
@@ -214,33 +286,41 @@ const Page = () => {
         </div>
 
         <div className="space-y-1">
-          {activeChallenges.map((active, idx) => (
-            <Link 
-              key={idx} 
-              href={`/dashboard/challenge/active-${idx}`}
-              className="flex items-center justify-between py-3 border-b border-[#F3F4F6] last:border-0 hover:bg-gray-50/50 transition-colors px-2 rounded-xl"
-            >
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="relative w-10 h-10 md:w-15 md:h-15 rounded-full overflow-hidden shrink-0">
-                  <Image src={active.logo} alt={active.brand} fill className="object-contain" />
-                </div>
-                <div className="truncate">
-                  <h4 className="font-semibold text-[#374151] text-[13px] md:text-[14px] truncate">UGC Creators Needed for Skincare Product</h4>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[12px] text-[#6B7280] font-semibold">{active.brand}</span>
-                    <MdVerified className="text-[#22C55E]" size={12} />
-                    <span className="text-[11px] text-[#9CA3AF] font-medium">• ₦10M pool</span>
+          {isChallengesLoading ? (
+            <div className="w-full py-6 text-center text-xs text-gray-400 font-medium">
+              Syncing active campaigns...
+            </div>
+          ) : (
+            activeChallenges.map((active) => (
+              <Link 
+                key={active.id} 
+                href={`/dashboard/challenge/${active.id}`}
+                className="flex items-center justify-between py-3 border-b border-[#F3F4F6] last:border-0 hover:bg-gray-50/50 transition-colors px-2 rounded-xl"
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="relative w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden shrink-0 border border-gray-100 bg-gray-50">
+                    <Image src={active.logo} alt={active.brand} fill className="object-cover" />
+                  </div>
+                  <div className="truncate">
+                    <h4 className="font-semibold text-[#374151] text-[13px] md:text-[14px] truncate">
+                      {active.title}
+                    </h4>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-[12px] text-[#6B7280] font-semibold truncate max-w-[120px]">{active.brand}</span>
+                      <MdVerified className="text-[#22C55E] shrink-0" size={12} />
+                      <span className="text-[11px] text-[#9CA3AF] font-medium shrink-0">• {active.pool}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <span className={`px-3 md:px-5 py-1.5 md:py-2 rounded-full text-[10px] md:text-[11px] font-semibold tracking-tight shrink-0 ${active.color}`}>
-                {active.status}
-              </span>
-            </Link>
+                <span className={`px-3 md:px-5 py-1.5 md:py-2 rounded-full text-[10px] md:text-[11px] font-bold uppercase tracking-wide text-center min-w-[95px] shrink-0 ${active.color}`}>
+                  {active.status}
+                </span>
+              </Link>
+            )
           ))}
         </div>
 
-        {/* Pagination */}
+        {/* Pagination Section */}
         <div className="flex justify-between items-center w-full mt-12 px-1">
           <button className="px-3 md:px-5 py-2 border border-[#E5E7EB] rounded-full text-[14px] font-regular text-[#111827] flex items-center gap-1 hover:bg-gray-50 transition-all">
             <HiArrowLeft size={14} /> Previous
