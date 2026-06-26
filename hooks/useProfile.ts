@@ -3,50 +3,52 @@ import { api } from "@/lib/api";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import axios from "axios";
+
+export interface CreatorProfile {
+  first_name: string;
+  last_name: string;
+  username: string;
+  profile_picture_url: string;
+  banner_url: string;
+  niches: string[];
+  total_completed_challenges: number;
+  connected_platforms: { platform: string; username: string }[];
+  lifetime_engagements: number;
+  starix_score?: number; // Optional because it's hidden if private
+  bio: string;
+}
+
+export const useGetCreatorProfile = (username: string, options?: any) => {
+  return useQuery<CreatorProfile>({
+    queryKey: ["creatorProfile", username],
+    queryFn: async () => {
+      const { data } = await api.get(`/creators/${username}/profile`);
+      return data;
+    },
+    enabled: !!username,
+    ...options,
+  });
+};
 
 export function useCreatorProfile() {
-  const { setProfile } = useAuthStore(); // 💡 Get the setter
+  const { setProfile } = useAuthStore();
 
   return useQuery({
-    queryKey: ["creatorProfile"],
+    queryKey: ["authMe"], // Changed key to avoid collision
     queryFn: async () => {
       const { data } = await api.get("/auth/me");
-      // 💡 Sync store whenever we fetch the profile
       if (data) setProfile(data); 
       return data;
     },
-    enabled:
-      useAuthStore?.getState().isAuthenticated &&
-      !!useAuthStore.getState().token,
+    enabled: !!useAuthStore.getState().token,
   });
 }
 
-export function useUpdateCreatorProfile() {
-  const queryClient = useQueryClient();
-  const { setProfile } = useAuthStore(); // 💡 Get the setter
 
-  return useMutation({
-    mutationFn: async (data: any) => {
-      // Axios handles objects as JSON and FormData as multipart automatically
-      const response = await api.patch("/auth/me", data);
-      return response.data; // Return data directly for the component
-    },
-    onSuccess: (updatedData: any) => {
-      console.log("PROFILE UPDATE SUCCESS:", updatedData);
-      
-      // 1. Refresh the cache for this query
-      queryClient.invalidateQueries({ queryKey: ["creatorProfile"] });
 
-      // 2. 💡 Sync the Zustand store immediately so the whole app updates
-      if (updatedData) {
-        setProfile(updatedData);
-      }
-    },
-    onError: (err: any) => {
-      console.error("PROFILE UPDATE ERROR:", err.response?.data || err.message);
-    },
-  });
-}
+
+
 
 export interface StarixScoreResponse {
   user_id: string;
@@ -61,21 +63,22 @@ export interface StarixScoreResponse {
 
 
 // Updated Frontend Hook to match a dynamic backend adjustment
-export const useGetMyStarixScore = (username: string | undefined) => {
+export const useGetMyStarixScore = () => {
   return useQuery({
-    queryKey: ["starix-score", username],
+    queryKey: ["starix-score", "me"],
     queryFn: async () => {
-      if (!username) return null;
       try {
-        const { data } = await api.get(`/starix-score/${username}`);
+        const { data } = await api.get("/starix-score/me");
         return data;
       } catch (error) {
         const axiosError = error as AxiosError;
+        // If 404, it means the score hasn't been calculated yet
         if (axiosError.response?.status === 404) return null;
         throw error;
       }
     },
-    enabled: !!username,
+    // Only fetch if the user is authenticated (assuming you have a way to check auth)
+    enabled: !!useAuthStore.getState().token,
   });
 };
 
@@ -118,5 +121,148 @@ export const useGetGlobalLeaderboard = (username: string | undefined) => {
       }
     },
     enabled: !!username,
+  });
+};
+
+
+export type UpdateCreatorProfilePayload = {
+  profile_picture_url?: string;
+  banner_url?: string;
+  starix_score_visibility?: "public" | "private";
+  niches?: string[];
+};
+
+type UploadTarget = "profile_picture" | "user_banner";
+
+type UploadUrlResponse = {
+  upload_url: string;
+  object_key: string;
+  public_url: string;
+  expires_in: number;
+};
+
+export async function uploadUserMedia(file: File, target: UploadTarget) {
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error("Image must be 5MB or smaller.");
+  }
+
+  const { data } = await api.post<UploadUrlResponse>("/media/upload-url", {
+    target,
+    filename: file.name,
+    content_type: file.type,
+  });
+
+  await fetch(data.upload_url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": file.type,
+    },
+    body: file,
+  });
+
+  return data.public_url;
+}
+
+export function useUpdateCreatorProfile() {
+  const queryClient = useQueryClient();
+  const { setProfile } = useAuthStore();
+
+  return useMutation({
+    mutationFn: async (payload: UpdateCreatorProfilePayload) => {
+      const { data } = await api.patch("/auth/me", payload);
+      return data;
+    },
+    onSuccess: (updatedData: any) => {
+      queryClient.invalidateQueries({ queryKey: ["authMe"] });
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+
+      queryClient.setQueryData(["authMe"], updatedData);
+      queryClient.setQueryData(["me"], updatedData);
+
+      if (updatedData) setProfile(updatedData);
+    },
+  });
+}
+
+export interface CreatorMetricsResponse {
+  lifetime_earnings: {
+    currency: string;
+    total_minor: number;
+  }[];
+  lifetime_engagement: number;
+  global_rank: number | null;
+}
+
+export const useGetCreatorMetrics = (
+  username: string | undefined,
+  options?: any
+) => {
+  return useQuery<CreatorMetricsResponse | null>({
+    queryKey: ["creatorMetrics", username],
+    queryFn: async () => {
+      if (!username) return null;
+
+      const { data } = await api.get<CreatorMetricsResponse>(
+        `/creators/${username}/metrics`
+      );
+
+      return data;
+    },
+    enabled: !!username,
+    ...options,
+  });
+};
+
+export interface CreatorCircle {
+  circle_id: string;
+  user_id: string;
+  username: string;
+  full_name: string;
+  profile_picture_url: string | null;
+  global_rank: number;
+  active_challenge_count: number;
+  role: "admin" | "manager" | "member";
+  members: {
+    user_id: string;
+    profile_picture_url: string | null;
+  }[];
+  member_count: number;
+}
+
+export interface CreatorCirclesResponse {
+  items: CreatorCircle[];
+  page: number;
+  page_size: number;
+  total_items: number;
+  total_pages: number;
+  prev_url: string | null;
+  next_url: string | null;
+}
+
+export const useGetCreatorCircles = (
+  username: string | undefined,
+  page = 1,
+  pageSize = 4,
+  options?: any
+) => {
+  return useQuery<CreatorCirclesResponse | null>({
+    queryKey: ["creatorCircles", username, page, pageSize],
+    queryFn: async () => {
+      if (!username) return null;
+
+      const { data } = await api.get<CreatorCirclesResponse>(
+        `/creators/${username}/circles`,
+        {
+          params: {
+            page,
+            page_size: pageSize,
+          },
+        }
+      );
+
+      return data;
+    },
+    enabled: !!username,
+    ...options,
   });
 };

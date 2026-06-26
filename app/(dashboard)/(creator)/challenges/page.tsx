@@ -9,7 +9,8 @@ import Image from "next/image";
 import { 
   useGetChallenges, 
   useGetJoinedActiveChallenges, 
-  useGetJoinedCompletedChallenges 
+  useGetJoinedCompletedChallenges ,
+  useGetSavedChallenges
 } from "@/hooks/useChallenges"; 
 import Loader from "@/components/Loader"; 
 
@@ -31,10 +32,10 @@ const ChallengesPage = () => {
   } = useGetJoinedCompletedChallenges();
 
   const { 
-    data: savedData, 
-    isLoading: savedLoading, 
-    isError: savedError 
-  } = useGetChallenges({ is_saved: true } as any);
+  data: savedData, 
+  isLoading: savedLoading, 
+  isError: savedError 
+} = useGetSavedChallenges();
 
   // 2. Compute dynamic lifecycle state based on current tab contextual placement
   const isLoading = 
@@ -76,16 +77,19 @@ const ChallengesPage = () => {
     }
 
     // SAVED TAB ROUTING
-    if (!savedData?.challenges) return [];
-    return savedData.challenges.filter((c: any) => c.is_saved).map((item) => ({
-      id: item.id,
+    if (activeTab === "Saved") {
+    if (!savedData?.items) return [];
+    return savedData.items.map((item) => ({
+      id: item.challenge_id,
       title: item.title,
       brand_name: item.brand_name,
-      brand_profile_picture_url: item.brand_profile_picture_url,
-      prize_pool_display: item.prize_pool_display,
-      status: item.status || "Saved",
+      brand_profile_picture_url: item.brand_logo_url,
+      prize_pool_display: item.prize_pool_formatted,
+      status: "Saved",
     }));
-  }, [activeTab, activeData, completedData, savedData]);
+  }
+  return [];
+}, [activeTab, activeData, completedData, savedData]);
 
   // 4. Client Side Dynamic Parameter Keyword Filters
   const filteredChallenges = React.useMemo(() => {
@@ -199,12 +203,12 @@ const ChallengesPage = () => {
                   exit={{ opacity: 0 }}
                   className="w-full flex flex-col items-center justify-center py-16 px-4 text-center"
                 >
-                  <div className="w-24 h-24 bg-[#F9F9FB] border border-[#EFF0F3] rounded-[24px] flex items-center justify-center mb-4 ">
+                  <div className="flex items-center justify-center mb-4 ">
                     <Image 
-                      src="/icon-logs.svg" 
+                      src="/dashlogo.svg" 
                       alt="No challenges" 
-                      width={40} 
-                      height={40} 
+                      width={96}
+                      height={96} 
                       className="opacity object-contain" 
                     />
                   </div>

@@ -325,39 +325,6 @@ const isSetupFlowActive =
                 <h2 className="text-[18px] font-bold text-[#111827] tracking-tight">
                   {step === "settings" && "Wallet Settings"}
                   {step === "set-pin" && "Set Wallet PIN"}
-                  {step === "set-security-questions" && (
-                    <div className="space-y-4">
-                      {/* ... */}
-                      <div className="space-y-1.5">
-                        <label className="text-[13px] font-semibold text-[#1E1F24]">Select Question</label>
-                        {isLoadingCatalog ? (
-                          <div className="w-full h-[50px] bg-gray-50 rounded-[16px] animate-pulse" />
-                        ) : (
-                          <select 
-                            value={chosenQuestionKey}
-                            onChange={(e) => setChosenQuestionKey(e.target.value)}
-                            className="w-full px-4 py-3.5 border border-[#E5E7EB] bg-white rounded-[16px] text-[14px] font-medium text-[#111827] focus:border-[#0047FF] outline-none"
-                          >
-                            {questionCatalog?.map((q) => (
-                              <option key={q.key} value={q.key}>{q.label}</option>
-                            ))}
-                          </select>
-                        )}
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className="text-[13px] font-semibold text-[#1E1F24]">Your Secret Answer</label>
-                        <input 
-                          type="text" 
-                          placeholder="Type your secure answer here..."
-                          value={securityAnswer}
-                          onChange={(e) => setSecurityAnswer(e.target.value)}
-                          className="w-full px-5 py-4 border border-[#E5E7EB] rounded-[16px] text-[14px] focus:border-[#0047FF] outline-none"
-                        />
-                      </div>
-                      {/* ... */}
-                    </div>
-                  )}
                   {step === "change-pin" && "Change Wallet PIN"}
                   {step === "change-account" && "Change Withdrawal Account"}
                   {step === "reset-pin-recovery" && "Reset Wallet PIN"}

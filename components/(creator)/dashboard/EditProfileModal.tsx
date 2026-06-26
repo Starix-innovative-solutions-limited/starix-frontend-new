@@ -1,8 +1,16 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import {
+  uploadUserMedia
+} from "@/hooks/useProfile";
 import Image from "next/image";
 
+type UpdateCreatorProfilePayload = {
+  profile_picture_url?: string;
+  banner_url?: string;
+  starix_score_visibility?: "public" | "private";
+};
 interface EditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -11,12 +19,10 @@ interface EditProfileModalProps {
     bannerImage: string;
     scoreVisibility: string;
   };
-  onSave: (updatedData: {
-    profileImage: string;
-    bannerImage: string;
-    scoreVisibility: string;
-  }) => void;
+  onSave: (payload: UpdateCreatorProfilePayload) => void;
 }
+
+
 
 const EditProfileModal = ({ isOpen, onClose, currentProfile, onSave }: EditProfileModalProps) => {
   // Temporary Form States holding local object preview URLs or file strings
@@ -27,6 +33,9 @@ const EditProfileModal = ({ isOpen, onClose, currentProfile, onSave }: EditProfi
   // Native HTML Input Dom references to programmatically trigger OS file picker sheets
   const profileInputRef = useRef<HTMLInputElement | null>(null);
   const bannerInputRef = useRef<HTMLInputElement | null>(null);
+
+  const profileFileRef = useRef<File | null>(null);
+  const bannerFileRef = useRef<File | null>(null);
 
   // Sync internal temporary state whenever the modal opens with fresh data
   useEffect(() => {
@@ -47,50 +56,58 @@ const EditProfileModal = ({ isOpen, onClose, currentProfile, onSave }: EditProfi
 
   // Process selected file streams safely for local client browser instances
   const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>, 
-    setImgState: React.Dispatch<React.SetStateAction<string | null>>
-  ) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validate file size limit (20MB as requested by Figma specifications)
-      if (file.size > 20 * 1024 * 1024) {
-        alert("File size exceeds the 20MB maximum limit.");
-        return;
-      }
-      
-      // Creates a secure, local system blob URL string instance readable by Next.js <Image />
-      const localPreviewUrl = URL.createObjectURL(file);
-      setImgState(localPreviewUrl);
-    }
+  e: React.ChangeEvent<HTMLInputElement>,
+  setImgState: React.Dispatch<React.SetStateAction<string | null>>,
+  fileRef: React.MutableRefObject<File | null>
+) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  fileRef.current = file;
+  setImgState(URL.createObjectURL(file));
+  e.target.value = "";
+};
+
+  const handleSubmit = async () => {
+  const payload: UpdateCreatorProfilePayload = {
+    starix_score_visibility: tempVisibility === "only-me" ? "private" : "public",
   };
 
-  const handleSubmit = () => {
-    if (!isDirty) return; // Prevent submission if no changes were made
-    
-    onSave({
-      profileImage: tempProfileImg || "/no127.svg", // Falls back to default asset string if cleared empty
-      bannerImage: tempBannerImg || "",
-      scoreVisibility: tempVisibility,
-    });
-  };
+  if (profileFileRef.current) {
+    payload.profile_picture_url = await uploadUserMedia(
+      profileFileRef.current,
+      "profile_picture"
+    );
+  }
+
+  if (bannerFileRef.current) {
+    payload.banner_url = await uploadUserMedia(
+      bannerFileRef.current,
+      "user_banner"
+    );
+  }
+
+  onSave(payload);
+};
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs transition-opacity duration-300">
       
       {/* HIDDEN RAW FILE ELEMENT ATTACHMENTS */}
-      <input 
-        type="file" 
-        ref={profileInputRef} 
-        accept="image/png, image/jpeg, image/jpg" 
-        className="hidden" 
-        onChange={(e) => handleFileChange(e, setTempProfileImg)}
+      <input
+        type="file"
+        ref={profileInputRef}
+        accept="image/png, image/jpeg, image/webp"
+        className="hidden"
+        onChange={(e) => handleFileChange(e, setTempProfileImg, profileFileRef)}
       />
-      <input 
-        type="file" 
-        ref={bannerInputRef} 
-        accept="image/png, image/jpeg, image/jpg" 
-        className="hidden" 
-        onChange={(e) => handleFileChange(e, setTempBannerImg)}
+
+      <input
+        type="file"
+        ref={bannerInputRef}
+        accept="image/png, image/jpeg, image/webp"
+        className="hidden"
+        onChange={(e) => handleFileChange(e, setTempBannerImg, bannerFileRef)}
       />
 
       {/* MODAL CARD BODY */}
@@ -133,7 +150,10 @@ const EditProfileModal = ({ isOpen, onClose, currentProfile, onSave }: EditProfi
                   <div className="flex items-center gap-2">
                     <button 
                       type="button"
-                      onClick={() => profileInputRef.current?.click()}
+                      onClick={() => {
+                        setTempBannerImg(null);
+                        bannerFileRef.current = null;
+                      }}
                       className="px-3 py-1.5 text-[13px] font-semibold text-[#1E1F24] border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition flex items-center gap-1 cursor-pointer"
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
@@ -141,7 +161,10 @@ const EditProfileModal = ({ isOpen, onClose, currentProfile, onSave }: EditProfi
                     </button>
                     <button 
                       type="button"
-                      onClick={() => setTempProfileImg(null)}
+                      onClick={() => {
+                        setTempProfileImg(null);
+                        profileFileRef.current = null;
+                      }}
                       className="px-3 py-1.5 text-[13px] font-semibold text-[#1E1F24] border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition flex items-center gap-1 cursor-pointer"
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -263,8 +286,8 @@ const EditProfileModal = ({ isOpen, onClose, currentProfile, onSave }: EditProfi
               disabled={!isDirty}
               onClick={handleSubmit}
               className={`w-full h-[46px] rounded-full font-semibold text-[14px] transition shadow-xs flex items-center justify-center ${
-                isDirty 
-                  ? "bg-[#245BFF] hover:bg-[#1A4BFF] text-white cursor-pointer" 
+                isDirty
+                  ? "bg-[#245BFF] hover:bg-[#1A4BFF] text-white cursor-pointer"
                   : "bg-[#D2D4DA] text-white cursor-not-allowed"
               }`}
             >

@@ -132,7 +132,7 @@ export default function WithdrawModal({ isOpen, onClose, balance: initialBalance
     }, {
       onSuccess: (data) => {
         if (!data.sufficient) {
-          setErrors((prev) => ({ ...prev, amount: "Insufficient balance for this tier execution." }));
+          setErrors((prev) => ({ ...prev, amount: "Insufficient balance for this transaction." }));
           return;
         }
         setStep("preview");
@@ -175,7 +175,7 @@ export default function WithdrawModal({ isOpen, onClose, balance: initialBalance
         const statusCode = err.response?.status;
         const serverMessage = err.response?.data?.detail || err.response?.data?.message;
 
-        // Custom descriptive feedback mapped from your documentation codes
+        
         if (statusCode === 401) {
           setErrors((prev) => ({ ...prev, global: "Incorrect wallet PIN. Please try again." }));
         } else if (statusCode === 429) {

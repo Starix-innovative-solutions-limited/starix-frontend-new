@@ -27,7 +27,7 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
     for zero-padding flush alignment against layout borders.
   */
   const isFlushProfileView = 
-    pathname?.includes('/creator-circles/circle-profile') || 
+    pathname?.includes('/creator-circles/') && pathname?.endsWith('/circle-profile') || 
     pathname === '/profile' || 
     pathname?.endsWith('/profile');
 

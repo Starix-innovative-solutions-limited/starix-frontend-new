@@ -108,10 +108,10 @@ Integrated via REST APIs:
 
 ## Third-Party Services
 
-* Supabase
+* Fast API
 * Gemini AI
 * GitHub
-* Netlify
+* Vercel
 
 ---
 
@@ -256,7 +256,7 @@ npm run start
 
 # Deployment
 
-## Netlify
+## Vercel
 
 Current deployment target.
 
@@ -276,7 +276,7 @@ npm run build
 
 * Configure environment variables
 * Verify API endpoints
-* Verify Supabase configuration
+* Verify Fast API configuration
 * Verify authentication configuration
 * Verify wallet service configuration
 * Run production build validation
@@ -356,7 +356,7 @@ GitHub
    ↓
 CI/CD Pipeline
    ↓
-Netlify
+Vercel
    ↓
 Starix Frontend
    ↓
@@ -367,7 +367,7 @@ Database / Wallet Services
 
 Recommended monitoring:
 
-* Netlify Analytics
+* Vercel Analytics
 * Sentry
 * Log aggregation
 * API health monitoring

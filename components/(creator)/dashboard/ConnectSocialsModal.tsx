@@ -12,9 +12,9 @@ import { useInitiateSocialConnection } from "@/hooks/useSocials";
 interface ConnectSocialsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  circleId?: string;
 }
-
-const ConnectSocialsModal = ({ isOpen, onClose }: ConnectSocialsModalProps) => {
+const ConnectSocialsModal = ({ isOpen, onClose, circleId }: ConnectSocialsModalProps) => {
   const searchParams = useSearchParams();
   const connectSocialMutation = useInitiateSocialConnection();
   

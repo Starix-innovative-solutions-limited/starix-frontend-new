@@ -131,21 +131,26 @@ export function useGetJoinedCompletedChallenges() {
 }
 
 
-export const useGetRecommendedChallenges = () => {
+export const useGetRecommendedChallenges = (limit: number = 20, offset: number = 0) => {
   return useQuery({
-    queryKey: ["challenges", "recommended"],
+    queryKey: ["challenges", "recommended", limit, offset],
     queryFn: async () => {
-      const { data } = await api.get("/challenges/recommended");
+      const { data } = await api.get("/challenges/recommended", {
+        params: { limit, offset }
+      });
       return data;
     },
   });
 };
 
-export const useGetTrendingChallenges = () => {
+export const useGetTrendingChallenges = (limit: number = 20, offset: number = 0) => {
   return useQuery({
-    queryKey: ["challenges", "trending"],
+    queryKey: ["challenges", "trending", limit, offset],
     queryFn: async () => {
-      const { data } = await api.get("/challenges/trending");
+      // Check if this endpoint supports params; if not, remove the second argument
+      const { data } = await api.get("/challenges/trending", {
+        params: { limit, offset } 
+      });
       return data;
     },
   });
@@ -166,5 +171,29 @@ export const useGetChallengeById = (id: string) => {
       return data;
     },
     enabled: !!id, // Only runs the query if an id is actually provided
+  });
+};
+
+export interface SavedChallengesResponse {
+  items: {
+    challenge_id: string;
+    title: string;
+    brand_name: string;
+    brand_logo_url: string;
+    prize_pool_formatted: string;
+    // Add other fields if needed
+  }[];
+  total_items: number;
+}
+
+export const useGetSavedChallenges = (page: number = 1, page_size: number = 8) => {
+  return useQuery<SavedChallengesResponse>({
+    queryKey: ["challenges", "saved", page, page_size],
+    queryFn: async () => {
+      const { data } = await api.get("/challenges/saved", {
+        params: { page, page_size },
+      });
+      return data;
+    },
   });
 };

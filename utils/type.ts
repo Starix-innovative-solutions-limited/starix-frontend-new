@@ -135,3 +135,12 @@ export interface BankDetails {
   bank_verified: boolean;
   bank_verified_at: string; // ISO date string
 }
+
+export interface CircleMember {
+  user_id: string;
+  full_name: string;
+  profile_picture_url: string;
+  role: string;
+  avatar?: string; // Add this if needed for the payout view
+  name?: string;
+}

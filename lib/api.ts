@@ -8,47 +8,14 @@ export const api = axios.create({
   },
 });
 
+// --- Unified Request Interceptor ---
 api.interceptors.request.use(
   (config) => {
-    const publicRoutes = [
-      "/auth/signup/creator",
-      "/auth/signup/brand",
-      "/auth/login",
-      "/auth/otp/email/request",
-      "/auth/otp/email/verify",
-      "/auth/password-reset/request",
-    ];
+    // Combine token retrieval
+    const session = sessionAuth.get();
+    const directToken = localStorage.getItem("token");
+    const token = (typeof session === 'string' ? session : (session as any)?.access_token) || directToken;
 
-    // Get the base path without query parameters
-    const path = config.url?.split('?')[0] || "";
-    
-    // Check if it's an exact match or starts with the public route
-    const isPublic = publicRoutes.some(route => path === route || path.startsWith(route));
-
-    if (!isPublic) {
-      // ONLY attach token if it's NOT a public route
-      const session = sessionAuth.get();
-      const directToken = localStorage.getItem("token");
-      let token = (typeof session === 'string' ? session : (session as any)?.access_token) || directToken;
-
-      if (token) {
-        config.headers.Authorization = `Bearer ${token.trim()}`;
-      }
-    }
-
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-api.interceptors.request.use(
-  (config) => {
-    // Try to get token from localStorage first (most reliable)
-    const token = localStorage.getItem("token");
-
-    // If a token exists, ALWAYS attach it.
-    // If the backend requires it, it will be there. 
-    // If the backend doesn't care, it will usually ignore the header.
     if (token) {
       config.headers.Authorization = `Bearer ${token.trim()}`;
     }
@@ -58,24 +25,28 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// --- Smarter Response Interceptor ---
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-      
-      
       const status = error.response.status;
-      // 401 Unauthorized or 403 Forbidden
+      const currentPath = window.location.pathname;
+
+      // 401/403: Only logout if NOT already on login/auth page
       if (status === 401 || status === 403) {
-        const currentPath = window.location.pathname;
-        
-        // Don't redirect if we are already in the auth flow
-        const isAuthFlow = currentPath.startsWith("/auth") || currentPath.includes("/verify-email");
-        
-        if (!isAuthFlow) {
+        // NEW: Check if we are trying to access a circle we just joined
+        // If it's a 403, it might be a permission delay, not an auth failure.
+        // We shouldn't necessarily log out for 403s!
+        if (status === 401 && !currentPath.startsWith("/login")) {
           localStorage.removeItem("token");
           sessionAuth.clear();
           window.location.href = "/login";
+        }
+        
+        // 403s are permissions. Log them but DON'T log the user out.
+        if (status === 403) {
+          console.warn("Permission denied for this resource.");
         }
       }
     }

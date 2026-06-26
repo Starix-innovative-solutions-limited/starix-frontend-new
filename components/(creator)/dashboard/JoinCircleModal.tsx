@@ -7,6 +7,9 @@ import { useJoinCircle } from "@/hooks/useCircles";
 interface JoinCircleModalProps {
   isOpen: boolean;
   onClose: () => void;
+  circleLogo?: string;
+  circleId: string;  
+  circleName: string;
 }
 
 const JoinCircleModal = ({ isOpen, onClose }: JoinCircleModalProps) => {

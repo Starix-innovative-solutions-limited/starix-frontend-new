@@ -8,6 +8,7 @@ interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUploadSuccess?: (url: string) => void; // Added prop to send data back
+  circleId: string;
 }
 
 const BannerUploadModal = ({ isOpen, onClose, onUploadSuccess }: ModalProps) => {

@@ -3,12 +3,15 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { FiSearch, FiBell } from "react-icons/fi";
+import { FiSearch } from "react-icons/fi";
 import { HiArrowLeft, HiArrowRight } from "react-icons/hi2";
 import JoinCircleModal from "@/components/(creator)/dashboard/JoinCircleModal";
 import CreateCircleModal from "@/components/(creator)/dashboard/CreateCircleModal";
-import Link from "next/link";
+import RequestsModal from "@/components/(creator)/dashboard/RequestsModal";
 import { useGetCircles } from "@/hooks/useCircles";
+import { CircleMembersAvatar } from "@/components/(creator)/dashboard/CircleMembersAvatar";
+import NotificationDropdown from "@/components/(creator)/dashboard/NotificationDropdown";
+import Link from "next/link";
 
 const CreatorCircles = () => {
   const [page, setPage] = useState(1);
@@ -17,6 +20,7 @@ const CreatorCircles = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isRequestsModalOpen, setIsRequestsModalOpen] = useState(false);
 
   const circles = circleData?.items || [];
   const totalPages = circleData?.total_pages || 1;
@@ -37,10 +41,7 @@ const CreatorCircles = () => {
           <p className="text-[#62636C] text-[15px] font-normal md:text-[12px]">Collaborate and grow with creators in your network</p>
         </div>
         <div className="flex items-center gap-4">
-          <div className="relative p-3 bg-[#F9F9FB] rounded-full cursor-pointer hover:bg-gray-50 transition-colors">
-            <FiBell size={24} className="text-[#111827]" />
-            <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-blue-600 border-2 border-white rounded-full"></span>
-          </div> 
+          <NotificationDropdown />
           <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-blue-600 p-0.5 cursor-pointer">
             <div className="w-full h-full rounded-full bg-gray-200 overflow-hidden relative flex items-center justify-center">
               <Link href="/creator-circles/circle-profile">
@@ -52,7 +53,7 @@ const CreatorCircles = () => {
       </header>
 
       {/* TOP ACTION CARDS */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-4">
         <div className="group relative overflow-hidden bg-[#FFEBE4] rounded-[24px] md:rounded-[32px] p-4 md:p-5 h-[180px] md:h-[200px] flex flex-col justify-between border border-[#FBE8E5]">
             <div className="w-[55%] sm:w-[180px] z-10">
                 <h2 className="text-[16px] md:text-[18px] font-semibold mb-1">Start a Circle</h2>
@@ -75,6 +76,16 @@ const CreatorCircles = () => {
                 <Image src="/puzzle.svg" fill className="object-contain object-right" alt="Graphic" />
             </div>
         </div>
+      </div>
+
+      {/* REQUESTS LINK */}
+      <div className="flex justify-center mb-8">
+        <button 
+          onClick={() => setIsRequestsModalOpen(true)}
+          className="text-[12px] font-semibold text-[#62636C] hover:text-[#0047FF] underline underline-offset-4 decoration-2 transition-all"
+        >
+          View Pending Join Requests
+        </button>
       </div>
 
       {/* SEARCH */}
@@ -107,7 +118,6 @@ const CreatorCircles = () => {
               {filteredCircles.map((circle: any) => (
                 <Link 
                   key={circle.circle_id} 
-                  
                   href={`/creator-circles/${circle.circle_id}/circle-profile`} 
                   className="block"
                 >
@@ -129,11 +139,16 @@ const CreatorCircles = () => {
                         </div>
                       </div>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-[10px] uppercase font-bold ${
-                      circle.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
-                    }`}>
-                      {circle.role}
-                    </span>
+                    <div className="flex items-center gap-6">
+                      <CircleMembersAvatar circleId={circle.circle_id} />
+                      
+                      <span className={`px-4 py-1.5 rounded-full text-[12px] font-medium ${
+                        circle.role === 'admin' ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600'
+                      }`}>
+                        {circle.role === 'admin' ? 'Admin' : 'Member'}
+                      </span>
+                    </div>
+                    
                   </div>
                 </Link>
               ))}
@@ -153,8 +168,12 @@ const CreatorCircles = () => {
         </>
       )}
 
-      <JoinCircleModal isOpen={isJoinModalOpen} onClose={() => setIsJoinModalOpen(false)} />
+      <JoinCircleModal isOpen={isJoinModalOpen} onClose={() => setIsJoinModalOpen(false)} circleId={""} circleName={""} />
       <CreateCircleModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
+      <RequestsModal 
+        isOpen={isRequestsModalOpen} 
+        onClose={() => setIsRequestsModalOpen(false)} 
+      />
     </div>
   );
 };

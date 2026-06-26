@@ -98,7 +98,7 @@ const WalletPage = () => {
         {/* BALANCE CARD */}
         <div className="relative w-full h-[200px] rounded-[32px] overflow-hidden mb-8 bg-[#E9F6FF]">
           <div className="absolute right-0 bottom-0 h-full w-[50%] md:w-[60%] pointer-events-none flex items-end justify-end">
-            <div className="relative h-[90%] w-full">
+            <div className="relative h-[100%] w-full">
               <Image 
                 src="/groupss.svg" 
                 alt="Decorative background" 
@@ -109,22 +109,22 @@ const WalletPage = () => {
             </div>
           </div>
 
-          <div className="relative z-10 p-10 flex flex-col justify-between h-full">
+          <div className="relative p-6 flex flex-col justify-between h-full">
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
                 <img src="/candyyy.svg" alt="Icon" className="w-5 h-5" />
                 <span className="text-[12px] font-semibold text-[#747682] uppercase tracking-[0.1em]">
                   Wallet Balance
                 </span>
-                {balanceData?.pending_balance && (
+                {/* {balanceData?.pending_balance && (
                   <span className="text-[11px] font-medium text-[#747682] normal-case bg-white/60 px-2.5 py-0.5 rounded-full ml-1">
                     Pending: {balanceData.pending_balance}
                   </span>
-                )}
+                )} */}
               </div>
-              <div className="flex items-baseline gap-1 mb-3 mt-2">
+              <div className="flex items-baseline gap-1">
                 {isBalanceLoading ? (
-                  <div className="h-10 w-48 bg-black/5 animate-pulse rounded-lg mt-1" />
+                  <div className="h-10 w-48 bg-black/5 animate-pulse rounded-lg " />
                 ) : (
                   <>
                     <span className="text-[40px] font-semibold text-[#000000]">{balanceUI.majorUnit}</span>
