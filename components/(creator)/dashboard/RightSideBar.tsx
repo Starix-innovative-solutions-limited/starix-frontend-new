@@ -227,12 +227,17 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
             {/* Header Info */}
             <div className="flex items-start gap-4 mb-4">
               <div className="relative shrink-0">
-                <Image 
-                  src={selectedDetail?.brand_logo_url || "/default.svg"} 
-                  width={56} height={56} 
-                  alt="Brand" 
-                  className="rounded-full object-cover" 
-                />
+                {selectedDetail?.brand_logo_url?.trim() ? (
+                  <Image
+                    src={selectedDetail.brand_logo_url}
+                    width={56}
+                    height={56}
+                    alt="Brand"
+                    className="rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="h-full w-full bg-[#F5F6F8]" aria-label="No brand logo" />
+                )}
                 <div className="absolute bottom-0 right-0 bg-[#0CC963] rounded-full p-1 border-2 border-white leading-none flex items-center justify-center">
                   <GoPlus className="text-white text-[10px] rotate-45" />
                 </div>
@@ -252,7 +257,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
             {/* Amount and Status */}
             <div className="flex items-center gap-3">
               <span className="text-[16px] font-semibold text-[#62636C]">
-                + ₦{(selectedDetail?.gross_prize / 100).toLocaleString()}
+                + ₦{((selectedDetail?.gross_prize ?? 0) / 100).toLocaleString()}
               </span>
               <span className={`px-3 py-1 rounded-full text-[10px] font-medium ${
                 selectedDetail?.credit_status === 'Successful' 
@@ -274,11 +279,16 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                 <div key={idx} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="relative w-10 h-10 rounded-full overflow-hidden border border-gray-100">
-                      <Image 
-                        src={member.profile_picture_url || "/default.svg"} 
-                        fill alt={member.full_name} 
-                        className="object-cover" 
+                    {member.profile_picture_url?.trim() ? (
+                      <Image
+                        src={member.profile_picture_url}
+                        fill
+                        alt={member.full_name}
+                        className="object-cover"
                       />
+                    ) : (
+                      <div className="h-full w-full bg-[#F5F6F8]" aria-label="No profile picture" />
+                    )}
                     </div>
                     <span className="text-[14px] font-medium text-[#62636C]">{member.full_name}</span>
                   </div>

@@ -556,15 +556,37 @@ const fetchEarningDetail = async (circleId: string, challengeId: string) => {
   return data;
 };
 
+export interface EarningPayoutSplit {
+  user_id: string;
+  full_name: string;
+  profile_picture_url: string | null;
+  split_percentage: number;
+}
+
+export interface EarningDetailResponse {
+  brand_logo_url: string | null;
+  title: string;
+  paid_out_members: number;
+  credited_at: string | null;
+  gross_prize: number;
+  credit_status: "Successful" | "Pending" | "Failed" | string;
+  payout_splits: EarningPayoutSplit[];
+}
+
 export const useGetEarningDetail = (
   circleId: string,
   challengeId: string,
-  options?: { enabled?: boolean }
+  options?: any
 ) => {
-  return useQuery<MyCirclesResponse>({
+  return useQuery<EarningDetailResponse>({
     queryKey: ["earning-detail", circleId, challengeId],
-    queryFn: () => fetchEarningDetail(circleId, challengeId),
-    enabled: options?.enabled ?? true,
+    queryFn: async () => {
+      const { data } = await api.get<EarningDetailResponse>(
+        `/circles/${circleId}/earnings/${challengeId}`
+      );
+      return data;
+    },
+    ...options,
   });
 };
 
