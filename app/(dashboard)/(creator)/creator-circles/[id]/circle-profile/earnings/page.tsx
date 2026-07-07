@@ -14,8 +14,13 @@ const EarningsHistory = () => {
   const { data: earnings, isLoading } = useGetCircleEarnings(id);
   const { data: detail } = useGetEarningDetail(id, selectedId || "");
 
+  const earningItems = earnings?.items ?? [];
+
   // Safe calculation for total earnings (defaults to 0 if data is missing)
   const totalEarnings = earnings?.items?.reduce((acc: number, cur: any) => acc + (cur.gross_prize || 0), 0) || 0;
+
+
+
 
   const handleBackNavigation = () => {
     if (selectedId) setSelectedId(null);
@@ -102,8 +107,8 @@ const EarningsHistory = () => {
         <div className="divide-y divide-[#EFF0F3] border-t border-[#EFF0F3]">
           {isLoading ? (
             <div className="py-20 text-center text-gray-400">Loading history...</div>
-          ) : earnings?.items?.length > 0 ? (
-            earnings.items.map((item: any) => (
+          ) : earningItems.length > 0 ? (
+            earningItems.map((item: any) => (
               <div 
                 key={item.challenge_id} 
                 onClick={() => setSelectedId(item.challenge_id)}
