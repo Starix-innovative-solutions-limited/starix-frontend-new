@@ -424,17 +424,25 @@ export const useDeclineInvitation = () => {
 };
 
 
+export interface CurrentUser {
+  id: string;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  username?: string;
+  user_type?: string;
+}
+
 export const useGetCurrentUser = () => {
-  return useQuery<MyCirclesResponse>({
+  return useQuery<CurrentUser | null>({
     queryKey: ["current-user"],
     queryFn: () => {
       const storedUser = localStorage.getItem("user");
-      return storedUser ? JSON.parse(storedUser) : null;
+      return storedUser ? (JSON.parse(storedUser) as CurrentUser) : null;
     },
-    // This tells React Query to use the data instantly
     initialData: () => {
       const storedUser = localStorage.getItem("user");
-      return storedUser ? JSON.parse(storedUser) : null;
+      return storedUser ? (JSON.parse(storedUser) as CurrentUser) : null;
     },
   });
 };
