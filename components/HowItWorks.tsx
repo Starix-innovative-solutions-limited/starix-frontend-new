@@ -20,7 +20,8 @@ const HowItWorks = () => {
             icon: "/blue gem.png", 
             title: "Track & Reward",
             description: "Performance tracked automatically. Winners get paid. You get the content.",
-            scale: "scale-100",
+            scale: "scale-190 -translate-x-35 translate-y-15",
+        
             
         }
     ];
@@ -94,8 +95,8 @@ const HowItWorks = () => {
                         ))}
                     </div>
 
-                    <Link href="/for-brands" className="bg-[#0033FF] text-white px-10 py-4 rounded-full font-bold flex items-center gap-2 hover:opacity-90 transition-all text-lg">
-                        Learn More <span className="text-2xl">→</span>
+                    <Link href="/for-brands" className="bg-[#0033FF] text-white p-4 rounded-full font-semibold flex items-center gap-2 hover:shadow-sm transition-all text-[20px]">
+                        Join as a Brand
                     </Link>
                 </div>
 
@@ -127,8 +128,8 @@ const HowItWorks = () => {
                         ))}
                     </div>
 
-                    <Link href="/for-creators" className="bg-[#FF6B00] text-white px-10 py-4 rounded-full font-bold flex items-center gap-2 hover:opacity-90 transition-all text-lg">
-                        Learn More <span className="text-2xl">→</span>
+                    <Link href="/for-creators" className="bg-[#FF6B00] text-white p-4 rounded-full font-semibold flex items-center gap-2 hover:shadow-sm transition-all text-[20px]">
+                        Join as a Creator
                     </Link>
                 </div>
             </div>

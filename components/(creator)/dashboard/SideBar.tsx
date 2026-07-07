@@ -5,14 +5,14 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { LuPanelLeftClose } from "react-icons/lu";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { sessionAuth } from "@/utils/sessionAuth";
 
 const NAV_ITEMS = [
   { label: "Home", icon: "/home.svg", href: "/dashboard" },
   { label: "Challenges", icon: "/challenges.svg", href: "/challenges" },
-  { label: "Creator Circles", icon: "/circles.svg", href: "/creator-circles", badge: 3 },
+  { label: "Creator Circles", icon: "/circles.svg", href: "/creator-circles" },
   { label: "Wallet", icon: "/walletss.svg", href: "/portfolio" },
   { label: "Analytics", icon: "/pie.svg", href: "/analytics" },
   { label: "Profile", icon: "/user.svg", href: "/profile" },
@@ -20,6 +20,7 @@ const NAV_ITEMS = [
 
 const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) => {
   const router = useRouter();
+  const pathname = usePathname();
   const [active, setActive] = useState("Home");
   const { clearAuth } = useAuthStore() as any; // Destructure the clear action from your store
 
@@ -114,16 +115,10 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
           <nav>
             <ul className="space-y-1.5">
               {NAV_ITEMS.map((item) => {
-                const isActive = active === item.label;
+                const isActive = pathname === item.href;
 
                 return (
-                  <li 
-                    key={item.label} 
-                    onClick={() => { 
-                      setActive(item.label); 
-                      if (isOpen) onClose?.(); 
-                    }}
-                  >
+                  <li key={item.label} onClick={() => { if (isOpen) onClose?.(); }}>
                     <Link
                       href={item.href}
                       className={`
@@ -145,16 +140,16 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
                       <span className={`
                         text-[16px] whitespace-nowrap overflow-hidden transition-all duration-300
                         ${collapsed ? "w-0 opacity-0 invisible ml-0" : "w-auto opacity-100 visible ml-0"}
-                        ${isActive ? "font-bold" : "font-medium"}
+                        ${isActive ? "font-semibold" : "font-medium"}
                       `}>
                         {item.label}
                       </span>
 
-                      {!collapsed && item.badge && (
-                        <span className="ml-auto w-5 h-5 flex items-center justify-center bg-[#0033FF] text-white text-[10px] font-bold rounded-full border-2 border-white animate-in fade-in zoom-in duration-500">
+                      {/* {!collapsed && item.badge && (
+                        <span className="ml-auto w-5 h-5 flex items-center justify-center bg-[#0033FF] text-white text-[10px] font-semibold rounded-full border-2 border-white animate-in fade-in zoom-in duration-500">
                           {item.badge}
                         </span>
-                      )}
+                      )} */}
                     </Link>
                   </li>
                 );

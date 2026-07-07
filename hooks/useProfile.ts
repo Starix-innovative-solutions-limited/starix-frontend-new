@@ -31,17 +31,31 @@ export const useGetCreatorProfile = (username: string, options?: any) => {
   });
 };
 
+// export function useCreatorProfile() {
+//   const { setProfile } = useAuthStore();
+
+//   return useQuery({
+//     queryKey: ["authMe"], // Changed key to avoid collision
+//     queryFn: async () => {
+//       const { data } = await api.get("/auth/me");
+//       if (data) setProfile(data); 
+//       return data;
+//     },
+//     enabled: !!useAuthStore.getState().token,
+//   });
+// }
+
 export function useCreatorProfile() {
   const { setProfile } = useAuthStore();
 
   return useQuery({
-    queryKey: ["authMe"], // Changed key to avoid collision
+    queryKey: ["me"],
     queryFn: async () => {
       const { data } = await api.get("/auth/me");
-      if (data) setProfile(data); 
+      if (data) setProfile(data);
       return data;
     },
-    enabled: !!useAuthStore.getState().token,
+    retry: false,
   });
 }
 
@@ -126,13 +140,19 @@ export const useGetGlobalLeaderboard = (username: string | undefined) => {
 
 
 export type UpdateCreatorProfilePayload = {
-  profile_picture_url?: string;
-  banner_url?: string;
+  profile_picture_url?: string | null;
+  banner_url?: string | null;
   starix_score_visibility?: "public" | "private";
   niches?: string[];
 };
 
-type UploadTarget = "profile_picture" | "user_banner";
+type UploadTarget =
+  | "profile_picture"
+  | "user_banner"
+  | "challenge_banner"
+  | "challenge_document"
+  | "circle_profile_picture"
+  | "circle_banner";
 
 type UploadUrlResponse = {
   upload_url: string;
@@ -140,7 +160,6 @@ type UploadUrlResponse = {
   public_url: string;
   expires_in: number;
 };
-
 export async function uploadUserMedia(file: File, target: UploadTarget) {
   if (file.size > 5 * 1024 * 1024) {
     throw new Error("Image must be 5MB or smaller.");
@@ -152,7 +171,7 @@ export async function uploadUserMedia(file: File, target: UploadTarget) {
     content_type: file.type,
   });
 
-  await fetch(data.upload_url, {
+  const uploadResponse = await fetch(data.upload_url, {
     method: "PUT",
     headers: {
       "Content-Type": file.type,
@@ -160,7 +179,16 @@ export async function uploadUserMedia(file: File, target: UploadTarget) {
     body: file,
   });
 
-  return data.public_url;
+  if (!uploadResponse.ok) {
+    throw new Error(`S3 upload failed with status ${uploadResponse.status}`);
+  }
+
+  // FIX: Ensure we only return the clean URL
+  // If data.public_url includes query params like ?AWSAccessKeyId=..., 
+  // strip them if you want a permanent public link.
+  const cleanUrl = data.public_url.split('?')[0]; 
+  
+  return cleanUrl;
 }
 
 export function useUpdateCreatorProfile() {
@@ -222,6 +250,7 @@ export interface CreatorCircle {
   global_rank: number;
   active_challenge_count: number;
   role: "admin" | "manager" | "member";
+  name: string;
   members: {
     user_id: string;
     profile_picture_url: string | null;

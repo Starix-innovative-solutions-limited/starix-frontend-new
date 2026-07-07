@@ -93,8 +93,9 @@ const ContactPage = () => {
               <Image 
                 src="/contact star.svg" 
                 alt="Starix Star"
-                fill
-                className="object-contain"
+                fill 
+                sizes="(max-width: 768px) 100vw, 50vw" // Default that satisfies Next.js
+                className="object-cover"
               />
             </div>
           </div>

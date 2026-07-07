@@ -1,12 +1,10 @@
 "use client";
 
 import React from "react";
-import Navbar from "@/components/Navbar"; // Ensure path is correct
 
 const TermsOfService = () => {
   return (
     <div className="bg-white min-h-screen font-['Geist'] text-[#040136]">
-      <Navbar />
       {/* --- HERO SECTION  --- */}
       <section className="pt-32 pb-20 bg-[#FAFAFA] px-6 text-center">
         <div className="max-w-4xl mx-auto">

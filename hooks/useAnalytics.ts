@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 
 interface EarningsData {
   currency: string;
@@ -15,31 +16,11 @@ export const useEarnings = () => {
   return useQuery<EarningsResponse, Error>({
     queryKey: ["analytics-earnings"],
     queryFn: async () => {
-      // Replace with your actual auth token retrieval method
-      const token = localStorage.getItem("token");
-      console.log("Token being sent to API:", token);
-      if (!token) throw new Error("No token found");
-      
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/analytics/me/earnings`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) throw new Error("Authentication failed.");
-        if (response.status === 403) throw new Error("Account not verified.");
-        throw new Error("Failed to fetch earnings.");
-      }
-
-      return response.json();
+      const { data } = await api.get<EarningsResponse>("/analytics/me/earnings");
+      return data;
     },
   });
 };
-
-// Ranking //
 
 interface ChartPoint {
   x: string;
@@ -61,12 +42,8 @@ export const useRank = () => {
   return useQuery<RankResponse, Error>({
     queryKey: ["analytics-rank"],
     queryFn: async () => {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/analytics/me/rank`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("Failed to fetch rank");
-      return res.json();
+      const { data } = await api.get<RankResponse>("/analytics/me/rank");
+      return data;
     },
   });
 };
@@ -88,12 +65,8 @@ export const useChallenges = () => {
   return useQuery<ChallengesResponse, Error>({
     queryKey: ["analytics-challenges"],
     queryFn: async () => {
-      const token = localStorage.getItem("accessToken");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/analytics/me/challenges`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("Failed to fetch challenges");
-      return res.json();
+      const { data } = await api.get<ChallengesResponse>("/analytics/me/challenges");
+      return data;
     },
   });
 };
@@ -111,25 +84,20 @@ export interface EngagementData {
   monthly_chart: { points: { x: string; y: number }[]; y_min: number; y_max: number };
 }
 
-
 export interface EngagementResponse {
   overall: EngagementData;
   instagram: EngagementData | null;
   tiktok: EngagementData | null;
   youtube: EngagementData | null;
-  [key: string]: EngagementData | null; 
+  [key: string]: EngagementData | null;
 }
 
 export const useEngagement = () => {
   return useQuery<EngagementResponse, Error>({
     queryKey: ["analytics-engagement"],
     queryFn: async () => {
-      const token = localStorage.getItem("accessToken");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/analytics/me/engagement`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("Failed to fetch engagement");
-      return res.json();
+      const { data } = await api.get<EngagementResponse>("/analytics/me/engagement");
+      return data;
     },
   });
 };
@@ -154,12 +122,8 @@ export const useStarixScore = () => {
   return useQuery<StarixScoreResponse, Error>({
     queryKey: ["analytics-starix-score"],
     queryFn: async () => {
-      const token = localStorage.getItem("accessToken");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/analytics/me/starix-score`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("Failed to fetch Starix score");
-      return res.json();
+      const { data } = await api.get<StarixScoreResponse>("/analytics/me/starix-score");
+      return data;
     },
   });
 };
@@ -182,12 +146,10 @@ export const useEngagementTrend = () => {
   return useQuery<EngagementTrendResponse, Error>({
     queryKey: ["analytics-engagement-trend"],
     queryFn: async () => {
-      const token = localStorage.getItem("accessToken");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/analytics/me/engagement-trend`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("Failed to fetch engagement trend");
-      return res.json();
+      const { data } = await api.get<EngagementTrendResponse>(
+        "/analytics/me/engagement-trend"
+      );
+      return data;
     },
   });
 };
@@ -206,12 +168,10 @@ export const useTotalEngagements = () => {
   return useQuery<TotalEngagementsResponse, Error>({
     queryKey: ["analytics-total-engagements"],
     queryFn: async () => {
-      const token = localStorage.getItem("accessToken");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/analytics/me/total-engagements`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("Failed to fetch total engagements");
-      return res.json();
+      const { data } = await api.get<TotalEngagementsResponse>(
+        "/analytics/me/total-engagements"
+      );
+      return data;
     },
   });
 };
@@ -225,12 +185,10 @@ export const useProfileClicks = () => {
   return useQuery<ProfileClicksResponse, Error>({
     queryKey: ["analytics-profile-clicks"],
     queryFn: async () => {
-      const token = localStorage.getItem("accessToken");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/analytics/me/profile-clicks`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("Failed to fetch profile clicks");
-      return res.json();
+      const { data } = await api.get<ProfileClicksResponse>(
+        "/analytics/me/profile-clicks"
+      );
+      return data;
     },
   });
 };

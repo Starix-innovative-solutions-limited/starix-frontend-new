@@ -6,10 +6,10 @@ import EditProfileModal from "@/components/(creator)/dashboard/EditProfileModal"
 import ConnectSocialsModal from "@/components/(creator)/dashboard/ConnectSocialsModal";
 import ViewPortfolioModal from "@/components/(creator)/dashboard/ViewPortfolioModal";
 import { FiSearch } from "react-icons/fi";
+import { useGetMe } from "@/hooks/useAuth";
 import { GoArrowLeft, GoArrowRight } from "react-icons/go";
 import { useParams, useRouter } from "next/navigation";
 import {
-  useCreatorProfile,
   useGetCreatorProfile,
   useGetCreatorMetrics,
   useGetCreatorCircles,
@@ -18,11 +18,13 @@ import {
   type CreatorMetricsResponse,
   type UpdateCreatorProfilePayload,
 } from "@/hooks/useProfile";
+import { useGetMyCircle, type MyCircle } from "@/hooks/useCircles";
 
-
-type Circle = CreatorCircle;
+type Circle = CreatorCircle | MyCircle;
 
 const CIRCLES_PER_PAGE = 4;
+
+
 
 const UserProfilePage = () => {
   const router = useRouter();
@@ -38,7 +40,7 @@ const UserProfilePage = () => {
       ? params.id
       : null;
 
-const { data: authUser, isLoading: isAuthLoading } = useCreatorProfile();
+const { data: authUser, isLoading: isAuthLoading } = useGetMe();
 
 const isOwnProfile =
   !routeUsernameOrId ||
@@ -66,12 +68,25 @@ const profile = isOwnProfile ? authUser : viewedProfile;
 
   const circlesUsername = profile?.username ?? viewedUsername;
 
-  const { data: circlesData, isLoading: isCirclesLoading } = useGetCreatorCircles(
+  const { data: myCirclesData, isLoading: isMyCirclesLoading } = useGetMyCircle(
+  page,
+  CIRCLES_PER_PAGE,
+  { enabled: isOwnProfile }
+);
+
+const { data: creatorCirclesData, isLoading: isCreatorCirclesLoading } =
+  useGetCreatorCircles(
     circlesUsername,
     page,
     CIRCLES_PER_PAGE,
-    { enabled: !!circlesUsername }
+    { enabled: !isOwnProfile && !!circlesUsername }
   );
+
+const circlesData = isOwnProfile ? myCirclesData : creatorCirclesData;
+
+const isCirclesLoading = isOwnProfile
+  ? isMyCirclesLoading
+  : isCreatorCirclesLoading;
 
   const updateProfileMutation = useUpdateCreatorProfile();
 
@@ -83,6 +98,8 @@ const profile = isOwnProfile ? authUser : viewedProfile;
   
   
 
+  
+
   const creatorCircles: Circle[] = circlesData?.items ?? [];
 
   const visibleCircles = useMemo(() => {
@@ -91,9 +108,16 @@ const profile = isOwnProfile ? authUser : viewedProfile;
     if (!query) return creatorCircles;
 
     return creatorCircles.filter((circle) =>
-      circle.username.toLowerCase().includes(query)
+      circle.name.toLowerCase().includes(query)
     );
   }, [creatorCircles, searchQuery]);
+
+  console.log({
+  circlesUsername,
+  circlesData,
+  creatorCircles,
+  visibleCircles,
+});
 
   const totalPages = Math.max(1, circlesData?.total_pages ?? 1);
 
@@ -107,10 +131,21 @@ const username = profile?.username ? `@${profile.username}` : "";
 const isProfileLoading =
   isOwnProfile ? isAuthLoading && !authUser : isViewedProfileLoading && !viewedProfile;
 
-  const profileImage = profile?.profile_picture_url || "/no127.svg";
-  const bannerImage = profile?.banner_url || "/header1.png";
+  const profileImage = profile?.profile_picture_url?.trim() || null;
+  const bannerImage = profile?.banner_url?.trim() || null;
 
   const starixScore = Math.round(profile?.starix_score ?? 0);
+  const publicProfileScore = Math.round(profile?.starix_score ?? 100);
+
+  const publicGlobalRankLabel =
+    typeof metrics?.global_rank === "number" ? `#${metrics.global_rank}` : "#1";
+
+  const ownGlobalRankLabel =
+    typeof metrics?.global_rank === "number"
+      ? new Intl.NumberFormat("en-US").format(metrics.global_rank)
+      : "---";
+
+  const profileScoreLabel = isOwnProfile ? starixScore : publicProfileScore;
 
   const completedChallenges = profile?.total_completed_challenges ?? 0;
 
@@ -168,41 +203,7 @@ const totalEarningsLabel = primaryEarning
 const totalEngagementValue = metrics?.lifetime_engagement ?? engagements;
 const totalEngagementCardLabel = formatCompactNumber(totalEngagementValue);
 
-const globalRankLabel =
-  typeof metrics?.global_rank === "number" ? `#${metrics.global_rank}` : "---";
-
-  const MiniTrendChart = ({ data }: { data: number[] }) => {
-  const points = data.length >= 2 ? data : [10, 18, 14, 28, 24, 42, 40];
-
-  const width = 105;
-  const height = 48;
-  const padding = 4;
-  const min = Math.min(...points);
-  const max = Math.max(...points);
-  const range = max - min || 1;
-
-  const path = points
-    .map((value, index) => {
-      const x = padding + (index / (points.length - 1)) * (width - padding * 2);
-      const y = height - padding - ((value - min) / range) * (height - padding * 2);
-
-      return `${index === 0 ? "M" : "L"} ${x} ${y}`;
-    })
-    .join(" ");
-
-  return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="h-full w-full">
-      <path
-        d={path}
-        fill="none"
-        stroke="#54D1A0"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-};
+const globalRankLabel = isOwnProfile ? ownGlobalRankLabel : publicGlobalRankLabel;
 
 const canShowScore = typeof profile?.starix_score === "number";
 
@@ -261,13 +262,18 @@ const ConnectedPlatformIcons = ({
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-white font-sans text-[#1E1F24] antialiased">
       <div className="relative h-[230px] w-full overflow-hidden bg-[#EAF2FF]">
-        <Image
-          src={bannerImage}
-          alt="User profile cover"
-          fill
-          priority
-          className="object-cover"
-        />
+      {bannerImage ? (
+          <Image
+            src={bannerImage}
+            alt="User profile cover"
+            fill
+            sizes="100vw"
+            priority
+            className="object-cover"
+          />
+        ) : (
+          <div className="h-full w-full bg-[#EAF2FF]" aria-label="No banner image" />
+        )}
       </div>
 
       <main className="relative px-8 pb-8">
@@ -275,12 +281,17 @@ const ConnectedPlatformIcons = ({
           <div className="absolute -top-[72px] left-0">
             <div className="flex h-[138px] w-[138px] items-center justify-center rounded-full bg-[conic-gradient(#114BF6_0deg,#114BF6_180deg,#FF7A1A_180deg,#FF7A1A_360deg)] p-[5px] shadow-sm">
               <div className="relative h-full w-full overflow-hidden rounded-full border-[5px] border-white bg-gray-100">
-                <Image
-                  src={profileImage}
-                  alt={displayName}
-                  fill
-                  className="object-cover"
-                />
+              {profileImage ? (
+                  <Image
+                    src={profileImage}
+                    alt={displayName}
+                    fill
+                    sizes="150px"
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="h-full w-full rounded-full bg-[#F5F6F8]" aria-label="No profile picture" />
+                )}
               </div>
             </div>
           </div>
@@ -353,7 +364,7 @@ const ConnectedPlatformIcons = ({
 
             {canShowScore && (
               <div className="mt-[58px] mr-7 hidden shrink-0 md:block">
-                <ScoreRing score={starixScore} />
+                <ScoreRing score={profileScoreLabel} />
               </div>
             )}
           </div>
@@ -370,17 +381,17 @@ const ConnectedPlatformIcons = ({
             icon="/coin.svg"
             label="Total Earnings"
             value={totalEarningsLabel}
-            action="View History"
-            onClick={handleViewHistory}
+            action={isOwnProfile ? "View History" : undefined}
+            onClick={isOwnProfile ? handleViewHistory : undefined}
           />
 
           <StatCard
             tone="pink"
             icon="/diamonddd.svg"
             label="Total Engagement"
-            value={totalEngagementCardLabel}
-            action="View Trend"
-            showMiniTrend
+            value={isOwnProfile ? totalEngagementCardLabel : totalEngagementLabel}
+            action={isOwnProfile ? "View Trend" : undefined}
+            showMiniTrend={isOwnProfile}
           />
 
           <StatCard
@@ -388,8 +399,9 @@ const ConnectedPlatformIcons = ({
             icon="/coin.svg"
             label="Global Rank"
             value={globalRankLabel}
-            action="View Leaderboard"
-            growth={metrics?.global_rank ? "+29 ↑" : undefined}
+            action={isOwnProfile ? "View Leaderboard" : undefined}
+            growth={isOwnProfile && metrics?.global_rank ? "+29 ↑" : undefined}
+            decorative={!isOwnProfile}
           />
         </section>
 
@@ -464,8 +476,8 @@ const ConnectedPlatformIcons = ({
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           currentProfile={{
-            profileImage,
-            bannerImage,
+            profileImage: profileImage ?? "",
+            bannerImage: bannerImage ?? "",
             scoreVisibility,
           }}
           onSave={handleSaveProfile}
@@ -522,7 +534,7 @@ const StatCard = ({
   label: string;
   value: string;
   suffix?: string;
-  action: string;
+  action?: string;
   growth?: string;
   decorative?: boolean;
   showMiniTrend?: boolean;
@@ -560,9 +572,11 @@ const StatCard = ({
         )}
       </div>
 
+      {action && (
       <div className="mt-3 flex items-center gap-2 text-[13px] font-medium text-[#62636C]">
         {action} <GoArrowRight size={18} />
       </div>
+    )}
 
       {showMiniTrend && (
         <div className="absolute bottom-5 right-5 h-[48px] w-[105px]">
@@ -592,12 +606,19 @@ const CircleRow = ({
     <div className="flex items-center justify-between py-4">
       <div className="flex min-w-0 items-center gap-4">
         <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-[14px] bg-[#F5F6F8]">
+        {circle.profile_picture_url?.trim() ? (
           <Image
-            src={circle.profile_picture_url || "/circle.svg"}
+            src={circle.profile_picture_url}
             alt={circle.name}
             fill
             className="object-cover"
           />
+        ) : (
+          <div
+            className="h-full w-full bg-[#F5F6F8]"
+            aria-label="No circle profile picture"
+          />
+        )}
         </div>
 
         <div className="min-w-0">
@@ -619,11 +640,18 @@ const CircleRow = ({
               key={member.user_id || index}
               className="relative h-7 w-7 overflow-hidden rounded-full border-2 border-white bg-gray-100"
             >
-              <img
-                src={member.profile_picture_url || "/no127.svg"}
-                alt="Circle member"
-                className="h-full w-full object-cover"
-              />
+              {member.profile_picture_url?.trim() ? (
+                <img
+                  src={member.profile_picture_url}
+                  alt="Circle member"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div
+                  className="h-full w-full bg-[#F5F6F8]"
+                  aria-label="No member profile picture"
+                />
+              )}
             </div>
           ))}
 
@@ -635,7 +663,7 @@ const CircleRow = ({
         </div>
 
         <span
-          className={`rounded-full px-3 py-1 text-[12px] font-medium capitalize ${roleClassName}`}
+          className={`rounded-full p-2 text-[12px] font-medium capitalize ${roleClassName}`}
         >
           {circle.role}
         </span>

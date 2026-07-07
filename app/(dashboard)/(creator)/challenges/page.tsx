@@ -206,10 +206,10 @@ const ChallengesPage = () => {
                   <div className="flex items-center justify-center mb-4 ">
                     <Image 
                       src="/dashlogo.svg" 
-                      alt="No challenges" 
-                      width={96}
-                      height={96} 
-                      className="opacity object-contain" 
+                      alt="Logo" 
+                      width={100} 
+                      height={100} 
+                      className="w-10 h-auto" 
                     />
                   </div>
                   

@@ -7,10 +7,11 @@ import {
 import Image from "next/image";
 
 type UpdateCreatorProfilePayload = {
-  profile_picture_url?: string;
-  banner_url?: string;
+  profile_picture_url?: string | null;
+  banner_url?: string | null;
   starix_score_visibility?: "public" | "private";
 };
+
 interface EditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -27,26 +28,32 @@ interface EditProfileModalProps {
 const EditProfileModal = ({ isOpen, onClose, currentProfile, onSave }: EditProfileModalProps) => {
   // Temporary Form States holding local object preview URLs or file strings
   const [tempProfileImg, setTempProfileImg] = useState<string | null>(currentProfile.profileImage);
-  const [tempBannerImg, setTempBannerImg] = useState<string | null>(currentProfile.bannerImage);
-  const [tempVisibility, setTempVisibility] = useState(currentProfile.scoreVisibility);
+const [tempBannerImg, setTempBannerImg] = useState<string | null>(currentProfile.bannerImage);
+const [tempVisibility, setTempVisibility] = useState(currentProfile.scoreVisibility);
+const [removeProfileImage, setRemoveProfileImage] = useState(false);
+const [removeBannerImage, setRemoveBannerImage] = useState(false);
 
-  // Native HTML Input Dom references to programmatically trigger OS file picker sheets
-  const profileInputRef = useRef<HTMLInputElement | null>(null);
-  const bannerInputRef = useRef<HTMLInputElement | null>(null);
+const profileInputRef = useRef<HTMLInputElement | null>(null);
+const bannerInputRef = useRef<HTMLInputElement | null>(null);
 
-  const profileFileRef = useRef<File | null>(null);
-  const bannerFileRef = useRef<File | null>(null);
+const profileFileRef = useRef<File | null>(null);
+const bannerFileRef = useRef<File | null>(null);
 
-  // Sync internal temporary state whenever the modal opens with fresh data
-  useEffect(() => {
-    if (isOpen) {
-      setTempProfileImg(currentProfile.profileImage);
-      setTempBannerImg(currentProfile.bannerImage);
-      setTempVisibility(currentProfile.scoreVisibility);
-    }
-  }, [isOpen, currentProfile]);
+useEffect(() => {
+  if (isOpen) {
+    setTempProfileImg(currentProfile.profileImage);
+    setTempBannerImg(currentProfile.bannerImage);
+    setTempVisibility(currentProfile.scoreVisibility);
+    setRemoveProfileImage(false);
+    setRemoveBannerImage(false);
+    profileFileRef.current = null;
+    bannerFileRef.current = null;
+  }
+}, [isOpen, currentProfile]);
 
-  if (!isOpen) return null;
+if (!isOpen) return null;
+
+  
 
   // Real-time delta check: button changes color if ANY field deviates from original profile values
   const isDirty = 
@@ -54,41 +61,44 @@ const EditProfileModal = ({ isOpen, onClose, currentProfile, onSave }: EditProfi
     tempBannerImg !== currentProfile.bannerImage ||
     tempVisibility !== currentProfile.scoreVisibility;
 
+    
+
   // Process selected file streams safely for local client browser instances
   const handleFileChange = (
-  e: React.ChangeEvent<HTMLInputElement>,
-  setImgState: React.Dispatch<React.SetStateAction<string | null>>,
-  fileRef: React.MutableRefObject<File | null>
-) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
-
-  fileRef.current = file;
-  setImgState(URL.createObjectURL(file));
-  e.target.value = "";
-};
-
-  const handleSubmit = async () => {
-  const payload: UpdateCreatorProfilePayload = {
-    starix_score_visibility: tempVisibility === "only-me" ? "private" : "public",
+    e: React.ChangeEvent<HTMLInputElement>,
+    setImgState: React.Dispatch<React.SetStateAction<string | null>>,
+    fileRef: React.MutableRefObject<File | null>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+  
+    fileRef.current = file;
+    setImgState(URL.createObjectURL(file));
+    setRemoveProfileImage(false);
+    e.target.value = "";
   };
 
-  if (profileFileRef.current) {
-    payload.profile_picture_url = await uploadUserMedia(
-      profileFileRef.current,
-      "profile_picture"
-    );
-  }
-
-  if (bannerFileRef.current) {
-    payload.banner_url = await uploadUserMedia(
-      bannerFileRef.current,
-      "user_banner"
-    );
-  }
-
-  onSave(payload);
-};
+  const handleSubmit = async () => {
+    const payload: UpdateCreatorProfilePayload = {
+      starix_score_visibility:
+        tempVisibility === "anyone" ? "public" : "private",
+    };
+  
+    if (removeProfileImage) {
+      payload.profile_picture_url = null;
+    } else if (profileFileRef.current) {
+      const url = await uploadUserMedia(profileFileRef.current, "profile_picture");
+      payload.profile_picture_url = url;
+    }
+    
+    if (removeBannerImage) {
+      payload.banner_url = null;
+    } else if (bannerFileRef.current) {
+      payload.banner_url = await uploadUserMedia(bannerFileRef.current, "user_banner");
+    }
+  
+    onSave(payload);
+  };
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs transition-opacity duration-300">
@@ -150,19 +160,17 @@ const EditProfileModal = ({ isOpen, onClose, currentProfile, onSave }: EditProfi
                   <div className="flex items-center gap-2">
                     <button 
                       type="button"
-                      onClick={() => {
-                        setTempBannerImg(null);
-                        bannerFileRef.current = null;
-                      }}
+                      onClick={() => profileInputRef.current?.click()}
                       className="px-3 py-1.5 text-[13px] font-semibold text-[#1E1F24] border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition flex items-center gap-1 cursor-pointer"
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
                       Replace
                     </button>
-                    <button 
+                    <button
                       type="button"
                       onClick={() => {
                         setTempProfileImg(null);
+                        setRemoveProfileImage(true);
                         profileFileRef.current = null;
                       }}
                       className="px-3 py-1.5 text-[13px] font-semibold text-[#1E1F24] border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition flex items-center gap-1 cursor-pointer"
@@ -218,7 +226,11 @@ const EditProfileModal = ({ isOpen, onClose, currentProfile, onSave }: EditProfi
                   </button>
                   <button 
                     type="button"
-                    onClick={() => setTempBannerImg(null)}
+                    onClick={() => {
+                      setTempBannerImg(null);
+                      setRemoveBannerImage(true);
+                      bannerFileRef.current = null;
+                    }}
                     className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-red-500 shadow-sm hover:bg-gray-50 transition cursor-pointer"
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>

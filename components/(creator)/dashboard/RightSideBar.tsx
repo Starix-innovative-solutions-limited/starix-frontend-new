@@ -508,7 +508,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="flex items-center justify-center shrink-0 w-10 h-10 bg-white rounded-full border border-gray-50 p-1">
-                      <Image src="/zenith.svg" width={32} height={32} alt="Bank Logo" className="object-contain" onError={(e) => { (e.target as any).src = "/dashlogo.svg"; }} />
+                      <Image src={activeAccount.bank_logo_url || "/dashlogo.svg"} width={32} height={32} alt="Bank Logo" className="object-contain" onError={(e) => { (e.target as any).src = "/dashlogo.svg"; }} />
                     </div>
                     <div className="min-w-0">
                       <h5 className="text-[14px] font-semibold text-[#1E1F24] truncate">

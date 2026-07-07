@@ -89,15 +89,15 @@ const Page = () => {
   // Helper function to dynamically map arbitrary backend string tokens to pristine styling tags
   const getStatusColorStyle = (status: string) => {
     switch (status?.toLowerCase()) {
-      case "in_progress":
-      case "in progress":
+      case "under_review":
+      case "Under Review":
         return "bg-[#FEFCE8] text-[#854D0E]";
-      case "awaiting_review":
-      case "awaiting review":
+      case "ranked":
+      case "Ranked":
       case "under_review":
         return "bg-[#F5F3FF] text-[#5B21B6]";
-      case "approved":
-      case "completed":
+      case "winner":
+      case "winner":
         return "bg-[#75C0F41A] text-[#2D93D0]";
       default:
         return "bg-[#F3F4F6] text-[#6B7280]";
@@ -159,14 +159,21 @@ const Page = () => {
             }}
           >
             <div className="w-[42px] h-[42px] rounded-full bg-white flex items-center justify-center overflow-hidden">
-              <Image 
-                src="/dp.svg" 
-                width={42} 
-                height={42} 
-                alt="Profile" 
-                className="object-cover" 
-                priority
-              />
+            {user?.profile_picture_url?.trim() ? (
+  <Image
+    src={user.profile_picture_url}
+    width={42}
+    height={42}
+    alt="Profile"
+    className="h-full w-full object-cover"
+    priority
+  />
+) : (
+  <div
+    className="h-full w-full rounded-full bg-[#F5F6F8]"
+    aria-label="No profile picture"
+  />
+)}
             </div>
           </Link>
         </div>
@@ -226,7 +233,7 @@ const Page = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="px-2.5 py-1 border border-[#D1D5DB] rounded-full text-[10px] font-medium text-[#1E1F24] hover:bg-gray-50 transition-colors shrink-0">
+                  <div className="px-2.5 py-2.5 border border-[#8B8D98] rounded-full text-[10px] font-medium text-[#1E1F24] hover:bg-gray-50 transition-colors shrink-0">
                     Submit
                   </div>
                 </div>
@@ -248,13 +255,11 @@ const Page = () => {
               </div>
 
               <div>
-                <div className="grid grid-cols-2 gap-2 mb-4">
+                <div className="grid grid-cols-2 mb-2">
                   {challenge.thumbnails.map((img, i) => (
-                    <div key={i} className="aspect-[4/3] w-full rounded-[16px] relative overflow-hidden group bg-gray-50">
+                    <div key={i} className="aspect-[4/3] w-full rounded-[16px] relative overflow-hidden group border-[#E7E8EC]">
                       <Image src={img} alt="Thumbnail" fill className="object-cover transition-transform duration-500" />
-                      <div className="absolute bottom-1.5 left-1.5 bg-black/40 backdrop-blur-md text-white text-[8px] px-1.5 py-0.5 rounded-md flex items-center gap-1 font-semibold">
-                        <span className="text-[6px]">▶</span> 0:49
-                      </div>
+                      
                     </div>
                   ))}
                 </div>
@@ -312,7 +317,7 @@ const Page = () => {
                     </div>
                   </div>
                 </div>
-                <span className={`px-3 md:px-5 py-1.5 md:py-2 rounded-full text-[10px] md:text-[11px] font-bold uppercase tracking-wide text-center min-w-[95px] shrink-0 ${active.color}`}>
+                <span className={`p-1 rounded-full text-[12px] font-medium tracking-wide text-center min-w-[95px] shrink-0 ${active.color}`}>
                   {active.status}
                 </span>
               </Link>

@@ -216,16 +216,23 @@ export const useJoinWaitlist = () => {
   });
 };
 
-
 export interface UserProfile {
   id: string;
   email: string;
   first_name: string;
   last_name: string;
+  username?: string;
   user_type: "creator" | "brand" | string;
   phone_number: string | null;
   bio: string | null;
   profile_picture_url: string | null;
+  banner_url?: string | null;
+  niches?: string[];
+  total_completed_challenges?: number;
+  connected_platforms?: { platform: string; username: string }[];
+  lifetime_engagements?: number;
+  starix_score?: number;
+  starix_score_visibility?: "public" | "private";
   is_email_verified: boolean;
   is_phone_verified: boolean;
   is_verified: boolean;

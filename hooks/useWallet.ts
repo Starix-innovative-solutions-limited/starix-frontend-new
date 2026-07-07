@@ -35,6 +35,7 @@ export interface EarningsResponse {
 }
 
 export interface WithdrawalAccountResponse {
+  bank_logo_url: string;
   id: string;
   bank_name: string;
   bank_code: string;
@@ -241,25 +242,26 @@ export const useGetEarningsSummary = (params?: EarningsSummaryQueryParams) => {
  * Fetches the active verified payout withdrawal account configurations
  */
 export const useGetWithdrawalAccount = () => {
-  return useQuery({
+  return useQuery<WithdrawalAccountResponse | null>({
     queryKey: ["wallet", "withdrawal-account"],
     queryFn: async () => {
       try {
-        const { data } = await api.get<WithdrawalAccountResponse>("/wallet/withdrawal-account");
+        const { data } = await api.get<WithdrawalAccountResponse>(
+          "/wallet/withdrawal-account"
+        );
         return data;
       } catch (error) {
         const axiosError = error as AxiosError;
+
         if (axiosError.response?.status === 404) {
           return null;
         }
+
         throw error;
       }
     },
-    retry: (failureCount, error) => {
-      const axiosError = error as AxiosError;
-      if (axiosError.response?.status === 404) return false;
-      return failureCount < 3;
-    }
+    retry: false,
+    refetchOnWindowFocus: false,
   });
 };
 

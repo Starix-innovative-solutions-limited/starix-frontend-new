@@ -59,7 +59,7 @@ const SolutionCard = ({ title, desc, asset, uiImg, index, assetWidth, assetHeigh
         >
           {title}
         </h3>
-        <p className="text-[#203646B2] font-normal leading-relaxed text-[32px] max-w-[490px]">
+        <p className="text-[#203646B2] font-normal leading-relaxed text-[32px] tracking-[-0.04em] max-w-[550px]">
           {desc}
         </p>
       </div>

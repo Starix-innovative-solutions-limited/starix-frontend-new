@@ -9,36 +9,22 @@ import CustomInput from "@/components/CustomInput";
 import { variants } from "@/constant";
 import Loader from "@/components/Loader";
 import { useLogin } from "@/hooks/useAuth";
-import { api } from "@/lib/api"; // 💡 Using your existing axios instance
 import toast from "react-hot-toast";
 import { useRouter, useSearchParams } from "next/navigation";
-import { loginUser } from "@/lib/auth";
+import { startGoogleAuth } from "@/lib/auth";
 
 const Page = () => {
   const searchParams = useSearchParams();
   const role = searchParams.get("role");
   const router = useRouter();
-  const { isPending: isLoading } = useLogin();
+  const { mutateAsync: login, isPending: isLoading } = useLogin();
   const [form, setForm] = useState({ email: "", password: "" });
 
   const handleGoogleLogin = async () => {
     try {
-      // 1. Save the role so we know where to redirect after the callback
       const selectedRole = role === "brand" ? "brand" : "creator";
-      localStorage.setItem("loginRole", selectedRole);
-
-      // 2. Fetch the URL from your backend using your Axios 'api' instance
-      // This handles the baseURL (https://starix-backend.onrender.com/api) automatically
-      const { data } = await api.get("/auth/oauth/google");
-
-      if (data?.authorization_url) {
-        // 3. Redirect the browser to Google
-        window.location.href = data.authorization_url;
-      } else {
-        toast.error("Google login initiation failed.");
-      }
+      await startGoogleAuth(selectedRole, "login");
     } catch (err: any) {
-      // 💡 This will log the specific backend error (like CORS or 404)
       console.error("GOOGLE LOGIN ERROR:", err.response?.data || err.message);
       toast.error("Unable to connect to Google Login.");
     }
@@ -50,15 +36,16 @@ const Page = () => {
 
     try {
       const res = await toast.promise(
-        loginUser({ email: form.email, password: form.password }),
+        login({ email: form.email, password: form.password }),
         {
           loading: "Signing in...",
           success: "Signed in successfully ✅",
           error: "Invalid login credentials",
         }
       );
+      
       localStorage.setItem("token", res.access_token);
-      router.push(role === "brand" ? "/brand" : "/dashboard");
+      router.push(res.user_type === "brand" ? "/brand" : "/dashboard");
     } catch (err) {
       console.error(err);
     }

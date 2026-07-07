@@ -21,10 +21,10 @@ export interface RecommendedChallengesResponse {
 }
 
 export const useGetCircles = (page: number = 1) => {
-  return useQuery({
+  return useQuery<MyCirclesResponse>({
     queryKey: ["circles", page],
     queryFn: async () => {
-      const { data } = await api.get(`/circles?page=${page}&page_size=6`);
+      const { data } = await api.get<MyCirclesResponse>(`/circles?page=${page}&page_size=6`);
       return data;
     },
     // DISABLE retries so the error happens once and stops
@@ -52,21 +52,66 @@ export const useCreateCircle = () => {
 };
 
 export const useGetCircle = (circleId: string) => {
-  return useQuery({
+  return useQuery<MyCirclesResponse>({
     queryKey: ["circle", circleId],
     queryFn: async () => {
-      const { data } = await api.get(`/circles/${circleId}`);
+      const { data } = await api.get<MyCirclesResponse>(`/circles/${circleId}`);
       return data;
     },
     enabled: !!circleId, // Only fetch if ID exists
   });
 };
 
-export const useGetMyCircles = (page: number = 1, pageSize: number = 6) => {
-  return useQuery({
+export interface MyCircle {
+  circle_id: string;
+  name: string;
+  profile_picture_url: string | null;
+  active_challenge_count: number;
+  global_rank: number;
+  role: "admin" | "manager" | "member";
+  members: {
+    user_id: string;
+    profile_picture_url: string | null;
+  }[];
+}
+
+export interface MyCirclesResponse {
+  platforms: MyCirclesResponse | PromiseLike<MyCirclesResponse>;
+  items: MyCircle[];
+  page: number;
+  page_size: number;
+  total_items: number;
+  total_pages: number;
+  prev_url: string | null;
+  next_url: string | null;
+}
+
+export const useGetMyCircle = (
+  page = 1,
+  pageSize = 4,
+  options?: any
+) => {
+  return useQuery<MyCirclesResponse>({
     queryKey: ["myCircles", page, pageSize],
     queryFn: async () => {
-      const { data } = await api.get("/circles", {
+      const { data } = await api.get<MyCirclesResponse>("/circles", {
+        params: {
+          page,
+          page_size: pageSize,
+        },
+      });
+
+      return data;
+    },
+    ...options,
+  });
+};
+
+export const useGetMyCircles = (page: number = 1, pageSize: number = 6) => {
+  return useQuery<MyCirclesResponse>({
+    queryKey: ["myCircles", page, pageSize],
+    queryFn: async () => {
+      const { data } = await api.get<MyCirclesResponse>("/circles", {
         params: { page, page_size: pageSize }
       });
       return data; 
@@ -75,12 +120,11 @@ export const useGetMyCircles = (page: number = 1, pageSize: number = 6) => {
 };
 
 export const useGetOpenCircles = () => {
-  return useQuery({
+  return useQuery<MyCircle[]>({
     queryKey: ["open-circles"],
     queryFn: async () => {
-      const { data } = await api.get("/circles");
-      // Returning just the array of items
-      return data.items; 
+      const { data } = await api.get<MyCirclesResponse>("/circles");
+      return data.items;
     },
   });
 };
@@ -96,10 +140,10 @@ export const useRequestToJoin = () => {
 };
 
 export const useGetCircleJoinRequests = (circleId: string) => {
-  return useQuery({
+  return useQuery<MyCirclesResponse>({
     queryKey: ["circle-requests", circleId],
     queryFn: async () => {
-      const { data } = await api.get(`/circles/${circleId}/join-requests`);
+      const { data } = await api.get<MyCirclesResponse>(`/circles/${circleId}/join-requests`);
       return data; // Returns an array of join requests
     },
     enabled: !!circleId, // Only fetch if we have a circleId
@@ -122,11 +166,11 @@ export const useCancelJoinRequest = () => {
 };
 
 export const useGetMyRequests = () => {
-  return useQuery({
+  return useQuery<MyCirclesResponse>({
     queryKey: ["my-pending-requests"],
     queryFn: async () => {
       // The API identifies the user via the auth token in your header
-      const { data } = await api.get("/circles/join-requests"); 
+      const { data } = await api.get<MyCirclesResponse>("/circles/join-requests"); 
       return data;
     },
   });
@@ -191,10 +235,10 @@ export const useUpdateCircle = (circleId: string) => {
 };
 
 export const useGetCircleProfile = (circleId: string) => {
-  return useQuery({
+  return useQuery<MyCirclesResponse>({
     queryKey: ["circle-profile", circleId],
     queryFn: async () => {
-      const { data } = await api.get(`/circles/${circleId}/profile`);
+      const { data } = await api.get<MyCirclesResponse>(`/circles/${circleId}/profile`);
       return data;
     },
     enabled: !!circleId,
@@ -287,7 +331,7 @@ export const useGetCircleMembers = (circle_id: string) => {
   return useQuery<CircleMember[]>({
     queryKey: ["circle-members", circle_id],
     queryFn: async () => {
-      const { data } = await api.get(`/circles/${circle_id}/members`);
+      const { data } = await api.get<CircleMember[]>(`/circles/${circle_id}/members`);
       return data;
     },
     enabled: !!circle_id, // Only fetch if circle_id is truthy
@@ -308,10 +352,10 @@ export const useSendInvites = (circleId: string) => {
 };
 
 export const useGetPendingInvitations = (circleId: string, options?: any) => {
-  return useQuery({
+  return useQuery<MyCirclesResponse>({
     queryKey: ["circle-invitations", circleId],
     queryFn: async () => {
-      const { data } = await api.get(`/circles/${circleId}/invitations`);
+      const { data } = await api.get<MyCirclesResponse>(`/circles/${circleId}/invitations`);
       return data;
     },
     ...options, // <--- Add this
@@ -336,11 +380,11 @@ export const useRevokeInvitation = (circleId: string) => {
 
 
 export const useGetMyInvitations = () => {
-  return useQuery({
+  return useQuery<MyCirclesResponse>({
     queryKey: ["my-invitations"],
     queryFn: async () => {
       // GET /circles/invitations
-      const { data } = await api.get(`/circles/invitations`);
+      const { data } = await api.get<MyCirclesResponse>(`/circles/invitations`);
       return data;
     },
   });
@@ -381,7 +425,7 @@ export const useDeclineInvitation = () => {
 
 
 export const useGetCurrentUser = () => {
-  return useQuery({
+  return useQuery<MyCirclesResponse>({
     queryKey: ["current-user"],
     queryFn: () => {
       const storedUser = localStorage.getItem("user");
@@ -399,7 +443,7 @@ export const useGetLeaderboard = (circleId?: string | null, page: number = 0, op
   const limit = 50;
   const offset = page * limit;
 
-  return useQuery({
+  return useQuery<MyCirclesResponse>({
     queryKey: ["leaderboard", circleId, page],
     queryFn: async () => {
       const params = new URLSearchParams({
@@ -408,7 +452,7 @@ export const useGetLeaderboard = (circleId?: string | null, page: number = 0, op
       });
       if (circleId) params.append("circle_id", circleId);
 
-      const { data } = await api.get(`/circles/leaderboard?${params.toString()}`);
+      const { data } = await api.get<MyCirclesResponse>(`/circles/leaderboard?${params.toString()}`);
       return data;
     },
     ...options, // Spread the options here
@@ -416,11 +460,11 @@ export const useGetLeaderboard = (circleId?: string | null, page: number = 0, op
 };
 
 export const useGetCircleSocials = (circleId: string) => {
-  return useQuery({
+  return useQuery<MyCirclesResponse>({
     queryKey: ["circle-socials", circleId],
     queryFn: async () => {
       // This now uses the baseURL defined in api.ts
-      const { data } = await api.get(`/circles/${circleId}/social-accounts`);
+      const { data } = await api.get<MyCirclesResponse>(`/circles/${circleId}/social-accounts`);
       return data.platforms; 
     },
     enabled: !!circleId,
@@ -441,10 +485,10 @@ export const useDisconnectSocial = () => {
 };
 
 export const useGetCirclePayouts = (circleId: string) => {
-  return useQuery({
+  return useQuery<MyCirclesResponse>({
     queryKey: ["circle-payouts", circleId],
     queryFn: async () => {
-      const { data } = await api.get(`/circles/${circleId}/payout-settings`);
+      const { data } = await api.get<MyCirclesResponse>(`/circles/${circleId}/payout-settings`);
       return data; // Returns { shares, total_percentage, fully_approved }
     },
     enabled: !!circleId,
@@ -478,10 +522,10 @@ export const useApprovePayout = (circleId: string) => {
 };
 
 export const useGetCircleEarnings = (circleId: string, page = 1) => {
-  return useQuery({
+  return useQuery<MyCirclesResponse>({
     queryKey: ['circleEarnings', circleId, page],
     queryFn: async () => {
-      const { data } = await api.get(`/circles/${circleId}/earnings?page=${page}&page_size=50`);
+      const { data } = await api.get<MyCirclesResponse>(`/circles/${circleId}/earnings?page=${page}&page_size=50`);
       return data;
     },
     enabled: !!circleId,
@@ -489,10 +533,10 @@ export const useGetCircleEarnings = (circleId: string, page = 1) => {
 };
 
 export const useGetCircleMonthlyEarnings = (circleId: string) => {
-  return useQuery({
+  return useQuery<MyCirclesResponse>({
     queryKey: ['monthlyEarnings', circleId],
     queryFn: async () => {
-      const { data } = await api.get(`/circles/${circleId}/earnings/monthly`);
+      const { data } = await api.get<MyCirclesResponse>(`/circles/${circleId}/earnings/monthly`);
       return data;
     },
     enabled: !!circleId,
@@ -517,7 +561,7 @@ export const useGetEarningDetail = (
   challengeId: string,
   options?: { enabled?: boolean }
 ) => {
-  return useQuery({
+  return useQuery<MyCirclesResponse>({
     queryKey: ["earning-detail", circleId, challengeId],
     queryFn: () => fetchEarningDetail(circleId, challengeId),
     enabled: options?.enabled ?? true,

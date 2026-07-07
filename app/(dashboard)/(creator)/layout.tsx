@@ -20,6 +20,8 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
   const [leftCollapsed, setLeftCollapsed] = useState(true);
   const [rightCollapsed, setRightCollapsed] = useState(true);
 
+  const isAnalyticsRoute = pathname === "/analytics" || pathname?.startsWith("/analytics/");
+
   // Check if we are currently inside any of the circle route variations
   const isCircleRoute = pathname?.startsWith('/creator-circle') || pathname?.startsWith('/creator-circles');
   
@@ -33,17 +35,29 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
 
   // Handle route-specific behavior when path changes
   useEffect(() => {
-    if (isCircleRoute) {
-      setLeftCollapsed(true);       // Keeps left sidebar collapsed
-      setRightCollapsed(true);      // Force right sidebar to stay closed on creator circle page load
-    } else {
-      setLeftCollapsed(true);       
+    if (isAnalyticsRoute) {
+      setLeftCollapsed(true);
       setRightCollapsed(true);
+      return;
     }
-  }, [pathname, isCircleRoute]);
+  
+    setLeftCollapsed(true);
+    setRightCollapsed(true);
+  }, [pathname, isCircleRoute, isAnalyticsRoute]);
+ ;
+
+ useEffect(() => {
+  setLeftCollapsed(true);
+  setRightCollapsed(true);
+}, [pathname, isAnalyticsRoute]);
 
   const toggleRight = () => {
-    setRightCollapsed(prev => {
+    if (isAnalyticsRoute) {
+      setRightCollapsed(true);
+      return;
+    }
+  
+    setRightCollapsed((prev) => {
       const nextState = !prev;
       if (!nextState && isCircleRoute) {
         setLeftCollapsed(true);
@@ -53,10 +67,15 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
   };
 
   const toggleLeft = () => {
-    setLeftCollapsed(prev => {
+    if (isAnalyticsRoute) {
+      setLeftCollapsed(true);
+      return;
+    }
+  
+    setLeftCollapsed((prev) => {
       const nextState = !prev;
       if (!nextState) {
-        setRightCollapsed(true); 
+        setRightCollapsed(true);
       }
       return nextState;
     });

@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { variants } from "@/constant";
 import { useAuthStore } from "@/store/useAuthStore";
+import {useGetMe} from "@/hooks/useAuth";
 import { FiEdit2 } from "react-icons/fi";
 import EditProfileModal from "@/components/(brand)/profile/EditProfileModal";
 import { useModal } from "@/hooks/useModal";

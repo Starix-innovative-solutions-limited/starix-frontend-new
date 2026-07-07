@@ -117,7 +117,7 @@ export default function CreatorHero() {
               </div>
               {/* Text */}
               <div className="flex flex-col justify-center text-left">
-                <p className="text-[14px]  font-medium text-[#1E1F24] leading-snug tracking-tight">
+                <p className="text-[14px] font-medium text-[#1E1F24] leading-snug tracking-tight">
                   {t.quote}
                 </p>
                 <span className="text-[12px] md:text-[12px] text-[#62636C] font-medium mt-0.5">

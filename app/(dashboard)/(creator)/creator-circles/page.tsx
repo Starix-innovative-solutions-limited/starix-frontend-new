@@ -72,8 +72,14 @@ const CreatorCircles = () => {
                 <p className="text-[#62636C] min-w-[200px] text-[10px] md:text-[12px]">Enter a circle using an invitation code and start collaborating.</p>
             </div>
             <button onClick={() => setIsJoinModalOpen(true)} className="w-fit px-6 py-2.5 bg-transparent border border-[#8B8D98] rounded-full font-semibold text-[12px] z-10 hover:shadow-sm transition-all">Enter Code</button>
-            <div className="absolute top-0 right-0 h-full w-[100%] pointer-events-none">
-                <Image src="/puzzle.svg" fill className="object-contain object-right" alt="Graphic" />
+            <div className="absolute top-0 right-0 h-full w-auto pointer-events-none">
+                <Image
+                  src="/puzzle.svg"
+                  alt="Hero"
+                  width={400}
+                  height={400}
+                  priority // This tells Next.js to fetch it immediately
+                />
             </div>
         </div>
       </div>

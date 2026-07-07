@@ -102,7 +102,7 @@ const WhyStarix = () => {
         {/* LEFT PANEL (Problem View) */}
         <div className="bg-[#F9F9FB] rounded-[32px] p-6 h-full flex flex-col ">
           <div className="mb-6 pt-6">
-            <span className="inline-block bg-[#FE342614] text-[#FD6C1D] text-[16px] font-bold px-4 py-2 rounded-full uppercase tracking-widest">
+            <span className="inline-block bg-[#FE342614] text-[#FD6C1D] text-[16px] font-semibold px-4 py-2 rounded-full uppercase tracking-widest">
               THE PROBLEM
             </span>
           </div>
@@ -172,8 +172,8 @@ const WhyStarix = () => {
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/50 via-transparent to-black/5 pointer-events-none z-10" />
           
-          <div className="relative p-12 z-20">
-            <span className="inline-block px-6 py-2 rounded-full uppercase tracking-widest text-[16px] font-bold text-[#2F3CFF] bg-[#0033FF0D] backdrop-blur-xl saturate-150 ">
+          <div className="relative p-11 z-20">
+            <span className="inline-block px-6 py-2 rounded-full uppercase tracking-widest text-[16px] font-semibold text-[#2F3CFF] bg-[#0033FF0D] backdrop-blur-xl saturate-150 ">
                 THE SOLUTION
             </span>
           </div>

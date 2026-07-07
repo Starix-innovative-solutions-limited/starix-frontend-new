@@ -23,6 +23,7 @@ import {
   YAxis,
 } from "recharts";
 import Link from "next/link";
+import { useGetMe } from "@/hooks/useAuth";
 import { FiBell } from "react-icons/fi";
 import { useEffect, useRef } from "react";
 import { useEarnings, useRank, useChallenges, useEngagement, useStarixScore, 
@@ -197,6 +198,9 @@ const AnalyticsPage = () => {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const { data: trendData, isLoading: trendLoading } = useEngagementTrend();
   const { data: clicks } = useProfileClicks();
+
+  const { data: user } = useGetMe();
+  const profileImage = user?.profile_picture_url?.trim() || null;
 
   const trendPoints = useMemo(() => {
   if (trendData?.monthly_chart.points?.length) return trendData.monthly_chart.points;
@@ -406,12 +410,19 @@ const completedData = useMemo(() => {
 
           <Link href="/profile" className="block cursor-pointer">
             <div className="relative h-12 w-12 overflow-hidden rounded-full border-2 border-[#245BFF] bg-gray-100">
-              <Image 
-                src="/no127.svg" 
-                alt="Profile" 
-                fill 
-                className="object-cover" 
+            {profileImage ? (
+              <Image
+                src={profileImage}
+                alt="Profile"
+                fill
+                className="object-cover"
               />
+            ) : (
+              <div
+                className="h-full w-full rounded-full bg-[#F5F6F8]"
+                aria-label="No profile picture"
+              />
+            )}
             </div>
           </Link>
         </div>
@@ -463,7 +474,7 @@ const completedData = useMemo(() => {
             </>
           )}
 
-          <div className="mt-5 h-[116px] rounded-[12px] bg-white/80 p-3">
+          <div className="mt-5 h-[116px] min-h-[116px] min-w-0 rounded-[12px] bg-white/80 p-3">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={rank?.weekly_chart?.points || []}>
                 <XAxis dataKey="x" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: "#747682" }} />
@@ -643,8 +654,8 @@ const completedData = useMemo(() => {
             {trendData?.lifetime_engagement_count.toLocaleString() ?? "0"}
           </h2>
 
-          <div className="mt-5 h-[280px]">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="mt-5 h-[280px] min-h-[280px] min-w-0">
+            <ResponsiveContainer width="100%" height={280}>
               <AreaChart data={trendPoints}>
                 <CartesianGrid vertical={false} stroke="#F3F4F6" />
                 <XAxis 
@@ -750,15 +761,27 @@ const CardLabel = ({ label }: { label: string }) => (
   </div>
 );
 
-const MiniSparkline = ({ large = false }: { large?: boolean }) => (
-  <div className={`${large ? "h-[72px] w-[115px]" : "h-[72px] w-[78px]"} rounded-[10px] bg-[#FAFAFB] p-2`}>
-    <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={miniTrendData}>
-        <Line type="monotone" dataKey="value" stroke="#54D1A0" strokeWidth={1.5} dot={false} />
-      </LineChart>
-    </ResponsiveContainer>
-  </div>
-);
+const MiniSparkline = ({ large = false }: { large?: boolean }) => {
+  const width = large ? 115 : 78;
+
+  return (
+    <div
+      className={`${large ? "h-[72px] w-[115px]" : "h-[72px] w-[78px]"} shrink-0 rounded-[10px] bg-[#FAFAFB] p-2`}
+    >
+      <ResponsiveContainer width={width - 16} height={56}>
+        <LineChart data={miniTrendData}>
+          <Line
+            type="monotone"
+            dataKey="value"
+            stroke="#54D1A0"
+            strokeWidth={1.5}
+            dot={false}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+};
 
 const LegendMetric = ({ color, label, value }: { color: string; label: string; value: string }) => {
   // Now value looks like "234k +6.5%"

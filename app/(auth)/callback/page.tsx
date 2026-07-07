@@ -10,25 +10,55 @@ const CallbackHandler = () => {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const token = searchParams.get("token");
-    const error = searchParams.get("error");
-
+    const hashParams =
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.hash.replace(/^#/, ""))
+        : new URLSearchParams();
+  
+    const token =
+      searchParams.get("token") ||
+      searchParams.get("access_token") ||
+      hashParams.get("token") ||
+      hashParams.get("access_token");
+  
+    const error =
+      searchParams.get("error") ||
+      hashParams.get("error");
+  
+    const userTypeFromUrl =
+      searchParams.get("user_type") ||
+      hashParams.get("user_type");
+  
+    const savedRole =
+      localStorage.getItem("oauthRole") ||
+      localStorage.getItem("loginRole");
+  
     if (error) {
       console.error("OAuth Error:", error);
-      router.push("/login?error=auth_failed");
+      router.replace("/login?error=auth_failed");
       return;
     }
-
-    if (token) {
-      localStorage.setItem("token", token);
-      const savedRole = localStorage.getItem("loginRole");
-
-      if (savedRole === "brand") {
-        router.push("/brand");
-      } else {
-        router.push("/dashboard");
-      }
+  
+    if (!token) {
+      console.error("OAuth callback missing token", {
+        query: Object.fromEntries(searchParams.entries()),
+        hash: Object.fromEntries(hashParams.entries()),
+        href: window.location.href,
+      });
+  
+      router.replace("/login?error=missing_token");
+      return;
     }
+  
+    localStorage.setItem("token", token);
+  
+    const finalRole = userTypeFromUrl || savedRole || "creator";
+  
+    localStorage.removeItem("oauthRole");
+    localStorage.removeItem("oauthMode");
+    localStorage.removeItem("loginRole");
+  
+    router.replace(finalRole === "brand" ? "/brand" : "/dashboard");
   }, [searchParams, router]);
 
   return (

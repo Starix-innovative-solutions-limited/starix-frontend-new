@@ -6,12 +6,13 @@ import { motion } from "framer-motion";
 import React, { useState, useMemo } from "react";
 import CustomInput from "../CustomInput";
 import Loader from "../Loader";
-import { useBrandSignup, useGenerateOtp } from "@/hooks/useAuth";
+import { useBrandSignup } from "@/hooks/useAuth";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
+import { startGoogleAuth } from "@/lib/auth";
 import { HiCheckCircle, HiXCircle } from "react-icons/hi2";
 
 const initialForm = {
@@ -22,12 +23,21 @@ const initialForm = {
   industry: "",
 };
 
+const handleGoogleSignup = async () => {
+  try {
+    await startGoogleAuth("brand", "signup");
+  } catch (err: any) {
+    console.error("GOOGLE SIGNUP ERROR:", err.response?.data || err.message);
+    toast.error("Unable to connect to Google Signup.");
+  }
+};
+
 const BrandSignup = () => {
   const [form, setForm] = useState(initialForm);
   const router = useRouter();
 
   const { mutateAsync, isPending } = useBrandSignup();
-  const { mutate: generateOtp } = useGenerateOtp();
+
 
   // --- PASSWORD VALIDATION (Same as Creator for consistency) ---
   const passwordRequirements = useMemo(() => [
@@ -56,9 +66,7 @@ const BrandSignup = () => {
     await toast.promise(mutateAsync(payload as any), {
       loading: "Creating brand account...",
       success: (data: any) => {
-        if (data?.access_token) localStorage.setItem("accessToken", data.access_token);
-        // Ensure generateOtp uses the correct key for brand verification
-        generateOtp({ email: form.brand_email, purpose: "email_verification" } as any);
+        if (data?.access_token) localStorage.setItem("token", data.access_token);
         router.push(`/verify-email?email=${form.brand_email}&role=brand`);
         return "Brand account created!";
       },
@@ -87,7 +95,11 @@ const BrandSignup = () => {
         </p>
       </header>
 
-      <button className="w-full flex items-center justify-center gap-3 border border-[#E5E7EB] rounded-full py-4 mb-8 hover:bg-gray-50 transition-all font-semibold text-[#1F2937]">
+      <button
+        type="button"
+        onClick={handleGoogleSignup}
+        className="w-full flex items-center justify-center gap-3 border border-[#E5E7EB] rounded-full py-4 mb-8 hover:bg-gray-50 transition-all font-semibold text-[#1F2937]"
+      >
         <FcGoogle size={24} /> Continue with Google
       </button>
 

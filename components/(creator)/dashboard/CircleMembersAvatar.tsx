@@ -17,9 +17,10 @@ export const CircleMembersAvatar = ({ circleId }: { circleId: string }) => {
       {displayMembers.map((member, i) => (
         <div key={i} className="relative w-6 h-6 rounded-full border-2 border-white overflow-hidden">
           <Image 
-            src={member.profile_picture_url || "/default-avatar.svg"} 
+            src={member.profile_picture_url || "/avatar.svg"} 
             alt={member.full_name} 
             fill 
+            sizes="(max-width: 768px) 100vw, 33vw"
             className="object-cover"
           />
         </div>

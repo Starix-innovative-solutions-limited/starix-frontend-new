@@ -6,13 +6,14 @@ import { motion } from "framer-motion";
 import React, { useState, useMemo } from "react";
 import CustomInput from "../CustomInput"; 
 import Loader from "../Loader";
-import { useCreatorSignup, useGenerateOtp } from "@/hooks/useAuth";
+import { useCreatorSignup } from "@/hooks/useAuth";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc"; 
 import { HiCheckCircle, HiXCircle } from "react-icons/hi2";
 import Link from "next/link";
 import Image from "next/image";
+import { startGoogleAuth } from "@/lib/auth";
 
 const initialForm = {
   first_name: "",
@@ -21,12 +22,20 @@ const initialForm = {
   password: "",
 };
 
+const handleGoogleSignup = async () => {
+  try {
+    await startGoogleAuth("creator", "signup");
+  } catch (err: any) {
+    console.error("GOOGLE SIGNUP ERROR:", err.response?.data || err.message);
+    toast.error("Unable to connect to Google Signup.");
+  }
+};
+
 const CreatorSignup = () => {
   const router = useRouter();
   const [form, setForm] = useState(initialForm);
 
   const { mutateAsync, isPending } = useCreatorSignup();
-  const { mutate: generateOtp } = useGenerateOtp();
 
   // --- PASSWORD VALIDATION LOGIC ---
   const passwordRequirements = useMemo(() => [
@@ -64,7 +73,6 @@ const CreatorSignup = () => {
       {
         loading: "Creating account...",
         success: () => {
-          generateOtp({ email: form.email, purpose: "email_verification" } as any);
           router.push(`/verify-email?email=${form.email}&role=creator`);
           return "Signup successful!";
         },
@@ -105,7 +113,11 @@ const CreatorSignup = () => {
         </p>
       </header>
 
-      <button className="w-full flex items-center justify-center gap-3 border border-[#E5E7EB] rounded-full py-4 px-4 mb-8 hover:bg-gray-50 transition-all font-semibold text-[#1F2937] text-base active:scale-[0.99]">
+      <button
+        type="button"
+        onClick={handleGoogleSignup}
+        className="w-full flex items-center justify-center gap-3 border border-[#E5E7EB] rounded-full py-4 px-4 mb-8 hover:bg-gray-50 transition-all font-semibold text-[#1F2937] text-base active:scale-[0.99]"
+      >
         <FcGoogle size={24} />
         Continue with Google
       </button>

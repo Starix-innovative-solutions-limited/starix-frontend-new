@@ -1,27 +1,42 @@
 import { useMutation } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 
-/**
- * Uploads a single media file (e.g. circle logo/banner) and returns the
- * hosted URL to use in `profile_picture_url` / `banner_url` fields.
- *
- * ⚠️ PLACEHOLDER CONTRACT — update to match your real media-upload endpoint:
- *  - endpoint path (currently "/media/upload")
- *  - the form field name the backend expects (currently "file")
- *  - the response field containing the hosted URL (currently `data.url`)
- */
+type UploadTarget = 
+  | "profile_picture" | "user_banner" | "challenge_banner" 
+  | "challenge_document" | "circle_profile_picture" | "circle_banner";
+
 export const useUploadMedia = () => {
   return useMutation({
-    mutationFn: async (file: File) => {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const { data } = await api.post("/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+    mutationFn: async ({ file, target }: { file: File; target: UploadTarget }) => {
+      // 1. Get the presigned URL from your backend
+      const { data: presignedData } = await api.post("/media/upload-url", {
+        target,
+        filename: file.name,
+        content_type: file.type,
       });
 
-      // Adjust this to match your API's actual response field
-      return data as { url: string };
+      const { upload_url, public_url } = presignedData as { 
+        upload_url: string; 
+        public_url: string; 
+      };
+
+      // 2. PUT the file directly to S3
+      // IMPORTANT: Do not include the Authorization header here.
+      // Send the same Content-Type you requested.
+      const uploadResponse = await fetch(upload_url, {
+        method: "PUT",
+        body: file,
+        headers: {
+          "Content-Type": file.type,
+        },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error("Failed to upload file to S3");
+      }
+
+      // 3. Return the public_url to be used in your Create/Update form
+      return { public_url };
     },
   });
 };

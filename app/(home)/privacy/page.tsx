@@ -1,13 +1,11 @@
 "use client";
 
 import React from "react";
-import Navbar from "@/components/Navbar"; // Adjust path to your actual Navbar
 
 const PrivacyPolicy = () => {
   return (
     <div className="bg-[white] min-h-screen font-['Geist'] text-[#040136]">
-      {/* Import your Navbar here */}
-      <Navbar />
+      
 
       {/* --- HERO SECTION (First Image) --- */}
       <section className="pt-32 pb-20 px-6 text-center bg-[#FAFAFA] border-b border-gray-50">
@@ -161,7 +159,7 @@ const PrivacyPolicy = () => {
             <div className="space-y-4">
               <h2 className="text-3xl font-bold">9. Contact</h2>
               <p className="text-[#6E6E6E] text-lg">
-                For privacy-related questions: <a href="mailto:Starix@mail.com" className="text-blue-600 underline">Starix@mail.com</a>
+                For privacy-related questions: <a href="mailto:contact@starixapp.com" className="text-blue-600 underline">contact@starixapp.com</a>
               </p>
             </div>
 

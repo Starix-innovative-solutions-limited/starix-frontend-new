@@ -44,7 +44,7 @@ const Footer = () => {
           {/* LEFT — Logo, description, social icons */}
           <div className="max-w-[460px]">
             <Link href="/" className="inline-block mb-6">
-              <Image
+              <img
                 src="/logo light.svg"
                 alt="Starix Logo"
                 width={198}
@@ -110,7 +110,7 @@ const Footer = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link href="./footer/privacy" className="text-white/70 hover:text-white font-medium transition-colors text-[clamp(16px,1vw,15px)]">
+                  <Link href="./privacy" className="text-white/70 hover:text-white font-medium transition-colors text-[clamp(16px,1vw,15px)]">
                     Privacy Policy
                   </Link>
                 </li>

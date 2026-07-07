@@ -27,45 +27,45 @@ const CTASection = () => {
       >
         
         {/* DYNAMIC WATERMARK CONFIG */}
-{(() => {
-  // Define coordinates based on the current page context
-  const watermarkConfig = isForBrands
-    ? { width: '1200px', height: '400px', top: '450px', left: '10%', opacity: 0.4 } // Brands: Lower & Centered
-    : isForCreators
-    ? { width: '1500px', height: '500px', top: '100px', right: '-20px', opacity: 0.6 } // Creators: Top Right Offset
-    : { width: '1407px', height: '434px', top: '100px', left: '-64px', opacity: 1 }; // Home: Original
+    {(() => {
+      // Define coordinates based on the current page context
+      const watermarkConfig = isForBrands
+        ? { width: '1200px', height: '400px', top: '450px', left: '10%', opacity: 0.4 } // Brands: Lower & Centered
+        : isForCreators
+        ? { width: '1500px', height: '500px', top: '100px', right: '-20px', opacity: 0.6 } // Creators: Top Right Offset
+        : { width: '1407px', height: '434px', top: '180px', left: '-60px', opacity: 0.6 }; // Home: Original
 
-  return (
-    <div 
-      className="absolute pointer-events-none select-none overflow-hidden transition-all duration-700"
-      style={{ 
-        width: watermarkConfig.width, 
-        height: watermarkConfig.height, 
-        top: watermarkConfig.top, 
-        left: watermarkConfig.left || 'auto',
-        right: watermarkConfig.right || 'auto',
-        opacity: watermarkConfig.opacity
-      }}
-    >
-      <img 
-          src="/foot.svg" 
-          alt="starix watermark" 
-          className="w-full h-full object-contain brightness-0 invert" 
-      />
-    </div>
-  );
-})()}
+      return (
+        <div 
+          className="absolute pointer-events-none select-none overflow-hidden transition-all duration-700"
+          style={{ 
+            width: watermarkConfig.width, 
+            height: watermarkConfig.height, 
+            top: watermarkConfig.top, 
+            left: watermarkConfig.left || 'auto',
+            right: watermarkConfig.right || 'auto',
+            opacity: watermarkConfig.opacity
+          }}
+        >
+          <img 
+              src="/foot.svg" 
+              alt="starix watermark" 
+              className="w-full h-full object-contain brightness-0 invert" 
+          />
+        </div>
+      );
+    })()}
 
         {/* CONTENT WRAPPER */}
         <div className={`relative z-10 flex flex-col px-10 md:px-20 max-w-7xl w-full 
           ${(isForBrands || isForCreators) ? "text-left items-start" : "items-center text-center mx-auto"}`}
         >
           
-          <h2 className={`font-['Geist'] text-white font-light tracking-[-0.02em] mb-6
+          <h2 className={`font-['Geist'] text-white font-light tracking-[-0.02em] mb-10
             ${(isForBrands || isForCreators) ? "text-[48px] md:text-[56px] leading-[58px]" : "text-[56px]"}
           `}>
             {isForCreators || isForBrands ? (
-              <>Your next opportunity <br /> is here.</> // Figma Text
+              <>Your next <br /> opportunity is here.</> // Figma Text
             ) : (
               <>Redefine Your Creativity &  <br /> Brand Story contents.</> // Hero Text
             )}
@@ -79,7 +79,7 @@ const CTASection = () => {
             {!isForBrands && (
               <Link 
                 href="/coming-soon" 
-                className={`inline-flex items-center justify-center w-52 h-16 rounded-[40px] text-white text-lg font-medium transition-all duration-300
+                className={`inline-flex items-center justify-center p-4 rounded-[40px] text-white text-lg font-medium transition-all duration-300
                   ${isForCreators 
                     ? "bg-[#FF6B00] hover:brightness-110 shadow-sm" // Orange on Creator Page
                     : "border border-white hover:bg-white/10" // Outline on Hero Page
@@ -94,7 +94,7 @@ const CTASection = () => {
             {!isForCreators && (
               <Link
                 href="/coming-soon"
-                className={`inline-flex items-center justify-center w-52 h-16 rounded-[40px] text-white text-lg font-medium transition-all duration-300
+                className={`inline-flex items-center justify-center p-4 rounded-[40px] text-white text-lg font-medium transition-all duration-300
                   ${isForBrands ? "bg-[#0033FF] hover:bg-[#0041cc]" : "bg-[#FF6B00] hover:brightness-110 shadow-sm"}
                 `}
               >
@@ -135,12 +135,12 @@ const CTASection = () => {
 
           {/* HOME PAGE ASSET (Trophy) */}
           {!isForBrands && !isForCreators && (
-            <div className="absolute z-20 pointer-events-none top-[110%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[600px] lg:w-[850px]">
+            <div className="absolute z-20 pointer-events-none top-[85%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[600px] lg:w-[850px]">
               <Image 
                 src="/troph.svg" 
                 alt="3D Trophy" 
                 width={2000} height={1700} 
-                className="w-full h-auto object-contain scale-125"
+                className="w-full h-auto object-contain scale-150"
                 priority
               />
             </div>

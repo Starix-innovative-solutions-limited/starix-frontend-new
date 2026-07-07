@@ -71,7 +71,7 @@ export default function WithdrawModal({ isOpen, onClose, balance: initialBalance
 
   useEffect(() => {
     if (updateAccountMutation.isSuccess) {
-      queryClient.invalidateQueries({ queryKey: ["withdrawalAccount"] });
+      queryClient.invalidateQueries({ queryKey: ["wallet", "withdrawal-account"] });
       const timer = setTimeout(() => {
         setStep("withdraw");
         resetBankSelectionSubForm();

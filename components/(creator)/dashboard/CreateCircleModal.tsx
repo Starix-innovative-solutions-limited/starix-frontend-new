@@ -46,37 +46,41 @@ const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) =
   ]);
 
   const handleCreateCircle = async () => {
-    // 1. Upload the logo (if one was selected) to get a hosted URL first —
-    // the create-circle endpoint only accepts a URL, not a file.
-    let uploadedImageUrl: string | null = null;
-    const file = fileInputRef.current?.files?.[0];
+  let uploadedImageUrl: string | null = null;
+  const file = fileInputRef.current?.files?.[0];
 
+  try {
+    // 1. Handle Media Upload if a file exists
     if (file) {
-      try {
-        const result = await uploadMedia.mutateAsync(file);
-        uploadedImageUrl = result.url;
-      } catch (err: any) {
-        alert(err?.response?.data?.detail || "Failed to upload image. Please try again.");
-        return; // stop here so the circle isn't created without its image
-      }
+      // Pass the specific target required by your backend
+      const { public_url } = await uploadMedia.mutateAsync({
+        file,
+        target: "circle_profile_picture"
+      });
+      uploadedImageUrl = public_url;
     }
 
+    // 2. Create the circle with the received URL
     createMutation.mutate({
       name: circleName,
       description: description,
       privacy: privacy.includes("code") ? "private" : "public",
-      niches: [], // Add niche state if you have one
+      niches: [],
       ...(uploadedImageUrl ? { profile_picture_url: uploadedImageUrl } : {}),
     }, {
-      onSuccess: (data) => {
-        // data.join_code will be available here
+      onSuccess: () => {
         setStep("SUCCESS");
       },
       onError: (err: any) => {
         alert(err?.response?.data?.detail || "Error creating circle");
       }
     });
-  };
+  } catch (err: any) {
+    // This catches both the S3 upload error and the API creation error
+    console.error("Upload/Creation failed:", err);
+    alert("Process failed. Please check your file or connection.");
+  }
+};
   // 2. Sync internal step tracking when modal visibility or initial targets change
   useEffect(() => {
     if (isOpen) {

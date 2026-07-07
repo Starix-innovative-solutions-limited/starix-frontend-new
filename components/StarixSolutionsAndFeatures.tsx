@@ -64,7 +64,7 @@ const ChallengeCard = ({
 
     {/* DESCRIPTION */}
     <p
-      className={`absolute z-10 text-[#6E6E6E] text-[16px] leading-snug ${descClass}`}
+      className={`absolute z-10 text-[#747682] text-[16px] leading-snug ${descClass}`}
     >
       {desc}
     </p>
