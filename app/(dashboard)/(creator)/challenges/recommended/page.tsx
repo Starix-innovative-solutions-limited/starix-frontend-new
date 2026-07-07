@@ -9,12 +9,28 @@ import Image from "next/image";
 import Link from "next/link";
 import { useGetRecommendedChallenges } from "@/hooks/useChallenges";
 
+type RecommendedCard = {
+  id: string | number;
+  brand: string;
+  logo: string;
+  time: string;
+  niche: string[];
+  prize: string;
+  deadline: string;
+  verified: boolean;
+  images: string[];
+  title?: string;
+  desc?: string;
+  views?: string;
+  mail?: string;
+};
+
 const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean }) => {
   // 1. Core hook layer integration
   const { data: apiResponse } = useGetRecommendedChallenges();
 
   // Your original static template array matching your design specs perfectly
-  const staticCards = [
+  const staticCards: RecommendedCard[]  = [
     { id: 1, brand: "Nivea", logo: "/nivea.svg", time: "12h ago", niche: ["Beauty", "Family"], prize: "₦10M", deadline: "12h", verified: true, images: ["/left1.svg", "/right1.svg"] },
     { id: 2, brand: "Indomie", logo: "/indomie.svg", time: "2d ago", niche: ["Food", "Family"], prize: "₦8m", deadline: "12h", verified: false, images: ["/right21.svg", "/right22.svg", "/right21.svg"] },
     { id: 3, brand: "Nivea", logo: "/nivea.svg", time: "12h ago", niche: ["Beauty", "Family"], prize: "₦10M", deadline: "12h", verified: true, images: ["/left1.svg", "/right1.svg"] },
@@ -31,10 +47,14 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
   };
 
   // 2. Map dynamic backend data into card objects if it exists
-  const cards = React.useMemo(() => {
+  const cards = React.useMemo<RecommendedCard[]>(() => {
     if (apiResponse && apiResponse.challenges && apiResponse.challenges.length > 0) {
-      return apiResponse.challenges.map((challenge: any, idx: number) => {
-        const mediaUrls = challenge.media?.sort((a: any, b: any) => a.display_order - b.display_order).map((m: any) => m.media_url) || [];
+      return apiResponse.challenges.map((challenge: any, idx: number): RecommendedCard => {
+        const mediaUrls =
+          challenge.media
+            ?.sort((a: any, b: any) => a.display_order - b.display_order)
+            .map((m: any) => m.media_url) || [];
+  
         return {
           id: challenge.id || idx + 1,
           brand: challenge.brand_name || "Brand",
@@ -44,14 +64,15 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
           prize: challenge.prize_pool_display || "₦10M",
           deadline: "12h",
           verified: challenge.is_funded ?? true,
-          title: challenge.title, // Keep raw backend value, handled by internal layout fallbacks below
-          desc: challenge.description, // Keep raw backend value, handled by internal layout fallbacks below
+          title: challenge.title,
+          desc: challenge.description,
           images: mediaUrls.length > 0 ? mediaUrls : ["/left1.svg", "/right1.svg"],
           views: challenge.viewer_count ? `${(challenge.viewer_count / 1000).toFixed(1)}k` : "2.1k",
           mail: challenge.participant_count?.toString() || "87",
         };
       });
     }
+  
     return staticCards;
   }, [apiResponse]);
 
