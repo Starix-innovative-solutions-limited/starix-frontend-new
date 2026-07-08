@@ -27,7 +27,7 @@ const CircleProfilePage = () => {
 
 const { data: monthlyEarnings } = useGetCircleMonthlyEarnings(id);  
 
-  const circle = profile?.circle_id ? profile : (profile?.items ? profile.items[0] : profile);
+  const circle = profile;
 
   // Modals state
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -44,8 +44,10 @@ const { data: monthlyEarnings } = useGetCircleMonthlyEarnings(id);
   
 const hasNoChallenges = (circle?.active_challenge_count ?? 0) === 0;
 
+
+
 const { data: socials } = useGetCircleSocials(id);
-const PLATFORM_ICONS: Record<string, JSX.Element> = {
+const PLATFORM_ICONS: Record<string, React.ReactNode> = {
   instagram: <FaInstagram size={18} />,
   tiktok: <FaTiktok size={18} />,
   youtube: <FaYoutube size={18} />,
@@ -75,7 +77,7 @@ const confirmDelete = () => {
           isOpen={isSettingsOpen} 
           onClose={() => setIsSettingsOpen(false)} 
           circleId={id} 
-          currentData={circle} 
+          currentData={id} 
         />
       )}
       <BannerUploadModal isOpen={isBannerModalOpen} onClose={() => setIsBannerModalOpen(false)} circleId={id} />
@@ -226,7 +228,7 @@ const confirmDelete = () => {
             </div>
             
             <h3 className="text-[26px] font-semibold text-[#1E1F24]">
-              ₦{(monthlyEarnings?.current_month_earnings / 100).toLocaleString()}
+              ₦{((monthlyEarnings?.current_month_earnings ?? 0) / 100).toLocaleString()}
               <span className="text-[#80828D] text-[26px]">.00</span>
             </h3>
             
@@ -260,7 +262,7 @@ const confirmDelete = () => {
             <div className="flex justify-between items-end">
               <div>
                 <h3 className="text-[26px] font-semibold text-[#1E1F24]">
-                  {(profile.all_time_views / 1000).toFixed(0)}K
+                  {((profile.all_time_views ?? 0) / 1000).toFixed(0)}K
                   <span className="text-[12px] text-[#62636C] font-normal ml-1">Views</span>
                 </h3>
                 <button className="text-[12px] text-[#62636C] font-medium mt-1 flex items-center gap-1 hover:text-black">
@@ -271,10 +273,10 @@ const confirmDelete = () => {
               {/* Live Trend Box */}
               <div className="bg-white w-[110px] h-[60px] rounded-2xl p-2 border border-gray-100 flex flex-col justify-between">
                 <div className="text-[10px] font-semibold">
-                  {profile.views_delta_percentage > 0 ? (
+                  {(profile.views_delta_percentage ?? 0) > 0 ? (
                     <span className="text-[#0CC963]">{profile.views_delta_percentage}% ↑</span>
-                  ) : profile.views_delta_percentage < 0 ? (
-                    <span className="text-[#EF4444]">{Math.abs(profile.views_delta_percentage)}% ↓</span>
+                  ) : (profile.views_delta_percentage ?? 0) < 0 ? (
+                    <span className="text-[#EF4444]">{Math.abs(profile.views_delta_percentage ?? 0)}% ↓</span>
                   ) : (
                     <span className="text-[#9CA3AF]">N/A ↑</span>
                   )}
@@ -282,14 +284,14 @@ const confirmDelete = () => {
 
                 <svg className="w-full h-full" viewBox="0 0 100 30" preserveAspectRatio="none">
                   <path
-                    d={profile.views_delta_percentage > 0 
+                    d={(profile.views_delta_percentage ?? 0) > 0 
                       ? "M0 25 C 20 25, 20 5, 40 5 C 60 5, 60 20, 100 15" // Upward
-                      : profile.views_delta_percentage < 0
+                      : (profile.views_delta_percentage ?? 0) < 0
                       ? "M0 10 C 20 10, 20 20, 40 15 C 60 10, 60 25, 100 25" // Downward
                       : "M0 20 C 20 15, 40 25, 100 18" // N/A Neutral Wave
                     }
                     fill="none"
-                    stroke={profile.views_delta_percentage > 0 ? "#0CC963" : profile.views_delta_percentage < 0 ? "#EF4444" : "#D1D5DB"}
+                    stroke={(profile.views_delta_percentage ?? 0) > 0 ? "#0CC963" : (profile.views_delta_percentage ?? 0) < 0 ? "#EF4444" : "#D1D5DB"}
                     strokeWidth="2"
                     strokeLinecap="round"
                   />

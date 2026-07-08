@@ -76,7 +76,6 @@ export interface MyCircle {
 }
 
 export interface MyCirclesResponse {
-  platforms: MyCirclesResponse | PromiseLike<MyCirclesResponse>;
   items: MyCircle[];
   page: number;
   page_size: number;
@@ -234,11 +233,34 @@ export const useUpdateCircle = (circleId: string) => {
   });
 };
 
+export interface CircleProfile {
+  circle_id: string;
+  name: string;
+  description?: string | null;
+  privacy?: "public" | "private" | string;
+  niches?: string[];
+  profile_picture_url: string | null;
+  banner_url?: string | null;
+  active_challenge_count: number;
+  global_rank: number;
+  role: "admin" | "manager" | "member" | string;
+  members: {
+    user_id: string;
+    full_name?: string;
+    profile_picture_url: string | null;
+    role?: string;
+  }[];
+  join_code?: string | null;
+  all_time_views?: number;
+  views_delta_percentage?: number;
+  circle_score?: number;
+}
+
 export const useGetCircleProfile = (circleId: string) => {
-  return useQuery<MyCirclesResponse>({
+  return useQuery<CircleProfile>({
     queryKey: ["circle-profile", circleId],
     queryFn: async () => {
-      const { data } = await api.get<MyCirclesResponse>(`/circles/${circleId}/profile`);
+      const { data } = await api.get<CircleProfile>(`/circles/${circleId}/profile`);
       return data;
     },
     enabled: !!circleId,
@@ -467,13 +489,21 @@ export const useGetLeaderboard = (circleId?: string | null, page: number = 0, op
   });
 };
 
+export interface CircleSocialAccount {
+  id: string;
+  platform: string;
+  profile_url: string;
+  followers_count?: number;
+}
+
 export const useGetCircleSocials = (circleId: string) => {
-  return useQuery<MyCirclesResponse>({
+  return useQuery<CircleSocialAccount[]>({
     queryKey: ["circle-socials", circleId],
     queryFn: async () => {
-      // This now uses the baseURL defined in api.ts
-      const { data } = await api.get<MyCirclesResponse>(`/circles/${circleId}/social-accounts`);
-      return data.platforms; 
+      const { data } = await api.get<{ platforms: CircleSocialAccount[] }>(
+        `/circles/${circleId}/social-accounts`
+      );
+      return data.platforms;
     },
     enabled: !!circleId,
   });
@@ -540,11 +570,19 @@ export const useGetCircleEarnings = (circleId: string, page = 1) => {
   });
 };
 
+export interface CircleMonthlyEarnings {
+  current_month_earnings: number;
+  direction: "up" | "down" | "flat" | string;
+  delta_percentage: number;
+}
+
 export const useGetCircleMonthlyEarnings = (circleId: string) => {
-  return useQuery<MyCirclesResponse>({
-    queryKey: ['monthlyEarnings', circleId],
+  return useQuery<CircleMonthlyEarnings>({
+    queryKey: ["circle-monthly-earnings", circleId],
     queryFn: async () => {
-      const { data } = await api.get<MyCirclesResponse>(`/circles/${circleId}/earnings/monthly`);
+      const { data } = await api.get<CircleMonthlyEarnings>(
+        `/circles/${circleId}/earnings/monthly`
+      );
       return data;
     },
     enabled: !!circleId,
