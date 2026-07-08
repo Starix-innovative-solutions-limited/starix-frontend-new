@@ -45,3 +45,5 @@ const MyInvitationsList = () => {
     </div>
   );
 };
+
+export default MyInvitationsList;

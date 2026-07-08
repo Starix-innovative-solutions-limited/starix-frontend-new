@@ -400,15 +400,23 @@ export const useRevokeInvitation = (circleId: string) => {
   });
 };
 
+export interface MyInvitation {
+  invitation_id: string;
+  circle_id: string;
+  circle_name: string;
+  circle_profile_picture_url: string | null;
+  member_count: number;
+  global_rank: number;
+}
 
 export const useGetMyInvitations = () => {
-  return useQuery<MyCirclesResponse>({
+  return useQuery<MyInvitation[]>({
     queryKey: ["my-invitations"],
     queryFn: async () => {
-      // GET /circles/invitations
-      const { data } = await api.get<MyCirclesResponse>(`/circles/invitations`);
+      const { data } = await api.get<MyInvitation[]>(`/circles/invitations`);
       return data;
     },
+    initialData: [],
   });
 };
 
