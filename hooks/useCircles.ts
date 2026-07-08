@@ -164,14 +164,22 @@ export const useCancelJoinRequest = () => {
   });
 };
 
+export interface MyJoinRequest {
+  request_id: string;
+  circle_id: string;
+  circle_name: string;
+  circle_profile_picture_url: string | null;
+  requested_at: string;
+}
+
 export const useGetMyRequests = () => {
-  return useQuery<MyCirclesResponse>({
+  return useQuery<MyJoinRequest[]>({
     queryKey: ["my-pending-requests"],
     queryFn: async () => {
-      // The API identifies the user via the auth token in your header
-      const { data } = await api.get<MyCirclesResponse>("/circles/join-requests"); 
-      return data;
+      const { data } = await api.get<{ items: MyJoinRequest[] }>("/circles/join-requests");
+      return data.items;
     },
+    initialData: [],
   });
 };
 
