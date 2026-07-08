@@ -145,9 +145,10 @@ const sharesWithColors = payoutData?.shares.map((share: any, index: number) => {
 
 
 
-  const { data: pendingInvites = [], isLoading: isInvitesLoading } = useGetPendingInvitations(circleId, { 
-  enabled: !!circleId && !!currentUser?.id && !!circle?.admin_id && isAdmin 
-}) as { data: any[]; isLoading: boolean };
+  const { data: pendingInvites = [], isLoading: isInvitesLoading } =
+  useGetPendingInvitations(circleId, {
+    enabled: !!circleId && !!currentUser?.id && !!circle?.admin_id && isAdmin,
+  });
 
   const { data: joinRequests = [], isLoading: isRequestsLoading } = useGetCircleJoinRequests(circleId); 
 
@@ -661,9 +662,9 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
                       <div className="flex items-center gap-2 mb-2">
                         <h3 className="text-[20px] font-semibold text-[#1E1F24]">Payout Auto-Splitting</h3>
                         <span className={`px-2 py-0.5 text-[10px] font-bold rounded-md uppercase ${
-                          payoutData.fully_approved === "confirmed" ? "bg-green-100 text-green-700" : "bg-[#FFFBEB] text-[#D97706]"
+                          payoutData.fully_approved ? "bg-green-100 text-green-700" : "bg-[#FFFBEB] text-[#D97706]"
                         }`}>
-                          {payoutData.fully_approved}
+                          {payoutData.fully_approved ? "confirmed" : "pending"}
                         </span>
                       </div>
                       <p className="text-[12px] text-[#62636C] leading-relaxed">
@@ -735,7 +736,11 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
                       const member = validMembers.find(m => m.user_id === input.user_id);
                       return (
                         <div key={input.user_id} className="flex items-center gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                          <img src={member?.profile_picture_url} className="w-8 h-8 rounded-full" alt="" />
+                          <img
+                            src={member?.profile_picture_url ?? undefined}
+                            className="w-8 h-8 rounded-full"
+                            alt=""
+                          />
                           <span className="flex-grow text-[14px] font-medium">{member?.full_name}</span>
                           <div className="flex items-center bg-gray-50 rounded-lg px-3 py-1 border">
                             <input 

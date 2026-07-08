@@ -51,14 +51,24 @@ export const useCreateCircle = () => {
   });
 };
 
+export interface CircleRecord {
+  circle_id: string;
+  name: string;
+  description?: string | null;
+  privacy?: "public" | "private" | string;
+  niches?: string[];
+  join_code?: string | null;
+  admin_id?: string | null;
+}
+
 export const useGetCircle = (circleId: string) => {
-  return useQuery<MyCirclesResponse>({
+  return useQuery<CircleRecord>({
     queryKey: ["circle", circleId],
     queryFn: async () => {
-      const { data } = await api.get<MyCirclesResponse>(`/circles/${circleId}`);
+      const { data } = await api.get<CircleRecord>(`/circles/${circleId}`);
       return data;
     },
-    enabled: !!circleId, // Only fetch if ID exists
+    enabled: !!circleId,
   });
 };
 
@@ -138,16 +148,26 @@ export const useRequestToJoin = () => {
   });
 };
 
+export interface CircleJoinRequest {
+  id: string;
+  user_id: string;
+  created_at: string;
+}
+
 export const useGetCircleJoinRequests = (circleId: string) => {
-  return useQuery<MyCirclesResponse>({
+  return useQuery<CircleJoinRequest[]>({
     queryKey: ["circle-requests", circleId],
     queryFn: async () => {
-      const { data } = await api.get<MyCirclesResponse>(`/circles/${circleId}/join-requests`);
-      return data; // Returns an array of join requests
+      const { data } = await api.get<CircleJoinRequest[]>(
+        `/circles/${circleId}/join-requests`
+      );
+      return data;
     },
-    enabled: !!circleId, // Only fetch if we have a circleId
+    enabled: !!circleId,
+    initialData: [],
   });
 };
+
 export const useCancelJoinRequest = () => {
   const queryClient = useQueryClient();
 
@@ -381,14 +401,24 @@ export const useSendInvites = (circleId: string) => {
   });
 };
 
+export interface PendingInvitation {
+  id: string;
+  invited_email: string;
+  role_offered: string;
+  status: string;
+}
+
 export const useGetPendingInvitations = (circleId: string, options?: any) => {
-  return useQuery<MyCirclesResponse>({
+  return useQuery<PendingInvitation[]>({
     queryKey: ["circle-invitations", circleId],
     queryFn: async () => {
-      const { data } = await api.get<MyCirclesResponse>(`/circles/${circleId}/invitations`);
+      const { data } = await api.get<PendingInvitation[]>(
+        `/circles/${circleId}/invitations`
+      );
       return data;
     },
-    ...options, // <--- Add this
+    initialData: [],
+    ...options,
   });
 };
 
@@ -538,12 +568,29 @@ export const useDisconnectSocial = () => {
   });
 };
 
+export interface CirclePayoutShare {
+  user_id: string;
+  full_name?: string;
+  profile_picture_url?: string | null;
+  percentage: number;
+  approved?: boolean;
+  approval_status?: "confirmed" | "pending" | string;
+}
+
+export interface CirclePayoutSettingsResponse {
+  shares: CirclePayoutShare[];
+  total_percentage: number;
+  fully_approved: boolean;
+}
+
 export const useGetCirclePayouts = (circleId: string) => {
-  return useQuery<MyCirclesResponse>({
+  return useQuery<CirclePayoutSettingsResponse>({
     queryKey: ["circle-payouts", circleId],
     queryFn: async () => {
-      const { data } = await api.get<MyCirclesResponse>(`/circles/${circleId}/payout-settings`);
-      return data; // Returns { shares, total_percentage, fully_approved }
+      const { data } = await api.get<CirclePayoutSettingsResponse>(
+        `/circles/${circleId}/payout-settings`
+      );
+      return data;
     },
     enabled: !!circleId,
   });
@@ -554,7 +601,7 @@ export const useUpdateCirclePayouts = (circleId: string) => {
   return useMutation({
     
     mutationFn: async (shares: { user_id: string; percentage: number }[]) => {
-      const { data } = await axios.put(`/circles/${circleId}/payout-settings`, { shares });
+      const { data } = await api.put(`/circles/${circleId}/payout-settings`, { shares });
       return data;
     },
     onSuccess: () => {
