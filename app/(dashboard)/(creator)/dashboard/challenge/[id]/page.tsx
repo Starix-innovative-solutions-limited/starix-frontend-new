@@ -54,7 +54,7 @@ const ChallengeDetailPage = () => {
 
       {/* TITLE SECTION */}
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-[20px] md:text-[26px] font-semibold text-[#1E1F24] leading-[1] mb-4">
+        <h1 className="text-[20px] md:text-[26px] font-semibold text-[#1E1F24] leading-[1] mb-4 max-w-[500px]">
           {challenge?.title || "UGC Creators Needed for Skincare Product set Launch"}
         </h1>
         <div className="flex gap-3">
@@ -165,13 +165,14 @@ const ChallengeDetailPage = () => {
         </section>
 
         <section>
-          <h2 className="text-[20px] font-semibold text-[#1E1F24] mb-2">Mandatory Requirements</h2>
+          <h2 className="text-[20px] font-semibold text-[#1E1F24] mb-1">Mandatory Requirements</h2>
+          <p className="text-[#62636C] text-[12px] mb-4">Your Content must meet the requirements below to be considered viable for this challenge</p>
           <div className="divide-y divide-[#F3F4F6] border-t border-[#F3F4F6]">
             {challenge?.content_requirements && challenge.content_requirements.length > 0 ? (
               challenge.content_requirements.map((req: string, idx: number) => (
-                <div key={idx} className="py-3 flex gap-2 text-[14px]">
-                  <span className="text-[#9CA3AF] font-semibold">{idx + 1}.</span>
-                  <p className="text-[#62636C] text-[14px] font-normal">{req}</p>
+                <div key={idx} className="py-3 flex gap-2 text-[12px]">
+                  <span className="text-[#62636C] font-medium">{idx + 1}.</span>
+                  <p className="text-[#62636C] text-[12px] font-medium">{req}</p>
                 </div>
               ))
             ) : (
@@ -185,9 +186,9 @@ const ChallengeDetailPage = () => {
                 "No competitor products visible in content",
                 "Content must be original and not previously published"
               ].map((req, idx) => (
-                <div key={idx} className="py-3 flex gap-2 text-[14px]">
-                  <span className="text-[#9CA3AF] font-semibold">{idx + 1}.</span>
-                  <p className="text-[#62636C] text-[14px] font-normal">{req}</p>
+                <div key={idx} className="py-3 flex gap-2 text-[12px]">
+                  <span className="text-[#62636C] font-medium">{idx + 1}.</span>
+                  <p className="text-[#62636C] text-[12px] font-medium">{req}</p>
                 </div>
               ))
             )}

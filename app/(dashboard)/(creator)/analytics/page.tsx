@@ -21,6 +21,7 @@ import {
   ResponsiveContainer,
   XAxis,
   YAxis,
+  LabelList,
 } from "recharts";
 import Link from "next/link";
 import { useGetMe } from "@/hooks/useAuth";
@@ -30,6 +31,31 @@ import { useEarnings, useRank, useChallenges, useEngagement, useStarixScore,
   EngagementData, useEngagementTrend, useTotalEngagements, useProfileClicks } from "@/hooks/useAnalytics";
 
 type PlatformKey = "All" | "Instagram" | "TikTok" | "YouTube";
+
+const previewRankPoints = [
+  { x: "Mon", y: 42 },
+  { x: "Tue", y: 38 },
+  { x: "Wed", y: 35 },
+  { x: "Thu", y: 31 },
+  { x: "Fri", y: 28 },
+  { x: "Sat", y: 24 },
+  { x: "Sun", y: 22 },
+];
+
+const previewTrendPoints = [
+  { x: "Jan", y: 120 },
+  { x: "Feb", y: 180 },
+  { x: "Mar", y: 150 },
+  { x: "Apr", y: 240 },
+  { x: "May", y: 310 },
+  { x: "Jun", y: 420 },
+  { x: "Jul", y: 380 },
+];
+
+const hasVisiblePoints = (points?: { y: number | null }[]) =>
+  !!points?.some((point) => typeof point.y === "number" && point.y > 0);
+
+
 
 const PLATFORM_DATA: Record<
   PlatformKey,
@@ -203,20 +229,27 @@ const AnalyticsPage = () => {
   const profileImage = user?.profile_picture_url?.trim() || null;
 
   const trendPoints = useMemo(() => {
-  if (trendData?.monthly_chart.points?.length) return trendData.monthly_chart.points;
+    const points = trendData?.monthly_chart.points;
   
-  return [
-    { x: "Jan", y: 0 },
-    { x: "Feb", y: 0 },
-    { x: "Mar", y: 0 },
-    { x: "Apr", y: 0 },
-    { x: "May", y: 0 },
-    { x: "Jun", y: 0 },
-    { x: "Jul", y: 0 },
-  ];
-}, [trendData]);
+    if (points?.some((point) => typeof point.y === "number" && point.y > 0)) {
+      return points;
+    }
+  
+    return previewTrendPoints;
+  }, [trendData]);
 
 const { data: totalEngagements } = useTotalEngagements();
+const { data: rank, isLoading: rankLoading } = useRank();
+
+const rankChartPoints = useMemo(() => {
+  const points = rank?.weekly_chart?.points;
+
+  if (points?.some((point) => typeof point.y === "number" && point.y > 0)) {
+    return points;
+  }
+
+  return previewRankPoints;
+}, [rank]);
 
 const formatCompact = (val: number) => {
   if (val >= 1000000) return (val / 1000000).toFixed(1) + "M";
@@ -224,7 +257,7 @@ const formatCompact = (val: number) => {
   return val.toString();
 };
 
-  const { data: rank, isLoading: rankLoading } = useRank();
+ 
 
   const getDeltaDisplay = (direction: string, delta: number) => {
     if (direction === "new") return "New";
@@ -260,15 +293,7 @@ const activeEngagement = useMemo(() => {
   const { data: challenges} = useChallenges();
   const activeData = useMemo(() => {
 
-  if (!challenges) return [
-
-    { name: "Ranked", value: 0, color: "#D9A6E8" },
-
-    { name: "Under Review", value: 0, color: "#F4E7A4" },
-
-    { name: "Not Qualified", value: 0, color: "#F9B4B4" },
-
-  ];
+    if (!challenges || challenges.active.total_count === 0) return activeChallenges;
 
   return [
 
@@ -305,17 +330,13 @@ const radarData = useMemo(() => {
   });
 }, [scoreData]);
 
+const radarDisplayData =
+  scoreData?.spider.series?.length ? radarData : platform.radar;
+
 const completedData = useMemo(() => {
   // If challenges data hasn't loaded yet, return empty buckets with 0 values
   // This prevents the chart from flickering or throwing errors
-  if (!challenges) {
-    return [
-      { name: "Not Qualified", value: 0, color: "#FFB7C5" },
-      { name: "Ranked", value: 0, color: "#D7A3E8" },
-      { name: "Finalist", value: 0, color: "#A9D3ED" },
-      { name: "Winner", value: 0, color: "#9FDCBE" },
-    ];
-  }
+  if (!challenges || challenges.completed.total_count === 0) return completedChallenges;
   return [
     { 
       name: "Not Qualified", 
@@ -368,6 +389,9 @@ const completedData = useMemo(() => {
     };
   }, []);
 
+  const activeChallengeTotal = activeData.reduce((sum, item) => sum + item.value, 0);
+  const maxCompletedChallengeValue = Math.max(...completedData.map((item) => item.value), 1);
+
   const engagementCards = useMemo(
     () => [
       { label: "Followers", value: platform.followers },
@@ -377,6 +401,34 @@ const completedData = useMemo(() => {
     ],
     [platform]
   );
+
+  const liveStarixScore = Math.min(
+    Math.max(Math.round(scoreData?.overall_score ?? 0), 0),
+    100
+  );
+
+  const soloEarningsMinor = earnings?.creator_earnings[0]?.total_minor ?? 0;
+const teamEarningsMinor = earnings?.circle_earnings[0]?.total_minor ?? 0;
+const totalSplitMinor = soloEarningsMinor + teamEarningsMinor;
+
+const earningsChartData =
+  totalSplitMinor > 0
+    ? [
+        {
+          name: "Solo",
+          value: (soloEarningsMinor / totalSplitMinor) * 100,
+          fill: "#5B7CFA",
+        },
+        {
+          name: "Team",
+          value: (teamEarningsMinor / totalSplitMinor) * 100,
+          fill: "#FF8A6B",
+        },
+      ]
+    : [
+        { name: "Solo", value: 72, fill: "#5B7CFA" },
+        { name: "Team", value: 28, fill: "#FF8A6B" },
+      ];
 
   return (
     <div className="min-h-screen bg-white font-sans text-[#1E1F24]">
@@ -429,33 +481,64 @@ const completedData = useMemo(() => {
       </header>
 
       <section className="mb-7 grid grid-cols-[0.95fr_0.95fr_1.9fr] gap-6">
-        <div className="rounded-[24px] bg-[#E8FFE9] p-5">
-          <CardLabel label="Total Earnings" />
-          {isLoading ? (
-            <h2 className="mt-1 text-[28px] font-semibold text-gray-400">Loading...</h2>
-          ) : (
-            <>
-              <h2 className="mt-1 text-[28px] font-semibold tracking-[-0.04em]">
-                {earnings?.lifetime_earnings[0] 
-                  ? formatCurrency(earnings.lifetime_earnings[0].total_minor) 
-                  : "₦0.00"}
-              </h2>
-              <p className="mt-1 text-[12px] font-semibold text-[#62636C]">View Wallet →</p>
+      <div className="rounded-[24px] bg-[#E8FFE9] p-5">
+        <CardLabel label="Total Earnings" />
 
-              {/* Visual breakdown using API data */}
-              <div className="flex justify-between mt-3 text-[10px] font-semibold text-[#1E1F24]">
-                <span>
-                  Solo Earnings<br />
-                  {earnings?.creator_earnings[0] ? formatCurrency(earnings.creator_earnings[0].total_minor) : "₦0.00"}
-                </span>
-                <span className="text-right">
-                  Team Earnings<br />
-                  {earnings?.circle_earnings[0] ? formatCurrency(earnings.circle_earnings[0].total_minor) : "₦0.00"}
-                </span>
-              </div>
-            </>
-          )}
-        </div>
+        {isLoading ? (
+          <h2 className="mt-1 text-[28px] font-semibold text-gray-400">Loading...</h2>
+        ) : (
+          <>
+            <h2 className="mt-1 text-[28px] font-semibold tracking-[-0.04em]">
+              {earnings?.lifetime_earnings[0]
+                ? formatCurrency(earnings.lifetime_earnings[0].total_minor)
+                : "₦0.00"}
+            </h2>
+
+            <p className="mt-1 text-[12px] font-semibold text-[#62636C]">
+              View Wallet →
+            </p>
+
+            <div className="relative mx-auto mt-2 h-[104px] w-[150px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadialBarChart
+                  cx="50%"
+                  cy="78%"
+                  innerRadius="82%"
+                  outerRadius="100%"
+                  barSize={10}
+                  data={earningsChartData}
+                  startAngle={180}
+                  endAngle={0}
+                >
+                  <RadialBar
+                    dataKey="value"
+                    cornerRadius={20}
+                    background={{ fill: "#CFF8D5" }}
+                  />
+                </RadialBarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="mt-0 flex justify-between text-[10px] font-semibold text-[#1E1F24]">
+              <span>
+                Solo Earnings
+                <br />
+                {earnings?.creator_earnings[0]
+                  ? formatCurrency(earnings.creator_earnings[0].total_minor)
+                  : "₦0.00"}
+              </span>
+
+              <span className="text-right">
+                Team Earnings
+                <br />
+                {earnings?.circle_earnings[0]
+                  ? formatCurrency(earnings.circle_earnings[0].total_minor)
+                  : "₦0.00"}
+              </span>
+            </div>
+          </>
+        )}
+      </div>
 
         <div className="rounded-[24px] bg-[#EAF6FF] p-5">
           <CardLabel label="Global Rank" />
@@ -476,11 +559,18 @@ const completedData = useMemo(() => {
 
           <div className="mt-5 h-[116px] min-h-[116px] min-w-0 rounded-[12px] bg-white/80 p-3">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={rank?.weekly_chart?.points || []}>
+              <LineChart data={rankChartPoints}>
                 <XAxis dataKey="x" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: "#747682" }} />
                 {/* We use domain based on y_min/y_max from the API */}
-                <YAxis domain={[rank?.weekly_chart?.y_min || 0, rank?.weekly_chart?.y_max || 100]} hide />
-                <Line 
+                <YAxis
+                  domain={[
+                    rank?.weekly_chart?.y_min ?? 20,
+                    rank?.weekly_chart?.y_max ?? 45,
+                  ]}
+                  reversed
+                  hide
+                />
+              <Line 
                     type="monotone" 
                     dataKey="y" 
                     stroke="#46D39B" 
@@ -519,10 +609,13 @@ const completedData = useMemo(() => {
                       <span>{item.value ?? 0}</span>
                     </div>
 
-                    <div className="h-3 rounded-full bg-[#F7F7F8]">
+                    <div className="h-2 rounded-full bg-[#F7F7F8]">
                       <div 
                         className="h-full rounded-full" 
-                        style={{ width: `${(item.value ?? 0) * 10}%`, backgroundColor: item.color }} 
+                        style={{
+                          width: `${activeChallengeTotal ? (item.value / activeChallengeTotal) * 100 : 0}%`,
+                          backgroundColor: item.color,
+                        }} 
                       />
                     </div>
                   </div>
@@ -535,14 +628,22 @@ const completedData = useMemo(() => {
                 <span>Completed Challenges</span>
                 <span>{challenges?.completed.total_count ?? 0}</span>
               </div>
-              <ResponsiveContainer width="100%" height={115}>
-                <BarChart data={completedData}>
+              <ResponsiveContainer width="100%" height={120}>
+                <BarChart data={completedData} margin={{ top: 18, right: 8, left: 8, bottom: 0 }}>
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 8, fill: "#62636C" }} />
-                  <Bar dataKey="value" radius={[8, 8, 4, 4]}>
+                  <Bar dataKey="value" radius={[8, 8, 8, 8]} barSize={28}>
                     {completedData.map((entry) => (
+                      
                       <Cell key={entry.name} fill={entry.color} />
                     ))}
                   </Bar>
+                  <LabelList
+                    dataKey="value"
+                    position="top"
+                    fill="#62636C"
+                    fontSize={9}
+                    fontWeight={600}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -605,13 +706,24 @@ const completedData = useMemo(() => {
 
             <div className="relative h-[86px] w-[86px]">
               <ResponsiveContainer width="100%" height="100%">
-                <RadialBarChart innerRadius="72%" outerRadius="100%" data={[{ value: scoreData?.overall_score ?? 0 }]} startAngle={90} endAngle={385}>
-                  <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
-                  <RadialBar dataKey="value" cornerRadius={20} fill="#245BFF" background={{ fill: "#EAF2FF" }} />
-                </RadialBarChart>
+              <RadialBarChart
+                innerRadius="76%"
+                outerRadius="100%"
+                data={[{ value: liveStarixScore }]}
+                startAngle={90}
+                endAngle={-270}
+              >
+                <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
+                <RadialBar
+                  dataKey="value"
+                  cornerRadius={20}
+                  fill="#245BFF"
+                  background={{ fill: "#EAF2FF" }}
+                />
+              </RadialBarChart>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex items-center justify-center text-[24px] font-semibold text-[#245BFF]">
-                {Math.round(scoreData?.overall_score ?? 0)}
+                {liveStarixScore}
               </div>
             </div>
           </div>
@@ -626,23 +738,31 @@ const completedData = useMemo(() => {
 
           <div className="mx-auto mt-4 h-[185px] w-[270px]">
             <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={radarData}>
+              <RadarChart data={radarDisplayData}>
                 <PolarGrid stroke="#E9ECF2" />
                 <PolarAngleAxis dataKey="metric" tick={{ fontSize: 10, fill: "#747682" }} />
                 
                 {/* This forces the rings to show even at 0 */}
                 <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                {scoreData?.spider.series.map((s, i) => (
-                  <Radar
-                    key={s.platform}
-                    name={s.platform}
-                    dataKey={s.platform} // This maps to the platform name (e.g., "instagram")
-                    stroke={["#46C989", "#FF8A3D", "#B24ADB"][i]}
-                    fill={["#46C989", "#FF8A3D", "#B24ADB"][i]}
-                    fillOpacity={0.12}
-                    strokeWidth={2}
-                  />
-                ))}
+                {scoreData?.spider.series?.length ? (
+                  scoreData.spider.series.map((s, i) => (
+                    <Radar
+                      key={s.platform}
+                      name={s.platform}
+                      dataKey={s.platform}
+                      stroke={["#46C989", "#FF8A3D", "#B24ADB"][i]}
+                      fill={["#46C989", "#FF8A3D", "#B24ADB"][i]}
+                      fillOpacity={0.12}
+                      strokeWidth={2}
+                    />
+                  ))
+                ) : (
+                  <>
+                    <Radar dataKey="instagram" stroke="#46C989" fill="#46C989" fillOpacity={0.12} strokeWidth={2} />
+                    <Radar dataKey="tiktok" stroke="#FF8A3D" fill="#FF8A3D" fillOpacity={0.12} strokeWidth={2} />
+                    <Radar dataKey="youtube" stroke="#B24ADB" fill="#B24ADB" fillOpacity={0.12} strokeWidth={2} />
+                  </>
+                )}
               </RadarChart>
             </ResponsiveContainer>
           </div>
@@ -668,14 +788,13 @@ const completedData = useMemo(() => {
                   domain={[trendData?.monthly_chart.y_min ?? 0, trendData?.monthly_chart.y_max ?? 1000000]} 
                   hide 
                 />
-                <Area 
-                  type="monotone" 
-                  dataKey="y" 
-                  stroke="#245BFF" 
-                  strokeWidth={1.5} 
-                  fill="#245BFF" 
-                  fillOpacity={0.03} 
-                  isAnimationActive={false} 
+                <Area
+                  type="monotone"
+                  dataKey="y"
+                  stroke="#245BFF"
+                  strokeWidth={1.5}
+                  fill="#245BFF"
+                  fillOpacity={0.03}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -770,13 +889,13 @@ const MiniSparkline = ({ large = false }: { large?: boolean }) => {
     >
       <ResponsiveContainer width={width - 16} height={56}>
         <LineChart data={miniTrendData}>
-          <Line
-            type="monotone"
-            dataKey="value"
-            stroke="#54D1A0"
-            strokeWidth={1.5}
-            dot={false}
-          />
+        <Line
+          type="monotone"
+          dataKey="y"
+          stroke="#54D1A0"
+          strokeWidth={1.5}
+          dot={false}
+        />
         </LineChart>
       </ResponsiveContainer>
     </div>

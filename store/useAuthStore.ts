@@ -43,13 +43,18 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
 
       setAuth: (data) => {
+        if (typeof window !== "undefined") {
+          localStorage.setItem("token", data.access_token);
+        }
+      
         set({
           token: data.access_token,
           userType: data.user_type,
           user: data.user,
           isAuthenticated: true,
-          profile: null, 
+          profile: null,
         });
+      
         get().fetchProfile();
       },
 

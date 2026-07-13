@@ -160,20 +160,20 @@ const Page = () => {
           >
             <div className="w-[42px] h-[42px] rounded-full bg-white flex items-center justify-center overflow-hidden">
             {user?.profile_picture_url?.trim() ? (
-  <Image
-    src={user.profile_picture_url}
-    width={42}
-    height={42}
-    alt="Profile"
-    className="h-full w-full object-cover"
-    priority
-  />
-) : (
-  <div
-    className="h-full w-full rounded-full bg-[#F5F6F8]"
-    aria-label="No profile picture"
-  />
-)}
+            <Image
+              src={user.profile_picture_url}
+              width={42}
+              height={42}
+              alt="Profile"
+              className="h-full w-full object-cover"
+              priority
+            />
+          ) : (
+            <div
+              className="h-full w-full rounded-full bg-[#F5F6F8]"
+              aria-label="No profile picture"
+            />
+          )}
             </div>
           </Link>
         </div>
@@ -201,11 +201,11 @@ const Page = () => {
                 xl:basis-[34%]
                 snap-start
                 bg-white 
-                border border-[#F3F4F6] 
+                border border-[#E0E1E6] 
                 rounded-[24px] md:rounded-[28px] 
                 p-4 md:p-5 
-                shadow-sm
-                hover:border-blue-200
+                shadow-xs
+               
                 transition-all
                 cursor-pointer
                 flex flex-col

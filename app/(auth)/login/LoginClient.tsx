@@ -44,7 +44,7 @@ const Page = () => {
         }
       );
       
-      localStorage.setItem("token", res.access_token);
+      // localStorage.setItem("token", res.access_token);
       router.push(res.user_type === "brand" ? "/brand" : "/dashboard");
     } catch (err) {
       console.error(err);

@@ -15,6 +15,7 @@ import { useGetMe } from "@/hooks/useAuth";
 import { useGetMyStarixScore, useGetGlobalLeaderboard } from "@/hooks/useProfile";
 import { useGetWithdrawalAccount, useGetEarningsSummary } from "@/hooks/useWallet";
 import { useGetOpenCircles, useRequestToJoin, useGetLeaderboard , useGetEarningDetail, useGetRecommendedChallenges} from "@/hooks/useCircles";
+import { FaCircle, FaEllipsis } from "react-icons/fa6";
 
 
 
@@ -140,15 +141,15 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
         : currentUsername ?? "You",
       score: activeStarixScore,
       trend: "neutral",
-      avatar: (userProfile as any)?.profile_picture_url || "/no127.svg",
+      avatar: (userProfile as any)?.profile_picture_url?.trim() || null,
       isUser: true,
     };
 
     if (!leaderboardData?.entries) {
       return [
-        { id: 1, name: "—", score: 0, trend: "neutral", avatar: "/no1.svg",   isUser: false },
-        { id: 2, name: "—", score: 0, trend: "neutral", avatar: "/no2.svg",   isUser: false },
-        { id: 3, name: "—", score: 0, trend: "neutral", avatar: "/no3.svg",   isUser: false },
+        { id: 1, name: "—", score: 0, trend: "neutral", avatar: null,   isUser: false },
+        { id: 2, name: "—", score: 0, trend: "neutral", avatar: null,   isUser: false },
+        { id: 3, name: "—", score: 0, trend: "neutral", avatar: null,   isUser: false },
         currentUser,
       ];
     }
@@ -157,8 +158,11 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
       id:     entry.rank,
       name:   entry.full_name || entry.username || "Creator",
       score:  entry.starix_score,
-      trend:  entry.rank_direction === "stable" ? "neutral" : entry.rank_direction,
-      avatar: entry.profile_picture_url || "/no1.svg",
+      trend:
+      entry.rank_direction === "same" || entry.rank_direction === "stable"
+        ? "neutral"
+        : entry.rank_direction,
+      avatar: entry.profile_picture_url?.trim() || null,
       isUser: entry.user_id === leaderboardData.viewer_entry?.user_id,
     }));
 
@@ -183,6 +187,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
   const plainBalanceValue = earningsSummary?.total
     ? parseFloat(earningsSummary.total.replace(/[^0-9.]/g, ""))
     : 0;
+
 
     
   return (
@@ -269,7 +274,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
             </div>
           </div>
           
-          <hr className="border-[#F8FAFC]" />
+          <hr className="border-[#EFF0F3]" />
           
           {/* Payout Breakdown */}
           <div className="p-2">
@@ -355,7 +360,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                     return (
                       <div
                         key={entry.circle_id}
-                        className={`flex items-center justify-between py-4 px-5 border-t border-[#F8FAFC] first:border-t-0 ${isCurrentCircle ? "bg-[#F0F7FF]" : ""}`}
+                        className={`flex items-center justify-between py-4 px-5 border-t border-[#EFF0F3] first:border-t-0 ${isCurrentCircle ? "bg-[#F0F7FF]" : ""}`}
                       >
                         <div className="flex items-center gap-3">
                           <span className="text-[14px] font-semibold text-[#62636C] w-6">#{entry.rank}</span>
@@ -398,7 +403,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                     if it didn't appear in the top entries (my_circle from API) */}
                 {circleLeaderboard?.my_circle &&
                   !circleLeaderboard.entries?.some((e: any) => e.circle_id === circleId) && (
-                  <div className="flex items-center justify-between py-4 px-5 border-t border-[#F8FAFC] bg-[#F0F7FF]">
+                  <div className="flex items-center justify-between py-4 px-5 border-t border-[#EFF0F3] bg-[#F0F7FF]">
                     <div className="flex items-center gap-3">
                       <span className="text-[14px] font-semibold text-[#62636C] w-6">#{circleLeaderboard.my_circle.rank}</span>
                       <div className="relative w-10 h-10 shrink-0">
@@ -433,7 +438,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
         ) : isCreatorCirclesPage ? (
           /* ── Creator Circles listing page ── */
           <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
-            <div className="flex items-center justify-between px-5 py-5 border-b border-[#F8FAFC]">
+            <div className="flex items-center justify-between px-5 py-5 border-b border-[#EFF0F3]">
               <h4 className="font-semibold text-[#1E1F24] text-[16px]">Open Circles</h4>
               <Link href="/creator-circles/explore" className="flex items-center gap-1.5 text-[14px] font-semibold text-[#1E1F24] hover:text-blue-600 transition-all">
                 View All <HiArrowRight size={16} />
@@ -626,7 +631,11 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                     <div className="flex items-center gap-3">
                       <span className="text-[14px] font-semibold text-[#62636C] w-8">{user.id === 0 ? "—" : `#${user.id}`}</span>
                       <div className="relative w-8 h-8 rounded-full overflow-hidden border border-gray-100">
-                        <Image src={user.avatar} fill alt={user.name} className="object-cover" />
+                        {user.avatar ? (
+                          <Image src={user.avatar} fill alt={user.name} className="object-cover" />
+                        ) : (
+                          <div className="h-full w-full bg-[#F5F6F8]" aria-label="No profile picture" />
+                        )}
                       </div>
                       <span className={`text-[14px] ${user.isUser ? "text-[#0047FF] font-medium" : "text-[#62636C]"}`}>{user.name}</span>
                     </div>
@@ -651,7 +660,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                   <Image src="/dashlogo.svg" fill alt="Star Icon" className="object-contain" />
                 </div>
               </div>
-              <div className="w-full h-[10px] bg-[#D4EBFF] rounded-full mt-6 overflow-hidden">
+              <div className="w-full h-[12px] bg-[#D4EBFF] rounded-full mt-6 overflow-hidden">
                 <div className="h-full bg-[#4082FF] rounded-full transition-all duration-500 ease-out" style={{ width: `${Math.min(Math.max(activeStarixScore, 0), 100)}%` }} />
               </div>
               <div className="flex justify-between items-center mt-6">
@@ -664,23 +673,45 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
 
             <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
               <div className="flex items-center justify-between px-6 py-5">
-                <h4 className="font-semibold text-[#1E1F24] text-[16px]">Global Leaderboard</h4>
+                <h4 className="font-semibold text-[#1E1F24] text-[16px] ">Global Leaderboard</h4>
                 <HiArrowRight className="text-[#1E1F24]" size={20} />
               </div>
-              <div className="pb-2">
+              <div className="pb-2 border-t border-[#EFF0F3]">
                 {renderedLeaderboard.map((user: any, idx: number) => (
-                  <div key={idx} className={`flex items-center justify-between py-4 px-6 border-t border-[#F8FAFC] first:border-t-0 ${user.isUser ? "bg-[#FFF7ED]" : ""}`}>
+                  <div key={idx} className={`flex items-center justify-between py-4 px-6 border-t border-[#EFF0F3] first:border-t-0 ${user.isUser ? "bg-[#F5FBFF]" : ""}`}>
                     <div className="flex items-center gap-3">
                       <span className="text-[14px] font-semibold text-[#62636C] w-8">{user.id === 0 ? "—" : `#${user.id}`}</span>
-                      <div className={`relative w-8 h-8 rounded-full overflow-hidden border-2 ${user.isUser ? "border-orange-400" : "border-[#0047FF]"}`}>
-                        <Image src={user.avatar} fill alt={user.name} className="object-cover" />
+                      <div 
+                        className={`
+                          relative w-8 h-8 rounded-full overflow-hidden p-[2px]
+                          ${user.isUser 
+                            ? "bg-gradient-to-r from-[#FD6C1D] to-[#73A4FF] border-[2px] border-transparent" 
+                            : "border-[#73A4FF] border-[2px]"}
+                        `}
+                        
+                      >
+                        {/* The inner container masks the background, leaving a 4px visible border */}
+                        <div className="w-full h-full rounded-full overflow-hidden bg-white">
+                          {user.avatar ? (
+                            <Image
+                              src={user.avatar}
+                              fill
+                              alt={user.name}
+                              sizes="32px"
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="h-full w-full bg-[#F5F6F8]" aria-label="No profile picture" />
+                          )}
+                        </div>
+                        
                       </div>
-                      <span className={`text-[14px] font-semibold ${user.isUser ? "text-orange-500" : "text-[#62636C]"}`}>{user.name}</span>
+                      <span className={`text-[14px] font-semibold ${user.isUser ? "text-[#1E1F24]" : "text-[#62636C]"}`}>{user.name}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       {user.trend === "up" ? <span className="text-green-500 text-[14px] font-semibold">↑</span>
                        : user.trend === "down" ? <span className="text-red-500 text-[14px] font-semibold">↓</span>
-                       : <span className="text-gray-300 text-[14px] font-semibold">—</span>}
+                       : <span className="text-gray-300 text-[14px] font-semibold"><FaCircle /></span>}
                       <span className="text-[14px] font-semibold text-[#1E1F24]">{user.score}</span>
                       <Image src="/contact star.svg" width={16} height={16} alt="points" />
                     </div>

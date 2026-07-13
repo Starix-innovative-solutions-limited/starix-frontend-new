@@ -59,11 +59,6 @@ export function useCreatorProfile() {
   });
 }
 
-
-
-
-
-
 export interface StarixScoreResponse {
   user_id: string;
   starix_score: number;
@@ -219,6 +214,8 @@ export interface CreatorMetricsResponse {
   }[];
   lifetime_engagement: number;
   global_rank: number | null;
+  previous_rank: number | null;
+  rank_direction: "up" | "down" | "same" | "new";
 }
 
 export const useGetCreatorMetrics = (

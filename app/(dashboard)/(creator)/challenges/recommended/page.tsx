@@ -104,8 +104,8 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
               <FiSearch className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-[#62636C] text-sm md:text-lg" />
               <input 
                 type="text" 
-                placeholder="Search Challenges"
-                className="w-full pl-8 md:pl-12 pr-4 py-2 md:py-2.5 bg-[#F9F9FB] border border-[#EFF0F3] rounded-full text-[11px] md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                placeholder="Search Trending Challenges"
+                className="w-full pl-8 md:pl-12 pr-4 py-2 md:py-2.5 bg-[#F9F9FB] border border-[#EFF0F3] rounded-full text-[11px] md:text-sm focus:outline-none focus:ring focus:ring-[#8B8D98]"
               />
             </div>
           </div>
@@ -120,10 +120,11 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
               : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}
           `}>
             {cards.map((card) => (
-              <div 
-                key={card.id} 
-                className="bg-white border border-[#F3F4F6] rounded-[24px] md:rounded-[32px] p-4 md:p-4 shadow-sm hover:border-blue-200 transition-all group flex flex-col h-full"
-              >
+              <Link
+              key={card.id}
+              href={`/dashboard/challenge/${card.id}`}
+              className="bg-white border border-[#E0E1E6] rounded-[24px] md:rounded-[32px] p-4 md:p-4 shadow-xs transition-all group flex flex-col h-full cursor-pointer"
+            >
                 {/* Card Top Info */}
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-3 overflow-hidden">
@@ -145,7 +146,7 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
                       </div>
                     </div>
                   </div>
-                  <div className="px-3 py-1.5 border border-[#D1D5DB] rounded-full text-[11px] font-medium text-[#1E1F24] hover:bg-gray-50 transition-colors shrink-0 cursor-pointer">
+                  <div className="p-2.5 border border-[#D1D5DB] rounded-full text-[11px] font-medium text-[#1E1F24] hover:bg-gray-50 transition-colors shrink-0 cursor-pointer">
                     Submit
                   </div>
                 </div>
@@ -201,7 +202,7 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
                     <button className="hover:text-[#111827] transition-colors cursor-pointer"><FiShare2 size={16} /></button>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

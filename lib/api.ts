@@ -12,10 +12,12 @@ export const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     // Combine token retrieval
-    const session = sessionAuth.get();
     const directToken = localStorage.getItem("token");
-    const token = (typeof session === 'string' ? session : (session as any)?.access_token) || directToken;
+    const session = sessionAuth.get();
+    const sessionToken =
+      typeof session === "string" ? session : (session as any)?.access_token;
 
+    const token = directToken || sessionToken;
     if (token) {
       config.headers.Authorization = `Bearer ${token.trim()}`;
     }

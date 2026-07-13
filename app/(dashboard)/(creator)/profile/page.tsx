@@ -51,6 +51,7 @@ const viewedUsername = isOwnProfile
   ? authUser?.username ?? ""
   : routeUsernameOrId ?? "";
 
+  
 const { data: viewedProfile, isLoading: isViewedProfileLoading } =
   useGetCreatorProfile(viewedUsername, {
     enabled: !!viewedUsername && !isOwnProfile,
@@ -73,6 +74,16 @@ const profile = isOwnProfile ? authUser : viewedProfile;
   CIRCLES_PER_PAGE,
   { enabled: isOwnProfile }
 );
+
+
+const globalRankGrowth =
+  typeof metrics?.global_rank === "number" &&
+  typeof metrics?.previous_rank === "number" &&
+  metrics.previous_rank !== metrics.global_rank
+    ? `${Math.abs(metrics.previous_rank - metrics.global_rank)} ${
+        metrics.previous_rank > metrics.global_rank ? "↑" : "↓"
+      }`
+    : undefined;
 
 const { data: creatorCirclesData, isLoading: isCreatorCirclesLoading } =
   useGetCreatorCircles(
@@ -222,7 +233,9 @@ const canShowScore = typeof profile?.starix_score === "number";
     }
   };
 
-  
+  const handleOpenAnalytics = () => {
+    router.push("/analytics");
+  };
 
   const PLATFORM_ICON_MAP: Record<string, { icon: string; label: string }> = {
   youtube: { icon: "/yt.svg", label: "YouTube" },
@@ -280,7 +293,7 @@ const ConnectedPlatformIcons = ({
         <section className="relative pt-[86px]">
           <div className="absolute -top-[72px] left-0">
             <div className="flex h-[138px] w-[138px] items-center justify-center rounded-full bg-[conic-gradient(#114BF6_0deg,#114BF6_180deg,#FF7A1A_180deg,#FF7A1A_360deg)] p-[5px] shadow-sm">
-              <div className="relative h-full w-full overflow-hidden rounded-full border-[5px] border-white bg-gray-100">
+              <div className="relative h-full w-full overflow-hidden rounded-full bg-gray-100">
               {profileImage ? (
                   <Image
                     src={profileImage}
@@ -376,33 +389,35 @@ const ConnectedPlatformIcons = ({
         </section>
 
         <section className="mt-8 grid grid-cols-1 gap-3 md:grid-cols-3">
-          <StatCard
-            tone="green"
-            icon="/coin.svg"
-            label="Total Earnings"
-            value={totalEarningsLabel}
-            action={isOwnProfile ? "View History" : undefined}
-            onClick={isOwnProfile ? handleViewHistory : undefined}
-          />
+        <StatCard
+          tone="green"
+          icon="/coin.svg"
+          label="Total Earnings"
+          value={totalEarningsLabel}
+          action={isOwnProfile ? "View History" : undefined}
+          onClick={isOwnProfile ? handleOpenAnalytics : undefined}
+        />
 
-          <StatCard
-            tone="pink"
-            icon="/diamonddd.svg"
-            label="Total Engagement"
-            value={isOwnProfile ? totalEngagementCardLabel : totalEngagementLabel}
-            action={isOwnProfile ? "View Trend" : undefined}
-            showMiniTrend={isOwnProfile}
-          />
+        <StatCard
+          tone="pink"
+          icon="/diamonddd.svg"
+          label="Total Engagement"
+          value={isOwnProfile ? totalEngagementCardLabel : totalEngagementLabel}
+          action={isOwnProfile ? "View Trend" : undefined}
+          showMiniTrend={isOwnProfile}
+          onClick={isOwnProfile ? handleOpenAnalytics : undefined}
+        />
 
-          <StatCard
-            tone="blue"
-            icon="/coin.svg"
-            label="Global Rank"
-            value={globalRankLabel}
-            action={isOwnProfile ? "View Leaderboard" : undefined}
-            growth={isOwnProfile && metrics?.global_rank ? "+29 ↑" : undefined}
-            decorative={!isOwnProfile}
-          />
+        <StatCard
+          tone="blue"
+          icon="/coin.svg"
+          label="Global Rank"
+          value={globalRankLabel}
+          action={isOwnProfile ? "View Leaderboard" : undefined}
+          growth={isOwnProfile ? globalRankGrowth : undefined}
+          decorative={!isOwnProfile}
+          onClick={isOwnProfile ? handleOpenAnalytics : undefined}
+        />
         </section>
 
         <section className="mt-10">
