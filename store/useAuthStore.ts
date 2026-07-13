@@ -15,9 +15,10 @@ interface User {
 
 interface LoginResponse {
   access_token: string;
+  refresh_token: string;
   token_type: string;
-  user_type: string;
-  user: User;
+  expires_in: number;
+  user: any;
 }
 
 interface AuthState {
@@ -51,7 +52,7 @@ export const useAuthStore = create<AuthState>()(
       
         set({
           token: data.access_token,
-          userType: data.user_type,
+          userType: data.user.user_type,
           user: data.user,
           isAuthenticated: true,
           profile: null,
@@ -78,7 +79,7 @@ export const useAuthStore = create<AuthState>()(
         } catch (error: any) {
           console.error("Failed to fetch profile:", error);
           if (error.response?.status === 401) {
-            get().logout();
+            console.warn("Profile fetch unauthorized after login. Check /auth/me backend auth.");
           }
         }
       },
