@@ -47,6 +47,8 @@ export const useAuthStore = create<AuthState>()(
           localStorage.setItem("token", data.access_token);
         }
       
+        api.defaults.headers.common.Authorization = `Bearer ${data.access_token}`;
+      
         set({
           token: data.access_token,
           userType: data.user_type,
@@ -63,8 +65,14 @@ export const useAuthStore = create<AuthState>()(
 
       fetchProfile: async () => {
         try {
-          // 💡 We use /auth/me now since we know it works!
-          const { data } = await api.get("/auth/me");
+          const token = get().token || localStorage.getItem("token");
+      
+          const { data } = await api.get("/auth/me", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+      
           set({ profile: data });
           console.log("Profile updated in store:", data);
         } catch (error: any) {
