@@ -35,21 +35,16 @@ api.interceptors.response.use(
       const status = error.response.status;
       const currentPath = window.location.pathname;
 
-      // 401/403: Only logout if NOT already on login/auth page
-      if (status === 401 || status === 403) {
-        // NEW: Check if we are trying to access a circle we just joined
-        // If it's a 403, it might be a permission delay, not an auth failure.
-        // We shouldn't necessarily log out for 403s!
-        if (status === 401 && !currentPath.startsWith("/login")) {
-          localStorage.removeItem("token");
-          sessionAuth.clear();
-          window.location.href = "/login";
-        }
-        
-        // 403s are permissions. Log them but DON'T log the user out.
-        if (status === 403) {
-          console.warn("Permission denied for this resource.");
-        }
+      const requestUrl = error.config?.url ?? "";
+
+      if (
+        status === 401 &&
+        !currentPath.startsWith("/login") &&
+        !requestUrl.includes("/auth/me")
+      ) {
+        localStorage.removeItem("token");
+        sessionAuth.clear();
+        window.location.href = "/login";
       }
     }
     return Promise.reject(error);

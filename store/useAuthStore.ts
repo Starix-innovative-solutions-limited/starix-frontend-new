@@ -15,9 +15,10 @@ interface User {
 
 interface LoginResponse {
   access_token: string;
-  refresh_token: string;
+  refresh_token?: string;
   token_type: string;
-  expires_in: number;
+  expires_in?: number;
+  user_type?: "creator" | "brand" | string;
   user: any;
 }
 
@@ -52,13 +53,11 @@ export const useAuthStore = create<AuthState>()(
       
         set({
           token: data.access_token,
-          userType: data.user.user_type,
+          userType: data.user?.user_type,
           user: data.user,
           isAuthenticated: true,
-          profile: null,
+          profile: data.user,
         });
-      
-        get().fetchProfile();
       },
 
       // 💡 Action to update profile from anywhere (like your mutation hook)

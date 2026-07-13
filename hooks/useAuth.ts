@@ -19,8 +19,10 @@ interface LoginPayload {
 
 interface LoginResponse {
   access_token: string;
+  refresh_token?: string;
   token_type: string;
-  user_type: "creator" | "brand" | string;
+  expires_in?: number;
+  user_type?: "creator" | "brand" | string;
   user: any;
 }
 
@@ -41,7 +43,11 @@ export function useLogin() {
 
     onSuccess: (data: LoginResponse) => {
       console.log("LOGIN SUCCESS:", data);
-      setAuth(data); // Update Zustand store
+    
+      setAuth({
+        ...data,
+        user_type: data.user_type ?? data.user?.user_type,
+      });
     },
   });
 }
