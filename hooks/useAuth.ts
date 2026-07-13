@@ -253,7 +253,10 @@ export function useGetMe() {
       const res = await api.get("/auth/me");
       return res.data;
     },
-    staleTime: 1000 * 60 * 5, // cache for 5 minutes
+    enabled:
+      typeof window !== "undefined" &&
+      !!localStorage.getItem("token"),
+    staleTime: 1000 * 60 * 5,
     retry: false,
   });
 }

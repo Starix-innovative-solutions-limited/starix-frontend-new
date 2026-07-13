@@ -9,19 +9,18 @@ export const api = axios.create({
 });
 
 // --- Unified Request Interceptor ---
-api.interceptors.request.use(
-  (config) => {
-    const token =
-      typeof window !== "undefined" ? localStorage.getItem("token") : null;
+api.interceptors.request.use((config) => {
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token.trim()}`;
-    }
+  if (token) {
+    config.headers.Authorization = `Bearer ${token.trim()}`;
+  }
 
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+  return config;
+});
+
+console.log("API interceptor build: auth-token-fix-v2");
 
 // --- Smarter Response Interceptor ---
 api.interceptors.response.use(
