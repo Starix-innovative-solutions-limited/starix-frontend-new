@@ -45,6 +45,8 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
 
       setAuth: (data) => {
+        const userType = data.user_type ?? data.user?.user_type;
+      
         if (typeof window !== "undefined") {
           localStorage.setItem("token", data.access_token);
         }
@@ -53,7 +55,7 @@ export const useAuthStore = create<AuthState>()(
       
         set({
           token: data.access_token,
-          userType: data.user?.user_type,
+          userType,
           user: data.user,
           isAuthenticated: true,
           profile: data.user,

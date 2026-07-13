@@ -11,13 +11,9 @@ export const api = axios.create({
 // --- Unified Request Interceptor ---
 api.interceptors.request.use(
   (config) => {
-    // Combine token retrieval
-    const directToken = localStorage.getItem("token");
-    const session = sessionAuth.get();
-    const sessionToken =
-      typeof session === "string" ? session : (session as any)?.access_token;
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-    const token = directToken || sessionToken;
     if (token) {
       config.headers.Authorization = `Bearer ${token.trim()}`;
     }
