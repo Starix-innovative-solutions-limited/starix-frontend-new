@@ -29,7 +29,7 @@ interface AuthState {
   isAuthenticated: boolean;
   profile: CreatorProfile | BrandProfile | any | null;
   setAuth: (data: LoginResponse) => void;
-  setProfile: (profile: any) => void; // 💡 Added this
+  setProfile: (profile: any) => void; 
   logout: () => void;
   fetchProfile: () => void;
   refreshToken: () => Promise<string | null>;

@@ -24,8 +24,7 @@ interface WithdrawModalProps {
 export default function WithdrawModal({ isOpen, onClose, balance: initialBalance }: WithdrawModalProps) {
   const queryClient = useQueryClient();
   
-  // 🧪 TESTING OVERRIDE: Hardcoding wallet layer context to 100,000 Naira
-  const balance = 100000;
+  const balance = initialBalance ?? 0;
 
   const { data: activeAccount, isLoading: isLoadingAccount } = useGetWithdrawalAccount();
   const { data: NIGERIAN_BANKS = [], isLoading: isLoadingBanks } = useGetBanksList();
@@ -166,8 +165,7 @@ export default function WithdrawModal({ isOpen, onClose, balance: initialBalance
       onSuccess: (data) => {
         // 🎉 If the transaction immediately accepted or replayed:
         if (data.status === "processing") {
-          // You could easily fire a success toast notification here
-          queryClient.invalidateQueries({ queryKey: ["walletBalance"] }); 
+          queryClient.invalidateQueries({ queryKey: ["wallet", "balances"] });
         }
         handleClose();
       },
