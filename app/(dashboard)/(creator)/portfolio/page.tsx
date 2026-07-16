@@ -23,18 +23,16 @@ const WalletPage = () => {
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(true);
 
   // Mock withdrawals array remains as structural fallback for UI context switches
-  const withdrawals = [
-    { id: "w1", challenge_title: "Withdrawal to Desire Destiny", earned_at: "2026-06-04T12:00:00Z", amount: "35000", currency: "NGN", status: "successful", brand_logo_url: "/withdraw.svg" },
-    { id: "w2", challenge_title: "Withdrawal to Desire Destiny", earned_at: "2026-06-03T10:00:00Z", amount: "42000", currency: "NGN", status: "pending", brand_logo_url: "/withdraw.svg" },
-  ];
+  const withdrawals: any[] = [];
 
   // Map backend earnings response array seamlessly 
   const currentData = useMemo(() => {
     if (activeTab === "Earnings") {
       return earningsData?.items || [];
     }
+  
     return withdrawals;
-  }, [activeTab, earningsData, withdrawals]);
+  }, [activeTab, earningsData]);
 
   // Handle pagination limits safely from metadata
   const totalPages = earningsData?.total_pages || 1;
@@ -199,9 +197,13 @@ const WalletPage = () => {
               <div className="w-20 h-20 bg-[#F4F7FF] rounded-full flex items-center justify-center mb-4">
                 <Image src="/candyyy.svg" alt="No transactions" width={40} height={40}  />
               </div>
-              <h3 className="text-[15px] font-semibold text-[#1E1F24] mb-1">No transaction records found</h3>
+              <h3 className="text-[15px] font-semibold text-[#1E1F24] mb-1">
+                {activeTab === "Earnings" ? "No earnings yet" : "No withdrawals yet"}
+              </h3>
               <p className="text-[#747682] text-[12px] max-w-xs">
-                Your activities from campaigns, brand challenges, and payouts will be displayed here
+                {activeTab === "Earnings"
+                  ? "Your earnings from campaigns and brand challenges will be displayed here."
+                  : "Your withdrawal history will appear here once you make a payout."}
               </p>
             </motion.div>
           ) : (
