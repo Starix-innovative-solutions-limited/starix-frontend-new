@@ -36,6 +36,7 @@ const Solution = () => {
                 src="/ribbons.svg" 
                 alt="3D Ribbon" 
                 fill 
+                sizes="280px"
                 className="object-contain rotate-[-4deg] scale-110"
                 priority
               />
@@ -49,6 +50,7 @@ const Solution = () => {
                 src="/bstars.svg" 
                 alt="3D Star" 
                 fill 
+                sizes="366px"
                 className="object-contain rotate-[-5deg] scale-105"
                 priority
               />

@@ -87,7 +87,7 @@ const BrandSignup = () => {
         <div className="flex justify-center mb-8">
           <Image src="/contact star.svg" alt="Starix Logo" width={60} height={60} className="object-contain" />
         </div>
-        <h1 className="text-[36px] md:text-[40px] font-medium text-[#040136] tracking-tight mb-3">
+        <h1 className="text-[36px] md:text-[40px] font-medium text-[#040136] tracking-tight">
           Create your brand account
         </h1>
         <p className="text-[#747682] text-lg">
@@ -103,10 +103,10 @@ const BrandSignup = () => {
         <FcGoogle size={24} /> Continue with Google
       </button>
 
-      <div className="w-full flex items-center gap-4 mb-8">
-        <div className="h-[1px] bg-[#E5E7EB] flex-1"></div>
+      <div className="w-full flex items-center gap-4 mb-5">
+        <div className="h-[1px] flex-1"></div>
         <span className="text-[#9CA3AF] text-sm font-medium">OR</span>
-        <div className="h-[1px] bg-[#E5E7EB] flex-1"></div>
+        <div className="h-[1px] flex-1"></div>
       </div>
 
       <form onSubmit={handleSubmit} className="w-full space-y-6">
@@ -168,15 +168,18 @@ const BrandSignup = () => {
         <button
           type="submit"
           disabled={isPending || !isFormComplete}
-          className="w-full rounded-full py-4 font-bold text-white bg-[#0033FF] hover:bg-[#0026CC] shadow-lg shadow-blue-200 transition-all mt-4 flex items-center justify-center text-lg disabled:opacity-50"
+          className="w-full rounded-full py-4 font-bold text-white bg-[#0033FF] shadow-sm shadow-blue-200 transition-all mt-4 flex items-center justify-center text-lg disabled:opacity-50"
         >
           {isPending ? <Loader /> : "Sign Up"}
         </button>
       </form>
 
       <div className="mt-10 text-center">
-        <p className="text-[#4B5563] font-medium">
-          Already have an account? <Link href="/coming-soon" className="text-[#0033FF] font-bold hover:underline ml-1">Sign in</Link>
+        <p className="text-[#747682] text-[16px] font-medium mb-2">
+          By continuing, you agree to our <Link href="/terms" className="underline ml-1">terms</Link> and <Link href="/privacy" className="underline ml-1">privacy policy</Link>
+        </p>
+        <p className="text-[#747682] text-[16px] font-medium">
+          Already have an account? <Link href="/login" className="underline ml-1">Sign in</Link>
         </p>
       </div>
     </div>

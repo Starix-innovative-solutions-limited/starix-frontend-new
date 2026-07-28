@@ -2,7 +2,7 @@ import axios from "axios";
 import { sessionAuth } from "@/utils/sessionAuth";
 
 export const api = axios.create({
-  baseURL: "https://starix-backend.onrender.com",
+  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "https://api-dev.starixapp.com",
   headers: {
     "Content-Type": "application/json",
   },

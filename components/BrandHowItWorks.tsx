@@ -89,6 +89,7 @@ const BrandHowItWorks = () => {
                     src={steps[activeStep].image}
                     alt="visual asset"
                     fill
+                    sizes="(max-width: 1024px) 100vw, 900px"
                     className="object-contain"
                     priority
                   />

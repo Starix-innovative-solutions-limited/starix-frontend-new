@@ -3,6 +3,7 @@ import { api } from "@/lib/api";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import { compressImageForUpload } from "@/utils/compressImage";
 import axios from "axios";
 
 export interface CreatorProfile {
@@ -156,22 +157,24 @@ type UploadUrlResponse = {
   expires_in: number;
 };
 export async function uploadUserMedia(file: File, target: UploadTarget) {
-  if (file.size > 5 * 1024 * 1024) {
+  const uploadFile = await compressImageForUpload(file);
+
+  if (uploadFile.size > 5 * 1024 * 1024) {
     throw new Error("Image must be 5MB or smaller.");
   }
 
   const { data } = await api.post<UploadUrlResponse>("/media/upload-url", {
     target,
-    filename: file.name,
-    content_type: file.type,
+    filename: uploadFile.name,
+    content_type: uploadFile.type,
   });
 
   const uploadResponse = await fetch(data.upload_url, {
     method: "PUT",
     headers: {
-      "Content-Type": file.type,
+      "Content-Type": uploadFile.type,
     },
-    body: file,
+    body: uploadFile,
   });
 
   if (!uploadResponse.ok) {

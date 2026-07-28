@@ -11,6 +11,7 @@ import { useRequestPasswordReset, useConfirmPasswordReset } from "@/hooks/useAut
 import { toast } from "react-hot-toast";
 import OtpInput from "@/components/auth/OtpInput";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const PasswordResetPage = () => {
   const [email, setEmail] = useState("");
@@ -70,13 +71,23 @@ const PasswordResetPage = () => {
 
   return (
     <motion.div
-      className="max-md:p-2 p-5 flex flex-col gap-4 w-full max-w-md mx-auto"
+      className="py-12 px- max-w-[480px] flex flex-col gap-4 w-full mx-auto"
       variants={variants?.containerVariants}
       initial="hidden"
       animate="visible"
       exit="exit"
     >
-      <motion.div className="flex flex-col gap-1 md:gap-3" variants={variants?.itemVariants}>
+      <motion.div className="flex flex-col items-center gap-1 text-center md:gap-3" variants={variants?.itemVariants}>
+        <div className="mb-8 flex justify-center">
+          <Image
+            src="/contact star.svg"
+            alt="Starix Logo"
+            width={60}
+            height={60}
+            className="object-contain"
+            priority
+          />
+        </div>
         <h3 className="font-medium text-3xl leading-9 text-dark-navy">
           {otpSuccess ? "Create new password" : "Forgot password??"}
         </h3>

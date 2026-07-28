@@ -53,11 +53,13 @@ const HowItWorks = () => {
             <div className='max-w-[1300px] mx-auto w-full mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-10 px-4'>
                 <h1 className="text-[32px] sm:text-[44px] md:text-[64px] font-regular tracking-tight text-dark-navy leading-[1.1] flex items-center flex-nowrap whitespace-nowrap gap-x-2 md:gap-x-3">
                     <span>Here&apos;s how</span> 
-                    <img 
-                        src="/n-logo.svg" 
-                        className="w-24 sm:w-32 md:w-45 h-auto translate-y-1 md:translate-y-2 pb-2 md:pb-5" 
-                        alt="starix logo" 
-                    /> 
+                    <Image
+                        src="/n-logo.svg"
+                        width={180}
+                        height={72}
+                        className="w-24 sm:w-32 md:w-45 h-auto translate-y-1 md:translate-y-2 pb-2 md:pb-5"
+                        alt="starix logo"
+                    />
                     <span>works</span>
                 </h1>
                 <p className="max-w-[300px] text-[#6E6E6E] text-[16px] md:text-[20px] md:text-right font-regular leading-snug mb-2">
@@ -81,6 +83,7 @@ const HowItWorks = () => {
                                         src={feature.icon} 
                                         alt={feature.title} 
                                         fill 
+                                        sizes="(max-width: 768px) 100vw, 380px"
                                         className={`object-contain object-right-top transition-transform duration-500 ${feature.scale}`} 
                                         priority
                                     />
@@ -114,6 +117,7 @@ const HowItWorks = () => {
                                         src={feature.icon} 
                                         alt={feature.title} 
                                         fill 
+                                        sizes="(max-width: 768px) 100vw, 380px"
                                         className={`object-contain object-right-top transition-transform duration-500 ${feature.scale}`} 
                                         priority
                                     />

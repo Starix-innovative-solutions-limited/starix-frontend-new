@@ -24,7 +24,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       {/* RIGHT SIDE: Form Content */}
       <section className="h-full overflow-y-auto flex flex-col items-center hide-scrollbar">
         {/* max-w-[480px] matches your sidebar.png proportions exactly */}
-        <div className="w-full max-w-[650px] px-8 py-16 md:py-24">
+        <div className="w-full max-w-[650px]">
           {children}
         </div>
       </section>

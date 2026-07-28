@@ -72,6 +72,7 @@ const SolutionCard = ({ title, desc, asset, uiImg, index, assetWidth, assetHeigh
           src={asset}
           alt=""
           fill
+          sizes="(max-width: 768px) 100vw, 650px"
           className="object-contain object-right-top"
         />
       </div>
@@ -99,7 +100,7 @@ const CreatorBuilt = () => {
         <div className="flex flex-row justify-between items-start mb-12 gap-6">
           <h2 className="font-regular flex items-center gap-2 text-[#040136] leading-[1.1] tracking-tight text-[clamp(28px,4vw,64px)]">
             Built for how you
-            <img src="/buttons 3.svg" alt="" className="h-[2em] w-auto inline-block" />
+            <Image src="/buttons 3.svg" alt="" width={128} height={128} className="h-[2em] w-auto inline-block" />
             actually work
           </h2>
 

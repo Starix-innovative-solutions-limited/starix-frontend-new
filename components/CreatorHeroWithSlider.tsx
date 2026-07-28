@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { style } from "framer-motion/client";
 
 const testimonials = [
   {
@@ -66,15 +65,18 @@ export default function CreatorHero() {
 <div className="relative mt-28 w-full max-w-7xl mx-auto aspect-[16/8]">
 
   {/* 1. The Sky Blue Background Box (Defines the main shape) */}
-  <img src="/masked.svg" alt="" />
+  <Image src="/masked.svg" alt="" width={1280} height={640} className="h-auto w-full" priority />
 
   {/* 2. Background Branding Text / Vector (ALLOWED TO OVERFLOW) */}
   {/* Positioned slightly larger and offset to break out of the blue box */}
   <div className="absolute top-[10%] left-1/2  -translate-x-1/2 w-[100%] z-0 pointer-events-none flex justify-center">
-    <img 
-      src="/Vectorsss.svg" 
-      alt="Starix Vector" 
-      className="w-full h-auto  object-contain"
+    <Image
+      src="/Vectorsss.svg"
+      alt="Starix Vector"
+      width={1280}
+      height={360}
+      className="h-auto w-full object-contain"
+      priority
     />
   </div>
 
@@ -86,6 +88,7 @@ export default function CreatorHero() {
       alt="Creators"
       fill
       className="object-cover object-bottom"
+      sizes="(max-width: 768px) 100vw, 1280px"
       priority
     />
   </div>
@@ -109,10 +112,12 @@ export default function CreatorHero() {
                   i % 2 === 0 ? 'bg-[#0052FF]' : 'bg-[#FF5C00]'
                 }`}
               >
-                <img 
-                  src={t.avatar} 
-                  alt={t.name} 
-                  className="w-full h-full object-cover" 
+                <Image
+                  src={t.avatar}
+                  alt={t.name}
+                  fill
+                  sizes="60px"
+                  className="object-cover"
                 />
               </div>
               {/* Text */}

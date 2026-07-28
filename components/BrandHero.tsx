@@ -23,6 +23,7 @@ const BrandHero = () => {
           src="/closeup.svg" // Replace with your purple glass/scallop asset
           alt="3D Decorative Asset"
           fill
+          sizes="100vw"
           className="object-contain"
           priority
         />
@@ -39,6 +40,7 @@ const BrandHero = () => {
           src="/diamondssss.svg" // Replace with your blue crystal asset
           alt="3D Decorative Asset"
           fill
+          sizes="100vw"
           className="object-contain"
           priority
         />

@@ -12,6 +12,7 @@ import { useLogin } from "@/hooks/useAuth";
 import toast from "react-hot-toast";
 import { useRouter, useSearchParams } from "next/navigation";
 import { startGoogleAuth } from "@/lib/auth";
+import Image from "next/image";
 
 const Page = () => {
   const searchParams = useSearchParams();
@@ -45,14 +46,26 @@ const Page = () => {
       );
       
       // localStorage.setItem("token", res.access_token);
-      router.push(res.user?.user_type === "brand" ? "/brand" : "/dashboard");
+      const userType = res.user_type ?? res.user?.user_type;
+
+      const needsOnboarding =
+        userType === "creator" &&
+        (!res.user?.username || !res.user?.bio || !res.user?.profile_picture_url);
+
+      router.push(
+        userType === "brand"
+          ? "/brand"
+          : needsOnboarding
+            ? "/onboarding"
+            : "/dashboard"
+      );
     } catch (err) {
       console.error(err);
     }
   };
 
   return (
-    <div className="w-full flex items-center justify-center px-6 py-6">
+    <div className="w-full flex items-center justify-center px-2 py-12">
       <motion.div 
         className="w-full max-w-[600px]" 
         variants={variants?.containerVariants} 
@@ -60,6 +73,16 @@ const Page = () => {
       >
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <motion.div className="flex flex-col items-center" variants={variants?.itemVariants}>
+            <div className="mb-8 flex justify-center">
+              <Image
+                src="/contact star.svg"
+                alt="Starix Logo"
+                width={60}
+                height={60}
+                className="object-contain"
+                priority
+              />
+            </div>
             <h3 className="font-medium text-3xl sm:text-4xl leading-tight text-secondary-100">
               Welcome back
             </h3>

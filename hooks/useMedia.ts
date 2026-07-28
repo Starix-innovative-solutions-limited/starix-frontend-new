@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { compressImageForUpload } from "@/utils/compressImage";
 
 type UploadTarget = 
   | "profile_picture" | "user_banner" | "challenge_banner" 
@@ -8,11 +9,13 @@ type UploadTarget =
 export const useUploadMedia = () => {
   return useMutation({
     mutationFn: async ({ file, target }: { file: File; target: UploadTarget }) => {
+      const uploadFile = await compressImageForUpload(file);
+
       // 1. Get the presigned URL from your backend
       const { data: presignedData } = await api.post("/media/upload-url", {
         target,
-        filename: file.name,
-        content_type: file.type,
+        filename: uploadFile.name,
+        content_type: uploadFile.type,
       });
 
       const { upload_url, public_url } = presignedData as { 
@@ -25,9 +28,9 @@ export const useUploadMedia = () => {
       // Send the same Content-Type you requested.
       const uploadResponse = await fetch(upload_url, {
         method: "PUT",
-        body: file,
+        body: uploadFile,
         headers: {
-          "Content-Type": file.type,
+          "Content-Type": uploadFile.type,
         },
       });
 

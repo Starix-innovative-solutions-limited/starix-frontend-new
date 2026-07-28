@@ -6,6 +6,7 @@ type OtpInputProps = {
   length?: number;
   value?: string;
   onChange?: (code: string) => void;
+  hasError?: boolean;
   autoFocus?: boolean;
   disabled?: boolean;
   className?: string;
@@ -15,6 +16,7 @@ export default function OtpInput({
   length = 6,
   value = "",
   onChange,
+  hasError = false,
   autoFocus = true,
   disabled = false,
   className = "",
@@ -140,7 +142,11 @@ export default function OtpInput({
             onKeyDown={(e) => handleKeyDown(e, i)}
             onPaste={handlePaste}
             disabled={disabled}
-            className="w-11 h-14 md:w-14 md:h-16 text-center text-xl font-bold border border-[#E5E7EB] bg-[#F9FAFB] rounded-2xl focus:border-[#0033FF] focus:bg-white focus:ring-4 focus:ring-blue-50 outline-none transition-all"
+            className={`h-[76px] w-[68px] rounded-[10px] border bg-white text-center text-[42px] font-semibold text-black outline-none transition-all max-sm:h-[64px] max-sm:w-[52px] max-sm:text-[34px] ${
+              hasError
+                ? "border-[#D12B1F] focus:border-[#D12B1F]"
+                : "border-[#D1D5DB] focus:border-black"
+            }`}
           />
         ))}
       </div>

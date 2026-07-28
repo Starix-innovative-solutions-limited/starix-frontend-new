@@ -15,6 +15,7 @@ import { Loader2 } from "lucide-react";
 const VerifyEmailContent = () => {
   const [otp, setOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [otpError, setOtpError] = useState("");
   const [timeLeft, setTimeLeft] = useState(60);
   const [canResend, setCanResend] = useState(false);
   
@@ -48,19 +49,21 @@ const VerifyEmailContent = () => {
     toast.success("Code resent successfully!");
   };
 
-  const handleVerifyOtp = async (e?: React.FormEvent) => {
+  const handleVerifyOtp = async (e?: React.FormEvent, codeOverride?: string) => {
     e?.preventDefault();
-    if (otp.length < 6) return toast.error("Please enter the 6-digit code");
+    const codeToVerify = codeOverride ?? otp;
+    if (codeToVerify.length < 6 || isLoading) return;
 
     const currentRole = role || pendingSignup?.role || "creator";
     const emailKey = currentRole === "brand" ? "brand_email" : "creator_email";
 
     const payload = {
       [emailKey]: displayEmail,
-      code: otp, 
+      code: codeToVerify, 
       role: currentRole,
     };
 
+    setOtpError("");
     setIsLoading(true);
     await toast.promise(
       verifyEmail(payload as any),
@@ -75,10 +78,21 @@ const VerifyEmailContent = () => {
         },
         error: (err: any) => {
           setIsLoading(false);
-          return err.response?.data?.detail?.[0]?.msg || "Verification failed";
+          const message = err.response?.data?.detail?.[0]?.msg || "Invalid code, please try again";
+          setOtpError(message);
+          return message;
         }
       }
     );
+  };
+
+  const handleOtpChange = (code: string) => {
+    setOtp(code);
+    if (otpError) setOtpError("");
+
+    if (code.length === 6) {
+      handleVerifyOtp(undefined, code);
+    }
   };
 
   return (
@@ -95,24 +109,30 @@ const VerifyEmailContent = () => {
       <motion.div className="flex flex-col gap-3 mb-10" variants={variants?.itemVariants}>
         <h3 className="font-bold md:text-[40px] text-[32px] tracking-tight text-[#040136]">Verify your email</h3>
         <p className="text-[#747682] text-base font-normal">
-          Enter the code sent to <span className="text-[#040136] font-medium">{displayEmail}</span>
+          Enter the code sent to your email address.
         </p>
       </motion.div>
 
       <motion.form 
-        className="w-full flex flex-col items-center gap-10" 
+        className="w-full flex flex-col items-center gap-8" 
         variants={variants?.itemVariants}
         onSubmit={handleVerifyOtp}
       >
-        <OtpInput length={6} value={otp} onChange={(c) => setOtp(c)} className="flex justify-center gap-3" />
+        <OtpInput
+          length={6}
+          value={otp}
+          onChange={handleOtpChange}
+          hasError={!!otpError}
+          disabled={isLoading}
+          className="flex justify-center gap-3"
+        />
 
-        <button
-          type="submit"
-          disabled={otp.length < 6 || isLoading}
-          className={`w-full h-[56px] rounded-full font-semibold text-base transition-all duration-200 flex items-center justify-center gap-2 ${otp.length === 6 && !isLoading ? "bg-[#040136] text-white hover:bg-[#06024d]" : "bg-[#F2F4F7] text-[#98A2B3] cursor-not-allowed"}`}
-        >
-          {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Continue"}
-        </button>
+        {isLoading && <Loader2 className="h-5 w-5 animate-spin text-[#0033FF]" />}
+        {otpError && (
+          <p className="text-[15px] font-semibold text-[#D12B1F]">
+            {otpError}
+          </p>
+        )}
 
         <div className="flex flex-col gap-1 text-sm">
            <span className="text-[#667085]">Didn’t get a Code?</span>

@@ -101,7 +101,7 @@ if (!isOpen) return null;
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs transition-opacity duration-300">
+    <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-xs transition-opacity duration-300">
       
       {/* HIDDEN RAW FILE ELEMENT ATTACHMENTS */}
       <input

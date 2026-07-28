@@ -1,4 +1,5 @@
 import { api } from "@/lib/api";
+import { compressImageForUpload } from "@/utils/compressImage";
 
 type UploadTarget =
   | "profile_picture"
@@ -16,18 +17,20 @@ type UploadUrlResponse = {
 };
 
 export async function uploadMedia(file: File, target: UploadTarget) {
+  const uploadFile = await compressImageForUpload(file);
+
   const { data } = await api.post<UploadUrlResponse>("/media/upload-url", {
     target,
-    filename: file.name,
-    content_type: file.type,
+    filename: uploadFile.name,
+    content_type: uploadFile.type,
   });
 
   const uploadResponse = await fetch(data.upload_url, {
     method: "PUT",
     headers: {
-      "Content-Type": file.type,
+      "Content-Type": uploadFile.type,
     },
-    body: file,
+    body: uploadFile,
   });
 
   if (!uploadResponse.ok) {

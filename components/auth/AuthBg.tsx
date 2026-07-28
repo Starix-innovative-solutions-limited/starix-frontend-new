@@ -113,7 +113,7 @@ const AuthBg = ({ brand }: AuthProps) => {
       </div>
 
       {/* LAYER 3: Main Visual Asset */}
-      <div className="absolute left-1/2 -translate-x-1/2 w-full h-[110%] z-30 pointer-events-none">
+      <div className="absolute left-1/2 -translate-x-1/2 w-full h-[110%] z-50 pointer-events-none">
         <AnimatePresence mode="wait">
           <motion.div
             key={brand ? "brand-asset" : "creator-asset"}

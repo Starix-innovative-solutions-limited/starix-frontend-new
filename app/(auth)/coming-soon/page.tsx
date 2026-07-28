@@ -37,7 +37,7 @@ const ComingSoonPage = () => {
   };
 
   return (
-    <div className="w-full max-w-[1200px]  flex flex-col items-center justify-center font-sans text-[#040136]">
+    <div className="w-full max-w-[1200px] py-12 flex flex-col items-center justify-center font-sans text-[#040136]">
       
       <div className="w-full max-w-[768px] flex flex-col items-center gap-10">
         

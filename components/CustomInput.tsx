@@ -15,6 +15,8 @@ type CustomInputProps = React.InputHTMLAttributes<HTMLInputElement | HTMLTextAre
   setTags?: React.Dispatch<React.SetStateAction<string[]>>;
   suggestions?: string[];
   options?: any[];
+  error?: boolean;
+  errorMessage?: string;
 };
 
 const CustomInput: React.FC<CustomInputProps> = ({
@@ -30,6 +32,8 @@ const CustomInput: React.FC<CustomInputProps> = ({
   setTags,
   suggestions = [],
   options,
+  error = false,
+  errorMessage = "",
   ...rest
 }) => {
   const [fileName, setFileName] = useState<string>("");
@@ -38,12 +42,14 @@ const CustomInput: React.FC<CustomInputProps> = ({
 
   // Unified styles to ensure identical height/size across all types
   const baseStyles = `
-    w-full bg-white rounded-xl border border-[#E5E7EB] 
-    text-sm text-[#444] px-4 py-3.5 
-    focus:outline-none focus:ring-2 focus:ring-[#0033FF] focus:border-transparent 
-    transition-all duration-200 disabled:bg-gray-50
-    ${className}
-  `;
+  w-full bg-white rounded-xl border
+  ${error ? "border-red-500" : "border-[#E5E7EB]"}
+  text-sm text-[#444] px-4 py-3.5
+  focus:outline-none focus:ring-0
+  ${error ? "focus:border-red-500" : "focus:border-black"}
+  transition-all duration-200 disabled:bg-gray-50
+  ${className}
+`;
 
   return (
     <div className="w-full">
@@ -105,6 +111,9 @@ const CustomInput: React.FC<CustomInputProps> = ({
           />
         )}
       </label>
+      {error && (
+        <p className="text-[12px] text-[#DC2626] font-medium">{errorMessage}</p>
+      )}
     </div>
   );
 };

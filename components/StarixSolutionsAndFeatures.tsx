@@ -77,6 +77,7 @@ const ChallengeCard = ({
         src={icon}
         alt={title}
         fill
+        sizes="(max-width: 768px) 100vw, 320px"
         className="object-contain object-bottom"
       />
     </div>

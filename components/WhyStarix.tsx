@@ -155,6 +155,7 @@ const WhyStarix = () => {
                         src={item.image}
                         alt="visual"
                         fill
+                        sizes="140px"
                         className="object-contain object-right-bottom scale-160"
                       />
                     </div>
@@ -206,6 +207,7 @@ const WhyStarix = () => {
                   src={activeSection.image}
                   alt="Solution Visual"
                   fill
+                  sizes="(max-width: 1024px) 100vw, 560px"
                   priority
                   className="object-contain p-8 object-right-bottom animate-in fade-in zoom-in-95 slide-in-from-right-12"
                 />
