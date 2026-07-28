@@ -9,9 +9,8 @@ import {
   ResetPasswordOtpPayload,
   VerifyEmailOtpPayload,
 } from "@/utils/type";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useQuery } from "@tanstack/react-query";
 interface LoginPayload {
   email: string;
   password: string;
@@ -219,6 +218,17 @@ export const useJoinWaitlist = () => {
       console.error("DEBUG URL:", err.config.url); // Check the console to see the final URL
       throw err;
     },
+  });
+};
+
+export const useWaitlistTotal = () => {
+  return useQuery({
+    queryKey: ["waitlist", "total"],
+    queryFn: async () => {
+      const { data } = await api.get<{ waitlist_total: string }>("/waitlist/total");
+      return data;
+    },
+    staleTime: 1000 * 60 * 5,
   });
 };
 

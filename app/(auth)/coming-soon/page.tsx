@@ -4,13 +4,16 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { FiArrowRight, FiCheckCircle, FiLoader } from "react-icons/fi";
-import { useJoinWaitlist } from "@/hooks/useAuth";
+import { useJoinWaitlist, useWaitlistTotal } from "@/hooks/useAuth";
 import toast from "react-hot-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ComingSoonPage = () => {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const [waitlistTotal, setWaitlistTotal] = useState("1.2k+");
+  const queryClient = useQueryClient();
+  const { data: waitlistStats } = useWaitlistTotal();
+  const waitlistTotal = waitlistStats?.waitlist_total ?? "0";
 
   const { mutateAsync, isPending } = useJoinWaitlist();
 
@@ -24,7 +27,9 @@ const ComingSoonPage = () => {
         success: (data: any) => {
           setSubmitted(true);
           if (data?.data?.waitlist_total) {
-            setWaitlistTotal(data.data.waitlist_total);
+            queryClient.setQueryData(["waitlist", "total"], {
+              waitlist_total: data.data.waitlist_total,
+            });
           }
           return data?.data?.message || "Welcome to the inner circle!";
         },
@@ -42,7 +47,7 @@ const ComingSoonPage = () => {
       <div className="w-full max-w-[768px] flex flex-col items-center gap-10">
         
         {/* TOP SECTION - NOW CENTERED */}
-        <div className="text-center space-y-6 flex flex-col items-center">
+        <div className="text-center space-y-2 flex flex-col items-center">
           <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#F3F6FF] border border-[#E0E7FF] text-[#0033FF] text-[13px] font-bold uppercase tracking-[0.1em]">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0033FF] opacity-75"></span>
@@ -51,7 +56,7 @@ const ComingSoonPage = () => {
             Starix Launching Soon
           </div>
           
-          <h1 className="text-[38px] md:text-[64px] font-medium leading-[1] tracking-tight text-[#040136]">
+          <h1 className="text-[40px] md:text-[64px] font-medium leading-[1] tracking-tight text-[#040136]">
             The platform for <br/> 
             <span className="text-[#0033FF] ">creative synergy.</span>
           </h1>
@@ -119,7 +124,7 @@ const ComingSoonPage = () => {
             <div className="mt-10 pt-8 border-t border-gray-100 w-full flex flex-col items-center gap-4">
               <div className="flex -space-x-3">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="w-10 h-10 rounded-full border-4 border-white overflow-hidden relative bg-gray-100 shadow-sm">
+                  <div key={i} className="w-10 h-10 rounded-full overflow-hidden relative">
                     <Image src={`/grp${i > 3 ? 1 : i}.svg`} fill alt="User" className="object-cover" />
                   </div>
                 ))}
