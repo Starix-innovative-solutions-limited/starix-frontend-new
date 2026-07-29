@@ -208,7 +208,6 @@ const WhyStarix = () => {
                   alt="Solution Visual"
                   fill
                   sizes="(max-width: 1024px) 100vw, 560px"
-                  priority
                   className="object-contain p-8 object-right-bottom animate-in fade-in zoom-in-95 slide-in-from-right-12"
                 />
               </div>

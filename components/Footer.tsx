@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -20,10 +18,12 @@ const Footer = () => {
         }}
       >
         {/* The Image */}
-        <img 
-          src="/foot 2.svg" 
-          alt="" 
-          className="w-full h-full object-contain"
+        <Image
+          src="/foot 2.svg"
+          alt=""
+          width={1440}
+          height={387}
+          className="h-full w-full object-contain"
           style={{ opacity: 1 }} // Adjust opacity to match Figma's subtle watermark effect
         />
         
@@ -44,7 +44,7 @@ const Footer = () => {
           {/* LEFT — Logo, description, social icons */}
           <div className="max-w-[460px]">
             <Link href="/" className="inline-block mb-6">
-              <img
+              <Image
                 src="/logo light.svg"
                 alt="Starix Logo"
                 width={198}
@@ -75,9 +75,11 @@ const Footer = () => {
                   aria-label={social.name}
                   className="opacity-70 hover:opacity-100 transition-opacity"
                 >
-                  <img
+                  <Image
                     src={`/${social.name} logo.svg`}
                     alt={`${social.name} icon`}
+                    width={24}
+                    height={24}
                     // Removes color from original SVG and makes it pure white
                     className="w-[24px] h-[24px] object-contain brightness-0 invert"
                   />

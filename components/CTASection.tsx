@@ -47,10 +47,12 @@ const CTASection = () => {
             opacity: watermarkConfig.opacity
           }}
         >
-          <img 
-              src="/foot.svg" 
-              alt="starix watermark" 
-              className="w-full h-full object-contain brightness-0 invert" 
+          <Image
+              src="/foot.svg"
+              alt="starix watermark"
+              width={1407}
+              height={434}
+              className="w-full h-full object-contain brightness-0 invert"
           />
         </div>
       );
@@ -115,7 +117,6 @@ const CTASection = () => {
                 alt="3D Blue Star" 
                 width={2000} height={1700} 
                 className="w-full h-auto object-contain drop-shadow-2xl"
-                priority
               />
             </div>
           )}
@@ -128,7 +129,6 @@ const CTASection = () => {
                 alt="3D Candy" 
                 width={2000} height={1700} 
                 className="w-full h-auto object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
-                priority
               />
             </div>
           )}
@@ -141,7 +141,6 @@ const CTASection = () => {
                 alt="3D Trophy" 
                 width={2000} height={1700} 
                 className="w-full h-auto object-contain scale-150"
-                priority
               />
             </div>
           )}

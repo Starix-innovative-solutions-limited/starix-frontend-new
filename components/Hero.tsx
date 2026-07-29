@@ -2,23 +2,48 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import Lottie from "lottie-react";
+import dynamic from "next/dynamic";
+
+const Lottie = dynamic(() => import("lottie-react"), {
+  ssr: false,
+  loading: () => null,
+});
 
 const Hero = () => {
   const [animationData, setAnimationData] = useState(null);
 
   useEffect(() => {
+    const shouldLoadAnimation =
+      window.matchMedia("(min-width: 768px)").matches &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (!shouldLoadAnimation) return;
+
+    let isCancelled = false;
+    let idleId: number | undefined;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
     const fetchAnimation = async () => {
       try {
         const response = await fetch("/animations/hero-anime5.json");
         const data = await response.json();
-        setAnimationData(data);
+        if (!isCancelled) setAnimationData(data);
       } catch (error) {
         console.error("Error loading Lottie animation:", error);
       }
     };
 
-    fetchAnimation();
+    if ("requestIdleCallback" in window) {
+      idleId = window.requestIdleCallback(fetchAnimation, { timeout: 2500 });
+    } else {
+      timeoutId = globalThis.setTimeout(fetchAnimation, 1200);
+    }
+
+    return () => {
+      isCancelled = true;
+      if (idleId !== undefined) window.cancelIdleCallback(idleId);
+      if (timeoutId !== undefined) globalThis.clearTimeout(timeoutId);
+    };
   }, []);
 
   return (

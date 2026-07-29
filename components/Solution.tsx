@@ -1,5 +1,3 @@
-"use client"
-
 import React from "react"
 import Image from "next/image"
 
@@ -38,7 +36,6 @@ const Solution = () => {
                 fill 
                 sizes="280px"
                 className="object-contain rotate-[-4deg] scale-110"
-                priority
               />
             </div>
           </div>
@@ -52,7 +49,6 @@ const Solution = () => {
                 fill 
                 sizes="366px"
                 className="object-contain rotate-[-5deg] scale-105"
-                priority
               />
             </div>
           </div>

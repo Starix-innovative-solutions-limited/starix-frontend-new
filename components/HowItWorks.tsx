@@ -1,4 +1,3 @@
-"use client"
 import Image from 'next/image'
 import Link from "next/link";
 
@@ -85,7 +84,6 @@ const HowItWorks = () => {
                                         fill 
                                         sizes="(max-width: 768px) 100vw, 380px"
                                         className={`object-contain object-right-top transition-transform duration-500 ${feature.scale}`} 
-                                        priority
                                     />
                                 </div>
                                 <h3 className="font-['Geist'] font-normal text-[40px] leading-none tracking-[-0.04em] text-[#040136] max-w-[200px] mb-3">
@@ -119,7 +117,6 @@ const HowItWorks = () => {
                                         fill 
                                         sizes="(max-width: 768px) 100vw, 380px"
                                         className={`object-contain object-right-top transition-transform duration-500 ${feature.scale}`} 
-                                        priority
                                     />
                                 </div>
                                 <h3 className="font-['Geist'] font-normal text-[40px] leading-none tracking-[-0.04em] text-[#040136] max-w-[200px] mb-3">
