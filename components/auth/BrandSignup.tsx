@@ -14,6 +14,7 @@ import { startGoogleAuth } from "@/lib/auth";
 import { HiCheckCircle, HiXCircle } from "react-icons/hi2";
 import { BrandSignupPayload } from "@/utils/type";
 import { useGetCategories } from "@/hooks/useCategories";
+import { getAuthErrorMessage } from "@/lib/authErrors";
 
 const initialForm = {
   email: "",
@@ -35,6 +36,7 @@ const handleGoogleSignup = async () => {
 
 const BrandSignup = () => {
   const [form, setForm] = useState(initialForm);
+  const [emailError, setEmailError] = useState<string | null>(null);
   const router = useRouter();
 
   const { mutateAsync, isPending } = useBrandSignup();
@@ -90,6 +92,7 @@ const BrandSignup = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setEmailError(null);
 
     const payload: BrandSignupPayload = {
       brand_name: brandName,
@@ -99,25 +102,26 @@ const BrandSignup = () => {
       industry,
     };
 
-    await toast.promise(mutateAsync(payload), {
-      loading: "Creating brand account...",
-      success: () => {
-        router.push(
-          `/verify-email?email=${encodeURIComponent(payload.email)}&role=brand`
+    try {
+      await toast.promise(mutateAsync(payload), {
+        loading: "Creating brand account...",
+        success: () => {
+          router.push(
+            `/verify-email?email=${encodeURIComponent(payload.email)}&role=brand`
+          );
+          return "Brand account created! Check your email for the OTP.";
+        },
+        error: (err: unknown) => getAuthErrorMessage(err, "brand-signup"),
+      });
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response
+        ?.status;
+      if (status === 409) {
+        setEmailError(
+          "This email is already registered. Sign in, or use a different email."
         );
-        return "Brand account created! Check your email for the OTP.";
-      },
-      error: (err: any) => {
-        const status = err?.response?.status;
-        const detail = err?.response?.data?.detail;
-
-        if (status === 409) return "Email already exists";
-        if (status === 429) return "Too many attempts. Try again later.";
-        if (Array.isArray(detail)) return detail[0]?.msg || "Validation error";
-        if (typeof detail === "string") return detail;
-        return "Signup failed. Please check your inputs.";
-      },
-    });
+      }
+    }
   };
 
   return (
@@ -155,12 +159,30 @@ const BrandSignup = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="w-full space-y-6">
-        <CustomInput
-          label="Brand Email"
-          placeholder="Enter company email"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
-        />
+        <div className="space-y-2">
+          <CustomInput
+            label="Brand Email"
+            placeholder="Enter company email"
+            value={form.email}
+            onChange={(e) => {
+              setEmailError(null);
+              setForm({ ...form, email: e.target.value });
+            }}
+            error={Boolean(emailError)}
+            errorMessage={emailError || undefined}
+          />
+          {emailError ? (
+            <p className="text-[13px] font-medium text-[#747682]">
+              Already have this email?{" "}
+              <Link
+                href={`/login?email=${encodeURIComponent(form.email.trim().toLowerCase())}`}
+                className="text-[#0033FF] underline"
+              >
+                Sign in
+              </Link>
+            </p>
+          ) : null}
+        </div>
 
         <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2">
           <CustomInput

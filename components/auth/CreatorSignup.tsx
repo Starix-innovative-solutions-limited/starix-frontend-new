@@ -15,6 +15,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { startGoogleAuth } from "@/lib/auth";
 import { CreatorSignupPayload } from "@/utils/type";
+import { getAuthErrorMessage } from "@/lib/authErrors";
 
 const initialForm = {
   first_name: "",
@@ -90,16 +91,7 @@ const CreatorSignup = () => {
         );
         return "Signup successful! Check your email for the OTP.";
       },
-      error: (err: any) => {
-        const status = err?.response?.status;
-        const detail = err?.response?.data?.detail;
-
-        if (status === 409) return "Email already exists";
-        if (status === 429) return "Too many attempts. Try again later.";
-        if (Array.isArray(detail)) return detail[0]?.msg || "Validation error";
-        if (typeof detail === "string") return detail;
-        return "Signup failed. Please check your inputs.";
-      },
+      error: (err: unknown) => getAuthErrorMessage(err, "creator-signup"),
     });
   };
 

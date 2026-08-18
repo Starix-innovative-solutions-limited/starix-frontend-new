@@ -16,6 +16,10 @@ import {
 } from "@/utils/type";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/useAuthStore";
+import {
+  getAuthErrorMessage,
+  isExpectedAuthConflict,
+} from "@/lib/authErrors";
 
 export type { UserProfile };
 
@@ -89,7 +93,9 @@ export const useCreatorSignup = () => {
     },
 
     onError: (err: any) => {
-      console.log("CREATOR SIGNUP ERROR:", err.response?.data);
+      // Expected conflicts (e.g. email already exists) are handled in the UI.
+      if (isExpectedAuthConflict(err)) return;
+      console.error("Creator signup failed:", getAuthErrorMessage(err, "creator-signup"));
     },
   });
 };
@@ -130,7 +136,9 @@ export const useBrandSignup = () => {
     },
 
     onError: (err: any) => {
-      console.error("Brand signup failed:", err.response?.data || err);
+      // Expected conflicts (e.g. email already exists) are handled in the UI.
+      if (isExpectedAuthConflict(err)) return;
+      console.error("Brand signup failed:", getAuthErrorMessage(err, "brand-signup"));
     },
   });
 };

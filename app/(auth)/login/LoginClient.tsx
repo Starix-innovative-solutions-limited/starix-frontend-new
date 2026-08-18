@@ -17,9 +17,10 @@ import Image from "next/image";
 const Page = () => {
   const searchParams = useSearchParams();
   const role = searchParams.get("role");
+  const emailFromQuery = searchParams.get("email")?.trim().toLowerCase() || "";
   const router = useRouter();
   const { mutateAsync: login, isPending: isLoading } = useLogin();
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ email: emailFromQuery, password: "" });
 
   const handleGoogleLogin = async () => {
     try {
