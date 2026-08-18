@@ -14,6 +14,7 @@ import { HiCheckCircle, HiXCircle } from "react-icons/hi2";
 import Link from "next/link";
 import Image from "next/image";
 import { startGoogleAuth } from "@/lib/auth";
+import { CreatorSignupPayload } from "@/utils/type";
 
 const initialForm = {
   first_name: "",
@@ -38,68 +39,68 @@ const CreatorSignup = () => {
 
   const { mutateAsync, isPending } = useCreatorSignup();
 
-  // --- PASSWORD VALIDATION LOGIC ---
-  const passwordRequirements = useMemo(() => [
-    { label: "At least 8 characters", met: form.password.length >= 8 },
-    { label: "At least one uppercase letter", met: /[A-Z]/.test(form.password) },
-    { label: "At least one number", met: /[0-9]/.test(form.password) },
-    { 
-      label: "At least one special character (@$!%*?&)", 
-      met: /[^A-Za-z0-9]/.test(form.password) 
-    },
-  ], [form.password]);
+  const passwordRequirements = useMemo(
+    () => [
+      { label: "At least 8 characters", met: form.password.length >= 8 },
+      { label: "At least one uppercase letter", met: /[A-Z]/.test(form.password) },
+      { label: "At least one lowercase letter", met: /[a-z]/.test(form.password) },
+      { label: "At least one number", met: /[0-9]/.test(form.password) },
+      {
+        label: "At least one special character",
+        met: /[^A-Za-z0-9]/.test(form.password),
+      },
+    ],
+    [form.password]
+  );
 
-  const isPasswordValid = passwordRequirements.every(req => req.met);
-  const hasTypedEmail = form.email.trim().length > 0;
+  const isPasswordValid = passwordRequirements.every((req) => req.met);
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim());
 
   const hasTypedConfirmPassword = (form.confirm_password ?? "").length > 0;
   const passwordsMatch = form.password === (form.confirm_password ?? "");
-  
-  // Logic to keep the "Sign Up" button disabled until form is perfect
+
+  const firstName = form.first_name.trim();
+  const lastName = form.last_name.trim();
+
   const isFormComplete =
-  form.first_name.trim() !== "" &&
-  form.last_name.trim() !== "" &&
-  isEmailValid &&
-  isPasswordValid &&
-  passwordsMatch &&
-  hasTypedEmail &&
-  hasTypedConfirmPassword;
+    firstName.length >= 2 &&
+    firstName.length <= 128 &&
+    lastName.length >= 2 &&
+    lastName.length <= 128 &&
+    isEmailValid &&
+    isPasswordValid &&
+    passwordsMatch &&
+    hasTypedConfirmPassword;
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
 
-    // STRICT PAYLOAD: Matches your FastAPI Pydantic Schema exactly
-    const payload = {
-      first_name: form.first_name.trim(),
-      last_name: form.last_name.trim(),
-      email: form.email.trim(),
+    const payload: CreatorSignupPayload = {
+      first_name: firstName,
+      last_name: lastName,
+      email: form.email.trim().toLowerCase(),
       password: form.password,
     };
 
-    await toast.promise(
-      mutateAsync(payload as any),
-      {
-        loading: "Creating account...",
-        success: () => {
-          router.push(`/verify-email?email=${form.email}&role=creator`);
-          return "Signup successful!";
-        },
-        error: (err: any) => {
-          const detail = err?.response?.data?.detail;
+    await toast.promise(mutateAsync(payload), {
+      loading: "Creating account...",
+      success: () => {
+        router.push(
+          `/verify-email?email=${encodeURIComponent(payload.email)}&role=creator`
+        );
+        return "Signup successful! Check your email for the OTP.";
+      },
+      error: (err: any) => {
+        const status = err?.response?.status;
+        const detail = err?.response?.data?.detail;
 
-          // SAFE ERROR RENDERING: Prevents React "Object as Child" crash
-          if (Array.isArray(detail)) {
-            // Returns the specific error message from the backend (e.g., "Email already exists")
-            return `${detail[0].msg}`;
-          }
-
-          return typeof detail === "string" 
-            ? detail 
-            : "Signup failed. Please check your inputs.";
-        },
-      }
-    );
+        if (status === 409) return "Email already exists";
+        if (status === 429) return "Too many attempts. Try again later.";
+        if (Array.isArray(detail)) return detail[0]?.msg || "Validation error";
+        if (typeof detail === "string") return detail;
+        return "Signup failed. Please check your inputs.";
+      },
+    });
   };
 
   return (

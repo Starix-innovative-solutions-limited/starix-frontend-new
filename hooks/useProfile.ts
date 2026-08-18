@@ -3,8 +3,7 @@ import { api } from "@/lib/api";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { compressImageForUpload } from "@/utils/compressImage";
-import axios from "axios";
+import { UserProfile } from "@/utils/type";
 
 export interface CreatorProfile {
   first_name: string;
@@ -49,13 +48,16 @@ export const useGetCreatorProfile = (username: string, options?: any) => {
 export function useCreatorProfile() {
   const { setProfile } = useAuthStore();
 
-  return useQuery({
+  return useQuery<UserProfile>({
     queryKey: ["me"],
     queryFn: async () => {
-      const { data } = await api.get("/auth/me");
+      const { data } = await api.get<UserProfile>("/auth/me");
       if (data) setProfile(data);
       return data;
     },
+    enabled:
+      typeof window !== "undefined" && !!localStorage.getItem("token"),
+    staleTime: 1000 * 60 * 5,
     retry: false,
   });
 }
@@ -142,52 +144,8 @@ export type UpdateCreatorProfilePayload = {
   niches?: string[];
 };
 
-type UploadTarget =
-  | "profile_picture"
-  | "user_banner"
-  | "challenge_banner"
-  | "challenge_document"
-  | "circle_profile_picture"
-  | "circle_banner";
-
-type UploadUrlResponse = {
-  upload_url: string;
-  object_key: string;
-  public_url: string;
-  expires_in: number;
-};
-export async function uploadUserMedia(file: File, target: UploadTarget) {
-  const uploadFile = await compressImageForUpload(file);
-
-  if (uploadFile.size > 5 * 1024 * 1024) {
-    throw new Error("Image must be 5MB or smaller.");
-  }
-
-  const { data } = await api.post<UploadUrlResponse>("/media/upload-url", {
-    target,
-    filename: uploadFile.name,
-    content_type: uploadFile.type,
-  });
-
-  const uploadResponse = await fetch(data.upload_url, {
-    method: "PUT",
-    headers: {
-      "Content-Type": uploadFile.type,
-    },
-    body: uploadFile,
-  });
-
-  if (!uploadResponse.ok) {
-    throw new Error(`S3 upload failed with status ${uploadResponse.status}`);
-  }
-
-  // FIX: Ensure we only return the clean URL
-  // If data.public_url includes query params like ?AWSAccessKeyId=..., 
-  // strip them if you want a permanent public link.
-  const cleanUrl = data.public_url.split('?')[0]; 
-  
-  return cleanUrl;
-}
+export { uploadUserMedia } from "@/hooks/uploadUserMedia";
+export type { UploadTarget } from "@/hooks/uploadUserMedia";
 
 export function useUpdateCreatorProfile() {
   const queryClient = useQueryClient();
@@ -201,6 +159,7 @@ export function useUpdateCreatorProfile() {
     onSuccess: (updatedData: any) => {
       queryClient.invalidateQueries({ queryKey: ["authMe"] });
       queryClient.invalidateQueries({ queryKey: ["me"] });
+      queryClient.invalidateQueries({ queryKey: ["creators", "onboarding"] });
 
       queryClient.setQueryData(["authMe"], updatedData);
       queryClient.setQueryData(["me"], updatedData);
@@ -292,6 +251,87 @@ export const useGetCreatorCircles = (
       return data;
     },
     enabled: !!username,
+    ...options,
+  });
+};
+
+export type PortfolioPlatform = "instagram" | "tiktok" | "youtube" | "x";
+
+export type CreatorPortfolioItem = {
+  id: string;
+  platform: PortfolioPlatform | string;
+  content_type: string;
+  content_url: string;
+  platform_post_id: string;
+  cover_image_url: string | null;
+  created_at: string;
+};
+
+export type CreatorPortfolioResponse = {
+  items: CreatorPortfolioItem[];
+  page: number;
+  page_size: number;
+  total_items: number;
+  total_pages: number;
+  prev_url: string | null;
+  next_url: string | null;
+};
+
+export type GetCreatorPortfolioParams = {
+  platform?: PortfolioPlatform | null;
+  page?: number;
+  page_size?: number;
+};
+
+export const useGetCreatorPortfolio = (
+  username: string | undefined,
+  params: GetCreatorPortfolioParams = {},
+  options?: { enabled?: boolean }
+) => {
+  const page = params.page ?? 1;
+  const pageSize = params.page_size ?? 10;
+  const platform = params.platform ?? null;
+
+  return useQuery<CreatorPortfolioResponse | null>({
+    queryKey: ["creatorPortfolio", username, platform, page, pageSize],
+    queryFn: async () => {
+      if (!username) return null;
+
+      try {
+        const { data } = await api.get<CreatorPortfolioResponse>(
+          `/creators/${username}/portfolio`,
+          {
+            params: {
+              ...(platform ? { platform } : {}),
+              page,
+              page_size: pageSize,
+            },
+          }
+        );
+        return data;
+      } catch (error) {
+        const axiosError = error as AxiosError<{ detail?: string }>;
+        const status = axiosError.response?.status;
+        const detail = axiosError.response?.data?.detail;
+
+        if (status === 404) {
+          throw new Error(
+            typeof detail === "string" ? detail : "Creator not found."
+          );
+        }
+
+        if (status === 422) {
+          throw new Error(
+            typeof detail === "string"
+              ? detail
+              : "Invalid platform value. Use instagram, tiktok, youtube, or x."
+          );
+        }
+
+        throw error;
+      }
+    },
+    enabled: !!username && (options?.enabled ?? true),
     ...options,
   });
 };

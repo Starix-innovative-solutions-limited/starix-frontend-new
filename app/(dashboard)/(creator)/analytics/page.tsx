@@ -697,7 +697,12 @@ const earningsChartData =
           <div className="flex items-start justify-between border-b border-[#EFF0F3] p-5">
             <div>
               <h3 className="flex items-center gap-2 text-[18px] font-semibold">
-                <span><img src="/candyyy.svg" alt="" /></span> Starix Score
+                <img
+                  src="/candyyy.svg"
+                  alt=""
+                  className="h-5 w-5 shrink-0 object-contain"
+                />{" "}
+                Starix Score
               </h3>
               <p className="mt-2 max-w-[285px] text-[10px] leading-relaxed text-[#62636C]">
                 Performance score: <span className="font-semibold text-[#245BFF]">{scoreData?.best_performing_platform ?? "0"}</span>
@@ -875,7 +880,11 @@ const earningsChartData =
 
 const CardLabel = ({ label }: { label: string }) => (
   <div className="flex items-center gap-2">
-    <img src="/coin.svg" alt="" />
+    <img
+      src="/coin.svg"
+      alt=""
+      className="h-4 w-4 shrink-0 object-contain"
+    />
     <span className="text-[15px] font-semibold text-[#1E1F24]">{label}</span>
   </div>
 );

@@ -29,7 +29,7 @@ const VerifyEmailContent = () => {
   const displayEmail = queryEmail || pendingSignup?.email || pendingSignup?.brand_email || pendingSignup?.creator_email;
 
   const { mutateAsync: verifyEmail } = useVerifyEmailOtp();
-  const { mutate: generateOtp } = useGenerateOtp();
+  const { mutateAsync: requestOtp, isPending: isRequestingOtp } = useGenerateOtp();
 
   // TIMER LOGIC
   useEffect(() => {
@@ -41,49 +41,85 @@ const VerifyEmailContent = () => {
     }
   }, [timeLeft]);
 
-  const handleResend = () => {
-    if (!canResend) return;
-    generateOtp({ email: displayEmail, purpose: "email_verification" } as any);
-    setTimeLeft(60);
-    setCanResend(false);
-    toast.success("Code resent successfully!");
+  const handleResend = async () => {
+    if (!canResend || isRequestingOtp) return;
+
+    try {
+      const data = await requestOtp();
+      setTimeLeft(60);
+      setCanResend(false);
+      toast.success(data?.message || "Code resent successfully!");
+    } catch (err: any) {
+      const status = err?.response?.status;
+      const detail = err?.response?.data?.detail;
+
+      if (status === 429) {
+        toast.error(
+          typeof detail === "string"
+            ? detail
+            : "Too many OTP requests. Try again later."
+        );
+        return;
+      }
+
+      toast.error(
+        typeof detail === "string"
+          ? detail
+          : "Could not resend code. Please try again."
+      );
+    }
   };
 
   const handleVerifyOtp = async (e?: React.FormEvent, codeOverride?: string) => {
     e?.preventDefault();
-    const codeToVerify = codeOverride ?? otp;
-    if (codeToVerify.length < 6 || isLoading) return;
+    const codeToVerify = (codeOverride ?? otp).trim();
+    if (codeToVerify.length !== 6 || isLoading) return;
 
     const currentRole = role || pendingSignup?.role || "creator";
-    const emailKey = currentRole === "brand" ? "brand_email" : "creator_email";
-
-    const payload = {
-      [emailKey]: displayEmail,
-      code: codeToVerify, 
-      role: currentRole,
-    };
 
     setOtpError("");
     setIsLoading(true);
-    await toast.promise(
-      verifyEmail(payload as any),
-      {
+
+    try {
+      const data = await toast.promise(verifyEmail({ code: codeToVerify }), {
         loading: "Verifying account...",
-        success: () => {
-          localStorage.removeItem("token"); 
-          sessionAuth.clear(); 
-          const redirectPath = currentRole === "brand" ? "/login?role=brand" : "/login?role=creator";
-          router.push(redirectPath);
-          return "Account verified! Please log in.";
-        },
+        success: (res) => res?.message || "Account verified!",
         error: (err: any) => {
-          setIsLoading(false);
-          const message = err.response?.data?.detail?.[0]?.msg || "Invalid code, please try again";
-          setOtpError(message);
-          return message;
-        }
-      }
-    );
+          const status = err?.response?.status;
+          const detail = err?.response?.data?.detail;
+
+          if (status === 429) {
+            return typeof detail === "string"
+              ? detail
+              : "Maximum attempts exceeded. Request a new code.";
+          }
+          if (status === 400) {
+            return typeof detail === "string"
+              ? detail
+              : "OTP is invalid or expired";
+          }
+          if (Array.isArray(detail)) return detail[0]?.msg || "Validation error";
+          if (typeof detail === "string") return detail;
+          return "Invalid code, please try again";
+        },
+      });
+
+      sessionAuth.clear();
+      const redirectPath =
+        currentRole === "brand" ? "/brand-onboarding" : "/onboarding";
+      router.push(redirectPath);
+      return data;
+    } catch (err: any) {
+      const detail = err?.response?.data?.detail;
+      const message = Array.isArray(detail)
+        ? detail[0]?.msg
+        : typeof detail === "string"
+          ? detail
+          : "Invalid code, please try again";
+      setOtpError(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleOtpChange = (code: string) => {
@@ -109,7 +145,9 @@ const VerifyEmailContent = () => {
       <motion.div className="flex flex-col gap-3 mb-10" variants={variants?.itemVariants}>
         <h3 className="font-bold md:text-[40px] text-[32px] tracking-tight text-[#040136]">Verify your email</h3>
         <p className="text-[#747682] text-base font-normal">
-          Enter the code sent to your email address.
+          {displayEmail
+            ? `Enter the code sent to ${displayEmail}.`
+            : "Enter the code sent to your email address."}
         </p>
       </motion.div>
 
@@ -138,11 +176,11 @@ const VerifyEmailContent = () => {
            <span className="text-[#667085]">Didn’t get a Code?</span>
            <button 
              type="button"
-             disabled={!canResend}
-             className={`font-semibold ${canResend ? "text-[#000842] hover:underline" : "text-gray-400 cursor-not-allowed"}`}
+             disabled={!canResend || isRequestingOtp}
+             className={`font-semibold ${canResend && !isRequestingOtp ? "text-[#000842] hover:underline" : "text-gray-400 cursor-not-allowed"}`}
              onClick={handleResend}
            >
-             {canResend ? "Resend Code" : <>Resend Code in <span className="font-bold">00:{timeLeft < 10 ? `0${timeLeft}` : timeLeft}</span></>}
+             {canResend ? (isRequestingOtp ? "Sending..." : "Resend Code") : <>Resend Code in <span className="font-bold">00:{timeLeft < 10 ? `0${timeLeft}` : timeLeft}</span></>}
            </button>
         </div>
       </motion.form>

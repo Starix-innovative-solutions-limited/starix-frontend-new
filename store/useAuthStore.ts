@@ -1,17 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from "@/lib/api";
-import { BrandProfile, CreatorProfile } from "@/utils/type";
+import { BrandProfile, CreatorProfile, UserProfile } from "@/utils/type";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-
-interface User {
-  id: string;
-  email: string;
-  is_active: boolean;
-  is_verified: boolean;
-  created_at: string;
-  updated_at: string;
-}
 
 interface LoginResponse {
   access_token: string;
@@ -23,15 +14,16 @@ interface LoginResponse {
 }
 
 interface AuthState {
-  user: User | null;
+  user: UserProfile | null;
   token: string | null;
+  refreshTokenValue: string | null;
   userType: string | null;
   isAuthenticated: boolean;
-  profile: CreatorProfile | BrandProfile | any | null;
+  profile: UserProfile | CreatorProfile | BrandProfile | any | null;
   setAuth: (data: LoginResponse) => void;
-  setProfile: (profile: any) => void; 
+  setProfile: (profile: UserProfile | any) => void;
   logout: () => void;
-  fetchProfile: () => void;
+  fetchProfile: () => Promise<UserProfile | null>;
   refreshToken: () => Promise<string | null>;
 }
 
@@ -41,20 +33,25 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       profile: null,
       token: null,
+      refreshTokenValue: null,
       userType: null,
       isAuthenticated: false,
 
       setAuth: (data) => {
         const userType = data.user_type ?? data.user?.user_type;
-      
+
         if (typeof window !== "undefined") {
           localStorage.setItem("token", data.access_token);
+          if (data.refresh_token) {
+            localStorage.setItem("refresh_token", data.refresh_token);
+          }
         }
-      
+
         api.defaults.headers.common.Authorization = `Bearer ${data.access_token}`;
-      
+
         set({
           token: data.access_token,
+          refreshTokenValue: data.refresh_token ?? null,
           userType,
           user: data.user,
           isAuthenticated: true,
@@ -62,35 +59,49 @@ export const useAuthStore = create<AuthState>()(
         });
       },
 
-      // 💡 Action to update profile from anywhere (like your mutation hook)
-      setProfile: (profile) => set({ profile }),
+      setProfile: (profile) =>
+        set({
+          profile,
+          user: profile,
+          userType: profile?.user_type ?? get().userType,
+        }),
 
       fetchProfile: async () => {
         try {
           const token = get().token || localStorage.getItem("token");
-      
-          const { data } = await api.get("/auth/me", {
+          if (!token) return null;
+
+          const { data } = await api.get<UserProfile>("/auth/me", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
-      
-          set({ profile: data });
-          console.log("Profile updated in store:", data);
+
+          set({
+            profile: data,
+            user: data,
+            userType: data.user_type ?? get().userType,
+          });
+          return data;
         } catch (error: any) {
           console.error("Failed to fetch profile:", error);
           if (error.response?.status === 401) {
-            console.warn("Profile fetch unauthorized after login. Check /auth/me backend auth.");
+            console.warn(
+              "Profile fetch unauthorized. Check /auth/me backend auth."
+            );
           }
+          return null;
         }
       },
 
       logout: () => {
-        localStorage.removeItem("token"); // Clean up the manual token too
+        localStorage.removeItem("token");
+        localStorage.removeItem("refresh_token");
         set({
           user: null,
           profile: null,
           token: null,
+          refreshTokenValue: null,
           userType: null,
           isAuthenticated: false,
         });
@@ -98,8 +109,26 @@ export const useAuthStore = create<AuthState>()(
 
       refreshToken: async () => {
         try {
-          const { data } = await api.post("/auth/refresh");
-          set({ token: data.access_token, isAuthenticated: true });
+          const refresh =
+            get().refreshTokenValue ||
+            localStorage.getItem("refresh_token");
+
+          const { data } = await api.post("/auth/refresh", {
+            refresh_token: refresh,
+          });
+
+          if (typeof window !== "undefined") {
+            localStorage.setItem("token", data.access_token);
+            if (data.refresh_token) {
+              localStorage.setItem("refresh_token", data.refresh_token);
+            }
+          }
+
+          set({
+            token: data.access_token,
+            refreshTokenValue: data.refresh_token ?? get().refreshTokenValue,
+            isAuthenticated: true,
+          });
           return data.access_token;
         } catch (error) {
           get().logout();

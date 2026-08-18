@@ -7,7 +7,8 @@ import { MdVerified } from "react-icons/md";
 import { HiArrowRight, HiArrowLeft } from "react-icons/hi2";
 import Image from "next/image";
 import Link from "next/link";
-import { useGetRecommendedChallenges } from "@/hooks/useChallenges";
+import { useGetRecommendedChallenges, useGetTrendingChallenges } from "@/hooks/useChallenges";
+import { formatCompactNaira } from "@/lib/formatMoney";
 
 type RecommendedCard = {
   id: string | number;
@@ -26,55 +27,68 @@ type RecommendedCard = {
 };
 
 const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean }) => {
-  // 1. Core hook layer integration
-  const { data: apiResponse } = useGetRecommendedChallenges();
+  const { data: recommendedData, isLoading: recommendedLoading } =
+    useGetRecommendedChallenges(50, 0);
+  const { data: trendingData, isLoading: trendingLoading } =
+    useGetTrendingChallenges(50, 0);
 
-  // Your original static template array matching your design specs perfectly
-  const staticCards: RecommendedCard[]  = [
-    { id: 1, brand: "Nivea", logo: "/nivea.svg", time: "12h ago", niche: ["Beauty", "Family"], prize: "₦10M", deadline: "12h", verified: true, images: ["/left1.svg", "/right1.svg"] },
-    { id: 2, brand: "Indomie", logo: "/indomie.svg", time: "2d ago", niche: ["Food", "Family"], prize: "₦8m", deadline: "12h", verified: false, images: ["/right21.svg", "/right22.svg", "/right21.svg"] },
-    { id: 3, brand: "Nivea", logo: "/nivea.svg", time: "12h ago", niche: ["Beauty", "Family"], prize: "₦10M", deadline: "12h", verified: true, images: ["/left1.svg", "/right1.svg"] },
-    { id: 4, brand: "Indomie", logo: "/indomie.svg", time: "2d ago", niche: ["Food", "Family"], prize: "₦8m", deadline: "12h", verified: false, images: ["/right21.svg", "/right22.svg"] },
-    { id: 5, brand: "Indomie", logo: "/indomie.svg", time: "2d ago", niche: ["Food", "Family"], prize: "₦8m", deadline: "12h", verified: false, images: ["/right22.svg", "/right21.svg"] },
-    { id: 6, brand: "Nivea", logo: "/nivea.svg", time: "12h ago", niche: ["Beauty", "Family"], prize: "₦10M", deadline: "12h", verified: true, images: ["/left1.svg", "/right1.svg"] },
-  ];
-
-  // Helper utility mapping dates safely
   const formatTimeAgo = (dateString: string) => {
-    if (!dateString) return "12h ago";
-    const hours = Math.floor((new Date().getTime() - new Date(dateString).getTime()) / (1000 * 60 * 60));
-    return hours < 24 ? `${hours || 12}h ago` : `${Math.floor(hours / 24)}d ago`;
+    if (!dateString) return "Just now";
+    const hours = Math.floor(
+      (new Date().getTime() - new Date(dateString).getTime()) / (1000 * 60 * 60)
+    );
+    if (hours < 1) return "Just now";
+    return hours < 24 ? `${hours}h ago` : `${Math.floor(hours / 24)}d ago`;
   };
 
-  // 2. Map dynamic backend data into card objects if it exists
   const cards = React.useMemo<RecommendedCard[]>(() => {
-    if (apiResponse && apiResponse.challenges && apiResponse.challenges.length > 0) {
-      return apiResponse.challenges.map((challenge: any, idx: number): RecommendedCard => {
-        const mediaUrls =
-          challenge.media
-            ?.sort((a: any, b: any) => a.display_order - b.display_order)
-            .map((m: any) => m.media_url) || [];
-  
-        return {
-          id: challenge.id || idx + 1,
-          brand: challenge.brand_name || "Brand",
-          logo: challenge.brand_profile_picture_url || "/nivea.svg",
-          time: formatTimeAgo(challenge.created_at),
-          niche: challenge.category_name ? [challenge.category_name, "Family"] : ["Beauty", "Family"],
-          prize: challenge.prize_pool_display || "₦10M",
-          deadline: "12h",
-          verified: challenge.is_funded ?? true,
-          title: challenge.title,
-          desc: challenge.description,
-          images: mediaUrls.length > 0 ? mediaUrls : ["/left1.svg", "/right1.svg"],
-          views: challenge.viewer_count ? `${(challenge.viewer_count / 1000).toFixed(1)}k` : "2.1k",
-          mail: challenge.participant_count?.toString() || "87",
-        };
-      });
+    const byId = new Map<string, any>();
+    for (const challenge of [
+      ...(recommendedData?.challenges ?? []),
+      ...(trendingData?.challenges ?? []),
+    ]) {
+      if (challenge?.id && !byId.has(challenge.id)) byId.set(challenge.id, challenge);
     }
-  
-    return staticCards;
-  }, [apiResponse]);
+
+    return Array.from(byId.values()).map((challenge: any, idx: number): RecommendedCard => {
+      const mediaUrls =
+        challenge.media
+          ?.slice()
+          .sort((a: any, b: any) => (a.display_order ?? 0) - (b.display_order ?? 0))
+          .map((m: any) => m.media_url) || [];
+
+      return {
+        id: challenge.id || idx + 1,
+        brand: challenge.brand_name || "Brand",
+        logo: challenge.brand_profile_picture_url || "/nivea.svg",
+        time: formatTimeAgo(challenge.created_at),
+        niche: challenge.category_name
+          ? [challenge.category_name]
+          : ["Challenge"],
+        prize: formatCompactNaira(
+          challenge.prize_pool_display ||
+            (typeof challenge.prize_pool === "number"
+              ? challenge.prize_pool / 100
+              : 0),
+          challenge.currency_symbol || "₦"
+        ),
+        deadline: "Open",
+        verified: challenge.is_funded ?? challenge.is_published ?? true,
+        title: challenge.title,
+        desc: challenge.description,
+        images:
+          mediaUrls.length > 0
+            ? mediaUrls.slice(0, 4)
+            : ["/left1.svg", "/right1.svg"],
+        views: challenge.viewer_count
+          ? `${(challenge.viewer_count / 1000).toFixed(1)}k`
+          : "0",
+        mail: challenge.participant_count?.toString() || "0",
+      };
+    });
+  }, [recommendedData, trendingData]);
+
+  const isLoading = recommendedLoading || trendingLoading;
 
   return (
     <div className="min-h-screen bg-white font-['Geist'] py-2">
@@ -119,7 +133,21 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
               ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3' 
               : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}
           `}>
-            {cards.map((card) => (
+            {isLoading ? (
+              <p className="col-span-full py-16 text-center text-[14px] text-[#62636C]">
+                Loading challenges...
+              </p>
+            ) : cards.length === 0 ? (
+              <div className="col-span-full rounded-[24px] border border-dashed border-[#E0E1E6] px-6 py-16 text-center">
+                <p className="text-[14px] font-medium text-[#1E1F24]">
+                  No open challenges yet
+                </p>
+                <p className="mt-1 text-[12px] text-[#62636C]">
+                  Funded brand challenges will appear here once they are active.
+                </p>
+              </div>
+            ) : (
+              cards.map((card) => (
               <Link
               key={card.id}
               href={`/dashboard/challenge/${card.id}`}
@@ -203,7 +231,8 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
                   </div>
                 </div>
               </Link>
-            ))}
+            ))
+            )}
           </div>
         </div>
 

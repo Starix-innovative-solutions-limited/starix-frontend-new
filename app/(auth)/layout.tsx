@@ -2,12 +2,15 @@
 
 import React, { Suspense } from "react";
 import AuthBg from "@/components/auth/AuthBg";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 const DynamicAuthBg = () => {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const role = searchParams.get("role");
-  return <AuthBg brand={role === "brand"} />;
+  const isBrand =
+    role === "brand" || pathname?.startsWith("/brand-onboarding");
+  return <AuthBg brand={isBrand} />;
 };
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {

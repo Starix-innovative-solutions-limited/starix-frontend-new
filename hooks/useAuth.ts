@@ -3,99 +3,130 @@ import { api } from "@/lib/api";
 import { sessionAuth } from "@/utils/sessionAuth";
 import {
   BrandSignupPayload,
+  BrandSignupResponse,
   CreatorSignupPayload,
-  GenerateOtpPayload,
-  ResendOtpPayload,
+  CreatorSignupResponse,
+  LoginPayload,
+  LoginResponse,
+  RequestEmailOtpResponse,
   ResetPasswordOtpPayload,
+  UserProfile,
   VerifyEmailOtpPayload,
+  VerifyEmailOtpResponse,
 } from "@/utils/type";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/useAuthStore";
-interface LoginPayload {
-  email: string;
-  password: string;
-}
 
-interface LoginResponse {
-  access_token: string;
-  refresh_token?: string;
-  token_type: string;
-  expires_in?: number;
-  user_type?: "creator" | "brand" | string;
-  user: any;
-}
+export type { UserProfile };
 
 export function useLogin() {
   const { setAuth } = useAuthStore();
 
-  return useMutation<LoginResponse, any, LoginPayload>({
+  return useMutation({
     mutationFn: async (data: LoginPayload) => {
-      const res = await api.post<LoginResponse>("/auth/login", data);
-      return res.data; // Return actual payload
+      const res = await api.post<LoginResponse>("/auth/login", {
+        email: data.email.trim().toLowerCase(),
+        password: data.password,
+      });
+      return res.data;
+    },
+
+    onSuccess: (data) => {
+      localStorage.setItem("token", data.access_token);
+      if (data.refresh_token) {
+        localStorage.setItem("refresh_token", data.refresh_token);
+      }
+
+      setAuth({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+        token_type: data.token_type,
+        expires_in: data.expires_in,
+        user_type: data.user?.user_type,
+        user: data.user,
+      });
     },
 
     onError: (err: any) => {
       console.error("LOGIN ERROR:", err.response?.data || err.message);
-      // Optionally throw to let mutateAsync catch it
-      throw err;
-    },
-
-    onSuccess: (data: LoginResponse) => {
-      console.log("LOGIN SUCCESS:", data);
-    
-      setAuth({
-        ...data,
-        user_type: data.user_type ?? data.user?.user_type,
-      });
     },
   });
 }
 
 export const useCreatorSignup = () => {
+  const { setAuth } = useAuthStore();
+
   return useMutation({
-    mutationFn: (data: CreatorSignupPayload) =>
-      api.post("/auth/signup/creator", data),
+    mutationFn: async (data: CreatorSignupPayload) => {
+      const res = await api.post<CreatorSignupResponse>(
+        "/auth/signup/creator",
+        data
+      );
+      return res.data;
+    },
 
-      onSuccess: (res: any) => {
-        const token = res?.data?.access_token;
-        
-        // Save to sessionAuth for app state
-        sessionAuth.save({
-          email: res?.data?.user?.email,
-          role: "creator",
-          access_token: token,
-          token_type: res?.data?.token_type,
-        });
+    onSuccess: (data) => {
+      sessionAuth.save({
+        email: data.user.email,
+        role: "creator",
+        access_token: data.access_token,
+        token_type: data.token_type,
+      });
 
-        // CRITICAL: Save to localStorage as 'token' so api.ts interceptor finds it
-        if (token) {
-          localStorage.setItem("token", token);
-        }
-        
-        console.log("Signup success, token stored:", token);
-        return res?.data;
-      },
+      localStorage.setItem("token", data.access_token);
+      if (data.refresh_token) {
+        localStorage.setItem("refresh_token", data.refresh_token);
+      }
+
+      setAuth({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+        token_type: data.token_type,
+        expires_in: data.expires_in,
+        user_type: data.user.user_type,
+        user: data.user,
+      });
+    },
 
     onError: (err: any) => {
       console.log("CREATOR SIGNUP ERROR:", err.response?.data);
-      return err?.response?.data;
     },
   });
 };
 
 export const useBrandSignup = () => {
-  return useMutation({
-    mutationFn: (data: BrandSignupPayload) =>
-      api.post("/auth/signup/brand", data),
+  const { setAuth } = useAuthStore();
 
-    onSuccess: (res) => {
+  return useMutation({
+    mutationFn: async (data: BrandSignupPayload) => {
+      const res = await api.post<BrandSignupResponse>(
+        "/auth/signup/brand",
+        data
+      );
+      return res.data;
+    },
+
+    onSuccess: (data) => {
       sessionAuth.save({
-        email: res?.data?.user?.brand_email,
+        email: data.user.email,
         role: "brand",
-        access_token: res?.data?.access_token,
-        token_type: res?.data?.token_type,
+        access_token: data.access_token,
+        token_type: data.token_type,
       });
-      console.log("Brand signup successful:", res.data);
+
+      localStorage.setItem("token", data.access_token);
+      if (data.refresh_token) {
+        localStorage.setItem("refresh_token", data.refresh_token);
+      }
+
+      setAuth({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+        token_type: data.token_type,
+        expires_in: data.expires_in,
+        user_type: data.user.user_type,
+        user: data.user,
+      });
     },
 
     onError: (err: any) => {
@@ -104,14 +135,18 @@ export const useBrandSignup = () => {
   });
 };
 
-// OTP Verfication
+// OTP Verification — POST /auth/otp/email/request (Bearer auth, no body)
 export function useGenerateOtp() {
   return useMutation({
-    mutationFn: (data: GenerateOtpPayload) =>
-      api.post("/auth/otp/email/request", data),
+    mutationFn: async () => {
+      const { data } = await api.post<RequestEmailOtpResponse>(
+        "/auth/otp/email/request"
+      );
+      return data;
+    },
 
-    onSuccess: (res: any) => {
-      console.log("OTP GENERATED SUCCESS:", res.data);
+    onSuccess: (data) => {
+      console.log("OTP GENERATED SUCCESS:", data);
     },
 
     onError: (err: any) => {
@@ -121,12 +156,20 @@ export function useGenerateOtp() {
 }
 
 export function useVerifyEmailOtp() {
-  return useMutation({
-    mutationFn: (data: VerifyEmailOtpPayload) =>
-      api.post("/auth/otp/email/verify", data),
+  const queryClient = useQueryClient();
 
-    onSuccess: (res: any) => {
-      console.log("EMAIL VERIFIED SUCCESS:", res.data);
+  return useMutation({
+    mutationFn: async (payload: VerifyEmailOtpPayload) => {
+      const { data } = await api.post<VerifyEmailOtpResponse>(
+        "/auth/otp/email/verify",
+        { code: payload.code.trim() }
+      );
+      return data;
+    },
+
+    onSuccess: (data) => {
+      console.log("EMAIL VERIFIED SUCCESS:", data);
+      queryClient.invalidateQueries({ queryKey: ["me"] });
     },
 
     onError: (err: any) => {
@@ -176,18 +219,9 @@ export function useConfirmPasswordReset() {
   });
 }
 
+/** Alias of useGenerateOtp — same authenticated no-body request endpoint */
 export function useResendOtp() {
-  return useMutation({
-    mutationFn: (data: ResendOtpPayload) => api.post("/auth/otp/email/request", data),
-
-    onSuccess: (res: any) => {
-      console.log("OTP RESENT SUCCESS:", res.data);
-    },
-
-    onError: (err: any) => {
-      console.log("OTP RESENT ERROR:", err.response?.data);
-    },
-  });
+  return useGenerateOtp();
 }
 
 export function useRefreshToken() {
@@ -232,40 +266,18 @@ export const useWaitlistTotal = () => {
   });
 };
 
-export interface UserProfile {
-  id: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  username?: string;
-  user_type: "creator" | "brand" | string;
-  phone_number: string | null;
-  bio: string | null;
-  profile_picture_url: string | null;
-  banner_url?: string | null;
-  niches?: string[];
-  total_completed_challenges?: number;
-  connected_platforms?: { platform: string; username: string }[];
-  lifetime_engagements?: number;
-  starix_score?: number;
-  starix_score_visibility?: "public" | "private";
-  is_email_verified: boolean;
-  is_phone_verified: boolean;
-  is_verified: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
 export function useGetMe() {
+  const { setProfile } = useAuthStore();
+
   return useQuery<UserProfile>({
     queryKey: ["me"],
     queryFn: async () => {
-      const res = await api.get("/auth/me");
-      return res.data;
+      const { data } = await api.get<UserProfile>("/auth/me");
+      setProfile(data);
+      return data;
     },
     enabled:
-      typeof window !== "undefined" &&
-      !!localStorage.getItem("token"),
+      typeof window !== "undefined" && !!localStorage.getItem("token"),
     staleTime: 1000 * 60 * 5,
     retry: false,
   });

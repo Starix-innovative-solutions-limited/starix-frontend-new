@@ -91,6 +91,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Starix",
   description: "Starix — creator marketing platform",
+  icons: {
+    icon: "/Blue1.svg", 
+  },
 };
 
 export default function RootLayout({

@@ -1,5 +1,10 @@
 import type { NextConfig } from "next";
 
+const apiTarget =
+  process.env.API_PROXY_TARGET ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://api-dev.starixapp.com";
+
 const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
@@ -17,6 +22,16 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
+  },
+  async rewrites() {
+    // Same-origin proxy for local/dev so browser CORS doesn't mask API 500s.
+    if (!apiTarget.startsWith("http")) return [];
+    return [
+      {
+        source: "/api-backend/:path*",
+        destination: `${apiTarget.replace(/\/$/, "")}/:path*`,
+      },
+    ];
   },
 };
 

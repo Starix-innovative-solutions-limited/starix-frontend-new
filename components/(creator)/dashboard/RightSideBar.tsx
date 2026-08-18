@@ -15,7 +15,36 @@ import { useGetMe } from "@/hooks/useAuth";
 import { useGetMyStarixScore, useGetGlobalLeaderboard } from "@/hooks/useProfile";
 import { useGetWithdrawalAccount, useGetEarningsSummary } from "@/hooks/useWallet";
 import { useGetOpenCircles, useRequestToJoin, useGetLeaderboard , useGetEarningDetail, useGetRecommendedChallenges} from "@/hooks/useCircles";
-import { FaCircle, FaEllipsis } from "react-icons/fa6";
+import {
+  useGetRecommendedChallenges as useGetCreatorRecommendedChallenges,
+  useGetTrendingChallenges as useGetCreatorTrendingChallenges,
+  useGetChallengeById,
+  useGetChallengeLeaderboard,
+  type ChallengeItem,
+} from "@/hooks/useChallenges";
+import { formatCompactNaira } from "@/lib/formatMoney";
+import { FaCircle } from "react-icons/fa6";
+
+function formatViewCount(count?: number) {
+  const value = count ?? 0;
+  if (value >= 1_000_000) {
+    return `${(value / 1_000_000).toFixed(1).replace(/\.0$/, "")}M views`;
+  }
+  if (value >= 1_000) {
+    return `${(value / 1_000).toFixed(1).replace(/\.0$/, "")}k views`;
+  }
+  return `${value} view${value === 1 ? "" : "s"}`;
+}
+
+function challengePrizeLabel(challenge: ChallengeItem) {
+  return formatCompactNaira(
+    challenge.prize_pool_display ||
+      (typeof challenge.prize_pool === "number"
+        ? challenge.prize_pool / 100
+        : 0),
+    challenge.currency_symbol || "₦"
+  );
+}
 
 
 
@@ -96,6 +125,21 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
   const isChallengeView      = pathname.includes("/dashboard/challenge/");
   const isChallengesListPage = pathname.startsWith("/challenges");
   const isPortfolioPage      = pathname.startsWith("/portfolio");
+
+  const challengeIdFromPath = React.useMemo(() => {
+    if (!isChallengeView) return null;
+    const match = pathname.match(/\/dashboard\/challenge\/([^/]+)/);
+    const id = match?.[1] ?? null;
+    return id && UUID_RE.test(id) ? id : null;
+  }, [isChallengeView, pathname]);
+
+  const { data: challengeDetail } = useGetChallengeById(
+    challengeIdFromPath ?? ""
+  );
+  const { data: challengeLeaderboard } = useGetChallengeLeaderboard(
+    challengeIdFromPath ?? undefined,
+    { enabled: Boolean(challengeIdFromPath) }
+  );
  
 
   const isCreatorProfileView =
@@ -120,6 +164,29 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
   enabled: !!circleId && isCreatorProfileView,
 });
 
+  const {
+    data: sidebarRecommendedData,
+    isLoading: isLoadingSidebarRecommended,
+  } = useGetCreatorRecommendedChallenges(3, 0);
+  const {
+    data: sidebarTrendingData,
+    isLoading: isLoadingSidebarTrending,
+  } = useGetCreatorTrendingChallenges(3, 0);
+
+  const sidebarRecommended = React.useMemo(
+    () =>
+      ((sidebarRecommendedData?.challenges ?? []) as ChallengeItem[]).slice(
+        0,
+        3
+      ),
+    [sidebarRecommendedData]
+  );
+  const sidebarTrending = React.useMemo(
+    () =>
+      ((sidebarTrendingData?.challenges ?? []) as ChallengeItem[]).slice(0, 3),
+    [sidebarTrendingData]
+  );
+
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
 
   const handleJoinClick = (circle: any) => {
@@ -136,9 +203,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
   const renderedLeaderboard = React.useMemo(() => {
     const currentUser = {
       id: 0,
-      name: userProfile?.first_name
-        ? `${userProfile.first_name} ${(userProfile as any).last_name ?? ""}`.trim()
-        : currentUsername ?? "You",
+      name: "You",
       score: activeStarixScore,
       trend: "neutral",
       avatar: (userProfile as any)?.profile_picture_url?.trim() || null,
@@ -183,6 +248,75 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
 
     return list;
   }, [leaderboardData, activeStarixScore, userProfile, currentUsername]);
+
+  const challengeLeaderboardRows = React.useMemo(() => {
+    const entries = challengeLeaderboard?.entries ?? [];
+    const viewerId = (userProfile as any)?.id as string | undefined;
+
+    const mapEntry = (entry: {
+      rank: number;
+      user_id?: string;
+      username: string;
+      profile_picture_url?: string | null;
+      challenge_score?: number | null;
+      final_score?: number | null;
+      rank_direction?: string;
+    }) => {
+      const isUser =
+        entry.username === currentUsername ||
+        (viewerId ? entry.user_id === viewerId : false);
+      return {
+        id: entry.rank,
+        name: entry.username || "Creator",
+        score: entry.final_score ?? entry.challenge_score ?? 0,
+        avatar: entry.profile_picture_url?.trim() || null,
+        isUser,
+        trend:
+          entry.rank_direction === "up"
+            ? "up"
+            : entry.rank_direction === "down"
+              ? "down"
+              : "neutral",
+      };
+    };
+
+    const mapped = entries.map(mapEntry);
+    const topRows = mapped.filter((row) => !row.isUser).slice(0, 3);
+    const viewerEntry = mapped.find((row) => row.isUser);
+
+    const youRow = {
+      id:
+        viewerEntry?.id ||
+        challengeLeaderboard?.requester_rank ||
+        0,
+      name: "You",
+      score: viewerEntry?.score ?? 0,
+      avatar:
+        viewerEntry?.avatar ||
+        (userProfile as any)?.profile_picture_url?.trim() ||
+        null,
+      isUser: true,
+      trend: viewerEntry?.trend ?? "neutral",
+    };
+
+    return { topRows, youRow };
+  }, [challengeLeaderboard, currentUsername, userProfile]);
+
+  const challengeWinnersCount = React.useMemo(() => {
+    const detail = challengeDetail as Record<string, unknown> | null | undefined;
+    if (!detail) return null;
+
+    const fromNum = Number(detail.num_winners);
+    if (Number.isFinite(fromNum) && fromNum > 0) return Math.round(fromNum);
+
+    const display = detail.prize_amounts_display;
+    if (Array.isArray(display) && display.length > 0) return display.length;
+
+    const amounts = detail.prize_amounts;
+    if (Array.isArray(amounts) && amounts.length > 0) return amounts.length;
+
+    return null;
+  }, [challengeDetail]);
 
   const plainBalanceValue = earningsSummary?.total
     ? parseFloat(earningsSummary.total.replace(/[^0-9.]/g, ""))
@@ -552,25 +686,53 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                 <Link href="/challenges/recommended"><HiArrowRight className="text-[#1E1F24] cursor-pointer hover:text-blue-600 transition-colors" size={20} /></Link>
               </div>
               <div className="px-2 pb-2 space-y-1">
-                {[
-                  { name: "Nivea",   icon: "/nivea.svg",   prize: "₦5M" },
-                  { name: "Spotify", icon: "/Spotify.svg", prize: "₦5M" },
-                  { name: "Tesla",   icon: "/Tesla.svg",   prize: "₦5M" },
-                ].map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-2xl transition-all">
-                    <div className="flex items-center gap-1">
-                      <Image src={item.icon} width={40} height={40} alt={item.name} className="rounded-full" />
-                      <div>
-                        <h5 className="text-[13px] font-semibold text-[#62636C] truncate w-32">Join Our Fitness App Beta Tes..</h5>
-                        <div className="flex items-center gap-1 mt-0.5 text-[12px] text-[#747682]">
-                          <span>{item.name}</span> <GoCheckCircleFill className="text-green-500 text-[10px]" />
-                          <span className="text-[#D9D9D9]">•</span> <span>{item.prize} prize pool</span>
+                {isLoadingSidebarRecommended ? (
+                  <p className="px-3 py-6 text-center text-[12px] text-[#747682]">Loading...</p>
+                ) : sidebarRecommended.length === 0 ? (
+                  <p className="px-3 py-6 text-center text-[12px] text-[#747682]">
+                    No recommended challenges yet.
+                  </p>
+                ) : (
+                  sidebarRecommended.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between gap-2 p-3 hover:bg-gray-50 rounded-2xl transition-all"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Image
+                          src={item.brand_profile_picture_url || "/dash-logo.svg"}
+                          width={40}
+                          height={40}
+                          alt={item.brand_name || "Brand"}
+                          className="rounded-full object-cover shrink-0"
+                        />
+                        <div className="min-w-0">
+                          <h5 className="text-[13px] font-semibold text-[#62636C] truncate max-w-[140px]">
+                            {item.title}
+                          </h5>
+                          <div className="flex items-center gap-1 mt-0.5 text-[12px] text-[#747682]">
+                            <span className="truncate max-w-[72px]">
+                              {item.brand_name || "Brand"}
+                            </span>
+                            {(item.is_funded || item.is_published) && (
+                              <GoCheckCircleFill className="text-green-500 text-[10px] shrink-0" />
+                            )}
+                            <span className="text-[#D9D9D9]">•</span>
+                            <span className="shrink-0">
+                              {challengePrizeLabel(item)} prize pool
+                            </span>
+                          </div>
                         </div>
                       </div>
+                      <Link
+                        href={`/dashboard/challenge/${item.id}`}
+                        className="px-4 py-2 border border-[#E5E7EB] rounded-full text-[12px] font-semibold text-[#1E1F24] hover:bg-white transition-all shrink-0"
+                      >
+                        Submit
+                      </Link>
                     </div>
-                    <button className="px-4 py-2 border border-[#E5E7EB] rounded-full text-[12px] font-semibold text-[#1E1F24] hover:bg-white transition-all">Submit</button>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
             <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
@@ -579,68 +741,246 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                 <Link href="/challenges/trending"><HiArrowRight className="text-[#1E1F24] hover:text-blue-600 transition-colors" size={20} /></Link>
               </div>
               <div className="px-5 pb-6 space-y-6">
-                {[
-                  { title: "UGC Creators Needed for Skincare Product set La..", views: "18k views", brand: "Nivea",           avatars: ["/grp.svg", "/grp1.svg", "/grp2.svg"] },
-                  { title: "Seeking Artists for Limited Edition Sneakers Colla..", views: "30k views", brand: "Lobster and Beer", avatars: ["/grp.svg", "/grp1.svg", "/grp2.svg"] },
-                  { title: "Influencer Partnerships for New Fitness App Rele..", views: "24k views", brand: "FitLife",         avatars: ["/grp.svg", "/grp1.svg", "/grp2.svg"] },
-                ].map((c, i) => (
-                  <div key={i} className="space-y-1">
-                    <h5 className="text-[13px] font-semibold text-[#62636C] leading-snug">{c.title}</h5>
-                    <div className="flex items-center">
-                      <div className="flex -space-x-2 mr-1">
-                        {c.avatars.map((img, index) => (
-                          <div key={index} className="w-6 h-6 rounded-full border-2 border-white overflow-hidden relative">
-                            <Image src={img} fill alt="user" className="object-cover" />
-                          </div>
-                        ))}
+                {isLoadingSidebarTrending ? (
+                  <p className="py-4 text-center text-[12px] text-[#747682]">Loading...</p>
+                ) : sidebarTrending.length === 0 ? (
+                  <p className="py-4 text-center text-[12px] text-[#747682]">
+                    No trending challenges yet.
+                  </p>
+                ) : (
+                  sidebarTrending.map((c) => (
+                    <Link
+                      key={c.id}
+                      href={`/dashboard/challenge/${c.id}`}
+                      className="block space-y-1 hover:opacity-80 transition-opacity"
+                    >
+                      <h5 className="text-[13px] font-semibold text-[#62636C] leading-snug line-clamp-2">
+                        {c.title}
+                      </h5>
+                      <div className="flex items-center">
+                        <div className="relative w-6 h-6 rounded-full border-2 border-white overflow-hidden mr-1.5 shrink-0 bg-gray-100">
+                          <Image
+                            src={c.brand_profile_picture_url || "/dash-logo.svg"}
+                            fill
+                            alt={c.brand_name || "Brand"}
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex items-center gap-1 text-[12px] text-[#747682] font-medium min-w-0">
+                          <span className="shrink-0">{formatViewCount(c.viewer_count)}</span>
+                          <span className="text-[#D9D9D9]">•</span>
+                          <span className="truncate">{c.brand_name || "Brand"}</span>
+                          {(c.is_funded || c.is_published) && (
+                            <GoCheckCircleFill className="text-green-500 text-[11px] shrink-0" />
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1 text-[12px] text-[#747682] font-medium">
-                        <span>{c.views}</span>
-                        <span className="text-[#D9D9D9]">•</span>
-                        <span>{c.brand}</span>
-                        {(c.brand === "Nivea" || c.brand === "FitLife") && <GoCheckCircleFill className="text-green-500 text-[11px]" />}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                    </Link>
+                  ))
+                )}
               </div>
             </div>
           </div>
 
         ) : isChallengeView ? (
           /* ── Individual challenge view ── */
-          <div className="space-y-6">
-            <div className="bg-[#F5FBFF] border border-[#EBF2FF] rounded-[32px] p-4 relative overflow-hidden">
-              <p className="text-[#1E1F24] text-[16px] font-semibold">Prize Pool</p>
-              <h3 className="text-[#0047FF] text-[24px] font-semibold mt-1">₦10,550,000</h3>
-              <p className="text-[#62636C] font-medium leading-tight text-[14px] mt-3 max-w-[220px]">
-                Prize pool will be shared equally between the <span className="text-[#FD6C1D]">top 15 submissions</span> for this challenge.
+          <div className="space-y-5">
+            <div className="bg-[#F5F6F8] rounded-[24px] p-5 relative overflow-hidden min-h-[168px]">
+              <p className="text-[#1E1F24] text-[14px] font-medium">Prize Pool</p>
+              <h3 className="text-[#0047FF] text-[28px] font-semibold mt-2 leading-none tracking-tight">
+                {(challengeDetail as any)?.prize_pool_display ||
+                  (typeof (challengeDetail as any)?.prize_pool === "number"
+                    ? `₦${Math.round(
+                        (challengeDetail as any).prize_pool / 100
+                      ).toLocaleString("en-NG")}`
+                    : "₦0.00")}
+              </h3>
+              <p className="text-[#62636C] font-medium leading-snug text-[13px] mt-4 max-w-[58%] relative z-10">
+                Prize pool will be shared equally between the{" "}
+                <span className="text-[#FD6C1D] font-semibold">
+                  top {challengeWinnersCount ?? "…"} submission
+                  {challengeWinnersCount === 1 ? "" : "s"}
+                </span>{" "}
+                for this challenge.
               </p>
-              <div className="absolute -bottom-10 -right-12">
-                <Image src="/gem.svg" alt="Prize" width={200} height={200} className="object-contain" />
+              <div className="pointer-events-none absolute -bottom-6 -right-4 h-[140px] w-[140px]">
+                <Image
+                  src="/gem.svg"
+                  alt="Prize"
+                  fill
+                  className="object-contain"
+                />
               </div>
             </div>
-            <div className="bg-[#F9FAFB] border border-[#F3F4F6] rounded-[32px] overflow-hidden">
-              <div className="flex items-center justify-between px-6 py-5">
-                <h4 className="font-semibold text-[#1E1F24] text-[15px]">Challenge Leaderboard</h4>
-                <HiArrowRight className="text-[#9CA3AF]" size={18} />
+
+            <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden">
+              <div className="flex items-center justify-between px-5 pt-5 pb-3">
+                <h4 className="font-semibold text-[#1E1F24] text-[15px]">
+                  Challenge Leader-board
+                </h4>
+                <HiArrowRight className="text-[#1E1F24]" size={18} />
               </div>
-              <div className="bg-white rounded-t-[32px] pt-4">
-                {renderedLeaderboard.map((user: any, idx: number) => (
-                  <div key={idx} className="flex items-center justify-between py-4 px-6">
-                    <div className="flex items-center gap-3">
-                      <span className="text-[14px] font-semibold text-[#62636C] w-8">{user.id === 0 ? "—" : `#${user.id}`}</span>
-                      <div className="relative w-8 h-8 rounded-full overflow-hidden border border-gray-100">
-                        {user.avatar ? (
-                          <Image src={user.avatar} fill alt={user.name} className="object-cover" />
-                        ) : (
-                          <div className="h-full w-full bg-[#F5F6F8]" aria-label="No profile picture" />
-                        )}
+
+              <div className="px-5 pb-3">
+                <div className="grid grid-cols-[92px_minmax(0,1fr)_auto] gap-2 text-[11px] font-medium text-[#9CA3AF] pb-2">
+                  <span>Rank</span>
+                  <span>Username</span>
+                  <span className="text-right">Challenge Score</span>
+                </div>
+
+                {challengeLeaderboardRows.topRows.length === 0 &&
+                !challengeLeaderboard?.entries?.length ? (
+                  <div className="divide-y divide-[#F3F4F6]">
+                    <p className="py-5 text-center text-[12px] text-[#747682]">
+                      No leaderboard entries yet.
+                    </p>
+                    <div className="grid grid-cols-[92px_minmax(0,1fr)_auto] gap-2 items-center py-3.5">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div
+                          className="relative h-7 w-7 rounded-full p-[2px] shrink-0"
+                          style={{
+                            background:
+                              "linear-gradient(90deg, #FD6C1D 50%, #0033FF 50%)",
+                          }}
+                        >
+                          <div className="relative h-full w-full overflow-hidden rounded-full bg-white">
+                            {challengeLeaderboardRows.youRow.avatar ? (
+                              <Image
+                                src={challengeLeaderboardRows.youRow.avatar}
+                                fill
+                                alt="You"
+                                className="object-cover"
+                              />
+                            ) : (
+                              <div className="h-full w-full bg-[#F5F6F8]" />
+                            )}
+                          </div>
+                        </div>
+                        <span className="text-[13px] font-semibold text-[#62636C]">
+                          {challengeLeaderboardRows.youRow.id
+                            ? `#${challengeLeaderboardRows.youRow.id}`
+                            : "—"}
+                        </span>
                       </div>
-                      <span className={`text-[14px] ${user.isUser ? "text-[#0047FF] font-medium" : "text-[#62636C]"}`}>{user.name}</span>
+                      <span className="text-[13px] font-semibold text-[#1E1F24] truncate pr-2">
+                        You
+                      </span>
+                      <div className="flex items-center justify-end gap-1.5 shrink-0">
+                        <span className="text-gray-300 text-[10px]">
+                          <FaCircle />
+                        </span>
+                        <span className="text-[13px] font-semibold text-[#1E1F24] tabular-nums">
+                          {Math.round(
+                            Number(challengeLeaderboardRows.youRow.score) || 0
+                          )}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                ))}
+                ) : (
+                  <div className="divide-y divide-[#F3F4F6]">
+                    {challengeLeaderboardRows.topRows.map((user, idx) => (
+                      <div
+                        key={`${user.id}-${user.name}-${idx}`}
+                        className="grid grid-cols-[92px_minmax(0,1fr)_auto] gap-2 items-center py-3.5"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="relative h-7 w-7 rounded-full p-[2px] shrink-0 bg-[#73A4FF]">
+                            <div className="relative h-full w-full overflow-hidden rounded-full bg-white">
+                              {user.avatar ? (
+                                <Image
+                                  src={user.avatar}
+                                  fill
+                                  alt={user.name}
+                                  className="object-cover"
+                                />
+                              ) : (
+                                <div className="h-full w-full bg-[#F5F6F8]" />
+                              )}
+                            </div>
+                          </div>
+                          <span className="text-[13px] font-semibold text-[#62636C]">
+                            {user.id ? `#${user.id}` : "—"}
+                          </span>
+                        </div>
+                        <span className="text-[13px] text-[#62636C] truncate pr-2">
+                          {user.name}
+                        </span>
+                        <div className="flex items-center justify-end gap-1.5 shrink-0">
+                          {user.trend === "up" ? (
+                            <span className="text-green-500 text-[13px] font-semibold">
+                              ↑
+                            </span>
+                          ) : user.trend === "down" ? (
+                            <span className="text-red-500 text-[13px] font-semibold">
+                              ↓
+                            </span>
+                          ) : (
+                            <span className="text-gray-300 text-[10px]">
+                              <FaCircle />
+                            </span>
+                          )}
+                          <span className="text-[13px] font-semibold text-[#1E1F24] tabular-nums">
+                            {Math.round(Number(user.score) || 0)}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+
+                    <div className="grid grid-cols-[92px_minmax(0,1fr)_auto] gap-2 items-center py-3.5">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div
+                          className="relative h-7 w-7 rounded-full p-[2px] shrink-0"
+                          style={{
+                            background:
+                              "linear-gradient(90deg, #FD6C1D 50%, #0033FF 50%)",
+                          }}
+                        >
+                          <div className="relative h-full w-full overflow-hidden rounded-full bg-white">
+                            {challengeLeaderboardRows.youRow.avatar ? (
+                              <Image
+                                src={challengeLeaderboardRows.youRow.avatar}
+                                fill
+                                alt="You"
+                                className="object-cover"
+                              />
+                            ) : (
+                              <div className="h-full w-full bg-[#F5F6F8]" />
+                            )}
+                          </div>
+                        </div>
+                        <span className="text-[13px] font-semibold text-[#62636C]">
+                          {challengeLeaderboardRows.youRow.id
+                            ? `#${challengeLeaderboardRows.youRow.id}`
+                            : "—"}
+                        </span>
+                      </div>
+                      <span className="text-[13px] font-semibold text-[#1E1F24] truncate pr-2">
+                        You
+                      </span>
+                      <div className="flex items-center justify-end gap-1.5 shrink-0">
+                        {challengeLeaderboardRows.youRow.trend === "up" ? (
+                          <span className="text-green-500 text-[13px] font-semibold">
+                            ↑
+                          </span>
+                        ) : challengeLeaderboardRows.youRow.trend === "down" ? (
+                          <span className="text-red-500 text-[13px] font-semibold">
+                            ↓
+                          </span>
+                        ) : (
+                          <span className="text-gray-300 text-[10px]">
+                            <FaCircle />
+                          </span>
+                        )}
+                        <span className="text-[13px] font-semibold text-[#1E1F24] tabular-nums">
+                          {Math.round(
+                            Number(challengeLeaderboardRows.youRow.score) || 0
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

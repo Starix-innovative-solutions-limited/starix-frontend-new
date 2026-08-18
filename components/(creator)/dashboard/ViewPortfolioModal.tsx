@@ -1,28 +1,63 @@
 "use client";
 
-import React, { useState } from "react";
-import { FaRegHeart, FaRegComment, FaRetweet } from "react-icons/fa";
-import { FiBarChart2, FiShare2 } from "react-icons/fi";
-import { MdVerified } from "react-icons/md";
-
+import React, { useMemo, useState } from "react";
+import Image from "next/image";
+import {
+  useGetCreatorPortfolio,
+  type PortfolioPlatform,
+} from "@/hooks/useProfile";
 
 interface ViewPortfolioModalProps {
   isOpen: boolean;
   onClose: () => void;
+  username?: string;
   creatorName?: string;
 }
 
-type PortfolioPlatform = "Instagram" | "TikTok" | "YouTube";
+type PortfolioTab = "Instagram" | "TikTok" | "YouTube";
 
-const platforms: PortfolioPlatform[] = ["Instagram", "TikTok", "YouTube"];
+const platforms: PortfolioTab[] = ["Instagram", "TikTok", "YouTube",];
+
+const tabToPlatform: Record<PortfolioTab, PortfolioPlatform> = {
+  Instagram: "instagram",
+  TikTok: "tiktok",
+  YouTube: "youtube",
+};
+
+const PAGE_SIZE = 10;
 
 const ViewPortfolioModal = ({
   isOpen,
   onClose,
-  creatorName = "Jason Oluwamapadarijimi",
+  username,
+  creatorName = "Creator",
 }: ViewPortfolioModalProps) => {
   const [activePlatform, setActivePlatform] =
-    useState<PortfolioPlatform>("Instagram");
+    useState<PortfolioTab>("Instagram");
+  const [page, setPage] = useState(1);
+
+  const platform = tabToPlatform[activePlatform];
+
+  const {
+    data: portfolio,
+    isLoading,
+    isError,
+    error,
+    isFetching,
+  } = useGetCreatorPortfolio(
+    username,
+    { platform, page, page_size: PAGE_SIZE },
+    { enabled: isOpen && !!username }
+  );
+
+  const items = portfolio?.items ?? [];
+  const totalPages = portfolio?.total_pages ?? 0;
+
+  const errorMessage = useMemo(() => {
+    if (!isError) return null;
+    if (error instanceof Error) return error.message;
+    return "Failed to load portfolio.";
+  }, [isError, error]);
 
   if (!isOpen) return null;
 
@@ -52,18 +87,21 @@ const ViewPortfolioModal = ({
           </div>
 
           <div className="mt-8 flex items-center gap-10 border-b border-[#EFF0F3]">
-            {platforms.map((platform) => {
-              const isActive = activePlatform === platform;
+            {platforms.map((tab) => {
+              const isActive = activePlatform === tab;
 
               return (
                 <button
-                  key={platform}
-                  onClick={() => setActivePlatform(platform)}
+                  key={tab}
+                  onClick={() => {
+                    setActivePlatform(tab);
+                    setPage(1);
+                  }}
                   className={`relative pb-4 text-[13px] font-semibold transition ${
                     isActive ? "text-[#114BF6]" : "text-[#62636C]"
                   }`}
                 >
-                  {platform}
+                  {tab}
                   {isActive && (
                     <span className="absolute bottom-[-1px] left-1/2 h-[4px] w-[42px] -translate-x-1/2 rounded-full bg-[#114BF6]" />
                   )}
@@ -74,119 +112,94 @@ const ViewPortfolioModal = ({
         </div>
 
         <div className="custom-scrollbar flex-1 overflow-y-auto px-6 py-6">
-          {activePlatform === "YouTube" ? (
-            <div className="space-y-6">
-              <PortfolioSubmissionCard variant="youtube" status="Finalist" />
-              <PortfolioSubmissionCard variant="youtube" brand="Figma" status="Winner" />
+          {!username ? (
+            <p className="py-10 text-center text-[13px] text-[#747682]">
+              Creator username is required to load portfolio.
+            </p>
+          ) : isLoading ? (
+            <div className="space-y-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-[180px] animate-pulse rounded-[16px] bg-[#F4F4F5]"
+                />
+              ))}
             </div>
+          ) : isError ? (
+            <p className="py-10 text-center text-[13px] text-red-500">
+              {errorMessage}
+            </p>
+          ) : items.length === 0 ? (
+            <p className="py-10 text-center text-[13px] text-[#747682]">
+              No {activePlatform} submissions in this portfolio yet.
+            </p>
           ) : (
-            <div className="space-y-6">
-              <PortfolioSubmissionCard variant="social" status="Finalist" />
-              <PortfolioSubmissionCard variant="social" brand="Figma" status="Winner" />
+            <div className="space-y-4">
+              {items.map((item) => (
+                <a
+                  key={item.id}
+                  href={item.content_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block overflow-hidden rounded-[16px] border border-[#EFF0F3] transition hover:border-[#C7CBD7]"
+                >
+                  <div className="relative aspect-[4/5] max-h-[320px] w-full bg-[#F4F4F5]">
+                    {item.cover_image_url ? (
+                      <Image
+                        src={item.cover_image_url}
+                        alt={`${item.platform} submission`}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-[12px] text-[#747682]">
+                        No preview
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between gap-3 px-4 py-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-[12px] font-semibold capitalize text-[#1E1F24]">
+                        {item.platform.replace("_", " ")} · {item.content_type}
+                      </p>
+                      <p className="truncate text-[11px] text-[#747682]">
+                        {new Date(item.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <span className="shrink-0 rounded-full border border-[#8B8D98] px-4 py-1.5 text-[11px] font-semibold text-[#1E1F24]">
+                      View Content
+                    </span>
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
+
+          {totalPages > 1 && (
+            <div className="mt-6 flex items-center justify-between">
+              <button
+                type="button"
+                disabled={page <= 1 || isFetching}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="rounded-full border border-[#8B8D98] px-4 py-2 text-[12px] font-semibold text-[#1E1F24] disabled:opacity-40"
+              >
+                Previous
+              </button>
+              <span className="text-[12px] text-[#747682]">
+                Page {portfolio?.page ?? page} of {totalPages}
+              </span>
+              <button
+                type="button"
+                disabled={page >= totalPages || isFetching}
+                onClick={() => setPage((p) => p + 1)}
+                className="rounded-full border border-[#8B8D98] px-4 py-2 text-[12px] font-semibold text-[#1E1F24] disabled:opacity-40"
+              >
+                Next
+              </button>
             </div>
           )}
         </div>
-      </div>
-    </div>
-  );
-};
-
-const PortfolioSubmissionCard = ({
-  brand = "Nivea",
-  status = "Finalist",
-  variant = "social",
-}: {
-  brand?: string;
-  status?: "Finalist" | "Winner";
-  variant?: "social" | "youtube";
-}) => {
-  const isYouTube = variant === "youtube";
-  return (
-    <div className="rounded-[24px] border border-[#EFF0F3] bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-start gap-3">
-          <div className="h-10 w-10 overflow-hidden rounded-full bg-[#F4F4F5]" />
-
-          <div>
-            <div className="flex items-center gap-2">
-              <div className="h-9 w-9 rounded-full bg-[#114BF6]" />
-              <p className="text-[13px] font-semibold text-[#1E1F24]">
-                Jason · {brand}  
-              </p>
-              <MdVerified className="text-[#22C55E] shrink-0" size={13} />
-            </div>
-
-            <div className="mt-1 flex gap-1.5">
-              {["Beauty", "Family and lifestyle", "Fashion"].map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full border border-[#DDEAF7] px-2 py-0.5 text-[9px] font-medium text-[#3379A5]"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <button className="rounded-full border border-[#8B8D98] px-5 py-2 text-[12px] font-semibold text-[#1E1F24]">
-          View Content
-        </button>
-      </div>
-
-      <div className="mt-4 flex items-center gap-2 text-[12px] font-semibold text-[#62636C]">
-        <span>Ranked {status === "Winner" ? "1st" : "29th"} Globally</span>
-        <span
-          className={`rounded-full px-2 py-0.5 text-[10px] ${
-            status === "Winner"
-              ? "bg-[#ECFEF4] text-[#1E874B]"
-              : "bg-[#F5FBFF] text-[#245BFF]"
-          }`}
-        >
-          {status}
-        </span>
-      </div>
-
-      <h4 className="mt-3 text-[13px] font-semibold text-[#1E1F24]">
-        UGC Creators Needed for Skincare Product set Launch
-      </h4>
-
-      <p className="mt-1 text-[10px] leading-relaxed text-[#747682]">
-        NIVEA is launching its new Radiance Boost Skincare Collection and is looking for authentic,
-        engaging user-generated content that highlights real skin journeys, glow transformations,
-        and everyday skincare routines.
-      </p>
-
-      <div
-        className={`mt-5 rounded-[14px] bg-[#F4F4F5] ${
-          isYouTube ? "h-[220px]" : "h-[430px]"
-        }`}
-      />
-
-      <div className="mt-4 flex items-center justify-between text-[12px] font-medium text-[#62636C]">
-      <div className="flex p-2 items-center gap-4">
-        <span className="flex items-center gap-1">
-          <FiBarChart2 className="text-[12px]" />
-          24.3k
-        </span>
-
-        <span className="flex items-center gap-1">
-          <FaRegHeart className="text-[12px]" />
-          15.6k
-        </span>
-
-        <span className="flex items-center gap-1">
-          <FaRegComment className="text-[12px]" />
-          3.1k
-        </span>
-
-        <span className="flex items-center gap-1">
-          <FaRetweet className="text-[12px]" />
-          964
-        </span>
-      </div>
-
-        <span><FiShare2 className="text-[12px]" /></span>
       </div>
     </div>
   );

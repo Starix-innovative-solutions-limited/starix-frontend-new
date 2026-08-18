@@ -1,41 +1,16 @@
-import { api } from "@/lib/api";
-import { compressImageForUpload } from "@/utils/compressImage";
+import { uploadMediaFile, type MediaUploadTarget } from "@/hooks/mediaUpload";
 
-type UploadTarget =
-  | "profile_picture"
-  | "user_banner"
-  | "challenge_banner"
-  | "challenge_document"
-  | "circle_profile_picture"
-  | "circle_banner";
+export type { MediaUploadTarget as UploadTarget } from "@/hooks/mediaUpload";
 
-type UploadUrlResponse = {
-  upload_url: string;
-  object_key: string;
-  public_url: string;
-  expires_in: number;
-};
+/**
+ * Upload a file via POST /media/upload-url + S3 PUT.
+ * Returns the clean public_url for persisting on the parent resource.
+ */
+export async function uploadMedia(file: File, target: MediaUploadTarget) {
+  return uploadMediaFile(file, target);
+}
 
-export async function uploadMedia(file: File, target: UploadTarget) {
-  const uploadFile = await compressImageForUpload(file);
-
-  const { data } = await api.post<UploadUrlResponse>("/media/upload-url", {
-    target,
-    filename: uploadFile.name,
-    content_type: uploadFile.type,
-  });
-
-  const uploadResponse = await fetch(data.upload_url, {
-    method: "PUT",
-    headers: {
-      "Content-Type": uploadFile.type,
-    },
-    body: uploadFile,
-  });
-
-  if (!uploadResponse.ok) {
-    throw new Error(`S3 upload failed with status ${uploadResponse.status}`);
-  }
-
-  return data.public_url;
+/** Alias used by profile/onboarding flows */
+export async function uploadUserMedia(file: File, target: MediaUploadTarget) {
+  return uploadMediaFile(file, target);
 }

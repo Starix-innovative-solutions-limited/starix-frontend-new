@@ -65,12 +65,12 @@ export default function OtpInput({
     if (!char) return;
 
     const next = [...internalValue];
-    next[idx] = char.slice(-1).toUpperCase(); // Force uppercase for cleaner look
+    next[idx] = char.slice(-1); // Preserve case — OTPs are case-sensitive alphanumeric
 
     // Handle character overflow (if user types fast)
     if (char.length > 1) {
       for (let i = 1; i < char.length && idx + i < length; i++) {
-        next[idx + i] = char[i].toUpperCase();
+        next[idx + i] = char[i];
       }
     }
 
@@ -109,8 +109,7 @@ export default function OtpInput({
     const paste = e.clipboardData
       .getData("text")
       .replace(/\s+/g, "")
-      .replace(/[^a-zA-Z0-9]/g, "") // Allow alphanumeric in paste
-      .toUpperCase();
+      .replace(/[^a-zA-Z0-9]/g, ""); // Preserve case — OTPs are case-sensitive
     
     if (!paste) return;
 

@@ -1,22 +1,61 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { HiOutlineUpload } from "react-icons/hi";
 import { FaInstagram, FaTiktok, FaYoutube } from "react-icons/fa";
 import CustomInput from "@/components/CustomInput";
-import { useUpdateCreatorProfile } from "@/hooks/useProfile";
 import { uploadUserMedia } from "@/hooks/useProfile";
 import Loader from "@/components/Loader";
 import { useInitiateSocialConnection } from "@/hooks/useSocials";
+import { useGetCategories } from "@/hooks/useCategories";
+import {
+  onboardingStepToIndex,
+  useCompleteCreatorOnboarding,
+  useCreatorOnboarding,
+  useSaveOnboardingCategories,
+  useSaveOnboardingProfile,
+} from "@/hooks/useCreatorOnboarding";
+import toast from "react-hot-toast";
+
+const FALLBACK_CATEGORIES = [
+  "beauty",
+  "fashion",
+  "lifestyle",
+  "fitness",
+  "photography",
+  "technology",
+  "gaming",
+  "health",
+  "travel",
+  "music",
+  "education",
+  "business",
+  "food",
+  "comedy",
+  "entertainment",
+  "sports",
+  "art",
+  "diy",
+  "parenting",
+];
 
 const OnboardingPage = () => {
   const router = useRouter();
-  const updateProfile = useUpdateCreatorProfile();
+  const saveProfile = useSaveOnboardingProfile();
+  const saveCategories = useSaveOnboardingCategories();
+  const completeOnboarding = useCompleteCreatorOnboarding();
   const connectSocialMutation = useInitiateSocialConnection();
+  const { data: apiCategories = [], isLoading: isCategoriesLoading } =
+    useGetCategories();
+  const {
+    data: onboarding,
+    isLoading: isOnboardingLoading,
+  } = useCreatorOnboarding();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [hasHydrated, setHasHydrated] = useState(false);
 
   const [profileFile, setProfileFile] = useState<File | null>(null);
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
@@ -28,28 +67,41 @@ const OnboardingPage = () => {
     bio: "",
   });
 
-  const categories = [
-    "Beauty",
-    "Fashion",
-    "Lifestyle",
-    "Fitness",
-    "Photography",
-    "Technology",
-    "Gaming",
-    "Health",
-    "Travel",
-    "Music",
-    "Education",
-    "Business",
-    "Food",
-    "Comedy",
-    "Entertainment",
-    "Sports",
-    "Art & Design",
-    "Home & Living",
-    "DIY",
-    "Parenting",
-  ];
+  const isSavingProfile = saveProfile.isPending;
+  const isSavingCategories = saveCategories.isPending;
+  const isCompleting = completeOnboarding.isPending;
+
+  useEffect(() => {
+    if (!onboarding || hasHydrated) return;
+
+    if (onboarding.onboarding_completed_at) {
+      router.replace("/dashboard");
+      return;
+    }
+
+    setStep(onboardingStepToIndex(onboarding.onboarding_step));
+
+    setForm((prev) => ({
+      ...prev,
+      username: onboarding.username ?? "",
+      bio: onboarding.bio ?? "",
+    }));
+
+    if (onboarding.profile_picture_url) {
+      setProfilePreview(onboarding.profile_picture_url);
+    }
+
+    if (onboarding.categories?.length) {
+      setSelectedCategories(onboarding.categories);
+    }
+
+    setHasHydrated(true);
+  }, [onboarding, hasHydrated, router]);
+
+  const categories =
+    apiCategories.length > 0
+      ? apiCategories.map((c) => c.name)
+      : FALLBACK_CATEGORIES;
 
   const socialPlatforms = [
     {
@@ -75,8 +127,6 @@ const OnboardingPage = () => {
         return current.filter((item) => item !== category);
       }
 
-      if (current.length >= 3) return current;
-
       return [...current, category];
     });
   };
@@ -90,34 +140,78 @@ const OnboardingPage = () => {
     event.target.value = "";
   };
 
-  const handleContinue = async (event: React.FormEvent) => {
-    event.preventDefault();
+  const getApiErrorMessage = (err: unknown, fallback: string) => {
+    const detail = (err as { response?: { data?: { detail?: unknown } } })
+      ?.response?.data?.detail;
+    if (typeof detail === "string") return detail;
+    if (Array.isArray(detail)) return detail[0]?.msg || fallback;
+    return fallback;
+  };
 
-    const payload: any = {
-      username: form.username.trim(),
-      bio: form.bio.trim(),
-      niches: selectedCategories,
-    };
+  const handleSaveProfile = async (skip = false) => {
+    try {
+      if (skip) {
+        await saveProfile.mutateAsync({});
+        setStep(2);
+        return;
+      }
 
-    if (form.display_name.trim()) {
-      const [firstName, ...rest] = form.display_name.trim().split(" ");
-      payload.first_name = firstName;
-      payload.last_name = rest.join(" ");
+      const username = form.username.trim().toLowerCase();
+      const bio = form.bio.trim();
+      const payload: {
+        profile_picture_url?: string | null;
+        username?: string;
+        bio?: string | null;
+      } = {};
+
+      if (username) payload.username = username;
+      if (bio) payload.bio = bio;
+
+      if (profileFile) {
+        payload.profile_picture_url = await uploadUserMedia(
+          profileFile,
+          "profile_picture"
+        );
+      }
+
+      await saveProfile.mutateAsync(payload);
+      setProfileFile(null);
+      setStep(2);
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, "Could not save profile"));
     }
+  };
 
-    if (profileFile) {
-      payload.profile_picture_url = await uploadUserMedia(
-        profileFile,
-        "profile_picture"
-      );
+  const handleSaveCategories = async (skip = false) => {
+    try {
+      await saveCategories.mutateAsync({
+        categories: skip ? [] : selectedCategories,
+      });
+      setStep(3);
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, "Could not save categories"));
     }
+  };
 
-    await updateProfile.mutateAsync(payload);
-    router.push("/dashboard");
+  const handleCompleteOnboarding = async () => {
+    try {
+      await completeOnboarding.mutateAsync();
+      router.push("/dashboard");
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, "Could not complete onboarding"));
+    }
   };
 
   const handleSkip = () => {
-    router.push("/dashboard");
+    if (step === 1) {
+      void handleSaveProfile(true);
+      return;
+    }
+    if (step === 2) {
+      void handleSaveCategories(true);
+      return;
+    }
+    void handleCompleteOnboarding();
   };
 
   const handleConnectSocial = async (
@@ -149,8 +243,16 @@ const OnboardingPage = () => {
     step === 1
       ? "Help brands recognize you before they review your submissions."
       : step === 2
-        ? "Choose up to 3 categories to receive more relevant challenges"
+        ? "Choose categories to receive more relevant challenges"
         : "Connect the platforms you create content on to get a starix score";
+
+  if (isOnboardingLoading || onboarding?.onboarding_completed_at) {
+    return (
+      <div className="flex min-h-screen w-full items-center justify-center bg-white">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-white px-6 py-10 font-sans">
@@ -195,6 +297,7 @@ const OnboardingPage = () => {
                       src={profilePreview}
                       alt="Profile preview"
                       fill
+                      unoptimized
                       className="object-cover"
                     />
                   ) : (
@@ -233,10 +336,13 @@ const OnboardingPage = () => {
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <CustomInput
                 label="User Name"
-                placeholder="Enter your first name"
+                placeholder="jane_creator"
                 value={form.username}
                 onChange={(e) =>
-                  setForm((prev) => ({ ...prev, username: e.target.value }))
+                  setForm((prev) => ({
+                    ...prev,
+                    username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""),
+                  }))
                 }
               />
 
@@ -268,70 +374,87 @@ const OnboardingPage = () => {
               <button
                 type="button"
                 onClick={handleSkip}
-                className="h-[56px] rounded-full border border-[#8B8D98] text-[16px] font-semibold text-[#1E1F24] transition hover:bg-gray-50"
+                disabled={isSavingProfile}
+                className="h-[56px] rounded-full border border-[#8B8D98] text-[16px] font-semibold text-[#1E1F24] transition hover:bg-gray-50 disabled:opacity-60"
               >
                 Skip For Now
               </button>
 
               <button
                 type="button"
-                onClick={() => setStep(2)}
-                className="flex h-[56px] items-center justify-center rounded-full bg-[#0033FF] text-[16px] font-semibold text-white shadow-xl shadow-blue-100 transition active:scale-[0.98]"
+                onClick={() => void handleSaveProfile(false)}
+                disabled={isSavingProfile}
+                className="flex h-[56px] items-center justify-center rounded-full bg-[#0033FF] text-[16px] font-semibold text-white shadow-xl shadow-blue-100 transition active:scale-[0.98] disabled:opacity-60"
               >
-                Continue
+                {isSavingProfile ? <Loader /> : "Continue"}
               </button>
             </div>
           </form>
         ) : step === 2 ? (
           <div className="mt-10">
             <div className="flex flex-wrap justify-center gap-3">
-              {categories.map((category) => {
-                const isSelected = selectedCategories.includes(category);
+              {isCategoriesLoading && categories.length === 0
+                ? Array.from({ length: 8 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="h-9 w-24 animate-pulse rounded-full bg-gray-100"
+                    />
+                  ))
+                : categories.map((category) => {
+                    const isSelected = selectedCategories.includes(category);
 
-                return (
-                  <button
-                    key={category}
-                    type="button"
-                    onClick={() => toggleCategory(category)}
-                    className={`rounded-full border px-4 py-2 text-[14px] font-semibold transition ${
-                      isSelected
-                        ? "border-[#0033FF] bg-[#F5FBFF] text-[#0033FF]"
-                        : "border-[#CFE7EF] bg-white text-[#3379A5]"
-                    }`}
-                  >
-                    {category}
-                  </button>
-                );
-              })}
+                    return (
+                      <button
+                        key={category}
+                        type="button"
+                        onClick={() => toggleCategory(category)}
+                        className={`rounded-full border px-4 py-2 text-[14px] font-semibold capitalize transition ${
+                          isSelected
+                            ? "border-[#0033FF] bg-[#F5FBFF] text-[#0033FF]"
+                            : "border-[#CFE7EF] bg-white text-[#3379A5]"
+                        }`}
+                      >
+                        {category}
+                      </button>
+                    );
+                  })}
             </div>
 
             <div className="mt-[120px] grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={handleSkip}
-                className="h-[56px] rounded-full border border-[#8B8D98] text-[16px] font-semibold text-[#1E1F24] transition hover:bg-gray-50"
+                disabled={isSavingCategories}
+                className="h-[56px] rounded-full border border-[#8B8D98] text-[16px] font-semibold text-[#1E1F24] transition hover:bg-gray-50 disabled:opacity-60"
               >
                 Skip
               </button>
 
               <button
                 type="button"
-                onClick={() => setStep(3)}
-                className="flex h-[56px] items-center justify-center rounded-full bg-[#0033FF] text-[16px] font-semibold text-white shadow-xl shadow-blue-100 transition active:scale-[0.98]"
+                onClick={() => void handleSaveCategories(false)}
+                disabled={isSavingCategories}
+                className="flex h-[56px] items-center justify-center rounded-full bg-[#0033FF] text-[16px] font-semibold text-white shadow-xl shadow-blue-100 transition active:scale-[0.98] disabled:opacity-60"
               >
-                Continue
+                {isSavingCategories ? <Loader /> : "Continue"}
               </button>
             </div>
           </div>
         ) : (
-          <form onSubmit={handleContinue} className="mt-10">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              void handleCompleteOnboarding();
+            }}
+            className="mt-10"
+          >
             <div className="space-y-5">
               {socialPlatforms.map((social) => (
                 <button
                   key={social.platform}
                   type="button"
                   onClick={() => handleConnectSocial(social.platform)}
-                  disabled={connectSocialMutation.isPending}
+                  disabled={connectSocialMutation.isPending || isCompleting}
                   className="relative flex h-[58px] w-full items-center justify-center rounded-full border border-[#D1D5DB] bg-white px-5 text-[16px] font-semibold text-[#1E1F24] transition hover:bg-gray-50 disabled:opacity-60"
                 >
                   <span className="absolute left-5 flex items-center">
@@ -346,17 +469,18 @@ const OnboardingPage = () => {
               <button
                 type="button"
                 onClick={handleSkip}
-                className="h-[56px] rounded-full border border-[#8B8D98] text-[16px] font-semibold text-[#1E1F24] transition hover:bg-gray-50"
+                disabled={isCompleting}
+                className="h-[56px] rounded-full border border-[#8B8D98] text-[16px] font-semibold text-[#1E1F24] transition hover:bg-gray-50 disabled:opacity-60"
               >
                 Skip For Now
               </button>
 
               <button
                 type="submit"
-                disabled={updateProfile.isPending}
+                disabled={isCompleting}
                 className="flex h-[56px] items-center justify-center rounded-full bg-[#0033FF] text-[16px] font-semibold text-white shadow-xl shadow-blue-100 transition active:scale-[0.98] disabled:opacity-60"
               >
-                {updateProfile.isPending ? <Loader /> : "Continue"}
+                {isCompleting ? <Loader /> : "Continue"}
               </button>
             </div>
           </form>

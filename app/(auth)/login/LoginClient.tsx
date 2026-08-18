@@ -33,28 +33,53 @@ const Page = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.email || !form.password) return toast.error("Fields cannot be empty");
+
+    const email = form.email.trim().toLowerCase();
+    const password = form.password;
+
+    if (!email || !password) {
+      return toast.error("Fields cannot be empty");
+    }
 
     try {
       const res = await toast.promise(
-        login({ email: form.email, password: form.password }),
+        login({ email, password }),
         {
           loading: "Signing in...",
-          success: "Signed in successfully ✅",
-          error: "Invalid login credentials",
+          success: "Signed in successfully",
+          error: (err: any) => {
+            const status = err?.response?.status;
+            const detail = err?.response?.data?.detail;
+
+            if (status === 429) {
+              return "Too many attempts. Try again later.";
+            }
+            if (status === 401) {
+              if (typeof detail === "string" && detail.toLowerCase().includes("deactivat")) {
+                return "Account is deactivated";
+              }
+              return typeof detail === "string"
+                ? detail
+                : "Invalid email or password";
+            }
+            if (Array.isArray(detail)) return detail[0]?.msg || "Validation error";
+            if (typeof detail === "string") return detail;
+            return "Login failed. Please try again.";
+          },
         }
       );
-      
-      // localStorage.setItem("token", res.access_token);
-      const userType = res.user_type ?? res.user?.user_type;
+
+      const userType = res.user?.user_type;
 
       const needsOnboarding =
         userType === "creator" &&
-        (!res.user?.username || !res.user?.bio || !res.user?.profile_picture_url);
+        (!res.user?.username ||
+          !res.user?.bio ||
+          !res.user?.profile_picture_url);
 
       router.push(
         userType === "brand"
-          ? "/brand"
+          ? "/brand-onboarding"
           : needsOnboarding
             ? "/onboarding"
             : "/dashboard"

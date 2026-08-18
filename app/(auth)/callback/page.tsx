@@ -58,7 +58,9 @@ const CallbackHandler = () => {
     localStorage.removeItem("oauthMode");
     localStorage.removeItem("loginRole");
   
-    router.replace(finalRole === "brand" ? "/brand" : "/dashboard");
+    router.replace(
+      finalRole === "brand" ? "/brand-onboarding" : "/dashboard"
+    );
   }, [searchParams, router]);
 
   return (

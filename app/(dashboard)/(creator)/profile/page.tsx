@@ -105,11 +105,18 @@ const isCirclesLoading = isOwnProfile
   const [isSocialsOpen, setIsSocialsOpen] = useState(false);
   const [isPortfolioOpen, setIsPortfolioOpen] = useState(false);
   const [scoreVisibility, setScoreVisibility] = useState("anyone");
-  
-  
-  
 
-  
+  // After OAuth redirect to /profile#platform=...&status=connected — reopen the modal
+  useEffect(() => {
+    if (typeof window === "undefined" || !isOwnProfile) return;
+
+    const hashParams = new URLSearchParams(
+      window.location.hash.replace(/^#/, "")
+    );
+    if (hashParams.get("platform") || hashParams.get("status")) {
+      setIsSocialsOpen(true);
+    }
+  }, [isOwnProfile]);
 
   const creatorCircles: Circle[] = circlesData?.items ?? [];
 
@@ -362,12 +369,14 @@ const ConnectedPlatformIcons = ({
               </div>
 
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <ConnectedPlatformIcons platforms={profile?.connected_platforms ?? []} />
+                <ConnectedPlatformIcons
+                  platforms={profile?.connected_platforms ?? []}
+                />
 
                 {niches.map((niche) => (
                   <span
                     key={niche}
-                    className="rounded-full bg-[#F5FBFF] px-2.5 py-1 text-[12px] font-medium text-[#3379A5]"
+                    className="rounded-full bg-[#F5FBFF] px-2.5 py-1 text-[12px] font-medium capitalize text-[#3379A5]"
                   >
                     {niche}
                   </span>
@@ -509,6 +518,7 @@ const ConnectedPlatformIcons = ({
       <ViewPortfolioModal
         isOpen={isPortfolioOpen}
         onClose={() => setIsPortfolioOpen(false)}
+        username={viewedUsername}
         creatorName={displayName}
       />
     </div>

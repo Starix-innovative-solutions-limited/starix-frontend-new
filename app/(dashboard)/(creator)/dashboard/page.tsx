@@ -8,103 +8,106 @@ import { HiArrowRight, HiArrowLeft } from "react-icons/hi2";
 import { MdVerified } from "react-icons/md";
 import { FiBarChart2, FiMail, FiClock, FiBookmark, FiShare2 } from "react-icons/fi";
 import { useGetMe } from "@/hooks/useAuth";
-import { useGetJoinedActiveChallenges } from "@/hooks/useChallenges";
+import { formatCompactNaira } from "@/lib/formatMoney";
+import {
+  useGetChallenges,
+  useGetJoinedActiveChallenges,
+} from "@/hooks/useChallenges";
 
 const Page = () => {
   const { data: user } = useGetMe();
-  
+
+  const { data: openChallengesData } = useGetChallenges({
+    limit: 12,
+    skip: 0,
+  });
+
   // 1. Fetch real-time active joined challenges from the server
-  const { data: joinedData, isLoading: isChallengesLoading } = useGetJoinedActiveChallenges();
+  const { data: joinedData, isLoading: isChallengesLoading } =
+    useGetJoinedActiveChallenges();
 
-  const recommendedChallenges = [
-    {
-      id: 1,
-      brand: "Nivea",
-      logo: "/nivea.svg", 
-      time: "12h ago",
-      niche: ["Beauty", "Family and lifestyle"],
-      prize: "₦10M",
-      deadline: "12h",
-      title: "UGC Creators Needed for Skincare Product set Launch",
-      desc: "A real-time measure of your creator performance, visibility, and brand readiness..",
-      thumbnails: ["/left1.svg", "/right1.svg"], 
-    },
-    {
-      id: 2,
-      brand: "Indomie",
-      logo: "/indomie.svg", 
-      time: "2d ago",
-      niche: ["Food", "Family and lifestyle"],
-      prize: "₦8M",
-      deadline: "12h",
-      title: "UGC Creators Needed for Skincare Product set Launch",
-      desc: "A real-time measure of your creator performance, visibility, and brand readiness..",
-      thumbnails: ["/left2.svg", "/right21.svg"], 
-    },
-    {
-      id: 3,
-      brand: "Indomie",
-      logo: "/indomie.svg", 
-      time: "2d ago",
-      niche: ["Food", "Family and lifestyle"],
-      prize: "₦8M",
-      deadline: "12h",
-      title: "UGC Creators Needed for Skincare Product set Launch",
-      desc: "A real-time measure of your creator performance, visibility, and brand readiness..",
-      thumbnails: ["/left2.svg", "/right21.svg"], 
-    },
-  ];
+  const formatTimeAgo = (dateString?: string) => {
+    if (!dateString) return "Just now";
+    const hours = Math.floor(
+      (Date.now() - new Date(dateString).getTime()) / (1000 * 60 * 60)
+    );
+    if (hours < 1) return "Just now";
+    return hours < 24 ? `${hours}h ago` : `${Math.floor(hours / 24)}d ago`;
+  };
 
-  // Static fallback data matrix used if database returns zero rows
-  const staticActiveChallenges = [
-    { 
-      id: "active-0",
-      title: "UGC Creators Needed for Skincare Product",
-      brand: "Starbucks", 
-      logo: "/starbucks.svg", 
-      status: "In Progress", 
-      pool: "₦10M pool",
-      color: "bg-[#FEFCE8] text-[#854D0E]" 
-    },
-    { 
-      id: "active-1",
-      title: "UGC Creators Needed for Skincare Product",
-      brand: "PlayStation", 
-      logo: "/ps.svg", 
-      status: "Awaiting Review", 
-      pool: "₦10M pool",
-      color: "bg-[#F5F3FF] text-[#5B21B6]" 
-    },
-    { 
-      id: "active-2",
-      title: "UGC Creators Needed for Skincare Product",
-      brand: "McDonalds", 
-      logo: "/mcdonald.svg", 
-      status: "Approved", 
-      pool: "₦10M pool",
-      color: "bg-[#75C0F41A] text-[#2D93D0]" 
-    },
-  ];
+  const formatDeadline = (endDate?: string) => {
+    if (!endDate) return "Open";
+    const ms = new Date(endDate).getTime() - Date.now();
+    if (Number.isNaN(ms) || ms <= 0) return "Closed";
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+    if (hours < 24) return `${Math.max(hours, 1)}h`;
+    return `${Math.floor(hours / 24)}d`;
+  };
 
-  // Helper function to dynamically map arbitrary backend string tokens to pristine styling tags
+  const recommendedChallenges = React.useMemo(() => {
+    const challenges = openChallengesData?.challenges ?? [];
+    if (challenges.length === 0) return [];
+
+    return challenges.map((challenge) => {
+      const mediaUrls =
+        challenge.media
+          ?.slice()
+          .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
+          .map((m) => m.media_url) ?? [];
+
+      return {
+        id: challenge.id,
+        brand: challenge.brand_name || "Brand",
+        logo: challenge.brand_profile_picture_url || "/nivea.svg",
+        time: formatTimeAgo(challenge.created_at),
+        niche: challenge.category_name
+          ? [challenge.category_name]
+          : ["Challenge"],
+        prize: formatCompactNaira(
+          challenge.prize_pool_display ||
+            (typeof challenge.prize_pool === "number"
+              ? challenge.prize_pool / 100
+              : 0),
+          challenge.currency_symbol || "₦"
+        ),
+        deadline: formatDeadline(challenge.end_date),
+        title: challenge.title,
+        desc:
+          challenge.description ||
+          "Join this challenge and earn from your content.",
+        views: challenge.viewer_count ?? 0,
+        participants: challenge.participant_count ?? 0,
+        thumbnails:
+          mediaUrls.length > 0
+            ? mediaUrls.slice(0, 2)
+            : challenge.banner_url
+              ? [challenge.banner_url]
+              : ["/left1.svg", "/right1.svg"],
+      };
+    });
+  }, [openChallengesData]);
+
   const getStatusColorStyle = (status: string) => {
     switch (status?.toLowerCase()) {
+      case "in_progress":
+        return "bg-[#0033FF1A] text-[#0033FF]";
+      case "awaiting_review":
       case "under_review":
-      case "Under Review":
         return "bg-[#FEFCE8] text-[#854D0E]";
+      case "approved":
+        return "bg-[#75C0F41A] text-[#2D93D0]";
       case "ranked":
-      case "Ranked":
-      case "under_review":
+      case "finalist":
         return "bg-[#F5F3FF] text-[#5B21B6]";
       case "winner":
-      case "winner":
-        return "bg-[#75C0F41A] text-[#2D93D0]";
+        return "bg-[#ECFEF4] text-[#1E874B]";
+      case "not_qualified":
+        return "bg-[#FEF3F2] text-[#B42318]";
       default:
         return "bg-[#F3F4F6] text-[#6B7280]";
     }
   };
 
-  // Helper function to clarify machine-friendly status variants into gorgeous text symbols
   const formatStatusText = (status: string) => {
     if (!status) return "In Progress";
     return status
@@ -113,21 +116,24 @@ const Page = () => {
       .join(" ");
   };
 
-  // 2. Compute dynamic dataset: Use database response if items exist, otherwise fall back to static list
   const activeChallenges = React.useMemo(() => {
-    if (joinedData && joinedData.items && joinedData.items.length > 0) {
-      return joinedData.items.map((item) => ({
-        id: item.challenge_id,
-        title: item.title,
-        brand: item.brand_name,
-        logo: item.brand_logo_url || "/dash-logo.svg",
-        status: formatStatusText(item.status),
-        pool: `${item.prize_pool_formatted} pool`,
-        color: getStatusColorStyle(item.status),
-      }));
-    }
-    return staticActiveChallenges;
+    const items = joinedData?.items ?? [];
+    return items.map((item) => ({
+      id: item.challenge_id,
+      title: item.title,
+      brand: item.brand_name || "Brand",
+      logo: item.brand_logo_url?.trim() || "/dash-logo.svg",
+      status: formatStatusText(item.status),
+      pool: `${formatCompactNaira(
+        item.prize_pool_formatted ||
+          (typeof item.prize_pool === "number" ? item.prize_pool / 100 : 0)
+      )} pool`,
+      color: getStatusColorStyle(item.status),
+    }));
   }, [joinedData]);
+
+  const activeCount =
+    joinedData?.total_items ?? activeChallenges.length;
 
   return (
     <div className="min-h-screen w-full bg-white min-w-0 overflow-hidden">
@@ -138,7 +144,8 @@ const Page = () => {
             Welcome Back {user ? user.first_name : "Creator"}!
           </h1>
           <p className="text-[#6B7280] text-[14px] mt-1 font-medium">
-            You have {activeChallenges.length} campaign matches moving today
+            You have {activeCount} active challenge
+            {activeCount === 1 ? "" : "s"}
           </p>
         </div>
         
@@ -189,7 +196,17 @@ const Page = () => {
         </div>
           
         <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory w-full min-w-0">
-          {recommendedChallenges.map((challenge) => (
+          {recommendedChallenges.length === 0 ? (
+            <div className="w-full rounded-[24px] border border-dashed border-[#E0E1E6] px-6 py-10 text-center">
+              <p className="text-[14px] font-medium text-[#1E1F24]">
+                No open challenges yet
+              </p>
+              <p className="mt-1 text-[12px] text-[#62636C]">
+                Published brand challenges will show up here.
+              </p>
+            </div>
+          ) : (
+            recommendedChallenges.map((challenge) => (
             <Link 
               href={`/dashboard/challenge/${challenge.id}`}
               key={challenge.id} 
@@ -266,9 +283,18 @@ const Page = () => {
 
                 <div className="flex items-center justify-between text-[#9CA3AF] pt-2 border-t border-gray-50">
                   <div className="flex gap-3 text-[11px] font-semibold">
-                    <span className="flex items-center gap-1"><FiBarChart2 size={13}/> 2189</span>
-                    <span className="flex items-center gap-1"><FiMail size={13}/> 87</span>
-                    <span className="flex items-center gap-1"><FiClock size={13}/> 12h</span>
+                    <span className="flex items-center gap-1">
+                      <FiBarChart2 size={13} />
+                      {challenge.views.toLocaleString()}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <FiMail size={13} />
+                      {challenge.participants.toLocaleString()}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <FiClock size={13} />
+                      {challenge.deadline}
+                    </span>
                   </div>
                   <div className="flex gap-2.5">
                     <button onClick={(e) => e.preventDefault()} className="hover:text-[#111827] transition-colors"><FiBookmark size={15} /></button>
@@ -277,7 +303,8 @@ const Page = () => {
                 </div>
               </div>
             </Link>
-          ))}
+          ))
+          )}
         </div>
       </section>
 
@@ -295,54 +322,74 @@ const Page = () => {
             <div className="w-full py-6 text-center text-xs text-gray-400 font-medium">
               Syncing active campaigns...
             </div>
+          ) : activeChallenges.length === 0 ? (
+            <div className="rounded-[24px] border border-dashed border-[#E0E1E6] px-6 py-10 text-center">
+              <p className="text-[14px] font-medium text-[#1E1F24]">
+                No active challenges yet
+              </p>
+              <p className="mt-1 text-[12px] text-[#62636C]">
+                Challenges you join will show up here.
+              </p>
+            </div>
           ) : (
             activeChallenges.map((active) => (
-              <Link 
-                key={active.id} 
+              <Link
+                key={active.id}
                 href={`/dashboard/challenge/${active.id}`}
                 className="flex items-center justify-between py-3 border-b border-[#F3F4F6] last:border-0 hover:bg-gray-50/50 transition-colors px-2 rounded-xl"
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="relative w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden shrink-0 border border-gray-100 bg-gray-50">
-                    <Image src={active.logo} alt={active.brand} fill className="object-cover" />
+                    <Image
+                      src={active.logo}
+                      alt={active.brand}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                   <div className="truncate">
                     <h4 className="font-semibold text-[#374151] text-[13px] md:text-[14px] truncate">
                       {active.title}
                     </h4>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[12px] text-[#6B7280] font-semibold truncate max-w-[120px]">{active.brand}</span>
+                      <span className="text-[12px] text-[#6B7280] font-semibold truncate max-w-[120px]">
+                        {active.brand}
+                      </span>
                       <MdVerified className="text-[#22C55E] shrink-0" size={12} />
-                      <span className="text-[11px] text-[#9CA3AF] font-medium shrink-0">• {active.pool}</span>
+                      <span className="text-[11px] text-[#9CA3AF] font-medium shrink-0">
+                        • {active.pool}
+                      </span>
                     </div>
                   </div>
                 </div>
-                <span className={`p-1 rounded-full text-[12px] font-medium tracking-wide text-center min-w-[95px] shrink-0 ${active.color}`}>
+                <span
+                  className={`p-1 rounded-full text-[12px] font-medium tracking-wide text-center min-w-[95px] shrink-0 ${active.color}`}
+                >
                   {active.status}
                 </span>
               </Link>
-            )
-          ))}
+            ))
+          )}
         </div>
 
         {/* Pagination Section */}
-        <div className="flex justify-between items-center w-full mt-12 px-1">
-          <button className="px-3 md:px-5 py-2 border border-[#E5E7EB] rounded-full text-[14px] font-regular text-[#111827] flex items-center gap-1 hover:bg-gray-50 transition-all">
-            <HiArrowLeft size={14} /> Previous
-          </button>
+        {(joinedData?.total_pages ?? 0) > 1 ? (
+          <div className="flex justify-between items-center w-full mt-12 px-1">
+            <button className="px-3 md:px-5 py-2 border border-[#E5E7EB] rounded-full text-[14px] font-regular text-[#111827] flex items-center gap-1 hover:bg-gray-50 transition-all">
+              <HiArrowLeft size={14} /> Previous
+            </button>
 
-          <div className="flex items-center gap-1 md:gap-2">
-            <button className="w-9 h-9 md:w-11 md:h-11 bg-[#F9F9FB] text-[#1E1F24] rounded-[12px] font-medium text-[14px]">1</button>
-            <button className="w-9 h-9 md:w-11 md:h-11 text-[#6B7280] hover:bg-gray-50 rounded-[12px] font-medium text-[14px]">2</button>
-            <button className="w-9 h-9 md:w-11 md:h-11 text-[#6B7280] font-medium text-[14px]">...</button>
-            <button className="w-9 h-9 md:w-11 md:h-11 text-[#6B7280] hover:bg-gray-50 rounded-[12px] font-medium text-[14px]">4</button>
-            <button className="w-9 h-9 md:w-11 md:h-11 text-[#6B7280] hover:bg-gray-50 rounded-[12px] font-medium text-[14px]">5</button>
+            <div className="flex items-center gap-1 md:gap-2">
+              <button className="w-9 h-9 md:w-11 md:h-11 bg-[#F9F9FB] text-[#1E1F24] rounded-[12px] font-medium text-[14px]">
+                1
+              </button>
+            </div>
+
+            <button className="px-3 md:px-5 py-2 border border-[#E5E7EB] rounded-full text-[14px] font-regular text-[#111827] flex items-center gap-1 hover:bg-gray-50 transition-all">
+              Next <HiArrowRight size={14} />
+            </button>
           </div>
-
-          <button className="px-3 md:px-5 py-2 border border-[#E5E7EB] rounded-full text-[14px] font-regular text-[#111827] flex items-center gap-1 hover:bg-gray-50 transition-all">
-            Next <HiArrowRight size={14}/>
-          </button>
-        </div>
+        ) : null}
       </section>
     </div>
   );

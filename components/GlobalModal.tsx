@@ -33,6 +33,8 @@ type ModalPosition =
 type ModalConfig = {
   position?: ModalPosition;
   modalClassName?: string;
+  /** Content owns its own card chrome (padding, radius, close). */
+  bare?: boolean;
 };
 
 type ModalContextValue = {
@@ -60,6 +62,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
   const [config, setConfig] = useState<ModalConfig>({
     position: "center",
     modalClassName: "",
+    bare: false,
   });
 
   const open = useCallback((c: ModalContent, cfg: ModalConfig = {}) => {
@@ -67,6 +70,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
     setConfig({
       position: cfg.position ?? "center",
       modalClassName: cfg.modalClassName ?? "",
+      bare: cfg.bare ?? false,
     });
     setIsOpen(true);
   }, []);
@@ -153,7 +157,7 @@ function ModalRoot({
 }) {
   if (typeof window === "undefined") return null;
 
-  const { position, modalClassName } = config;
+  const { position, modalClassName, bare } = config;
 
   return createPortal(
     <AnimatePresence mode="wait">
@@ -191,30 +195,42 @@ function ModalRoot({
               damping: 32,
               mass: 0.8,
             }}
-            className={` z-10  max-w-5xl max-md:max-w-[90vw] mx-auto absolute ${modalClassName} `}
+            className={`z-10 mx-auto absolute ${
+              bare
+                ? "w-auto max-w-[92vw]"
+                : "max-w-5xl max-md:max-w-[90vw]"
+            } ${modalClassName}`}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close button */}
-            <motion.button
-              initial={{ opacity: 0, rotate: -90 }}
-              animate={{ opacity: 1, rotate: 0 }}
-              exit={{ opacity: 0, rotate: 90 }}
-              transition={{ delay: 0.15, duration: 0.2 }}
-              onClick={onClose}
-              className="absolute -top-4 -right-4 z-20 p-2 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
-              aria-label="Close modal"
-            >
-              <X className="w-5 h-5 text-gray-700" />
-            </motion.button>
-
-            {/* Glass container */}
-            <div className="relative bg-white/95 max-md:min-w-[85vw] backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden ">
-              <div className="absolute inset-0 px-5 pb-5 bg-gradient-to-br from-white/50 via-transparent to-transparent pointer-events-none" />
-
-              <div className="relative min-h-fit md:max-h-[85vh] overflow-auto w-full px-5 pb-5">
+            {bare ? (
+              <div className="relative max-h-[88vh] overflow-y-auto">
                 {content}
               </div>
-            </div>
+            ) : (
+              <>
+                {/* Close button */}
+                <motion.button
+                  initial={{ opacity: 0, rotate: -90 }}
+                  animate={{ opacity: 1, rotate: 0 }}
+                  exit={{ opacity: 0, rotate: 90 }}
+                  transition={{ delay: 0.15, duration: 0.2 }}
+                  onClick={onClose}
+                  className="absolute -top-4 -right-4 z-20 p-2 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+                  aria-label="Close modal"
+                >
+                  <X className="w-5 h-5 text-gray-700" />
+                </motion.button>
+
+                {/* Glass container */}
+                <div className="relative bg-white/95 max-md:min-w-[85vw] backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden ">
+                  <div className="absolute inset-0 px-5 pb-5 bg-gradient-to-br from-white/50 via-transparent to-transparent pointer-events-none" />
+
+                  <div className="relative min-h-fit md:max-h-[85vh] overflow-auto w-full px-5 pb-5">
+                    {content}
+                  </div>
+                </div>
+              </>
+            )}
           </motion.div>
         </motion.div>
       )}
