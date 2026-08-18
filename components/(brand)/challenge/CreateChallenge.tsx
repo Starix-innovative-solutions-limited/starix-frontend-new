@@ -16,7 +16,7 @@ import { HiOutlineSpeakerphone } from "react-icons/hi";
 import { BsFileEarmarkPdf, BsFileEarmarkFill } from "react-icons/bs";
 import { toast } from "react-hot-toast";
 import { useModal } from "@/hooks/useModal";
-import { useCreateChallenge, useFundChallenge } from "@/hooks/useChallenges";
+import { useCreateChallenge, useFundChallenge, type CreateChallengePayload } from "@/hooks/useChallenges";
 import { useUploadMedia } from "@/hooks/useMedia";
 import { useGetCategories } from "@/hooks/useCategories";
 
@@ -551,7 +551,7 @@ export default function CreateChallenge({
     setRewardError(null);
   };
 
-  const buildPayload = (forPublish: boolean) => {
+  const buildPayload = (forPublish: boolean): CreateChallengePayload => {
     const prizeAmounts = form.prizes.map((p) =>
       Number(parseAmount(p.amount).toFixed(2))
     );
@@ -600,8 +600,7 @@ export default function CreateChallenge({
       start_date: dates.start_date,
       end_date: dates.end_date,
       // Circles-only challenges are excluded from creator discovery feeds.
-      submission_eligibility:
-        form.submitter_type === "circles" ? "circles" : form.submitter_type,
+      submission_eligibility: form.submitter_type,
       currency: form.currency,
       hashtags: form.hashtags.trim() || undefined,
       mentions: form.mentions.trim() || undefined,
