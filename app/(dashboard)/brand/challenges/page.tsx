@@ -7,6 +7,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import { useModal } from "@/hooks/useModal";
 import CreateChallenge from "@/components/(brand)/challenge/CreateChallenge";
+import ChallengeCreatedModal from "@/components/(brand)/challenge/ChallengeCreatedModal";
+import BrandAvatar from "@/components/(brand)/BrandAvatar";
 import BrandChallengeCard, {
   BrandChallengeCardData,
 } from "@/components/(brand)/challenge/BrandChallengeCard";
@@ -23,7 +25,6 @@ import { variants } from "@/constant";
 import { formatCompactNaira } from "@/lib/formatMoney";
 
 const TABS = [
-  { id: "all", label: "All" },
   { id: "active", label: "Active" },
   { id: "drafts", label: "Drafts" },
   { id: "completed", label: "Completed" },
@@ -117,7 +118,7 @@ function mapChallengeToCard(
 
 function tabToApiStatus(tab: TabId): ChallengeStatus | undefined {
   // "active" includes published/publishing — fetch all and filter client-side.
-  if (tab === "all" || tab === "active") return undefined;
+  if (tab === "active") return undefined;
   if (tab === "drafts") return "draft";
   if (tab === "completed") return "completed";
   return undefined;
@@ -128,11 +129,14 @@ export default function Page() {
   const queryClient = useQueryClient();
   const { profile: storeProfile, userType } = useAuthStore();
   const { data: me, isLoading: meLoading } = useGetMe();
-  const [activeTab, setActiveTab] = useState<TabId>("all");
+  const [activeTab, setActiveTab] = useState<TabId>("active");
   const [search, setSearch] = useState("");
 
   const profile = me ?? storeProfile;
-  const logoUrl = profile?.profile_picture_url?.trim() || undefined;
+  const logoUrl =
+    profile?.logo_url?.trim() ||
+    profile?.profile_picture_url?.trim() ||
+    undefined;
   const role = (
     profile?.user_type ||
     userType ||
@@ -148,6 +152,7 @@ export default function Page() {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     const funded = params.get("funded");
+    const challengeId = params.get("challenge_id") || undefined;
     const status = (
       params.get("status") ||
       params.get("payment_status") ||
@@ -167,8 +172,9 @@ export default function Page() {
     if (!success && !failed) return;
 
     if (success) {
-      toast.success(
-        "Payment received. Your challenge will appear for creators once it’s active."
+      open(
+        <ChallengeCreatedModal challengeId={challengeId} />,
+        { bare: true }
       );
     } else {
       toast.error("Payment was not completed. Challenge remains a draft.");
@@ -187,7 +193,7 @@ export default function Page() {
       "transaction_id",
     ].forEach((key) => url.searchParams.delete(key));
     window.history.replaceState({}, "", url.pathname + url.search);
-  }, [queryClient]);
+  }, [open, queryClient]);
 
   const { data, isLoading, isError, error } = useGetBrandChallenges(
     {
@@ -234,7 +240,7 @@ export default function Page() {
     const query = search.trim().toLowerCase();
 
     return items.filter((c) => {
-      const matchesTab = activeTab === "all" || c.status === activeTab;
+      const matchesTab = c.status === activeTab;
       const matchesSearch =
         !query || c.title.toLowerCase().includes(query);
       return matchesTab && matchesSearch;
@@ -244,10 +250,10 @@ export default function Page() {
   const handleOpenCreate = () => {
     open(
       <CreateChallenge
-        onCreated={() => {
-          // Always land on All so the new challenge is visible immediately
-          // (drafts are filtered out of Active, etc.).
-          setActiveTab("all");
+        onCreated={(challenge) => {
+          setActiveTab(
+            challenge.status?.toLowerCase() === "draft" ? "drafts" : "active"
+          );
           setSearch("");
           void queryClient.refetchQueries({
             queryKey: ["brands", "challenges"],
@@ -274,8 +280,8 @@ export default function Page() {
             <h1 className="text-[28px] leading-tight font-semibold text-[#101828]">
               Challenges
             </h1>
-            <p className="mt-1 text-[14px] text-[#667085] sm:text-[15px]">
-              Track, manage and create campaign-based challenges
+            <p className="mt-1 text-[14px] text-[#62636C] sm:text-[15px]">
+              Create and manage campaign-based challenges
             </p>
           </div>
 
@@ -283,16 +289,11 @@ export default function Page() {
             <button
               type="button"
               onClick={handleOpenCreate}
-              className="rounded-full bg-[#0033FF] px-5 py-2.5 text-[14px] font-semibold text-white transition-opacity hover:opacity-90"
+              className="rounded-full p-3 text-[14px] font-semibold border border-[#8B8D98] text-[#1E1F24] transition-opacity hover:opacity-90"
             >
               Create Challenge
             </button>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={logoUrl || "/nivea.svg"}
-              alt={profile?.brand_name || "Brand"}
-              className="h-10 w-10 shrink-0 rounded-full object-cover ring-1 ring-[#E4E7EC]"
-            />
+            
           </div>
         </motion.div>
 
@@ -307,7 +308,7 @@ export default function Page() {
                 className={`relative pb-3 text-[14px] font-medium whitespace-nowrap transition-colors ${
                   isActive
                     ? "text-[#101828]"
-                    : "text-[#98A2B3] hover:text-[#667085]"
+                    : "text-[#98A2B3] hover:text-[#62636C]"
                 }`}
               >
                 {tab.label}
@@ -340,7 +341,7 @@ export default function Page() {
                 ? "Brand challenges require a brand account"
                 : "Verify your brand email to manage challenges"}
             </p>
-            <p className="mt-2 text-[13px] text-[#667085]">
+            <p className="mt-2 text-[13px] text-[#62636C]">
               {!isBrand
                 ? `You're signed in as “${role || "unknown"}”. Log out and sign in with your brand account.`
                 : "Swagger requires a verified brand. Finish email verification, then reload this page."}
@@ -368,7 +369,7 @@ export default function Page() {
         {(meLoading || (canFetchBrandChallenges && isLoading)) && (
           <div className="flex flex-col items-center justify-center gap-3 py-20">
             <Loader />
-            <p className="text-[13px] font-medium text-[#667085]">
+            <p className="text-[13px] font-medium text-[#62636C]">
               Loading challenges...
             </p>
           </div>
@@ -381,7 +382,7 @@ export default function Page() {
                 ? "Brand account not allowed to list challenges"
                 : "Could not load challenges. Please try again."}
             </p>
-            <p className="mt-2 text-[13px] text-[#667085]">
+            <p className="mt-2 text-[13px] text-[#62636C]">
               {apiStatus === 403
                 ? `${forbiddenDetail} Make sure you’re logged in as a brand with a verified email (and that /auth/me shows is_email_verified: true).`
                 : "Check your connection and refresh."}
@@ -402,7 +403,7 @@ export default function Page() {
             <p className="text-[16px] font-medium text-[#101828]">
               No challenges found
             </p>
-            <p className="mt-1 text-[14px] text-[#667085]">
+            <p className="mt-1 text-[14px] text-[#62636C]">
               Try another tab or create a new challenge
             </p>
             <button

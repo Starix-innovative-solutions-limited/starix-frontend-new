@@ -198,64 +198,47 @@ const BrandSideBar = ({
 
           <div className="min-h-6 flex-1" />
 
-          {/* Create Challenge promo — matches Sidebar design */}
-          <div className="px-1 ">
+          {/* Create Challenge promo */}
+          <div className="px-1">
             {collapsed ? (
               <button
                 type="button"
                 onClick={openCreate}
-                className="mx-auto flex h-12 w-12 items-center justify-center"
+                className="mx-auto flex h-12 w-12 items-center justify-center overflow-hidden]"
                 aria-label="Create Challenge"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/bluplay 2.svg"
                   alt=""
-                  className="h-9 w-9 object-contain"
+                  className="h-12 w-12 object-contain"
                 />
               </button>
             ) : (
-              <div className="relative overflow-hidden rounded-[24px] bg-[#F5F5F7]">
-                {/* Large 3D star — dominates top-right like the design */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/brandstar.svg"
-                  alt=""
-                  className="pointer-events-none absolute -right-3 z-20 h-[200px] w-[200px] object-contain"
-                />
-
-                {/* Left text column — clear of the star */}
-                <div className=" z-10 w-[68%] p-4 text-left">
-                  <h4 className="text-[14px] leading-[1.25] font-semibold tracking-[-0.01em] text-[#1E1F24]">
-                    Create a
-                    <br />
-                    Challenge
-                  </h4>
-                  <p className="mt-2.5 text-[11px] max-w-[200px] leading-[1.45] text-[#667085]">
-                    Campaign-based challenges create widespread engagement.
-                  </p>
-                </div>
-
-                
-
-                {/* Sweets fill the bottom; white CTA sits on top of them */}
-                <div className="relative h-[120px] w-full">
+              <div className="overflow-hidden rounded-[28px] bg-[#F9F9FB]">
+                <div className="relative h-[120px] w-full overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/brandsweets.svg"
+                    src="/chains.svg"
                     alt=""
-                    className="pointer-events-none absolute inset-x-[-5%] bottom-[-5%] h-[150%] w-[120%] max-w-none object-contain object-bottom"
+                    className="h-full w-full object-cover object-[center_5%]"
                   />
+                </div>
 
-                  <div className="relative inset-x-0 top-6 z-10 p-4">
-                    <button
-                      type="button"
-                      onClick={openCreate}
-                      className="w-full rounded-full border border-[#E4E7EC] bg-white px-4 py-3 text-[13px] font-semibold text-[#101828] shadow-[0_1px_2px_rgba(16,24,40,0.08)] transition hover:bg-gray-50 active:scale-[0.98]"
-                    >
-                      Create Challenge
-                    </button>
-                  </div>
+                <div className="px-5 pt-4 pb-5 text-left">
+                  <h4 className="text-[16px] leading-tight font-semibold tracking-[-0.01em] text-[#101828]">
+                    Create a Challenge
+                  </h4>
+                  <p className="mt-2 text-[12px] leading-[1.45] text-[#667085]">
+                    Campaign-based challenges create widespread engagement.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={openCreate}
+                    className="mt-5 w-full rounded-full bg-[#0033FF] p-4 text-[12px] font-semibold text-white transition hover:bg-[#0029CC] active:scale-[0.98]"
+                  >
+                    Create Challenge
+                  </button>
                 </div>
               </div>
             )}

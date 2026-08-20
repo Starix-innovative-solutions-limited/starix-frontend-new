@@ -1,18 +1,22 @@
 "use client";
 
-import { useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type DragEvent,
+  type ReactNode,
+} from "react";
 import {
   FiX,
-  FiChevronDown,
-  FiCheck,
+  FiChevronLeft,
+  FiChevronRight,
   FiPlus,
   FiPlay,
-  FiHeart,
-  FiVideo,
-  FiBell,
-  FiShoppingBag,
+  FiInfo,
+  FiImage,
 } from "react-icons/fi";
-import { HiOutlineSpeakerphone } from "react-icons/hi";
 import { BsFileEarmarkPdf, BsFileEarmarkFill } from "react-icons/bs";
 import { toast } from "react-hot-toast";
 import { useModal } from "@/hooks/useModal";
@@ -20,34 +24,127 @@ import { useCreateChallenge, useFundChallenge, type CreateChallengePayload } fro
 import { useUploadMedia } from "@/hooks/useMedia";
 import { useGetCategories } from "@/hooks/useCategories";
 
-const TOTAL_STEPS = 6;
+const TOTAL_STEPS = 5;
 const MAX_MEDIA = 6;
 const MAX_MEDIA_BYTES = 20 * 1024 * 1024; // 20MB
 const MAX_PDF_BYTES = 50 * 1024 * 1024; // 50MB
 
 const STEP_LABELS = [
   "Add Challenge Information",
-  "Additional detail",
   "Submission Requirements",
-  "Brief and Sample Content",
+  "Brief, Samples and Guidelines",
   "Reward Configuration",
-  "Review & Publish",
+  "Review Challenge",
 ];
+
+const WEEKDAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+function IconEngagement({ className }: { className?: string }) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      className={className}
+      aria-hidden
+    >
+      <path
+        d="M8 13.35S2.5 10.1 2.5 6.4A2.9 2.9 0 0 1 8 4.85 2.9 2.9 0 0 1 13.5 6.4C13.5 10.1 8 13.35 8 13.35Z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M12.2 2.2v3.2M10.6 3.8h3.2"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function IconAwareness({ className }: { className?: string }) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      className={className}
+      aria-hidden
+    >
+      <path
+        d="M8.5 3.5 5.8 5.5H3.5a.5.5 0 0 0-.5.5v4a.5.5 0 0 0 .5.5h2.3L8.5 12.5V3.5Z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M10.5 5.8a2.4 2.4 0 0 1 0 4.4M12.2 4.3a4.4 4.4 0 0 1 0 7.4"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function IconUgc({ className }: { className?: string }) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      className={className}
+      aria-hidden
+    >
+      <rect
+        x="1.75"
+        y="4.25"
+        width="8.5"
+        height="7.5"
+        rx="1.5"
+        stroke="currentColor"
+        strokeWidth="1.4"
+      />
+      <path
+        d="m10.25 6.8 3.2-1.7v5.8l-3.2-1.7V6.8Z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M12.6 1.6v2.8M11.2 3h2.8"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
 
 const OBJECTIVES = [
-  { id: "engagement", label: "Engagement", Icon: FiHeart },
-  { id: "awareness", label: "Awareness", Icon: HiOutlineSpeakerphone },
-  { id: "ugc", label: "User Generated Content", Icon: FiVideo },
-  { id: "product_launch", label: "Product Launch", Icon: FiBell },
-  { id: "sales", label: "Sales", Icon: FiShoppingBag },
+  { id: "engagement", label: "Engagement", Icon: IconEngagement },
+  { id: "awareness", label: "Awareness", Icon: IconAwareness },
+  { id: "ugc", label: "User Generated Content", Icon: IconUgc },
 ] as const;
-
-const CONTENT_TYPES = [
-  { id: "short_form_video", label: "Short-form Video" },
-  { id: "reel", label: "Reel" },
-  { id: "image", label: "Image" },
-  { id: "carousel", label: "Carousel" },
-];
 
 const SUBMITTER_OPTIONS = [
   { id: "anyone", label: "Anyone. Both Creators and Creator Circles." },
@@ -56,6 +153,25 @@ const SUBMITTER_OPTIONS = [
 ] as const;
 
 const PLATFORM_OPTIONS = ["TikTok", "Instagram", "YouTube"] as const;
+
+const PLATFORM_ICONS: Record<string, string> = {
+  YouTube: "/yt.svg",
+  Instagram: "/ig.svg",
+  TikTok: "/tt.svg",
+};
+
+const PRIZE_CARD_COLORS = [
+  "bg-[#E7F8EF]", // 1st — mint
+  "bg-[#E8F1FF]", // 2nd — blue
+  "bg-[#F8E8F3]", // 3rd — pink
+];
+
+const OPEN_TO_LABELS: Record<(typeof SUBMITTER_OPTIONS)[number]["id"], string> =
+  {
+    anyone: "Creators & Circles",
+    circles: "Creator Circles Only",
+    creators: "Creators Only",
+  };
 
 const PRIZE_ORDINALS = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th"];
 
@@ -99,7 +215,7 @@ type FormState = {
 const initialForm: FormState = {
   title: "",
   description: "",
-  objective: "engagement",
+  objective: "",
   submitter_type: "anyone",
   start_date: "",
   end_date: "",
@@ -179,6 +295,9 @@ function isAllowedMedia(file: File) {
   );
 }
 
+const inputClass =
+  "w-full rounded-xl border border-[#E4E7EC] bg-white px-4 py-3.5 text-[14px] text-[#101828] outline-none placeholder:text-[#98A2B3] focus:border-[#0033FF] focus:ring-2 focus:ring-[#0033FF]/10";
+
 function ProgressBar({ step }: { step: number }) {
   return (
     <div className="mt-5 flex gap-1.5">
@@ -235,6 +354,264 @@ function ErrorText({ children }: { children: ReactNode }) {
   return <p className="mt-2 text-[13px] font-medium text-[#F04438]">{children}</p>;
 }
 
+function toIsoDate(year: number, monthIndex: number, day: number) {
+  const m = String(monthIndex + 1).padStart(2, "0");
+  const d = String(day).padStart(2, "0");
+  return `${year}-${m}-${d}`;
+}
+
+function formatDisplayDate(iso: string) {
+  if (!iso) return "";
+  const [y, m, d] = iso.split("-");
+  if (!y || !m || !d) return "";
+  return `${d}/${m}/${y}`;
+}
+
+function formatTimelineDate(iso: string) {
+  if (!iso) return "—";
+  const date = parseLocalDay(iso);
+  if (!Number.isFinite(date.getTime())) return "—";
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = MONTHS[date.getMonth()];
+  return `${day} ${month}, ${date.getFullYear()}`;
+}
+
+function formatChallengeDuration(startIso: string, endIso: string) {
+  if (!startIso || !endIso) return "—";
+  const start = parseLocalDay(startIso);
+  const end = parseLocalDay(endIso, true);
+  if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime())) {
+    return "—";
+  }
+  const ms = end.getTime() - start.getTime();
+  if (ms < 0) return "—";
+  const days = Math.max(1, Math.ceil(ms / (24 * 60 * 60 * 1000)));
+  if (days < 7) return `${days} Day${days === 1 ? "" : "s"}`;
+  const weeks = Math.round(days / 7);
+  if (Math.abs(days - weeks * 7) <= 1) {
+    return `${weeks} Week${weeks === 1 ? "" : "s"}`;
+  }
+  return `${days} Days`;
+}
+
+function DateField({
+  label,
+  value,
+  onChange,
+  error,
+  open,
+  onOpen,
+  onClose,
+}: {
+  label: string;
+  value: string;
+  onChange: (iso: string) => void;
+  error?: string;
+  open: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+}) {
+  const initial = value ? parseLocalDay(value) : new Date();
+  const [viewYear, setViewYear] = useState(initial.getFullYear());
+  const [viewMonth, setViewMonth] = useState(initial.getMonth());
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    if (value) {
+      const d = parseLocalDay(value);
+      if (Number.isFinite(d.getTime())) {
+        setViewYear(d.getFullYear());
+        setViewMonth(d.getMonth());
+      }
+    }
+  }, [open, value]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointer = (e: MouseEvent) => {
+      if (!rootRef.current?.contains(e.target as Node)) onClose();
+    };
+    document.addEventListener("mousedown", onPointer);
+    return () => document.removeEventListener("mousedown", onPointer);
+  }, [open, onClose]);
+
+  const firstWeekday = new Date(viewYear, viewMonth, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const cells: (number | null)[] = [
+    ...Array.from({ length: firstWeekday }, () => null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ];
+
+  const selectedDay = value
+    ? (() => {
+        const d = parseLocalDay(value);
+        if (
+          d.getFullYear() === viewYear &&
+          d.getMonth() === viewMonth
+        ) {
+          return d.getDate();
+        }
+        return null;
+      })()
+    : null;
+
+  return (
+    <div ref={rootRef} className="relative">
+      <label className="mb-2 block text-[14px] font-semibold text-[#101828]">
+        {label}
+      </label>
+      <button
+        type="button"
+        onClick={() => (open ? onClose() : onOpen())}
+        className={`${inputClass} text-left ${
+          open ? "border-[#101828] ring-0" : ""
+        } ${!value ? "text-[#98A2B3]" : ""}`}
+      >
+        {value ? formatDisplayDate(value) : "dd/mm/yyyy"}
+      </button>
+      {error && <ErrorText>{error}</ErrorText>}
+
+      {open && (
+        <div className="absolute top-[calc(100%+8px)] left-0 z-30 w-[min(100vw-48px,280px)] rounded-2xl border border-[#EEF0F4] bg-white p-4 shadow-[0_12px_40px_-12px_rgba(16,24,40,0.18)]">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-[14px] font-semibold text-[#101828]">
+              {MONTHS[viewMonth]} {viewYear}
+            </span>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                aria-label="Previous month"
+                onClick={() => {
+                  if (viewMonth === 0) {
+                    setViewMonth(11);
+                    setViewYear((y) => y - 1);
+                  } else {
+                    setViewMonth((m) => m - 1);
+                  }
+                }}
+                className="rounded-lg p-1.5 text-[#667085] hover:bg-gray-50"
+              >
+                <FiChevronLeft size={16} />
+              </button>
+              <button
+                type="button"
+                aria-label="Next month"
+                onClick={() => {
+                  if (viewMonth === 11) {
+                    setViewMonth(0);
+                    setViewYear((y) => y + 1);
+                  } else {
+                    setViewMonth((m) => m + 1);
+                  }
+                }}
+                className="rounded-lg p-1.5 text-[#667085] hover:bg-gray-50"
+              >
+                <FiChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+
+          <div className="mb-2 grid grid-cols-7 gap-1">
+            {WEEKDAYS.map((d) => (
+              <span
+                key={d}
+                className="text-center text-[10px] font-medium text-[#98A2B3]"
+              >
+                {d}
+              </span>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-7 gap-1">
+            {cells.map((day, idx) => {
+              if (!day) {
+                return <span key={`e-${idx}`} className="h-8" />;
+              }
+              const iso = toIsoDate(viewYear, viewMonth, day);
+              const isSelected = selectedDay === day;
+              const isFirst = day === 1;
+              return (
+                <button
+                  key={iso}
+                  type="button"
+                  onClick={() => {
+                    onChange(iso);
+                    onClose();
+                  }}
+                  className={`flex h-8 w-full items-center justify-center rounded-full text-[13px] transition ${
+                    isSelected
+                      ? "border-2 border-[#0033FF] font-semibold text-[#0033FF]"
+                      : isFirst
+                        ? "font-medium text-[#0033FF] hover:bg-[#EAF1FF]"
+                        : "text-[#344054] hover:bg-gray-50"
+                  }`}
+                >
+                  {day}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CircularProgress({
+  progress,
+  size = 56,
+  stroke = 4,
+  color = "#0033FF",
+  track = "#E5E7EB",
+  labelClassName = "text-[13px] font-semibold text-[#0033FF]",
+}: {
+  progress: number;
+  size?: number;
+  stroke?: number;
+  color?: string;
+  track?: string;
+  labelClassName?: string;
+}) {
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const offset = c * (1 - Math.min(100, Math.max(0, progress)) / 100);
+  return (
+    <div
+      className="relative flex items-center justify-center"
+      style={{ width: size, height: size }}
+    >
+      <svg
+        className="absolute inset-0 -rotate-90"
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+      >
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          stroke={track}
+          strokeWidth={stroke}
+          fill="none"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          stroke={color}
+          strokeWidth={stroke}
+          fill="none"
+          strokeDasharray={c}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+        />
+      </svg>
+      <span className={labelClassName}>{Math.round(progress)}%</span>
+    </div>
+  );
+}
+
 export default function CreateChallenge({
   onCreated,
 }: {
@@ -257,6 +634,10 @@ export default function CreateChallenge({
   const [rewardError, setRewardError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [showInfoBanner, setShowInfoBanner] = useState(true);
+  const [openDatePicker, setOpenDatePicker] = useState<"start" | "end" | null>(
+    null
+  );
 
   const mediaInputRef = useRef<HTMLInputElement>(null);
   const docInputRef = useRef<HTMLInputElement>(null);
@@ -295,9 +676,15 @@ export default function CreateChallenge({
   const validateStep = (current: number) => {
     const errors: Record<string, string> = {};
 
+    // Step 1 — Challenge info (title, dates, description, objective)
     if (current === 1) {
       if (form.title.trim().length < 3) {
         errors.title = "Challenge title must be at least 3 characters";
+      }
+      if (!form.start_date) errors.start_date = "Start date is required";
+      if (!form.end_date) errors.end_date = "End date is required";
+      if (form.start_date && form.end_date && form.end_date < form.start_date) {
+        errors.end_date = "End date must be after start date";
       }
       if (form.description.trim().length < 10) {
         errors.description = "Description must be at least 10 characters";
@@ -307,22 +694,15 @@ export default function CreateChallenge({
       }
     }
 
+    // Step 2 — Submission requirements
     if (current === 2) {
-      if (!form.start_date) errors.start_date = "Start date is required";
-      if (!form.end_date) errors.end_date = "End date is required";
-      if (form.start_date && form.end_date && form.end_date < form.start_date) {
-        errors.end_date = "End date must be after start date";
-      }
       if (form.platforms.length === 0) {
         errors.platforms = "Select at least one platform";
       }
     }
 
+    // Step 3 — Brief, samples & guidelines
     if (current === 3) {
-      if (!form.content_type) errors.content_type = "Select a content type";
-    }
-
-    if (current === 4) {
       if (mediaItems.some((m) => m.progress < 100 && !m.error)) {
         toast.error("Please wait for media uploads to finish");
         return false;
@@ -335,10 +715,10 @@ export default function CreateChallenge({
         toast.error("Please wait for the document upload to finish");
         return false;
       }
-      // Document is optional — errors don't block continue, but clear blocking upload
     }
 
-    if (current === 5) {
+    // Step 4 — Rewards
+    if (current === 4) {
       if (totalPool <= 0) {
         setRewardError("Enter a valid total reward pool");
         return false;
@@ -573,8 +953,8 @@ export default function CreateChallenge({
       engagement: "quality_engagement",
       awareness: "visibility",
       ugc: "balanced",
-      product_launch: "virality",
-      sales: "conversions",
+      // product_launch: "virality",
+      // sales: "conversions",
     };
 
     const category =
@@ -613,7 +993,7 @@ export default function CreateChallenge({
   };
 
   const handlePublish = async (isDraft: boolean) => {
-    if (!isDraft && !validateStep(5)) return;
+    if (!isDraft && !validateStep(4)) return;
 
     const uploadedMedia = mediaItems.filter((m) => m.url);
     if (!isDraft && uploadedMedia.length === 0) {
@@ -674,11 +1054,16 @@ export default function CreateChallenge({
 
   const mediaBusy = mediaItems.some((m) => m.progress < 100);
 
+  const onDragOver = (e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   return (
-    <div className="relative w-[min(92vw,520px)] rounded-[24px] bg-white p-8 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] md:p-10">
+    <div className="relative w-[min(92vw,520px)] max-h-[min(90vh,860px)] overflow-y-auto rounded-[28px] bg-white p-8 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] md:p-10">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-[22px] font-bold leading-tight text-[#101828] md:text-[24px]">
+          <h2 className="text-[22px] font-semibold leading-tight text-[#101828] md:text-[24px]">
             Create Challenge
           </h2>
           <p className="mt-1.5 text-[13px] text-[#667085] md:text-[14px]">
@@ -698,9 +1083,29 @@ export default function CreateChallenge({
       <ProgressBar step={step} />
 
       <div className="mt-7">
-        {/* STEP 1 */}
+        {/* STEP 1 — Add Challenge Information */}
         {step === 1 && (
           <div className="space-y-6">
+            {showInfoBanner && (
+              <div className="flex items-start gap-3 rounded-2xl border border-[#E4E7EC] bg-[#F2F4F7] px-4 py-3.5">
+                <span className="mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-[#0033FF] text-white">
+                  <FiInfo size={11} strokeWidth={2.5} />
+                </span>
+                <p className="flex-1 text-[13px] leading-relaxed text-[#667085]">
+                  Winners of the challenge will be automatically selected by our
+                  system within a week after the Challenge end date.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowInfoBanner(false)}
+                  className="shrink-0 rounded-full p-0.5 text-[#98A2B3] hover:text-[#101828]"
+                  aria-label="Dismiss"
+                >
+                  <FiX size={16} />
+                </button>
+              </div>
+            )}
+
             <Field label="Challenge Title" error={fieldErrors.title}>
               <input
                 value={form.title}
@@ -710,7 +1115,28 @@ export default function CreateChallenge({
               />
             </Field>
 
-            <Field label="Description" error={fieldErrors.description}>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <DateField
+                label="Start Date"
+                value={form.start_date}
+                onChange={(v) => update("start_date", v)}
+                error={fieldErrors.start_date}
+                open={openDatePicker === "start"}
+                onOpen={() => setOpenDatePicker("start")}
+                onClose={() => setOpenDatePicker(null)}
+              />
+              <DateField
+                label="End Date"
+                value={form.end_date}
+                onChange={(v) => update("end_date", v)}
+                error={fieldErrors.end_date}
+                open={openDatePicker === "end"}
+                onOpen={() => setOpenDatePicker("end")}
+                onClose={() => setOpenDatePicker(null)}
+              />
+            </div>
+
+            <Field label="Challenge Description" error={fieldErrors.description}>
               <textarea
                 value={form.description}
                 onChange={(e) => update("description", e.target.value)}
@@ -731,11 +1157,11 @@ export default function CreateChallenge({
                       onClick={() => update("objective", id)}
                       className={`inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-[13px] font-medium transition ${
                         active
-                          ? "border-[#0033FF] bg-[#EAF1FF] text-[#0033FF]"
-                          : "border-[#BFDBFE] bg-white text-[#344054] hover:bg-[#F8FAFF]"
+                          ? "border-[#5B9EFF] bg-[#EAF3FF] text-[#3D8BFF]"
+                          : "border-[#B6D4FF] bg-white text-[#5B9EFF] hover:bg-[#F5F9FF]"
                       }`}
                     >
-                      <Icon size={16} />
+                      <Icon className="shrink-0" />
                       {label}
                     </button>
                   );
@@ -747,11 +1173,11 @@ export default function CreateChallenge({
           </div>
         )}
 
-        {/* STEP 2 */}
+        {/* STEP 2 — Submission Requirements */}
         {step === 2 && (
           <div className="space-y-7">
             <Field label="Who can submit to this Challenge?">
-              <div className="space-y-3">
+              <div className="space-y-3.5">
                 {SUBMITTER_OPTIONS.map((opt) => {
                   const active = form.submitter_type === opt.id;
                   return (
@@ -786,19 +1212,19 @@ export default function CreateChallenge({
             </Field>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field label="Start Date" error={fieldErrors.start_date}>
+              <Field label="Required Hashtags">
                 <input
-                  type="date"
-                  value={form.start_date}
-                  onChange={(e) => update("start_date", e.target.value)}
+                  value={form.hashtags}
+                  onChange={(e) => update("hashtags", e.target.value)}
+                  placeholder="#SummerGlow #Aurora"
                   className={inputClass}
                 />
               </Field>
-              <Field label="End Date" error={fieldErrors.end_date}>
+              <Field label="Required Mentions">
                 <input
-                  type="date"
-                  value={form.end_date}
-                  onChange={(e) => update("end_date", e.target.value)}
+                  value={form.mentions}
+                  onChange={(e) => update("mentions", e.target.value)}
+                  placeholder="@aurorabeauty"
                   className={inputClass}
                 />
               </Field>
@@ -808,7 +1234,7 @@ export default function CreateChallenge({
               label="Who platform(s) should creators post their submissions?"
               error={fieldErrors.platforms}
             >
-              <div className="space-y-3">
+              <div className="space-y-3.5">
                 {PLATFORM_OPTIONS.map((platform) => {
                   const checked = form.platforms.includes(platform);
                   return (
@@ -817,13 +1243,15 @@ export default function CreateChallenge({
                       className="flex cursor-pointer items-center gap-3"
                     >
                       <span
-                        className={`flex h-5 w-5 items-center justify-center rounded-md border-2 ${
+                        className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
                           checked
-                            ? "border-[#0033FF] bg-[#0033FF] text-white"
+                            ? "border-[#0033FF] bg-[#0033FF]"
                             : "border-[#D0D5DD] bg-white"
                         }`}
                       >
-                        {checked && <FiCheck size={12} strokeWidth={3} />}
+                        {checked && (
+                          <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                        )}
                       </span>
                       <input
                         type="checkbox"
@@ -844,70 +1272,8 @@ export default function CreateChallenge({
           </div>
         )}
 
-        {/* STEP 3 */}
+        {/* STEP 3 — Brief, Samples and Guidelines */}
         {step === 3 && (
-          <div className="space-y-6">
-            <Field label="Content Type" error={fieldErrors.content_type}>
-              <div className="relative">
-                <select
-                  value={form.content_type}
-                  onChange={(e) => update("content_type", e.target.value)}
-                  className={`${inputClass} appearance-none pr-10`}
-                >
-                  {CONTENT_TYPES.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.label}
-                    </option>
-                  ))}
-                </select>
-                <FiChevronDown className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-[#98A2B3]" />
-              </div>
-            </Field>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field label="Required Hashtags">
-                <input
-                  value={form.hashtags}
-                  onChange={(e) => update("hashtags", e.target.value)}
-                  placeholder="#SummerGlow #Aurora"
-                  className={inputClass}
-                />
-              </Field>
-              <Field label="Required Mentions">
-                <input
-                  value={form.mentions}
-                  onChange={(e) => update("mentions", e.target.value)}
-                  placeholder="@aurorabeauty"
-                  className={inputClass}
-                />
-              </Field>
-            </div>
-
-            <Field label="Call-to-Action (Optional)">
-              <input
-                value={form.cta}
-                onChange={(e) => update("cta", e.target.value)}
-                placeholder="e.g Shop now at Aurora.com"
-                className={inputClass}
-              />
-            </Field>
-
-            <Field label="Posting rules or Mandatory Requirements">
-              <textarea
-                value={form.posting_rules}
-                onChange={(e) => update("posting_rules", e.target.value)}
-                placeholder={"1. Posting rule 1\n2. Posting rule 2\n3. Posting rule 3"}
-                rows={5}
-                className={`${inputClass} resize-none`}
-              />
-            </Field>
-
-            <FooterActions step={step} onBack={back} onContinue={next} />
-          </div>
-        )}
-
-        {/* STEP 4 — Brief & Sample Content */}
-        {step === 4 && (
           <div className="space-y-7">
             <Field label="Upload up to 6 sample Images and Videos">
               <input
@@ -926,10 +1292,15 @@ export default function CreateChallenge({
                 <button
                   type="button"
                   onClick={() => mediaInputRef.current?.click()}
-                  className="flex w-full items-center gap-4 rounded-2xl border border-dashed border-[#D0D5DD] bg-[#FAFAFA] px-5 py-6 text-left transition hover:bg-[#F5F6F8]"
+                  onDragOver={onDragOver}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    handleMediaSelect(e.dataTransfer.files);
+                  }}
+                  className="flex w-full items-center gap-4 rounded-2xl border border-dashed border-[#D0D5DD] bg-white px-5 py-6 text-left transition hover:bg-[#FAFAFA]"
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white text-[#98A2B3] shadow-sm">
-                    <FiVideo size={22} />
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#F2F4F7] text-[#98A2B3]">
+                    <FiImage size={22} />
                   </div>
                   <div>
                     <p className="text-[14px] text-[#101828]">
@@ -939,17 +1310,25 @@ export default function CreateChallenge({
                       or Drag and Drop
                     </p>
                     <p className="mt-1 text-[12px] text-[#98A2B3]">
-                      Max Individual Size: 20MB · PNG, IMG or MP4
+                      Max Individual Size: 20MB
                     </p>
+                    <p className="text-[12px] text-[#98A2B3]">PNG, IMG or MP4</p>
                   </div>
                 </button>
               ) : (
-                <div className="rounded-2xl border border-dashed border-[#D0D5DD] bg-[#FAFAFA] p-4">
+                <div
+                  className="rounded-2xl border border-dashed border-[#D0D5DD] bg-white p-4"
+                  onDragOver={onDragOver}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    handleMediaSelect(e.dataTransfer.files);
+                  }}
+                >
                   <div className="flex flex-wrap gap-2.5">
                     {mediaItems.map((item) => (
                       <div
                         key={item.id}
-                        className="relative h-[72px] w-[72px] overflow-hidden rounded-xl bg-gray-200 sm:h-[80px] sm:w-[80px]"
+                        className="relative h-[72px] w-[72px] overflow-hidden rounded-xl bg-gray-200 sm:h-[84px] sm:w-[84px]"
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
@@ -957,46 +1336,28 @@ export default function CreateChallenge({
                           alt=""
                           className="h-full w-full object-cover"
                         />
-                        {item.type === "video" && item.progress >= 100 && (
-                          <span className="absolute bottom-1.5 left-1.5 rounded-full bg-black/55 p-1 text-white">
-                            <FiPlay size={10} className="fill-white" />
-                          </span>
-                        )}
                         {item.progress < 100 && (
-                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/45 text-white">
-                            <svg className="mb-1 h-9 w-9 -rotate-90">
-                              <circle
-                                cx="18"
-                                cy="18"
-                                r="14"
-                                stroke="rgba(255,255,255,0.25)"
-                                strokeWidth="3"
-                                fill="none"
-                              />
-                              <circle
-                                cx="18"
-                                cy="18"
-                                r="14"
-                                stroke="white"
-                                strokeWidth="3"
-                                fill="none"
-                                strokeDasharray={`${2 * Math.PI * 14}`}
-                                strokeDashoffset={`${
-                                  2 * Math.PI * 14 * (1 - item.progress / 100)
-                                }`}
-                                strokeLinecap="round"
-                              />
-                            </svg>
-                            <span className="text-[10px] font-semibold">
-                              {item.progress}%
-                            </span>
+                          <div className="absolute inset-0 flex items-center justify-center bg-white/55">
+                            <CircularProgress
+                              progress={item.progress}
+                              size={44}
+                              stroke={3}
+                              color="#0033FF"
+                              track="rgba(0,51,255,0.15)"
+                              labelClassName="text-[10px] font-semibold text-[#0033FF]"
+                            />
                           </div>
+                        )}
+                        {item.type === "video" && item.progress >= 100 && (
+                          <span className="absolute bottom-1.5 left-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[#0033FF] shadow-sm">
+                            <FiPlay size={10} className="ml-0.5 fill-current" />
+                          </span>
                         )}
                         {item.progress >= 100 && (
                           <button
                             type="button"
                             onClick={() => removeMedia(item.id)}
-                            className="absolute right-1 bottom-1 flex h-5 w-5 items-center justify-center rounded-full bg-white/90 text-[#667085] shadow-sm"
+                            className="absolute right-1.5 bottom-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[#667085] shadow-sm"
                           >
                             <FiX size={12} />
                           </button>
@@ -1008,7 +1369,7 @@ export default function CreateChallenge({
                       <button
                         type="button"
                         onClick={() => mediaInputRef.current?.click()}
-                        className="flex h-[72px] w-[72px] items-center justify-center rounded-xl border border-[#D0D5DD] bg-white text-[#98A2B3] transition hover:border-[#0033FF] hover:text-[#0033FF] sm:h-[80px] sm:w-[80px]"
+                        className="flex h-[72px] w-[72px] items-center justify-center rounded-xl border border-[#D0D5DD] bg-white text-[#98A2B3] transition hover:border-[#0033FF] hover:text-[#0033FF] sm:h-[84px] sm:w-[84px]"
                       >
                         <FiPlus size={22} />
                       </button>
@@ -1019,7 +1380,7 @@ export default function CreateChallenge({
               {mediaError && <ErrorText>{mediaError}</ErrorText>}
             </Field>
 
-            <Field label="Add a brief or sample doc (optional)">
+            <Field label="Upload your Brief or Brand Guidelines">
               <input
                 ref={docInputRef}
                 type="file"
@@ -1031,22 +1392,26 @@ export default function CreateChallenge({
                 }}
               />
 
-              {/* Idle / Error empty zone */}
               {(doc.status === "idle" || doc.status === "error") && (
                 <button
                   type="button"
                   onClick={() => docInputRef.current?.click()}
-                  className="flex w-full flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-[#D0D5DD] bg-[#FAFAFA] px-5 py-10 transition hover:bg-[#F5F6F8]"
+                  onDragOver={onDragOver}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    handleDocSelect(e.dataTransfer.files);
+                  }}
+                  className="flex min-h-[200px] w-full flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-[#D0D5DD] bg-white px-5 py-10 transition hover:bg-[#FAFAFA]"
                 >
-                  <BsFileEarmarkPdf size={40} className="text-[#C0C5CE]" />
+                  <BsFileEarmarkPdf size={44} className="text-[#C0C5CE]" />
                   <p className="text-[14px] text-[#101828]">
-                    <span className="font-semibold text-[#0033FF] underline underline-offset-2">
+                    <span className="font-semibold text-[#0033FF]">
                       Click to Upload
                     </span>{" "}
                     or Drag and Drop
                   </p>
                   {doc.status === "error" ? (
-                    <p className="text-[13px] font-semibold text-[#F04438]">
+                    <p className="text-[13px] font-medium text-[#F04438]">
                       {doc.message}
                     </p>
                   ) : (
@@ -1057,38 +1422,10 @@ export default function CreateChallenge({
                 </button>
               )}
 
-              {/* Uploading */}
               {doc.status === "uploading" && (
-                <div className="flex w-full flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-[#D0D5DD] bg-[#FAFAFA] px-5 py-10">
-                  <div className="relative mb-1 flex h-14 w-14 items-center justify-center">
-                    <svg className="absolute inset-0 h-14 w-14 -rotate-90">
-                      <circle
-                        cx="28"
-                        cy="28"
-                        r="24"
-                        stroke="#E5E7EB"
-                        strokeWidth="4"
-                        fill="none"
-                      />
-                      <circle
-                        cx="28"
-                        cy="28"
-                        r="24"
-                        stroke="#0033FF"
-                        strokeWidth="4"
-                        fill="none"
-                        strokeDasharray={`${2 * Math.PI * 24}`}
-                        strokeDashoffset={`${
-                          2 * Math.PI * 24 * (1 - doc.progress / 100)
-                        }`}
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                    <span className="text-[13px] font-semibold text-[#0033FF]">
-                      {doc.progress}%
-                    </span>
-                  </div>
-                  <p className="text-[14px] font-medium text-[#101828]">
+                <div className="flex min-h-[200px] w-full flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-[#D0D5DD] bg-white px-5 py-10">
+                  <CircularProgress progress={doc.progress} />
+                  <p className="mt-1 text-[14px] font-medium text-[#101828]">
                     {doc.name}
                   </p>
                   <p className="text-[12px] text-[#98A2B3]">
@@ -1097,17 +1434,16 @@ export default function CreateChallenge({
                 </div>
               )}
 
-              {/* Success */}
               {doc.status === "success" && (
-                <div className="relative flex w-full flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-[#D0D5DD] bg-[#FAFAFA] px-5 py-10">
+                <div className="relative flex min-h-[200px] w-full flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-[#D0D5DD] bg-white px-5 py-10">
                   <button
                     type="button"
                     onClick={clearDoc}
-                    className="absolute top-3 right-3 rounded-full p-1 text-[#98A2B3] hover:bg-white hover:text-[#101828]"
+                    className="absolute top-3 right-3 rounded-full p-1 text-[#98A2B3] hover:bg-[#F2F4F7] hover:text-[#101828]"
                   >
                     <FiX size={16} />
                   </button>
-                  <BsFileEarmarkFill size={42} className="text-[#0033FF]" />
+                  <BsFileEarmarkFill size={44} className="text-[#0033FF]" />
                   <p className="text-[14px] font-medium text-[#101828]">
                     {doc.name}
                   </p>
@@ -1127,8 +1463,8 @@ export default function CreateChallenge({
           </div>
         )}
 
-        {/* STEP 5 — Reward Configuration */}
-        {step === 5 && (
+        {/* STEP 4 — Reward Configuration */}
+        {step === 4 && (
           <div className="space-y-6">
             <Field label="Total Reward Pool (₦)">
               <input
@@ -1216,37 +1552,194 @@ export default function CreateChallenge({
           </div>
         )}
 
-        {/* STEP 6 */}
-        {step === 6 && (
-          <div className="space-y-6">
-            <div className="rounded-2xl border border-[#EEF0F4] bg-[#F9FAFB] p-5">
-              <h3 className="text-[16px] font-semibold text-[#101828]">
-                {form.title || "Untitled challenge"}
+        {/* STEP 5 — Review Challenge */}
+        {step === 5 && (
+          <div className="space-y-8">
+            {/* Challenge Detail */}
+            <section>
+              <h3 className="mb-3 text-[15px] font-semibold text-[#101828]">
+                Challenge Detail
               </h3>
-              <p className="mt-2 line-clamp-3 text-[13px] text-[#667085]">
-                {form.description || "No description"}
-              </p>
-              <div className="mt-4 grid grid-cols-2 gap-3 text-[13px]">
-                <Meta
+              <div className="divide-y divide-[#EEF0F4] border-y border-[#EEF0F4]">
+                <ReviewRow label="Title" value={form.title || "—"} />
+                <ReviewRow
+                  label="Duration"
+                  value={formatChallengeDuration(
+                    form.start_date,
+                    form.end_date
+                  )}
+                />
+                <ReviewRow
+                  label="Timeline"
+                  value={
+                    form.start_date && form.end_date
+                      ? `${formatTimelineDate(form.start_date)} - ${formatTimelineDate(form.end_date)}`
+                      : "—"
+                  }
+                />
+                <ReviewRow
                   label="Objective"
-                  value={form.objective.replace("_", " ")}
+                  value={
+                    <span className="inline-flex items-center gap-1.5 font-semibold text-[#101828]">
+                      {(() => {
+                        const obj = OBJECTIVES.find(
+                          (o) => o.id === form.objective
+                        );
+                        if (!obj) return form.objective || "—";
+                        const Icon = obj.Icon;
+                        return (
+                          <>
+                            <Icon className="text-[#667085]" />
+                            {obj.label}
+                          </>
+                        );
+                      })()}
+                    </span>
+                  }
                 />
-                <Meta
-                  label="Prize pool"
-                  value={`₦${formatMoney(totalPool)}`}
+                <ReviewRow
+                  label="Hashtags"
+                  value={
+                    <span className="text-[#667085]">
+                      {form.hashtags.trim() || "—"}
+                    </span>
+                  }
                 />
-                <Meta
-                  label="Winners"
-                  value={`${form.prizes.length}`}
+                <ReviewRow
+                  label="Open to"
+                  value={OPEN_TO_LABELS[form.submitter_type]}
                 />
-                <Meta
-                  label="Samples"
-                  value={`${mediaItems.length} media`}
+                <ReviewRow
+                  label="Platforms"
+                  value={
+                    form.platforms.length === 0 ? (
+                      "—"
+                    ) : (
+                      <span className="inline-flex items-center gap-2">
+                        {form.platforms.map((platform) => (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            key={platform}
+                            src={PLATFORM_ICONS[platform]}
+                            alt={platform}
+                            title={platform}
+                            className="h-6 w-6 object-contain"
+                          />
+                        ))}
+                      </span>
+                    )
+                  }
                 />
               </div>
-            </div>
+            </section>
 
-            <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:justify-end">
+            {/* Brief, Samples & Guidelines */}
+            <section>
+              <h3 className="mb-3 text-[15px] font-semibold text-[#101828]">
+                Brief, Samples & Guidelines
+              </h3>
+
+              <div className="rounded-2xl border border-[#E4E7EC] bg-[#F9FAFB] p-4">
+                {doc.status === "success" ? (
+                  <div className="mb-3 flex items-center gap-3 rounded-xl bg-white px-3 py-3">
+                    <BsFileEarmarkFill
+                      size={28}
+                      className="shrink-0 text-[#0033FF]"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[14px] font-semibold text-[#101828]">
+                        {doc.name}
+                      </p>
+                      <p className="text-[12px] text-[#98A2B3]">
+                        Uploaded • {formatBytes(doc.size)}
+                      </p>
+                    </div>
+                    <a
+                      href={doc.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="shrink-0 rounded-full border border-[#D0D5DD] bg-white px-4 py-1.5 text-[13px] font-semibold text-[#101828] transition hover:bg-gray-50"
+                    >
+                      View
+                    </a>
+                  </div>
+                ) : (
+                  <p className="mb-3 text-[13px] text-[#98A2B3]">
+                    No brief document uploaded
+                  </p>
+                )}
+
+                {mediaItems.length > 0 ? (
+                  <div className="flex flex-wrap gap-2.5">
+                    {mediaItems.map((item) => (
+                      <div
+                        key={item.id}
+                        className="relative h-[64px] w-[64px] overflow-hidden rounded-xl bg-gray-200 sm:h-[72px] sm:w-[72px]"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={item.preview}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                        {item.type === "video" && (
+                          <span className="absolute inset-0 flex items-center justify-center">
+                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/90 text-[#0033FF] shadow-sm">
+                              <FiPlay
+                                size={11}
+                                className="ml-0.5 fill-current"
+                              />
+                            </span>
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[13px] text-[#98A2B3]">No sample media</p>
+                )}
+              </div>
+            </section>
+
+            {/* Reward Configuration */}
+            <section>
+              <h3 className="mb-3 text-[15px] font-semibold text-[#101828]">
+                Reward Configuration
+              </h3>
+              <div className="mb-4 divide-y divide-[#EEF0F4] border-y border-[#EEF0F4]">
+                <ReviewRow
+                  label="Total Reward Pool"
+                  value={`₦${formatMoney(totalPool)}`}
+                />
+                <ReviewRow
+                  label="Number of Winners"
+                  value={`${form.prizes.length}`}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+                {form.prizes.map((prize, index) => {
+                  const bg =
+                    PRIZE_CARD_COLORS[index] || "bg-[#F5F5F5]";
+                  const ordinal = PRIZE_ORDINALS[index] || `${index + 1}th`;
+                  return (
+                    <div
+                      key={prize.id}
+                      className={`rounded-2xl px-3.5 py-3.5 ${bg}`}
+                    >
+                      <p className="text-[12px] font-medium text-[#667085]">
+                        {ordinal} place
+                      </p>
+                      <p className="mt-1.5 text-[15px] font-bold text-[#101828]">
+                        ₦{formatMoney(parseAmount(prize.amount))}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            <div className="flex items-center justify-end gap-3 pt-1">
               <button
                 type="button"
                 onClick={back}
@@ -1257,19 +1750,11 @@ export default function CreateChallenge({
               </button>
               <button
                 type="button"
-                onClick={() => handlePublish(true)}
-                disabled={loading}
-                className="rounded-full border border-[#0033FF] bg-white px-6 py-3 text-[14px] font-semibold text-[#0033FF] transition hover:bg-[#EAF1FF] disabled:opacity-50"
-              >
-                Save as Draft
-              </button>
-              <button
-                type="button"
                 onClick={() => handlePublish(false)}
                 disabled={loading}
-                className="rounded-full bg-[#0033FF] px-7 py-3 text-[14px] font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+                className="rounded-full bg-[#0033FF] px-6 py-3 text-[14px] font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
               >
-                {loading ? "Publishing..." : "Publish Challenge"}
+                {loading ? "Publishing..." : "Fund to Publish"}
               </button>
             </div>
           </div>
@@ -1279,8 +1764,6 @@ export default function CreateChallenge({
   );
 }
 
-const inputClass =
-  "w-full rounded-xl border border-[#E4E7EC] bg-white px-4 py-3.5 text-[14px] text-[#101828] outline-none placeholder:text-[#98A2B3] focus:border-[#0033FF] focus:ring-2 focus:ring-[#0033FF]/10";
 
 function Field({
   label,
@@ -1302,13 +1785,21 @@ function Field({
   );
 }
 
-function Meta({ label, value }: { label: string; value: string }) {
+function ReviewRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: ReactNode;
+}) {
   return (
-    <div>
-      <p className="text-[11px] uppercase tracking-wide text-[#98A2B3]">
+    <div className="flex items-center justify-between gap-4 py-3.5">
+      <span className="shrink-0 text-[14px] font-medium text-[#667085]">
         {label}
-      </p>
-      <p className="mt-0.5 capitalize text-[#344054]">{value}</p>
+      </span>
+      <div className="min-w-0 text-right text-[14px] font-medium text-[#101828]">
+        {value}
+      </div>
     </div>
   );
 }

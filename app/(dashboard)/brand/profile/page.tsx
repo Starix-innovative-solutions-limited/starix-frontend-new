@@ -1,9 +1,14 @@
 "use client";
 
 import { useAuthStore } from "@/store/useAuthStore";
+import BrandAvatar from "@/components/(brand)/BrandAvatar";
 
 export default function Page() {
   const { profile } = useAuthStore();
+  const logoUrl =
+    profile?.logo_url?.trim() ||
+    profile?.profile_picture_url?.trim() ||
+    undefined;
 
   return (
     <div className="min-h-full bg-white">
@@ -12,15 +17,11 @@ export default function Page() {
       <div className="mx-auto max-w-4xl px-6 pb-16">
         <div className="-mt-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex items-end gap-4">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={
-                profile?.logo_url ||
-                profile?.profile_picture_url ||
-                "/nivea.svg"
-              }
-              alt={profile?.brand_name || "Brand"}
-              className="h-24 w-24 rounded-full border-4 border-white object-cover shadow-sm"
+            <BrandAvatar
+              name={profile?.brand_name}
+              src={logoUrl}
+              className="h-24 w-24 border-4 border-white shadow-sm"
+              letterClassName="text-3xl"
             />
             <div className="pb-2">
               <h1 className="text-[28px] font-semibold text-[#101828]">
