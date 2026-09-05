@@ -146,7 +146,7 @@ export default function BrandChallengeCard({
 
         <button
           type="button"
-          onClick={() => router.push(`/brand/analytics`)}
+          onClick={() => router.push(`/brand/challenges/${challenge.id}`)}
           className="shrink-0 rounded-full border border-[#D0D5DD] px-3 py-1 text-[12px] font-medium text-[#344054] transition-colors hover:bg-gray-50"
         >
           View

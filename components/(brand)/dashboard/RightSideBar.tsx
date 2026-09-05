@@ -9,6 +9,9 @@ import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useModal } from "@/hooks/useModal";
 import CreateChallenge from "@/components/(brand)/challenge/CreateChallenge";
+import BrandProfileRightSidebar from "./BrandProfileRightSidebar";
+import BrandChallengeDetailRightSidebar from "./BrandChallengeDetailRightSidebar";
+import { useGetBrandChallenges } from "@/hooks/useChallenges";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const QUICK_STATS = [
@@ -27,14 +30,26 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
   const pathname = usePathname();
   const { profile } = useAuthStore();
   const { open } = useModal();
+  const { data: challengeData, isLoading: isLoadingChallenges } =
+    useGetBrandChallenges(
+    { limit: 100, offset: 0 },
+    { enabled: pathname?.startsWith("/brand/profile") }
+  );
 
   const isChallenges = pathname?.startsWith("/brand/challenges");
   const isSubmissions = pathname?.startsWith("/brand/submissions");
   const isAnalytics = pathname?.startsWith("/brand/analytics");
   const isPayments = pathname?.startsWith("/brand/payments");
   const isProfile = pathname?.startsWith("/brand/profile");
+  const challengeDetailId =
+    pathname?.match(/^\/brand\/challenges\/([^/]+)/)?.[1] ?? null;
 
   const brandName = profile?.brand_name || "Brand";
+  const activeChallenge = challengeData?.challenges.find((challenge) =>
+    ["active", "published", "publishing", "judging"].includes(
+      (challenge.status ?? "").toLowerCase()
+    )
+  );
 
   return (
     <aside
@@ -97,7 +112,11 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
           collapsed ? "hidden" : "block"
         }`}
       >
-        {isChallenges ? (
+        {challengeDetailId ? (
+          <BrandChallengeDetailRightSidebar
+            challengeId={decodeURIComponent(challengeDetailId)}
+          />
+        ) : isChallenges ? (
           <div className="space-y-6">
             <div>
               <h3 className="mb-2 text-[20px] font-semibold text-[#1E1F24]">
@@ -188,22 +207,13 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
             </div>
           </div>
         ) : isProfile ? (
-          <div className="space-y-6">
-            <div>
-              <h3 className="mb-2 text-[20px] font-semibold text-[#1E1F24]">
-                Brand Profile
-              </h3>
-              <p className="text-[13px] text-[#747682]">
-                Keep your brand details up to date for creators.
-              </p>
-            </div>
-            <div className="rounded-[24px] border border-[#EFF0F3] p-5">
-              <p className="text-[15px] font-semibold text-[#1E1F24]">{brandName}</p>
-              <p className="mt-1 text-[13px] text-[#747682]">
-                {profile?.industry || "Add your industry"}
-              </p>
-            </div>
-          </div>
+          <BrandProfileRightSidebar
+            challenge={activeChallenge}
+            totalChallenges={
+              challengeData?.total ?? challengeData?.challenges.length
+            }
+            isLoading={isLoadingChallenges}
+          />
         ) : (
           <div className="space-y-6">
             <div>

@@ -5,6 +5,7 @@ import { Work_Sans } from "next/font/google";
 import { usePathname } from "next/navigation";
 import { HiOutlineBars3 } from "react-icons/hi2";
 import BrandSideBar from "@/components/(brand)/dashboard/BrandSideBar";
+import RightSideBar from "@/components/(brand)/dashboard/RightSideBar";
 
 const workSans = Work_Sans({
   subsets: ["latin"],
@@ -18,6 +19,11 @@ const BrandDashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   // Expanded by default to match brand sidebar design
   const [leftCollapsed, setLeftCollapsed] = useState(false);
+  const isProfileView = pathname?.startsWith("/brand/profile");
+  const isChallengeDetailView =
+    /^\/brand\/challenges\/[^/]+/.test(pathname ?? "");
+  const canOpenRightSidebar = isProfileView || isChallengeDetailView;
+  const [rightCollapsed, setRightCollapsed] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isFlushProfileView = pathname === "/brand/profile";
@@ -25,6 +31,7 @@ const BrandDashboardLayout = ({ children }: { children: React.ReactNode }) => {
   // Close mobile drawer on navigation; keep desktop expand/collapse preference
   useEffect(() => {
     setMobileOpen(false);
+    setRightCollapsed(true);
   }, [pathname]);
 
   return (
@@ -64,6 +71,16 @@ const BrandDashboardLayout = ({ children }: { children: React.ReactNode }) => {
             {children}
           </div>
         </div>
+
+        <RightSideBar
+          collapsed={rightCollapsed}
+          setCollapsed={() => {
+            if (canOpenRightSidebar) {
+              setRightCollapsed((value) => !value);
+            }
+          }}
+          className="max-lg:hidden max-h-screen flex-shrink-0 transition-all duration-300"
+        />
       </div>
     </main>
   );

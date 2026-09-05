@@ -130,8 +130,9 @@ export type UserProfile = {
   connected_platforms?: { platform: string; username: string }[];
   lifetime_engagements?: number;
   starix_score?: number;
-  industry?: string | null;
+  industry?: string | string[] | null;
   brand_address?: string | null;
+  website_or_social_link?: string | null;
 };
 
 export type AuthMeResponse = UserProfile;
