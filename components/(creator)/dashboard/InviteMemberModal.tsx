@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FiX, FiChevronDown, FiAlertCircle, FiCheckCircle } from "react-icons/fi";
 import { useSendInvites } from "@/hooks/useCircles";
 
@@ -21,10 +21,45 @@ const InviteMemberModal = ({ isOpen, onClose, circleId }: Props) => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const [openDropdownIdx, setOpenDropdownIdx] = useState<number | null>(null);
-  
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   const sendInvitesMutation = useSendInvites(circleId);
 
+  useEffect(() => {
+    if (!isOpen) {
+      setOpenDropdownIdx(null);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (openDropdownIdx === null) return;
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setOpenDropdownIdx(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, [openDropdownIdx]);
+
   if (!isOpen) return null;
+
+  const roleOptions: MemberInvite["role"][] = ["Admin", "Member"];
+
+  const updateInviteRole = (idx: number, role: MemberInvite["role"]) => {
+    setInvites((current) =>
+      current.map((invite, index) =>
+        index === idx ? { ...invite, role } : invite
+      )
+    );
+    setOpenDropdownIdx(null);
+    setIsSuccess(false);
+  };
 
   const handleSendInvites = async () => {
     setErrorMsg(null);
@@ -65,6 +100,7 @@ const InviteMemberModal = ({ isOpen, onClose, circleId }: Props) => {
     setInvites([{ email: "", role: "Member" }]);
     setIsSuccess(false);
     setErrorMsg(null);
+    setOpenDropdownIdx(null);
   };
 
   return (
@@ -95,7 +131,10 @@ const InviteMemberModal = ({ isOpen, onClose, circleId }: Props) => {
 
         <div className="space-y-4">
           {invites.map((invite, idx) => (
-            <div key={idx} className="space-y-1">
+            <div
+              key={idx}
+              className={`space-y-1 ${openDropdownIdx === idx ? "relative z-50" : ""}`}
+            >
               <div className="relative">
                 <input 
                   placeholder="Enter email address" 
@@ -112,13 +151,49 @@ const InviteMemberModal = ({ isOpen, onClose, circleId }: Props) => {
                   }}
                 />
                 
-                <button 
-                  type="button"
-                  onClick={() => setOpenDropdownIdx(openDropdownIdx === idx ? null : idx)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[12px] font-semibold text-gray-500 bg-gray-50 px-2 py-1.5 rounded-md"
+                <div
+                  ref={openDropdownIdx === idx ? dropdownRef : undefined}
+                  className="absolute right-3 top-1/2 z-20 -translate-y-1/2"
                 >
-                  {invite.role} <FiChevronDown />
-                </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setOpenDropdownIdx(openDropdownIdx === idx ? null : idx)
+                    }
+                    aria-expanded={openDropdownIdx === idx}
+                    aria-haspopup="listbox"
+                    className="flex items-center gap-1 rounded-md bg-gray-50 px-2 py-1.5 text-[12px] font-semibold text-gray-500 transition hover:bg-gray-100"
+                  >
+                    {invite.role}{" "}
+                    <FiChevronDown
+                      className={`transition ${openDropdownIdx === idx ? "rotate-180" : ""}`}
+                    />
+                  </button>
+
+                  {openDropdownIdx === idx && (
+                    <div
+                      role="listbox"
+                      className="absolute right-0 top-[calc(100%+6px)] z-50 min-w-[120px] overflow-hidden rounded-xl border border-[#EEF0F4] bg-white py-1 shadow-lg"
+                    >
+                      {roleOptions.map((role) => (
+                        <button
+                          key={role}
+                          type="button"
+                          role="option"
+                          aria-selected={invite.role === role}
+                          onClick={() => updateInviteRole(idx, role)}
+                          className={`block w-full px-4 py-2.5 text-left text-[13px] transition hover:bg-[#F8F8FA] ${
+                            invite.role === role
+                              ? "font-semibold text-[#1E1F24]"
+                              : "font-normal text-[#62636C]"
+                          }`}
+                        >
+                          {role}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
               {invite.error && <p className="text-[11px] text-red-500 pl-1">{invite.error}</p>}
             </div>

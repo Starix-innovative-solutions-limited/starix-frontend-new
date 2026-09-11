@@ -87,9 +87,9 @@ const WalletPage = () => {
           </div>
           <button 
             onClick={() => setIsSettingsModalOpen(true)}
-            className="p-4 bg-[#F9F9FB] rounded-full hover:bg-gray-100 transition-colors active:scale-95"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#F9F9FB] hover:bg-gray-100 transition-colors active:scale-95"
           >
-            <img src="/vectros.svg" alt="Settings" />
+            <Image src="/vectros.svg" alt="Settings" width={20} height={22} unoptimized />
           </button>
         </header>
 

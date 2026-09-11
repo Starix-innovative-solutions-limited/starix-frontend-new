@@ -133,7 +133,7 @@ export const useGetOpenCircles = () => {
     queryKey: ["open-circles"],
     queryFn: async () => {
       const { data } = await api.get<MyCirclesResponse>("/circles");
-      return data.items;
+      return data?.items ?? [];
     },
   });
 };
@@ -158,13 +158,14 @@ export const useGetCircleJoinRequests = (circleId: string) => {
   return useQuery<CircleJoinRequest[]>({
     queryKey: ["circle-requests", circleId],
     queryFn: async () => {
-      const { data } = await api.get<CircleJoinRequest[]>(
-        `/circles/${circleId}/join-requests`
-      );
-      return data;
+      const { data } = await api.get<
+        CircleJoinRequest[] | { items?: CircleJoinRequest[] }
+      >(`/circles/${circleId}/join-requests`);
+
+      if (Array.isArray(data)) return data;
+      return data?.items ?? [];
     },
     enabled: !!circleId,
-    initialData: [],
   });
 };
 
@@ -196,10 +197,13 @@ export const useGetMyRequests = () => {
   return useQuery<MyJoinRequest[]>({
     queryKey: ["my-pending-requests"],
     queryFn: async () => {
-      const { data } = await api.get<{ items: MyJoinRequest[] }>("/circles/join-requests");
-      return data.items;
+      const { data } = await api.get<
+        { items?: MyJoinRequest[] } | MyJoinRequest[]
+      >("/circles/join-requests");
+
+      if (Array.isArray(data)) return data;
+      return data?.items ?? [];
     },
-    initialData: [],
   });
 };
 

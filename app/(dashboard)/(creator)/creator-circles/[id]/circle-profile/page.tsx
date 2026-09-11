@@ -335,7 +335,7 @@ const confirmDelete = () => {
                <img src="/circle.svg" alt="Empty" className="w-[120px] h-[120px] mb-6" />
                <h3 className="text-[20px] font-semibold mb-2">No active challenges</h3>
                <p className="text-[#62636C] text-[14px] max-w-[400px] mb-8">Your team hasn't joined any challenges yet.</p>
-               <button onClick={() => router.push("/challenges")} className="px-6 py-3 bg-[#0033FF] text-[#FAFAFA] rounded-full font-semibold">Find Challenges</button>
+               <button onClick={() => router.push("/challenges/recommended")} className="px-6 py-3 bg-[#0033FF] text-[#FAFAFA] rounded-full font-semibold">Find Challenges</button>
              </div>
           ) : (
              <div className="text-gray-500">Challenges list would go here...</div>

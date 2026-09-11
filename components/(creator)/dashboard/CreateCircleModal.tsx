@@ -44,6 +44,10 @@ const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) =
     { email: "", role: "Admin" },
     { email: "", role: "Member" },
   ]);
+  const [openDropdownIdx, setOpenDropdownIdx] = useState<number | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const roleOptions: MemberInvite["role"][] = ["Admin", "Member"];
 
   const handleCreateCircle = async () => {
   let uploadedImageUrl: string | null = null;
@@ -85,8 +89,26 @@ const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) =
   useEffect(() => {
     if (isOpen) {
       setStep(initialStep);
+    } else {
+      setOpenDropdownIdx(null);
     }
   }, [isOpen, initialStep]);
+
+  useEffect(() => {
+    if (openDropdownIdx === null) return;
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setOpenDropdownIdx(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, [openDropdownIdx]);
 
   if (!isOpen) return null;
 
@@ -126,6 +148,15 @@ const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) =
     const newInvites = [...invites];
     newInvites[index].email = value;
     setInvites(newInvites);
+  };
+
+  const updateInviteRole = (index: number, role: MemberInvite["role"]) => {
+    setInvites((current) =>
+      current.map((invite, idx) =>
+        idx === index ? { ...invite, role } : invite
+      )
+    );
+    setOpenDropdownIdx(null);
   };
 
   const addInviteField = () => {
@@ -307,12 +338,60 @@ const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) =
 
             <div className="space-y-4">
               {invites.map((invite, idx) => (
-                <div key={idx} className="space-y-2">
+                <div
+                  key={idx}
+                  className={`space-y-2 ${openDropdownIdx === idx ? "relative z-50" : ""}`}
+                >
                     <label className="text-[12px] font-semibold text-[#1E1F24]">{idx + 1} Creator's email</label>
                     <div className="relative">
-                        <input value={invite.email} onChange={(e) => handleInviteEmailChange(idx, e.target.value)} placeholder="Enter email address" className="w-full border rounded-xl py-3 px-4 text-[#14px] outline-none" />
-                        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 bg-gray-50 border px-2 py-1 rounded-lg text-[12px] font-semibold text-gray-600">
-                            {invite.role} <FiChevronDown />
+                        <input
+                          value={invite.email}
+                          onChange={(e) => handleInviteEmailChange(idx, e.target.value)}
+                          placeholder="Enter email address"
+                          className="w-full rounded-xl border py-3 pl-4 pr-28 text-[14px] outline-none focus:border-blue-500"
+                        />
+                        <div
+                          ref={openDropdownIdx === idx ? dropdownRef : undefined}
+                          className="absolute right-3 top-1/2 z-20 -translate-y-1/2"
+                        >
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setOpenDropdownIdx(openDropdownIdx === idx ? null : idx)
+                            }
+                            aria-expanded={openDropdownIdx === idx}
+                            aria-haspopup="listbox"
+                            className="flex items-center gap-1 rounded-md bg-gray-50 px-2 py-1.5 text-[12px] font-semibold text-gray-500 transition hover:bg-gray-100"
+                          >
+                            {invite.role}{" "}
+                            <FiChevronDown
+                              className={`transition ${openDropdownIdx === idx ? "rotate-180" : ""}`}
+                            />
+                          </button>
+
+                          {openDropdownIdx === idx && (
+                            <div
+                              role="listbox"
+                              className="absolute right-0 top-[calc(100%+6px)] z-50 min-w-[120px] overflow-hidden rounded-xl border border-[#EEF0F4] bg-white py-1 shadow-lg"
+                            >
+                              {roleOptions.map((role) => (
+                                <button
+                                  key={role}
+                                  type="button"
+                                  role="option"
+                                  aria-selected={invite.role === role}
+                                  onClick={() => updateInviteRole(idx, role)}
+                                  className={`block w-full px-4 py-2.5 text-left text-[13px] transition hover:bg-[#F8F8FA] ${
+                                    invite.role === role
+                                      ? "font-semibold text-[#1E1F24]"
+                                      : "font-normal text-[#62636C]"
+                                  }`}
+                                >
+                                  {role}
+                                </button>
+                              ))}
+                            </div>
+                          )}
                         </div>
                     </div>
                 </div>
