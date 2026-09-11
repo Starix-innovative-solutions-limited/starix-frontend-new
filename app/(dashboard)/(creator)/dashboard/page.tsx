@@ -9,10 +9,13 @@ import { MdVerified } from "react-icons/md";
 import { FiBarChart2, FiMail, FiClock, FiBookmark, FiShare2 } from "react-icons/fi";
 import { useGetMe } from "@/hooks/useAuth";
 import { formatCompactNaira } from "@/lib/formatMoney";
+import BrandAvatar from "@/components/(brand)/BrandAvatar";
+import ChallengeMediaGrid from "@/components/(creator)/challenge/ChallengeMediaGrid";
 import {
   useGetChallenges,
   useGetJoinedActiveChallenges,
 } from "@/hooks/useChallenges";
+import { getChallengePreviewImages } from "@/lib/challengeMedia";
 
 const Page = () => {
   const { data: user } = useGetMe();
@@ -49,16 +52,12 @@ const Page = () => {
     if (challenges.length === 0) return [];
 
     return challenges.map((challenge) => {
-      const mediaUrls =
-        challenge.media
-          ?.slice()
-          .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
-          .map((m) => m.media_url) ?? [];
+      const thumbnails = getChallengePreviewImages(challenge, 4);
 
       return {
         id: challenge.id,
         brand: challenge.brand_name || "Brand",
-        logo: challenge.brand_profile_picture_url || "/nivea.svg",
+        logoUrl: challenge.brand_profile_picture_url,
         time: formatTimeAgo(challenge.created_at),
         niche: challenge.category_name
           ? [challenge.category_name]
@@ -77,12 +76,7 @@ const Page = () => {
           "Join this challenge and earn from your content.",
         views: challenge.viewer_count ?? 0,
         participants: challenge.participant_count ?? 0,
-        thumbnails:
-          mediaUrls.length > 0
-            ? mediaUrls.slice(0, 2)
-            : challenge.banner_url
-              ? [challenge.banner_url]
-              : ["/left1.svg", "/right1.svg"],
+        thumbnails,
       };
     });
   }, [openChallengesData]);
@@ -232,9 +226,12 @@ const Page = () => {
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2.5 overflow-hidden">
-                    <div className="relative w-9 h-9 md:w-10 md:h-10 rounded-full overflow-hidden border border-gray-50 shrink-0">
-                      <Image src={challenge.logo} alt={challenge.brand} fill className="object-cover" />
-                    </div>
+                    <BrandAvatar
+                      name={challenge.brand}
+                      src={challenge.logoUrl}
+                      className="h-9 w-9 border border-gray-50 md:h-10 md:w-10"
+                      letterClassName="text-xs md:text-sm"
+                    />
                     <div className="min-w-0">
                       <div className="flex items-center gap-1">
                         <span className="font-medium text-[12px] text-[#1E1F24] truncate">{challenge.brand}</span>
@@ -272,14 +269,11 @@ const Page = () => {
               </div>
 
               <div>
-                <div className="grid grid-cols-2 mb-2">
-                  {challenge.thumbnails.map((img, i) => (
-                    <div key={i} className="aspect-[4/3] w-full rounded-[16px] relative overflow-hidden group border-[#E7E8EC]">
-                      <Image src={img} alt="Thumbnail" fill className="object-cover transition-transform duration-500" />
-                      
-                    </div>
-                  ))}
-                </div>
+                <ChallengeMediaGrid
+                  images={challenge.thumbnails}
+                  className="mb-2 h-[157px]"
+                  roundedClassName="rounded-[16px] md:rounded-[20px]"
+                />
 
                 <div className="flex items-center justify-between text-[#9CA3AF] pt-2 border-t border-gray-50">
                   <div className="flex gap-3 text-[11px] font-semibold">

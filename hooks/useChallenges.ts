@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from "@/lib/api";
+import { parseApiError } from "@/lib/apiError";
 import {
   useMutation,
   useQueries,
@@ -67,6 +68,79 @@ export interface ChallengeItem {
 export interface ChallengesResponse {
   challenges: ChallengeItem[];
   total: number;
+}
+
+export type ChallengeDetailFallbackSource = "cache" | "discover_feed";
+
+export type ChallengeDetailMeta = {
+  _partial?: boolean;
+  _detailErrorStatus?: number | null;
+  _detailErrorMessage?: string;
+  _detailFallbackSource?: ChallengeDetailFallbackSource;
+};
+
+export type ChallengeDetailResult = ChallengeItem &
+  ChallengeDetailMeta & {
+    required_hashtags?: string[];
+    required_mentions?: string[];
+    posting_rules?: string;
+    brief_document_url?: string;
+    submission_eligibility?: string;
+    platforms?: string[];
+    num_winners?: number;
+    prize_amounts_display?: string[];
+  };
+
+function findChallengeInCache(
+  queryClient: ReturnType<typeof useQueryClient>,
+  id: string
+): ChallengeItem | undefined {
+  const cachedLists = queryClient.getQueriesData<{
+    challenges?: ChallengeItem[];
+  }>({ queryKey: ["challenges"] });
+
+  for (const [, payload] of cachedLists) {
+    const match = payload?.challenges?.find((c) => c.id === id);
+    if (match) return match;
+  }
+
+  return undefined;
+}
+
+async function fetchChallengeFromDiscoverFeeds(
+  id: string
+): Promise<ChallengeItem | null> {
+  const [recommended, trending] = await Promise.all([
+    api.get<ChallengesResponse>("/challenges/recommended", {
+      params: { limit: 100, offset: 0 },
+    }),
+    api.get<ChallengesResponse>("/challenges/trending", {
+      params: { limit: 100, offset: 0 },
+    }),
+  ]);
+
+  for (const item of [
+    ...(recommended.data?.challenges ?? []),
+    ...(trending.data?.challenges ?? []),
+  ]) {
+    if (item?.id === id) return item;
+  }
+
+  return null;
+}
+
+function buildPartialChallenge(
+  challenge: ChallengeItem,
+  parsed: ReturnType<typeof parseApiError>,
+  source: ChallengeDetailFallbackSource
+): ChallengeDetailResult {
+  return {
+    ...challenge,
+    _partial: true,
+    _detailErrorStatus: parsed.status,
+    _detailErrorMessage: parsed.message,
+    _detailFallbackSource: source,
+  };
 }
 
 export type CreateChallengePayload = {
@@ -509,45 +583,119 @@ export function useSubmitChallengeEntry() {
 export const useGetChallengeById = (id: string) => {
   const queryClient = useQueryClient();
 
-  return useQuery({
+  return useQuery<ChallengeDetailResult | null>({
     queryKey: ["challenges", "detail", id],
     queryFn: async () => {
       if (!id) return null;
 
       try {
-        const { data } = await api.get(`/challenges/${id}/detail`);
+        const { data } = await api.get<ChallengeDetailResult>(
+          `/challenges/${id}/detail`
+        );
         return data;
-      } catch (error: any) {
-        const status = error?.response?.status;
-        // Detail API currently 500s for some challenges; fall back to card data
-        // already loaded from recommended/trending/discover feeds.
-        const cachedLists = queryClient.getQueriesData<{
-          challenges?: ChallengeItem[];
-        }>({ queryKey: ["challenges"] });
+      } catch (error: unknown) {
+        const parsed = parseApiError(
+          error,
+          "Unable to load challenge details."
+        );
 
-        for (const [, payload] of cachedLists) {
-          const match = payload?.challenges?.find((c) => c.id === id);
-          if (match) {
-            return {
-              ...match,
-              _partial: true,
-              _detailErrorStatus: status ?? null,
-            };
+        if (process.env.NODE_ENV === "development") {
+          console.warn("[useGetChallengeById] detail request failed", {
+            id,
+            status: parsed.status,
+            message: parsed.message,
+          });
+        }
+
+        const cached = findChallengeInCache(queryClient, id);
+        if (cached) {
+          return buildPartialChallenge(cached, parsed, "cache");
+        }
+
+        if (parsed.isServerError || parsed.isNotFound) {
+          try {
+            const fromFeed = await fetchChallengeFromDiscoverFeeds(id);
+            if (fromFeed) {
+              return buildPartialChallenge(fromFeed, parsed, "discover_feed");
+            }
+          } catch (feedError) {
+            if (process.env.NODE_ENV === "development") {
+              console.warn(
+                "[useGetChallengeById] discover feed fallback failed",
+                feedError
+              );
+            }
           }
         }
 
-        throw error;
+        const enriched = new Error(parsed.message) as Error & {
+          status?: number | null;
+          isServerError?: boolean;
+          isNotFound?: boolean;
+          isAuthError?: boolean;
+        };
+        enriched.status = parsed.status;
+        enriched.isServerError = parsed.isServerError;
+        enriched.isNotFound = parsed.isNotFound;
+        enriched.isAuthError = parsed.isAuthError;
+        throw enriched;
       }
     },
     enabled: !!id,
     retry: (failureCount, error) => {
-      const status = (error as { response?: { status?: number } })?.response
-        ?.status;
+      const status = (error as { status?: number })?.status;
       if (status && status >= 400) return false;
       return failureCount < 1;
     },
   });
 };
+
+const PARTIAL_DETAIL_FIELD_CHECKS: Array<{
+  key: keyof ChallengeDetailResult;
+  label: string;
+  isMissing: (value: unknown) => boolean;
+}> = [
+  {
+    key: "required_hashtags",
+    label: "Required hashtags",
+    isMissing: (v) => !Array.isArray(v) || v.length === 0,
+  },
+  {
+    key: "required_mentions",
+    label: "Required mentions",
+    isMissing: (v) => !Array.isArray(v) || v.length === 0,
+  },
+  {
+    key: "posting_rules",
+    label: "Posting rules",
+    isMissing: (v) => typeof v !== "string" || !v.trim(),
+  },
+  {
+    key: "brief_document_url",
+    label: "Brief document",
+    isMissing: (v) => typeof v !== "string" || !v.trim(),
+  },
+  {
+    key: "prize_amounts_display",
+    label: "Prize breakdown",
+    isMissing: (v) => !Array.isArray(v) || v.length === 0,
+  },
+  {
+    key: "num_winners",
+    label: "Winner count",
+    isMissing: (v) => v === undefined || v === null,
+  },
+];
+
+export function getPartialChallengeMissingFields(
+  challenge: ChallengeDetailResult | null | undefined
+): string[] {
+  if (!challenge?._partial) return [];
+
+  return PARTIAL_DETAIL_FIELD_CHECKS.filter(({ key, isMissing }) =>
+    isMissing(challenge[key])
+  ).map(({ label }) => label);
+}
 
 export interface SavedChallengesResponse {
   items: {

@@ -14,6 +14,7 @@ type BrandProfileRightSidebarProps = {
   challenge?: ChallengeItem;
   totalChallenges?: number;
   isLoading?: boolean;
+  showViewActiveButton?: boolean;
 };
 
 const platformIcons: Record<string, string> = {
@@ -29,12 +30,27 @@ const eligibilityLabels: Record<string, string> = {
 };
 
 const objectiveLabels: Record<string, string> = {
+  engagement: "Engagement",
   quality_engagement: "Engagement",
+  awareness: "Awareness",
   visibility: "Awareness",
+  ugc: "User Generated Content",
   balanced: "User Generated Content",
   virality: "Product Launch",
   conversions: "Sales",
 };
+
+function formatHashtags(
+  hashtags?: string,
+  required?: string[]
+): string {
+  if (hashtags?.trim()) return hashtags.trim();
+  if (!required?.length) return "—";
+  return required
+    .filter(Boolean)
+    .map((tag) => (tag.startsWith("#") ? tag : `#${tag}`))
+    .join(" ");
+}
 
 function DetailRow({
   label,
@@ -59,6 +75,7 @@ export default function BrandProfileRightSidebar({
   challenge,
   totalChallenges,
   isLoading: isChallengesLoading,
+  showViewActiveButton = false,
 }: BrandProfileRightSidebarProps) {
   const { data: detail } = useGetBrandChallenge(challenge?.id, {
     enabled: Boolean(challenge?.id),
@@ -79,8 +96,8 @@ export default function BrandProfileRightSidebar({
 
   if (!challenge && totalChallenges === 0) {
     return (
-      <div className="rounded-[28px] border border-[#E4E7EC] bg-white p-6">
-        <div className="aspect-[1.4] overflow-hidden rounded-[22px] bg-[#F8F8FA]">
+      <div className="rounded-[28px] border border-[#E4E7EC] bg-white p-4">
+        <div className="aspect-[1] overflow-hidden rounded-[18px] bg-[#F8F8FA]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/trphy.svg"
@@ -88,10 +105,10 @@ export default function BrandProfileRightSidebar({
             className="h-full w-full object-cover"
           />
         </div>
-        <h2 className="mt-7 text-[22px] font-semibold tracking-[-0.02em] text-[#1E1F24]">
+        <h2 className="mt-2 text-[20px] font-semibold tracking-[-0.02em] text-[#1E1F24]">
           No Active Challenges
         </h2>
-        <p className="mt-2 text-[15px] leading-relaxed text-[#747682]">
+        <p className="mt-2 text-[14px] leading-relaxed text-[#747682]">
           Track the overview of an active challenge here
         </p>
       </div>
@@ -125,10 +142,10 @@ export default function BrandProfileRightSidebar({
     objectiveLabels[savedObjective ?? ""] ||
     savedObjective?.replaceAll("_", " ") ||
     "—";
-  const hashtags =
-    data.hashtags?.trim() ||
-    data.required_hashtags?.filter(Boolean).join(" ") ||
-    "—";
+  const hashtags = formatHashtags(data.hashtags, data.required_hashtags);
+  const challengeHref = challenge.id
+    ? `/brand/challenges/${encodeURIComponent(challenge.id)}`
+    : "/brand/challenges";
   const platforms = data.platforms ?? [];
 
   return (
@@ -139,7 +156,7 @@ export default function BrandProfileRightSidebar({
               {challenge.title}
             </h2>
             <Link
-              href="/brand/challenges"
+              href={challengeHref}
               aria-label="View challenge"
               className="shrink-0 rounded-full p-1 text-[#1E1F24] transition hover:bg-[#F5F6F8]"
             >
@@ -243,6 +260,17 @@ export default function BrandProfileRightSidebar({
             )}
           </DetailRow>
         </div>
+
+        {showViewActiveButton && (
+          <div className="flex justify-start border-t border-[#EEF0F4] px-5 py-5">
+            <Link
+              href="/brand/challenges"
+              className="inline-flex w-1/2 items-center justify-center whitespace-nowrap rounded-full border border-[#8B8D98] bg-white px-4 py-2.5 text-[12px] font-medium text-[#1E1F24] transition hover:bg-[#FAFAFB]"
+            >
+              View Active Challenges
+            </Link>
+          </div>
+        )}
     </div>
   );
 }

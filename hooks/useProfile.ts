@@ -221,6 +221,27 @@ export function useUpdateBrandProfile() {
   });
 }
 
+export interface BrandProfileOverviewResponse {
+  total_published_challenges: number;
+  total_engagement: number;
+  total_active_challenges: number;
+}
+
+/** GET /brands/profile/overview — challenge totals for brand dashboard cards. */
+export function useGetBrandOverview(options?: { enabled?: boolean }) {
+  return useQuery<BrandProfileOverviewResponse>({
+    queryKey: ["brands", "profile", "overview"],
+    queryFn: async () => {
+      const { data } = await api.get<BrandProfileOverviewResponse>(
+        "/brands/profile/overview"
+      );
+      return data;
+    },
+    enabled: options?.enabled ?? true,
+    staleTime: 60_000,
+  });
+}
+
 export interface CreatorMetricsResponse {
   lifetime_earnings: {
     currency: string;

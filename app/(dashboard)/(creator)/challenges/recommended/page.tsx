@@ -5,15 +5,17 @@ import React from "react";
 import { FiSearch, FiSliders, FiBarChart2, FiMail, FiClock, FiBookmark, FiShare2 } from "react-icons/fi";
 import { MdVerified } from "react-icons/md";
 import { HiArrowRight, HiArrowLeft } from "react-icons/hi2";
-import Image from "next/image";
 import Link from "next/link";
+import BrandAvatar from "@/components/(brand)/BrandAvatar";
+import ChallengeMediaGrid from "@/components/(creator)/challenge/ChallengeMediaGrid";
 import { useGetRecommendedChallenges, useGetTrendingChallenges } from "@/hooks/useChallenges";
+import { getChallengePreviewImages } from "@/lib/challengeMedia";
 import { formatCompactNaira } from "@/lib/formatMoney";
 
 type RecommendedCard = {
   id: string | number;
   brand: string;
-  logo: string;
+  logoUrl?: string | null;
   time: string;
   niche: string[];
   prize: string;
@@ -51,16 +53,12 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
     }
 
     return Array.from(byId.values()).map((challenge: any, idx: number): RecommendedCard => {
-      const mediaUrls =
-        challenge.media
-          ?.slice()
-          .sort((a: any, b: any) => (a.display_order ?? 0) - (b.display_order ?? 0))
-          .map((m: any) => m.media_url) || [];
+      const images = getChallengePreviewImages(challenge, 4);
 
       return {
         id: challenge.id || idx + 1,
         brand: challenge.brand_name || "Brand",
-        logo: challenge.brand_profile_picture_url || "/nivea.svg",
+        logoUrl: challenge.brand_profile_picture_url,
         time: formatTimeAgo(challenge.created_at),
         niche: challenge.category_name
           ? [challenge.category_name]
@@ -76,10 +74,7 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
         verified: challenge.is_funded ?? challenge.is_published ?? true,
         title: challenge.title,
         desc: challenge.description,
-        images:
-          mediaUrls.length > 0
-            ? mediaUrls.slice(0, 4)
-            : ["/left1.svg", "/right1.svg"],
+        images,
         views: challenge.viewer_count
           ? `${(challenge.viewer_count / 1000).toFixed(1)}k`
           : "0",
@@ -156,9 +151,12 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
                 {/* Card Top Info */}
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-3 overflow-hidden">
-                    <div className="relative w-10 h-10 md:w-11 md:h-11 rounded-full overflow-hidden border border-gray-50 shrink-0">
-                      <Image src={card.logo} alt={card.brand} fill className="object-cover" />
-                    </div>
+                    <BrandAvatar
+                      name={card.brand}
+                      src={card.logoUrl}
+                      className="h-10 w-10 border border-gray-50 md:h-11 md:w-11"
+                      letterClassName="text-sm"
+                    />
                     <div className="min-w-0">
                       <div className="flex items-center gap-1">
                         <span className="font-medium text-[12px] text-[#1E1F24] truncate">{card.brand}</span>
@@ -193,30 +191,19 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
                 </div>
 
                 {/* Inline Fallbacks added here to guard against blank data tokens inside active objects */}
-                <h3 className="font-semibold text-[11px] text-[#62636C] leading-tight line-clamp-2 mb-3">
-                  {card.title || "UGC Creators Needed for Skincare Product set Launch"}
+                <h3 className="mb-3 line-clamp-2 text-[11px] font-semibold leading-tight text-[#62636C]">
+                  {card.title || "Challenge"}
                 </h3>
-                <p className="text-[#747682] text-[10px] mb-2.5 font-normal line-clamp-2">
-                  {card.desc || "NIVEA is launching its new Radiance Boost Skincare Collection and is now looking for authentic, engaging user-generated content that highlights rea..."}
-                </p>
+                {card.desc ? (
+                  <p className="mb-2.5 line-clamp-2 text-[10px] font-normal text-[#747682]">
+                    {card.desc}
+                  </p>
+                ) : null}
 
-                {/* IMAGE PREVIEW */}
-                <div className="relative h-[157px] w-full mb-1 rounded-[20px] md:rounded-[24px] overflow-hidden bg-gray-50">
-                  <div className={`
-                    grid h-full w-full gap-0.5
-                    ${card.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}
-                    ${card.images.length > 2 ? 'grid-rows-2' : 'grid-rows-1'}
-                  `}>
-                    {card.images.slice(0, 4).map((img, i) => (
-                      <div 
-                        key={i} 
-                        className={`relative w-full h-full overflow-hidden ${card.images.length === 3 && i === 0 ? 'row-span-2' : ''}`}
-                      >
-                        <Image src={img} alt="Thumbnail" fill className="object-cover transition-transform duration-500" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <ChallengeMediaGrid
+                  images={card.images}
+                  className="mb-1 h-[157px] w-full"
+                />
 
                 {/* Metrics row */}
                 <div className="flex items-center justify-between text-[#62636C] pt-2 border-t border-gray-50 mt-auto">

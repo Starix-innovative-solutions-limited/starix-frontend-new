@@ -58,7 +58,7 @@ export default function CreatorHero() {
           href="/coming-soon" 
           className="mt-6 bg-[#FD6C1D] hover:bg-[#e66a28] text-white px-10 py-4 rounded-full text-lg font-semibold transition-all"
         >
-          Join as a Brand
+          Join as a Creator
         </Link>
 
         {/* --- MAIN VISUAL --- */}

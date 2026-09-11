@@ -22,6 +22,7 @@ import {
   useGetChallengeLeaderboard,
   type ChallengeItem,
 } from "@/hooks/useChallenges";
+import BrandAvatar from "@/components/(brand)/BrandAvatar";
 import { formatCompactNaira } from "@/lib/formatMoney";
 import { FaCircle } from "react-icons/fa6";
 
@@ -699,12 +700,11 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                       className="flex items-center justify-between gap-2 p-3 hover:bg-gray-50 rounded-2xl transition-all"
                     >
                       <div className="flex items-center gap-2 min-w-0">
-                        <Image
-                          src={item.brand_profile_picture_url || "/dash-logo.svg"}
-                          width={40}
-                          height={40}
-                          alt={item.brand_name || "Brand"}
-                          className="rounded-full object-cover shrink-0"
+                        <BrandAvatar
+                          name={item.brand_name}
+                          src={item.brand_profile_picture_url}
+                          className="h-10 w-10 shrink-0"
+                          letterClassName="text-sm"
                         />
                         <div className="min-w-0">
                           <h5 className="text-[13px] font-semibold text-[#62636C] truncate max-w-[140px]">

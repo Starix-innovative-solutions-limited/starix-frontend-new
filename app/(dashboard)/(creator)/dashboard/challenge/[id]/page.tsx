@@ -8,7 +8,11 @@ import { MdVerified } from "react-icons/md";
 import { FiBarChart2, FiMail, FiClock, FiFileText } from "react-icons/fi";
 import { useParams, useRouter } from "next/navigation";
 import SubmitEntryModal from "@/components/(creator)/dashboard/SubmitEntryModal";
-import { useGetChallengeById } from "@/hooks/useChallenges";
+import {
+  getPartialChallengeMissingFields,
+  useGetChallengeById,
+} from "@/hooks/useChallenges";
+import { parseApiError } from "@/lib/apiError";
 import { formatCompactNaira } from "@/lib/formatMoney";
 import Loader from "@/components/Loader";
 
@@ -48,12 +52,20 @@ const ChallengeDetailPage = () => {
     isLoading,
     isError,
     error,
+    isFetching,
+    refetch,
   } = useGetChallengeById(challengeId);
 
-  const isPartial = Boolean((challenge as any)?._partial);
+  const isPartial = Boolean(challenge?._partial);
+  const parsedError = parseApiError(error, "Unable to load this challenge.");
   const detailErrorStatus =
-    (challenge as any)?._detailErrorStatus ??
-    (error as { response?: { status?: number } })?.response?.status;
+    challenge?._detailErrorStatus ?? parsedError.status;
+  const detailErrorMessage =
+    challenge?._detailErrorMessage ?? parsedError.message;
+  const missingPartialFields = useMemo(
+    () => getPartialChallengeMissingFields(challenge),
+    [challenge]
+  );
 
   const mediaItems = useMemo(() => {
     const media = challenge?.media ?? [];
@@ -151,11 +163,31 @@ const ChallengeDetailPage = () => {
           <p className="text-[15px] font-semibold text-[#D12B1F]">
             Couldn’t load this challenge
           </p>
-          <p className="mt-2 text-[13px] text-[#667085]">
-            {detailErrorStatus === 500
-              ? "The challenge detail API returned a server error (500). This is a backend issue — CORS often appears as a side effect when that happens."
-              : "It may be unpublished, expired, or unavailable."}
+          <p className="mx-auto mt-2 max-w-md text-[13px] leading-relaxed text-[#667085]">
+            {detailErrorMessage}
           </p>
+          {detailErrorStatus ? (
+            <p className="mt-2 text-[12px] text-[#98A2B3]">
+              Error code: {detailErrorStatus}
+            </p>
+          ) : null}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => refetch()}
+              disabled={isFetching}
+              className="rounded-full bg-[#0047FF] px-5 py-2.5 text-[13px] font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
+            >
+              {isFetching ? "Retrying..." : "Try again"}
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push("/challenges")}
+              className="rounded-full border border-[#E4E7EC] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#1E1F24] transition hover:bg-gray-50"
+            >
+              Browse challenges
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -179,11 +211,29 @@ const ChallengeDetailPage = () => {
             {challenge.title}
           </h1>
           {isPartial ? (
-            <p className="mt-2 text-[12px] text-[#B54708]">
-              Showing limited challenge data — full detail API is currently
-              failing on the backend
-              {detailErrorStatus ? ` (${detailErrorStatus})` : ""}.
-            </p>
+            <div className="mt-3 max-w-[640px] rounded-xl border border-[#FEDF89] bg-[#FFFAEB] px-4 py-3">
+              <p className="text-[13px] font-semibold text-[#B54708]">
+                Showing limited challenge details
+              </p>
+              <p className="mt-1 text-[12px] leading-relaxed text-[#93370D]">
+                {detailErrorMessage}
+                {detailErrorStatus ? ` (${detailErrorStatus})` : ""}
+              </p>
+              {missingPartialFields.length > 0 ? (
+                <p className="mt-2 text-[12px] leading-relaxed text-[#93370D]">
+                  Unavailable until the server recovers:{" "}
+                  {missingPartialFields.join(", ")}.
+                </p>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => refetch()}
+                disabled={isFetching}
+                className="mt-3 rounded-full border border-[#FDB022] bg-white px-4 py-2 text-[12px] font-semibold text-[#B54708] transition hover:bg-[#FFF7E6] disabled:opacity-60"
+              >
+                {isFetching ? "Retrying..." : "Retry full details"}
+              </button>
+            </div>
           ) : null}
         </div>
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
@@ -281,7 +331,7 @@ const ChallengeDetailPage = () => {
               Prize Breakdown
             </h2>
             <ul className="space-y-2 text-[14px] text-[#62636C]">
-              {challenge.prize_amounts_display.map(
+              {(challenge.prize_amounts_display ?? []).map(
                 (amount: string, index: number) => (
                   <li key={`${amount}-${index}`} className="flex gap-2">
                     <span className="font-medium text-[#1E1F24]">

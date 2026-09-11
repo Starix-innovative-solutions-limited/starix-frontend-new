@@ -19,10 +19,12 @@ const BrandDashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   // Expanded by default to match brand sidebar design
   const [leftCollapsed, setLeftCollapsed] = useState(false);
+  const isDashboardView = pathname === "/brand";
   const isProfileView = pathname?.startsWith("/brand/profile");
   const isChallengeDetailView =
     /^\/brand\/challenges\/[^/]+/.test(pathname ?? "");
-  const canOpenRightSidebar = isProfileView || isChallengeDetailView;
+  const canOpenRightSidebar =
+    isDashboardView || isProfileView || isChallengeDetailView;
   const [rightCollapsed, setRightCollapsed] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
 

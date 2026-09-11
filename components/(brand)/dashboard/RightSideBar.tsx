@@ -30,19 +30,23 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
   const pathname = usePathname();
   const { profile } = useAuthStore();
   const { open } = useModal();
+  const isDashboard = pathname === "/brand";
+  const needsActiveChallengeData = isDashboard || pathname?.startsWith("/brand/profile");
+
   const { data: challengeData, isLoading: isLoadingChallenges } =
     useGetBrandChallenges(
     { limit: 100, offset: 0 },
-    { enabled: pathname?.startsWith("/brand/profile") }
+    { enabled: needsActiveChallengeData }
   );
 
-  const isChallenges = pathname?.startsWith("/brand/challenges");
+  const challengeDetailId =
+    pathname?.match(/^\/brand\/challenges\/([^/]+)/)?.[1] ?? null;
+  const isChallenges =
+    pathname?.startsWith("/brand/challenges") && !challengeDetailId;
   const isSubmissions = pathname?.startsWith("/brand/submissions");
   const isAnalytics = pathname?.startsWith("/brand/analytics");
   const isPayments = pathname?.startsWith("/brand/payments");
   const isProfile = pathname?.startsWith("/brand/profile");
-  const challengeDetailId =
-    pathname?.match(/^\/brand\/challenges\/([^/]+)/)?.[1] ?? null;
 
   const brandName = profile?.brand_name || "Brand";
   const activeChallenge = challengeData?.challenges.find((challenge) =>
@@ -206,13 +210,14 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
               <p className="mt-2 text-[28px] font-semibold">₦0.00</p>
             </div>
           </div>
-        ) : isProfile ? (
+        ) : isProfile || isDashboard ? (
           <BrandProfileRightSidebar
             challenge={activeChallenge}
             totalChallenges={
               challengeData?.total ?? challengeData?.challenges.length
             }
             isLoading={isLoadingChallenges}
+            showViewActiveButton={isDashboard}
           />
         ) : (
           <div className="space-y-6">
