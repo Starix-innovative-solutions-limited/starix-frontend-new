@@ -221,7 +221,7 @@ const BrandSideBar = ({
                   <img
                     src="/chains.svg"
                     alt=""
-                    className="h-full w-full object-cover object-[center_5%]"
+                    className="h-full w-full object-cover py-2 object-[center_5%]"
                   />
                 </div>
 

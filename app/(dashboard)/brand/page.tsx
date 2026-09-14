@@ -131,7 +131,7 @@ function StatCard({ label, value }: { label: string; value: string }) {
 
 function DashboardTicketIcon() {
   return (
-      <img src="/Brands Dp.svg" alt="Dashboard Ticket" width={48} height={48} />
+      <img src="/Brands Dp.svg" alt="Dashboard Ticket" width={40} height={40} />
     
   );
 }

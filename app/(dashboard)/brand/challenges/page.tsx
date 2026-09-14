@@ -22,6 +22,7 @@ import {
 } from "@/hooks/useChallenges";
 import Loader from "@/components/Loader";
 import { variants } from "@/constant";
+import { getChallengePreviewImages } from "@/lib/challengeMedia";
 import { formatCompactNaira } from "@/lib/formatMoney";
 
 const TABS = [
@@ -72,26 +73,7 @@ function normalizeStatus(status?: string): TabId | "other" {
 function mapChallengeToCard(
   challenge: ChallengeItem
 ): BrandChallengeCardData & { status: TabId | "other" } {
-  const media = (challenge.media ?? [])
-    .slice()
-    .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
-    .filter((m) => Boolean(m.media_url))
-    .slice(0, 4)
-    .map((m) => ({
-      url: m.media_url,
-      type: (m.media_type === "video" ? "video" : "image") as "image" | "video",
-    }));
-
-  if (media.length === 0 && challenge.banner_url) {
-    media.push({ url: challenge.banner_url, type: "image" });
-  }
-
-  const count = media.length;
-  const mediaCount = (count === 0
-    ? 2
-    : count === 1
-      ? 1
-      : Math.min(count, 4)) as 1 | 2 | 3 | 4;
+  const images = getChallengePreviewImages(challenge, 4);
 
   return {
     id: challenge.id,
@@ -110,8 +92,7 @@ function mapChallengeToCard(
       challenge.currency_symbol || "₦"
     ),
     submissions: challenge.participant_count ?? 0,
-    mediaCount,
-    media,
+    images,
     status: normalizeStatus(challenge.status),
   };
 }
