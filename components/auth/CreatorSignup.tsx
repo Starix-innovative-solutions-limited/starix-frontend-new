@@ -100,14 +100,14 @@ const CreatorSignup = () => {
       initial="hidden"
       animate="visible"
       variants={variants?.itemVariants}
-      className="bg-[#fff] mx-auto w-full max-w-[650px] py-12 px-6 flex flex-col items-center font-sans"
+      className="bg-[#fff] mx-auto w-full max-w-[650px] py-12 px-6 md:max-w-none md:px-8 md:py-10 xl:max-w-[650px] xl:px-6 xl:py-12 flex flex-col items-center font-sans"
     >
       {/* Logo & Header */}
-      <header className="text-center mb-10">
-        <div className="flex justify-center mb-8">
+      <header className="text-center mb-10 md:mb-6 xl:mb-10">
+        <div className="flex justify-center mb-8 md:mb-5 xl:mb-8">
           <Image src="/contact star.svg" alt="Starix Logo" width={60} height={60} className="object-contain" />
         </div>
-        <h1 className="text-[36px] md:text-[40px] font-medium text-[#040136] tracking-tight">
+        <h1 className="text-[36px] xl:text-[40px] font-medium text-[#040136] tracking-tight">
           Create an Account
         </h1>
         <p className="text-[#6B7280] text-lg">
@@ -118,7 +118,7 @@ const CreatorSignup = () => {
       <button
         type="button"
         onClick={handleGoogleSignup}
-        className="w-full flex items-center justify-center gap-3 border border-[#E5E7EB] rounded-full py-4 px-4 mb-8 hover:bg-gray-50 transition-all font-semibold text-[#1F2937] text-base active:scale-[0.99]"
+        className="w-full flex items-center justify-center gap-3 border border-[#E5E7EB] rounded-full py-4 px-4 mb-8 md:mb-5 xl:mb-8 hover:bg-gray-50 transition-all font-semibold text-[#1F2937] text-base active:scale-[0.99]"
       >
         <FcGoogle size={24} />
         Continue with Google
@@ -140,7 +140,7 @@ const CreatorSignup = () => {
           onChange={(e) => setForm({ ...form, email: e.target.value })}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
           <CustomInput
             label="First Name"
             placeholder="Enter first name"

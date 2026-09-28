@@ -1,122 +1,175 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { GoCheckCircleFill } from "react-icons/go";
 
-const solutions = [
-  {
-    title: "Challenge ",
-    desc: "Challenges that fit your niche. No pitching required.",
-    asset: "/or-trophy.svg",
-    uiImg: "/recty.png",
-    // Individual sizes for this asset
-    assetWidth: "w-[651px]",
-    assetHeight: "h-[445px]",
-  },
+const SLIDES = [
   {
     title: "Creator Tag",
     desc: "Find your people. Share what's working. Rise together.",
-    asset: "/or-tag.svg",
-    uiImg: "/recty.png",
-    assetWidth: "w-[432px]",
-    assetHeight: "h-[556px]",
+    leftImage: "/orangeee.svg",
+    brand: {
+      name: "Food Brand",
+      timeAgo: "2d ago",
+      tags: ["Food", "family and lifestyle"],
+      photos: ["/Left Img.png", "/Right Img.png"],
+    },
+  },
+  {
+    title: "Challenge",
+    desc: "Challenges that fit your niche. No pitching required.",
+    leftImage: "/orangeee.svg",
+    brand: {
+      name: "Food Brand",
+      timeAgo: "2d ago",
+      tags: ["Food", "family and lifestyle"],
+      photos: ["/Left Img.png", "/Right Img.png"],
+    },
   },
   {
     title: "Creator CV",
     desc: "Brands find you by what you make, not how many follow you.",
-    asset: "/slidedown.svg",
-    uiImg: "/recty.png",
-    assetWidth: "w-[387px]",
-    assetHeight: "h-[508px]",
+    leftImage: "/orangeee.svg",
+    brand: {
+      name: "Food Brand",
+      timeAgo: "2d ago",
+      tags: ["Food", "family and lifestyle"],
+      photos: ["/Left Img.png", "/Right Img.png"],
+    },
   },
   {
     title: "Creator Circle",
     desc: "One place for your work, your numbers, your proof.",
-    asset: "/Stacked-rings.svg",
-    uiImg: "/recty.png",
-    assetWidth: "w-[440px]",
-    assetHeight: "h-[535px]",
+    leftImage: "/orangeee.svg",
+    brand: {
+      name: "Food Brand",
+      timeAgo: "2d ago",
+      tags: ["Food", "family and lifestyle"],
+      photos: ["/Left Img.png", "/Right Img.png"],
+    },
   },
 ];
 
-const SolutionCard = ({ title, desc, asset, uiImg, index, assetWidth, assetHeight }: any) => (
-  <motion.div
-    initial={{ opacity: 0, y: 40 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.6, delay: index * 0.08 }}
-    className="relative w-full mb-6 last:mb-0 bg-[#ECF0FF] min-w-[900px] rounded-[28px] overflow-hidden"
-  >
-    {/* TOP SECTION: text left, 3D asset right */}
-    <div className="relative flex items-start justify-between px-8 md:px-12 pt-10 pb-0">
-
-      {/* TEXT */}
-      <div className="flex flex-col z-10 max-w-[60%]">
-        <h3
-          className="text-[#040136] font-light leading-tight mb-3 text-[48px] tracking-[-0.01em]"
-          style={{ fontFamily: "Geist" }}
-        >
-          {title}
-        </h3>
-        <p className="text-[#203646B2] font-normal leading-relaxed text-[32px] tracking-[-0.04em] max-w-[550px]">
-          {desc}
-        </p>
-      </div>
-
-      {/* 3D ASSET — Now uses individual sizes from props */}
-      <div 
-        className={`absolute pointer-events-none z-[1] top-[20px] right-[-10px] ${assetWidth} ${assetHeight}`}
-      >
-        <Image
-          src={asset}
-          alt=""
-          fill
-          sizes="(max-width: 768px) 100vw, 650px"
-          className="object-contain object-right-top"
-        />
-      </div>
-    </div>
-
-    {/* DASHBOARD SCREENSHOT */}
-    <div className="relative mx-6 mt-6 z-20 rounded-t-[14px] overflow-hidden">
-      <Image
-        src={uiImg}
-        alt={`${title} dashboard`}
-        width={1200}
-        height={800}
-        className="w-full h-auto object-top"
-      />
-    </div>
-  </motion.div>
-);
-
 const CreatorBuilt = () => {
-  return (
-    <section className="py-24 bg-white px-6 md:px-12 lg:px-20">
-      <div className="max-w-[1400px] mx-auto">
+  const [active, setActive] = useState(0);
+  const slide = SLIDES[active];
 
-        {/* HEADER */}
-        <div className="flex flex-row justify-between items-start mb-12 gap-6">
-          <h2 className="font-regular flex items-center gap-2 text-[#040136] leading-[1.1] tracking-tight text-[clamp(28px,4vw,64px)]">
+  return (
+    <section className="bg-transparent px-6 py-20 md:px-12 lg:px-16">
+      <div className="mx-auto max-w-[1320px]">
+        <div className="mb-8 flex flex-col items-start justify-between gap-5 md:mb-10 md:flex-row md:items-center">
+          <h2 className="flex flex-wrap items-center gap-x-3 font-['Geist'] text-[clamp(34px,4.6vw,60px)] font-normal leading-none tracking-[-0.04em] text-[#040136]">
             Built for how you
-            <Image src="/buttons 3.svg" alt="" width={128} height={128} className="h-[2em] w-auto inline-block" />
+            <Image
+              src="/buttons 3.svg"
+              alt=""
+              width={72}
+              height={40}
+              className="inline-block h-[1.92em] w-auto translate-y-[2px]"
+            />
             actually work
           </h2>
-
-          <p className="text-[#6E6E6E] font-regular text-[20px] self-center">
-            No matter what niche <br/>
+          <p className="max-w-[200px] text-[15px] font-normal leading-[1.3] text-[#8B8D98] md:text-right">
+            No matter what niche
+            <br />
             you create content for
           </p>
         </div>
 
-        {/* CARDS STACK */}
-        <div className="flex flex-col gap-5">
-          {solutions.map((item, i) => (
-            <SolutionCard key={i} {...item} index={i} />
-          ))}
-        </div>
+        <div className="overflow-hidden rounded-[32px] bg-white">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={slide.title}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="grid lg:h-[470px] lg:grid-cols-[38%_62%]"
+            >
+              <div className="relative h-[350px] overflow-hidden px-8 pt-10 md:px-12 md:pt-12 lg:h-full">
+                <h3 className="font-['Geist'] text-[32px] font-normal leading-none tracking-[-0.03em] text-[#040136] md:text-[36px]">
+                  {slide.title}
+                </h3>
+                <p className="mt-3 max-w-[230px] font-['Geist'] text-[15px] font-normal leading-[1.35] tracking-[-0.02em] text-[#8B8D98] md:text-[16px]">
+                  {slide.desc}
+                </p>
 
+                <div className="mt-5 flex items-center gap-[6px]">
+                  {SLIDES.map((item, index) => {
+                    const isActive = index === active;
+                    return (
+                      <button
+                        key={item.title}
+                        type="button"
+                        onClick={() => setActive(index)}
+                        aria-label={`Show ${item.title}`}
+                        className={`h-[6px] rounded-full transition-all ${
+                          isActive
+                            ? "w-[26px] bg-[#0033FF]"
+                            : "w-[6px] bg-[#D5D6DC] hover:bg-[#C4C4CC]"
+                        }`}
+                      />
+                    );
+                  })}
+                </div>
+
+                <Image
+                  src={slide.leftImage}
+                  alt=""
+                  width={493}
+                  height={394}
+                  className="pointer-events-none absolute bottom-[1px] left-6 w-[340px] max-w-none md:left-10 md:w-[380px]"
+                />
+              </div>
+
+              <div className="flex h-full flex-col border-t border-[#EDEDF1] lg:border-l lg:border-t-0">
+                <div className="px-8 pt-10 md:px-12 md:pt-12">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-full bg-[#0033FF]">
+                      <span className="h-[16px] w-[16px] rounded-[3px] bg-white" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[18px] font-medium leading-none text-[#040136]">
+                          {slide.brand.name}
+                        </span>
+                        <GoCheckCircleFill className="text-[14px] text-[#0CC963]" />
+                        <span className="text-[14px] leading-none text-[#B4B7C1]">
+                          •
+                        </span>
+                        <span className="text-[14px] leading-none text-[#B4B7C1]">
+                          {slide.brand.timeAgo}
+                        </span>
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-x-5 text-[14px] text-[#5B9FD8]">
+                        {slide.brand.tags.map((tag) => (
+                          <span key={tag}>{tag}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-7 h-px w-full bg-[#EDEDF1]" />
+
+                <div className="mt-auto grid grid-cols-2 gap-[6px]">
+                  {slide.brand.photos.map((photo) => (
+                    <Image
+                      key={photo}
+                      src={photo}
+                      alt=""
+                      width={720}
+                      height={400}
+                      className="h-[168px] w-full object-cover object-[center_20%] md:h-[188px]"
+                    />
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
     </section>
   );

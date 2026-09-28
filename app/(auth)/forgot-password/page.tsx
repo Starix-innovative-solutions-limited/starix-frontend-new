@@ -71,7 +71,7 @@ const PasswordResetPage = () => {
 
   return (
     <motion.div
-      className="py-12 px- max-w-[480px] flex flex-col gap-4 w-full mx-auto"
+      className="mx-auto flex w-full max-w-[480px] flex-col gap-4 px-6 py-12 md:max-w-none md:px-8 md:py-10 xl:max-w-[480px] xl:px-6 xl:py-12"
       variants={variants?.containerVariants}
       initial="hidden"
       animate="visible"

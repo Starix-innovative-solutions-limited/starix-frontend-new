@@ -494,9 +494,12 @@ const earningsChartData =
                 : "₦0.00"}
             </h2>
 
-            <p className="mt-1 text-[12px] font-semibold text-[#62636C]">
+            <Link
+              href="/portfolio"
+              className="mt-1 inline-block text-[12px] font-semibold text-[#62636C] hover:text-[#1E1F24] hover:underline"
+            >
               View Wallet →
-            </p>
+            </Link>
 
             <div className="relative mx-auto mt-2 h-[104px] w-[150px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -553,7 +556,12 @@ const earningsChartData =
                   {getDeltaDisplay(rank?.direction || "flat", rank?.delta_count || 0)}
                 </span>
               </h2>
-              <p className="mt-1 text-[12px] font-semibold text-[#62636C]">View Leaderboard →</p>
+              <Link
+                href="/dashboard"
+                className="mt-1 inline-block text-[12px] font-semibold text-[#62636C] hover:text-[#1E1F24] hover:underline"
+              >
+                View Leaderboard →
+              </Link>
             </>
           )}
 
@@ -591,7 +599,12 @@ const earningsChartData =
                 {challenges?.lifetime_challenge_count ?? 0}
               </h2>
             </div>
-            <button className="text-[12px] font-semibold text-[#62636C]">View Challenge →</button>
+            <Link
+              href="/challenges"
+              className="text-[12px] font-semibold text-[#62636C] hover:text-[#1E1F24] hover:underline"
+            >
+              View Challenge →
+            </Link>
           </div>
 
           <div className="grid grid-cols-2 border-t border-[#EFF0F3]">

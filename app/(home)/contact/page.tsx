@@ -52,15 +52,15 @@ const ContactPage = () => {
   };
 
   return (
-    <section className="relative w-full py-35 bg-[#F9F9FB] px-6">
+    <section className="relative w-full py-25 md:py-35 bg-[#F9F9FB] px-6">
       <div className="max-w-[1300px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         
         {/* LEFT SIDE: TYPOGRAPHY & ASSETS */}
-        <div className="flex flex-col pt-15">
-          <h1 className="text-[#040136] text-[48px] md:text-[56px] font-medium leading-[1.1] tracking-tight mb-4">
+        <div className="flex flex-col pt-0 md:pt-15">
+          <h1 className="text-[#040136] text-[46px] md:text-[56px] text-center md:text-left font-medium leading-[1.1] tracking-tight mb-4">
             Get in touch
           </h1>
-          <p className="text-[#62636C] text-[18px] md:text-[20px] max-w-[650px] leading-relaxed mb-12">
+          <p className="text-[#62636C] text-[18px] text-center md:text-left md:text-[20px] max-w-[650px] leading-relaxed mb-12">
             Have a question, feedback, or need support? We’re here to help—
             whether you're a creator building your profile or a brand running 
             campaigns on Starix.
@@ -102,7 +102,7 @@ const ContactPage = () => {
         </div>
 
         {/* RIGHT SIDE: FORM OVER 3D BACKGROUND */}
-        <div className="relative w-full min-h-[750px] rounded-[48px] bg-[#B4DFFE] overflow-hidden p-8 flex items-center justify-center">
+        <div className="relative w-full min-h-[750px] rounded-[48px] bg-[#B4DFFE] overflow-hidden p-4 md:p-8 flex items-center justify-center">
           
           {/* BACKGROUND 3D SHAPES (Abstract assets from Figma) */}
           <div className="absolute inset-0 z-0">
@@ -125,7 +125,7 @@ const ContactPage = () => {
           <motion.div 
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="relative z-10 w-full max-w-[500px] bg-white rounded-[32px] p-8 md:p-10 shadow-xl"
+            className="relative z-10 w-full max-w-[500px] bg-white rounded-[32px] p-6 md:p-10 shadow-xl"
           >
             <div className="mb-8">
               <h3 className="text-[#040136] text-[24px] font-bold mb-2">Send us a message</h3>

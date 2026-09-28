@@ -125,9 +125,9 @@ const BrandSignup = () => {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[650px] flex-col items-center px-6 py-12 font-sans">
-      <header className="mb-10 text-center">
-        <div className="mb-8 flex justify-center">
+    <div className="mx-auto flex w-full max-w-[650px] flex-col items-center px-6 py-12 md:max-w-none md:px-8 md:py-10 xl:max-w-[650px] xl:px-6 xl:py-12 font-sans">
+      <header className="mb-10 text-center md:mb-6 xl:mb-10">
+        <div className="mb-8 flex justify-center md:mb-5 xl:mb-8">
           <Image
             src="/contact star.svg"
             alt="Starix Logo"
@@ -136,7 +136,7 @@ const BrandSignup = () => {
             className="object-contain"
           />
         </div>
-        <h1 className="text-[36px] font-medium tracking-tight text-[#040136] md:text-[40px]">
+        <h1 className="text-[36px] font-medium tracking-tight text-[#040136] xl:text-[40px]">
           Create your brand account
         </h1>
         <p className="text-lg text-[#747682]">
@@ -147,7 +147,7 @@ const BrandSignup = () => {
       <button
         type="button"
         onClick={handleGoogleSignup}
-        className="mb-8 flex w-full items-center justify-center gap-3 rounded-full border border-[#E5E7EB] py-4 font-semibold text-[#1F2937] transition-all hover:bg-gray-50"
+        className="mb-8 flex w-full items-center justify-center gap-3 rounded-full border border-[#E5E7EB] py-4 font-semibold text-[#1F2937] transition-all hover:bg-gray-50 md:mb-5 xl:mb-8"
       >
         <FcGoogle size={24} /> Continue with Google
       </button>
@@ -184,7 +184,7 @@ const BrandSignup = () => {
           ) : null}
         </div>
 
-        <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="grid w-full grid-cols-1 gap-6 xl:grid-cols-2">
           <CustomInput
             label="Brand Name"
             placeholder="Enter Brand Name"

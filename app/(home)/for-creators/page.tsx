@@ -9,6 +9,7 @@ import { FiArrowRight } from "react-icons/fi";
 import CreatorHeroWithSlider from "@/components/CreatorHeroWithSlider";
 import StarixSolutionsAndFeatures from "@/components/StarixSolutionsAndFeatures";
 import CreatorBuilt from "@/components/CreatorBuilt";
+import CreatorEarnBanner from "@/components/CreatorEarnBanner";
 import CreatorPathSection from "@/components/CreatorPathSection";
 
 
@@ -21,6 +22,7 @@ const Page = () => {
 
         <StarixSolutionsAndFeatures />
         <CreatorBuilt />
+        <CreatorEarnBanner />
         <CreatorPathSection />
 
 

@@ -11,6 +11,7 @@ import { usePathname } from "next/navigation";
 import WithdrawModal from "./WithdrawModal";
 import JoinRequestModal from "./JoinRequestModal";
 import JoinCircleModal from "./JoinCircleModal";
+import ShareScoreModal from "./ShareScoreModal";
 import { useGetMe } from "@/hooks/useAuth";
 import { useGetMyStarixScore, useGetGlobalLeaderboard } from "@/hooks/useProfile";
 import { useGetWithdrawalAccount, useGetEarningsSummary } from "@/hooks/useWallet";
@@ -189,6 +190,15 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
   );
 
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+  const [isShareScoreOpen, setIsShareScoreOpen] = useState(false);
+
+  const shareDisplayName =
+    [userProfile?.first_name, userProfile?.last_name]
+      .filter(Boolean)
+      .join(" ")
+      .trim() ||
+    userProfile?.username ||
+    "Creator";
 
   const handleJoinClick = (circle: any) => {
     setSelectedCircle(circle);
@@ -1007,7 +1017,13 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                 <div className="text-[40px] font-medium text-[#1E1F24] leading-none tracking-tight">
                   {activeStarixScore}<span className="text-[20px] text-[#747682] font-medium ml-0.5">/100</span>
                 </div>
-                <button className="border border-[#8B8D98] text-[#1E1F24] px-5 py-2.5 rounded-full text-[12px] font-medium hover:bg-gray-50 transition-colors cursor-pointer">Improve Score</button>
+                <button
+                  type="button"
+                  onClick={() => setIsShareScoreOpen(true)}
+                  className="border border-[#8B8D98] text-[#1E1F24] px-5 py-2.5 rounded-full text-[12px] font-medium hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  Share Score
+                </button>
               </div>
             </div>
 
@@ -1064,6 +1080,18 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
       </div>
 
       {/* MODAL INJECTIONS */}
+      <ShareScoreModal
+        isOpen={isShareScoreOpen}
+        onClose={() => setIsShareScoreOpen(false)}
+        score={activeStarixScore}
+        displayName={shareDisplayName}
+        avatarUrl={
+          userProfile?.profile_picture_url?.trim() ||
+          (userProfile as { profile_picture?: string | null } | undefined)
+            ?.profile_picture?.trim() ||
+          null
+        }
+      />
       <WithdrawModal isOpen={isWithdrawModalOpen} onClose={() => setIsWithdrawModalOpen(false)} balance={plainBalanceValue} />
       <JoinCircleModal
         isOpen={isPrivateModalOpen}

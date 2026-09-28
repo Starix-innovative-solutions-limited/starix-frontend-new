@@ -91,9 +91,9 @@ const Page = () => {
   };
 
   return (
-    <div className="w-full flex items-center justify-center px-2 py-12">
+    <div className="w-full flex items-center justify-center px-4 py-12 md:px-8 md:py-10 xl:px-2 xl:py-12">
       <motion.div 
-        className="w-full max-w-[600px]" 
+        className="w-full max-w-[600px] md:max-w-none xl:max-w-[600px]" 
         variants={variants?.containerVariants} 
         initial="hidden" animate="visible"
       >

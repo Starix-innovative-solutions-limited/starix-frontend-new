@@ -54,12 +54,12 @@ const AuthBg = ({ brand }: AuthProps) => {
     >
       
       {/* LAYER 1: Decorative Top */}
-      <div className="absolute w-full h-[70%] pointer-events-none">
+      <div className="pointer-events-none absolute h-[70%] w-full">
         <Image src={config.topAsset} alt="" fill className="object-cover object-top" priority />
       </div>
 
       {/* LAYER 2: Content */}
-      <div className="relative z-50 flex flex-col items-center pt-32 px-10 w-full">
+      <div className="relative z-50 flex w-full flex-col items-center px-10 pt-32">
         
         {/* DROPDOWN WRAPPER */}
         <div className="relative mb-10">
@@ -105,7 +105,7 @@ const AuthBg = ({ brand }: AuthProps) => {
           key={`title-${brand}`}
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="font-medium leading-[1.05] text-center tracking-[-0.04em] whitespace-nowrap text-[80px]"
+          className="whitespace-nowrap text-center text-[80px] font-medium leading-[1.05] tracking-[-0.04em]"
           style={{ color: brand ? "#81056C4D" : "#054D814D" }}
         >
           Redefine your <br /> Creativity
@@ -113,7 +113,7 @@ const AuthBg = ({ brand }: AuthProps) => {
       </div>
 
       {/* LAYER 3: Main Visual Asset */}
-      <div className="absolute left-1/2 -translate-x-1/2 w-full h-[110%] z-50 pointer-events-none">
+      <div className="pointer-events-none absolute left-1/2 z-50 h-[110%] w-full -translate-x-1/2">
         <AnimatePresence mode="wait">
           <motion.div
             key={brand ? "brand-asset" : "creator-asset"}
