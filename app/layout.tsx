@@ -69,7 +69,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 
 import { ModalProvider } from "@/components/GlobalModal";
 import Providers from "@/utils/Providers";
-import GlobalPreloader from "@/components/GlobalPreloader";
 import { Toaster } from "react-hot-toast";
 
 import "./globals.css";
@@ -106,7 +105,7 @@ export default function RootLayout({
         <main className="bg-bluelayer min-h-screen">
           <Providers>
             <ModalProvider>
-              <GlobalPreloader>{children}</GlobalPreloader>
+              {children}
               <Toaster position="top-right" />
             </ModalProvider>
           </Providers>

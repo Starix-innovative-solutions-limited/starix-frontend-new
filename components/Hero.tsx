@@ -1,52 +1,8 @@
-"use client";
-
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import { getSignupHref } from "@/lib/waitlist";
+import HeroVisual from "@/components/HeroVisual";
 
-const Lottie = dynamic(() => import("lottie-react"), {
-  ssr: false,
-  loading: () => null,
-});
-
-const Hero = () => {
-  const [animationData, setAnimationData] = useState(null);
-
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    let isCancelled = false;
-    let idleId: number | undefined;
-    let timeoutId: ReturnType<typeof setTimeout> | undefined;
-
-    const fetchAnimation = async () => {
-      try {
-        const response = await fetch("/animations/hero-anime5.json");
-        const data = await response.json();
-        if (!isCancelled) setAnimationData(data);
-      } catch (error) {
-        console.error("Error loading Lottie animation:", error);
-      }
-    };
-
-    const isDesktop = window.matchMedia("(min-width: 768px)").matches;
-    if (isDesktop && "requestIdleCallback" in window) {
-      idleId = window.requestIdleCallback(fetchAnimation, { timeout: 2500 });
-    } else if (isDesktop) {
-      timeoutId = globalThis.setTimeout(fetchAnimation, 1200);
-    } else {
-      fetchAnimation();
-    }
-
-    return () => {
-      isCancelled = true;
-      if (idleId !== undefined) window.cancelIdleCallback(idleId);
-      if (timeoutId !== undefined) globalThis.clearTimeout(timeoutId);
-    };
-  }, []);
-
+export default function Hero() {
   return (
     <section className="relative flex min-h-[100svh] w-full flex-col items-center justify-start overflow-hidden bg-[#E1F1FE] px-4 pt-[124px] md:min-h-0 md:bg-[#E1F2FE] md:px-10 md:pt-24 xl:min-h-[1000px] xl:px-6 xl:pt-16">
       <div className="relative z-10 mx-auto w-full max-w-[100%] text-center md:mt-4 md:max-w-[840px] xl:mt-15 xl:max-w-[1100px]">
@@ -84,38 +40,7 @@ const Hero = () => {
         </div>
       </div>
 
-      <div
-        className="pointer-events-none relative -mx-4 mt-auto h-[min(46svh,400px)] w-[calc(100%+32px)] overflow-hidden md:mx-0 md:mt-5 md:h-[min(520px,50svh)] md:w-full xl:absolute xl:top-[500px] xl:right-0 xl:left-0 xl:mt-0 xl:h-[500px]"
-        style={{ zIndex: 0 }}
-        aria-hidden
-      >
-        <Image
-          src="/hero-mobile-objects.webp"
-          alt=""
-          width={447}
-          height={440}
-          priority
-          className="h-full w-full object-cover object-bottom md:hidden"
-        />
-        {animationData ? (
-          <div className="absolute -left-[6%] bottom-0 h-[118%] w-[168%] md:inset-0 md:left-0 md:h-full md:w-full">
-            <Lottie
-              animationData={animationData}
-              loop
-              autoplay
-              style={{
-                width: "100%",
-                height: "100%",
-              }}
-              rendererSettings={{
-                preserveAspectRatio: "xMidYMid slice",
-              }}
-            />
-          </div>
-        ) : null}
-      </div>
+      <HeroVisual />
     </section>
   );
-};
-
-export default Hero;
+}

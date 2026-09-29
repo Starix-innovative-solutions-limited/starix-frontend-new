@@ -4,13 +4,13 @@ import Link from "next/link";
 const HowItWorks = () => {
     const brandFeatures = [
         {
-            icon: "/briefs.svg", 
+            icon: "/briefs.webp", 
             title: "Guide with Briefs",
             description: "Give creators direction. Hooks, tone, what to avoid. They handle the rest.",
             scale: "scale-100"
         },
         {
-            icon: "/flag.svg", 
+            icon: "/flag.webp", 
             title: "Create a Challenge",
             description: "Set your goals, budget, and timeline. The challenge goes live.",
             scale: "scale-100"
@@ -27,19 +27,19 @@ const HowItWorks = () => {
 
     const creatorFeatures = [
         {
-            icon: "/timer.svg", 
+            icon: "/timer.webp", 
             title: "Discover Challenges",
             description: "Find challenges that fit what you already do. No pitching required.",
             scale: "scale-100"
         },
         {
-            icon: "/buttons 2.svg", 
+            icon: "/buttons 2.webp", 
             title: "Create Content",
             description: "Make the content your way. Submit when you're ready.",
             scale: "scale-100"
         },
         {
-            icon: "/or-gem.svg", 
+            icon: "/or-gem.webp", 
             title: "Earn Rewards",
             description: "Win and get paid. No invoices, no chasing, no waiting.",
             scale: "scale-100" // Optical scale for the orange gem

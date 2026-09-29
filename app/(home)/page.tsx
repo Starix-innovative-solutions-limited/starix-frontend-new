@@ -1,16 +1,15 @@
-
 import Hero from "@/components/Hero";
-// import Navbar from "@/components/Navbar";
-import WhyStarix from "@/components/WhyStarix";
-import HowItWorks from "@/components/HowItWorks";
-import FAQ from "@/components/FAQ";
-import Solution from "@/components/Solution";
+import dynamic from "next/dynamic";
+
+const WhyStarix = dynamic(() => import("@/components/WhyStarix"));
+const Solution = dynamic(() => import("@/components/Solution"));
+const HowItWorks = dynamic(() => import("@/components/HowItWorks"));
+const FAQ = dynamic(() => import("@/components/FAQ"));
 
 export default function Home() {
   return (
     <div className="">
       <main className="">
-        {/* <Navbar /> */}
         <Hero />
         <WhyStarix />
         <Solution />
