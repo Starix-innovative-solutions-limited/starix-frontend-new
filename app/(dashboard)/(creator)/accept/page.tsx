@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GoCheckCircleFill, GoAlertFill } from "react-icons/go";
 import { useAcceptInvitation } from "@/hooks/useCircles";
@@ -110,4 +110,16 @@ const AcceptInvitationPage = () => {
   return null;
 };
 
-export default AcceptInvitationPage;
+export default function AcceptInvitationRoute() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen w-full items-center justify-center bg-white">
+          <p className="text-[14px] text-[#62636C]">Loading invitation...</p>
+        </div>
+      }
+    >
+      <AcceptInvitationPage />
+    </Suspense>
+  );
+}
