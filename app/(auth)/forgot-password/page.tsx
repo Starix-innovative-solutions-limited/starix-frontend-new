@@ -80,7 +80,7 @@ const PasswordResetPage = () => {
       <motion.div className="flex flex-col items-center gap-1 text-center md:gap-3" variants={variants?.itemVariants}>
         <div className="mb-8 flex justify-center">
           <Image
-            src="/contact star.svg"
+            src="/contact star.webp"
             alt="Starix Logo"
             width={60}
             height={60}

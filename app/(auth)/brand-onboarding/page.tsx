@@ -118,7 +118,7 @@ const BrandOnboardingPage = () => {
       <div className="w-full max-w-[590px]">
         <div className="mb-10 flex justify-center">
           <Image
-            src="/contact star.svg"
+            src="/contact star.webp"
             alt="Starix"
             width={64}
             height={64}

@@ -129,7 +129,7 @@ const BrandSignup = () => {
       <header className="mb-10 text-center md:mb-6 xl:mb-10">
         <div className="mb-8 flex justify-center md:mb-5 xl:mb-8">
           <Image
-            src="/contact star.svg"
+            src="/contact star.webp"
             alt="Starix Logo"
             width={60}
             height={60}

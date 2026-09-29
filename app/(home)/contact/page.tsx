@@ -91,7 +91,7 @@ const ContactPage = () => {
             {/* 3D STAR ICON */}
             <div className="relative w-24 h-24">
               <Image 
-                src="/contact star.svg" 
+                src="/contact star.webp" 
                 alt="Starix Star"
                 fill 
                 sizes="(max-width: 768px) 100vw, 50vw" // Default that satisfies Next.js
@@ -107,14 +107,14 @@ const ContactPage = () => {
           {/* BACKGROUND 3D SHAPES (Abstract assets from Figma) */}
           <div className="absolute inset-0 z-0">
             <Image 
-              src="/down.svg" 
+              src="/down.webp" 
               alt="background shapes"
               fill
               className="object-cover"
             />
 
             <Image 
-              src="/up.svg" 
+              src="/up.webp" 
               alt="background shapes"
               fill
               className="object-cover"

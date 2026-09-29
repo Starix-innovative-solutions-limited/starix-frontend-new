@@ -270,7 +270,7 @@ const KeyFeaturesSection = () => {
                 
 
                 <div className="mt-4">
-                  <Image src="/playButtons.svg" alt="icon" width={80} height={80} className="w-16 h-auto" />
+                  <Image src="/playButtons.webp" alt="icon" width={80} height={80} className="w-16 h-auto" />
                 </div>
               </div>
 

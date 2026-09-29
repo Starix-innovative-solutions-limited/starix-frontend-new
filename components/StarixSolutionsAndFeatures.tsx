@@ -8,7 +8,7 @@ const challenges = [
   {
     title: "Fast-Moving Trends",
     desc: "Trends move fast. By the time you catch one it's already gone",
-    icon: "/or-clock.svg",
+    icon: "/or-clock.webp",
     imgClass: "w-[110%] h-[100%] bottom-[-25%] left-[-10%]",
     titleClass: "top-8 max-w-[160px] left-6",
     descClass: "top-24  max-w-[115px] right-[4%] text-right"
@@ -16,7 +16,7 @@ const challenges = [
   {
     title: "Hard to Grow Audience",
     desc: "Hard to grow when you don't know what's working",
-    icon: "/blue-seats.svg",
+    icon: "/blue-seats.webp",
     imgClass: "w-[120%] h-[110%] bottom-[-12%] right-[-20%]",
     titleClass: "top-8 max-w-[150px] left-8",
     descClass: "top-10 right-[4%] text-right max-w-[120px]"
@@ -24,7 +24,7 @@ const challenges = [
   {
     title: "Brand Credibility",
     desc: "No way to prove you're worth the investment",
-    icon: "/cracked.svg",
+    icon: "/cracked.webp",
     imgClass: "w-[110%] h-[120%] bottom-[-15%] right-[-10%]",
     titleClass: "top-8 left-8",
     descClass: "top-18 left-8 max-w-[220px]"
@@ -32,7 +32,7 @@ const challenges = [
   {
     title: "Limited Opportunities",
     desc: "Opportunities exist. They're just not reaching you.",
-    icon: "/gateway.svg",
+    icon: "/gateway.webp",
     imgClass: "w-[125%] h-[100%] bottom-[-18%] right-[5%]",
     titleClass: "top-8 max-w-[150px] left-8",
     descClass: "top-28 right-[4%] text-right max-w-[200px]"

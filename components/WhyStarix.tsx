@@ -11,7 +11,7 @@ const sections = [
     problemContent: "Build campaigns with real creators that aligns with your brand story.",
     solutionContent: "See what's working before everyone else does. Data that tells you where attention is moving.",
     solutionTitle: "Trend Intelligence",
-    image: "/horoscope.svg",
+    image: "/horoscope.webp",
     activeColor: "#D6EFFF",
     imageStyles: {
       width: "210%",
@@ -27,7 +27,7 @@ const sections = [
     problemContent: "Numbers everywhere. No clarity on what actually worked.",
     solutionContent: "Real numbers tied to real performance. Know what's working, what's not, and why.",
     solutionTitle: "Creator Analytics",
-    image: "/charts.svg",
+    image: "/charts.webp",
     activeColor: "#F5EFF4",
     imageStyles: {
       width: "180%",
@@ -43,7 +43,7 @@ const sections = [
     problemContent: "Content comes in. Most of it misses the mark. No way to fix it at scale.",
     solutionContent: "Every submission rated before you review it. Less noise, better content, faster decisions.",
     solutionTitle: "Quality Control",
-    image: "/hand.svg",
+    image: "/hand.webp",
     activeColor: "#F5EFF4",
     imageStyles: {
       width: "180%",
@@ -59,7 +59,7 @@ const sections = [
     problemContent: "Creators pitch into the void. Brands pick in the dark. Nobody wins.",
     solutionContent: "Creators find briefs that match their strengths. Brands get submissions from people who fit.",
     solutionTitle: "Open Opportunities",
-    image: "/or-sweet.svg",
+    image: "/or-sweet.webp",
     activeColor: "#FFE6DB",
     imageStyles: {
       width: "230%",
@@ -89,7 +89,7 @@ const WhyStarix = () => {
           <span className="xl:pb-4">fails</span>
           <span className="inline-block">
             <Image
-              src="/chain.svg"
+              src="/chain.webp"
               alt="link"
               width={130}
               height={88}

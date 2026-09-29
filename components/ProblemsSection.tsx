@@ -5,19 +5,19 @@ import Image from "next/image";
 const problems = [
   {
     title: "Content comes in. Most of it misses the mark.",
-    icon: "/thumb.svg",
+    icon: "/thumb.webp",
   },
   {
     title: "The right creators exist. Finding them is the problem.",
-    icon: "/bar-chart.svg",
+    icon: "/bar-chart.webp",
   },
   {
     title: "The right creators exist. Finding them is the problem.",
-    icon: "/binocular.svg",
+    icon: "/binocular.webp",
   },
   {
     title: "Money goes out. No clarity on what came back.",
-    icon: "/wallet.svg",
+    icon: "/wallet.webp",
   },
 ];
 
@@ -31,7 +31,7 @@ const ProblemsSection = () => {
         {/* Top Right Shape */}
         <div className="absolute right-[60px] top-[40px] w-[388px] h-[425px] opacity-90">
           <Image
-            src="/candy 1.svg"
+            src="/candy 1.webp"
             alt=""
             fill
             className="object-contain"

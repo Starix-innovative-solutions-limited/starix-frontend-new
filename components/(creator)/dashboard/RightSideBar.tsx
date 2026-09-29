@@ -535,7 +535,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                             <span className="w-2 h-2 rounded-full bg-gray-300" />
                           )}
                           <span className="text-[14px] font-semibold text-[#1E1F24]">{entry.circle_score}</span>
-                          <Image src="/contact star.svg" width={16} height={16} alt="score" />
+                          <Image src="/contact star.webp" width={16} height={16} alt="score" />
                         </div>
                       </div>
                     );
@@ -572,7 +572,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                         <span className="w-2 h-2 rounded-full bg-gray-300" />
                       )}
                       <span className="text-[14px] font-semibold text-[#1E1F24]">{circleLeaderboard.my_circle.circle_score}</span>
-                      <Image src="/contact star.svg" width={16} height={16} alt="score" />
+                      <Image src="/contact star.webp" width={16} height={16} alt="score" />
                     </div>
                   </div>
                 )}
@@ -1069,7 +1069,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                        : user.trend === "down" ? <span className="text-red-500 text-[14px] font-semibold">↓</span>
                        : <span className="text-gray-300 text-[14px] font-semibold"><FaCircle /></span>}
                       <span className="text-[14px] font-semibold text-[#1E1F24]">{user.score}</span>
-                      <Image src="/contact star.svg" width={16} height={16} alt="points" />
+                      <Image src="/contact star.webp" width={16} height={16} alt="points" />
                     </div>
                   </div>
                 ))}

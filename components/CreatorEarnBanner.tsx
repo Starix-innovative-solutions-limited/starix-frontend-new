@@ -9,7 +9,7 @@ const CreatorEarnBanner = () => {
     <section className="bg-transparent px-6 pb-20 md:px-12 lg:px-16">
       <div className="relative mx-auto h-[320px] w-full max-w-[1320px] overflow-hidden rounded-[40px] md:h-[380px]">
         <Image
-          src="/frontman.png"
+          src="/frontman.webp"
           alt=""
           fill
           priority={false}

@@ -10,7 +10,7 @@ const paths = [
   {
     title: "New Creators",
     desc: "No followers? No problem. Build your creator portfolio from day one and watch your Starix Score grow with every challenge you join.",
-    icon: "/book.svg",
+    icon: "/book.webp",
     bg: "bg-[#FFEDE3]",
     imgClass: "w-[88%] bottom-[-8%] left-[-6%]",
     rotate: -12,
@@ -20,7 +20,7 @@ const paths = [
   {
     title: "Micro Creators",
     desc: "Get access to paid challenges without pitching brands or waiting for collaborations to come to you. Your creativity speaks for itself here.",
-    icon: "/packer.svg",
+    icon: "/packer.webp",
     bg: "bg-[#E7F2FF]",
     imgClass: "w-[92%] bottom-[-4%] right-[-18%]",
     rotate: -6,
@@ -30,7 +30,7 @@ const paths = [
   {
     title: "Marketers & Circles",
     desc: "Get access to paid challenges without pitching brands or waiting for collaborations to come to you. Your creativity speaks for itself.",
-    icon: "/buttons 3.svg",
+    icon: "/buttons 3.webp",
     bg: "bg-[#E7FFF4]",
     imgClass: "w-[78%] bottom-[-2%] left-[8%]",
     rotate: 0,
@@ -40,7 +40,7 @@ const paths = [
   {
     title: "Trend Creators",
     desc: "If you love jumping on trends, you're in the right place. Join fast-moving challenges designed for viral energy and high engagement.",
-    icon: "/flash.svg",
+    icon: "/flash.webp",
     bg: "bg-[#FFEDE3]",
     imgClass: "w-[80%] bottom-[-2%] right-[-8%]",
     rotate: 6,
@@ -50,7 +50,7 @@ const paths = [
   {
     title: "Mega Creators",
     desc: "Create your own branded challenges, earn rewards, and ship impactful content at scale. Collaborate with other creators and brands to amplify your influence.",
-    icon: "/blustar.svg",
+    icon: "/blustar.webp",
     bg: "bg-[#E7F2FF]",
     imgClass: "w-[86%] bottom-[-4%] right-[-14%]",
     rotate: 12,

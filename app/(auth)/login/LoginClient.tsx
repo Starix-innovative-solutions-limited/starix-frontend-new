@@ -101,7 +101,7 @@ const Page = () => {
           <motion.div className="flex flex-col items-center" variants={variants?.itemVariants}>
             <div className="mb-8 flex justify-center">
               <Image
-                src="/contact star.svg"
+                src="/contact star.webp"
                 alt="Starix Logo"
                 width={60}
                 height={60}

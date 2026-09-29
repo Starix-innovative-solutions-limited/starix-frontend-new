@@ -26,7 +26,7 @@ const Solution = () => {
           <div className="absolute top-1/2 left-[10%] z-10 h-[220px] w-[180px] -translate-y-1/2 md:left-[-22%] md:h-[340px] md:w-[230px] xl:left-[-25%] xl:h-[400px] xl:w-[280px]">
             <div className="relative h-full w-full drop-shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
                <Image 
-                src="/ribbons.svg" 
+                src="/ribbons.webp" 
                 alt="3D Ribbon" 
                 fill 
                 sizes="(max-width: 768px) 180px, (max-width: 1280px) 230px, 280px"
@@ -38,7 +38,7 @@ const Solution = () => {
           <div className="absolute top-1/2 right-[1%] z-20 h-[240px] w-[220px] -translate-y-1/2 md:right-[-24%] md:h-[260px] md:w-[290px] xl:right-[-30%] xl:h-[326px] xl:w-[366px]">
             <div className="relative h-full w-full drop-shadow-[0_40px_80px_rgba(0,0,0,0.18)]">
               <Image 
-                src="/bstars.svg" 
+                src="/bstars.webp" 
                 alt="3D Star" 
                 fill 
                 sizes="(max-width: 768px) 200px, (max-width: 1280px) 290px, 366px"

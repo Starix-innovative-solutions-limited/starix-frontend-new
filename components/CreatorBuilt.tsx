@@ -63,7 +63,7 @@ const CreatorBuilt = () => {
           <h2 className="flex flex-wrap items-center gap-x-3 font-['Geist'] text-[clamp(34px,4.6vw,60px)] font-normal leading-none tracking-[-0.04em] text-[#040136]">
             Built for how you
             <Image
-              src="/buttons 3.svg"
+              src="/buttons 3.webp"
               alt=""
               width={72}
               height={40}

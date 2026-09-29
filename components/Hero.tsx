@@ -89,6 +89,14 @@ const Hero = () => {
         style={{ zIndex: 0 }}
         aria-hidden
       >
+        <Image
+          src="/hero-mobile-objects.webp"
+          alt=""
+          width={447}
+          height={440}
+          priority
+          className="h-full w-full object-cover object-bottom md:hidden"
+        />
         {animationData ? (
           <div className="absolute -left-[6%] bottom-0 h-[118%] w-[168%] md:inset-0 md:left-0 md:h-full md:w-full">
             <Lottie
@@ -104,16 +112,7 @@ const Hero = () => {
               }}
             />
           </div>
-        ) : (
-          <Image
-            src="/hero-mobile-objects.png"
-            alt=""
-            width={447}
-            height={440}
-            priority
-            className="h-full w-full object-cover object-bottom md:hidden"
-          />
-        )}
+        ) : null}
       </div>
     </section>
   );

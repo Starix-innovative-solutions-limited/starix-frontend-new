@@ -139,7 +139,7 @@ const VerifyEmailContent = () => {
       animate="visible"
     >
       <motion.div variants={variants?.itemVariants} className="mb-12">
-        <Image src="/contact star.svg" alt="Starix Logo" width={60} height={60} className="object-contain" />
+        <Image src="/contact star.webp" alt="Starix Logo" width={60} height={60} className="object-contain" />
       </motion.div>
       
       <motion.div className="flex flex-col gap-3 mb-10" variants={variants?.itemVariants}>

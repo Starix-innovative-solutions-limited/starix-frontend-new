@@ -58,7 +58,7 @@ const Footer = () => {
     <footer className="relative overflow-hidden bg-[#0C2792] font-['Geist'] text-white md:min-h-[560px] xl:min-h-[683px]">
       <div className="pointer-events-none absolute bottom-0 left-1/2 z-0 h-[180px] w-[160%] -translate-x-1/2 select-none overflow-hidden md:h-[280px] md:w-[140%] xl:h-[387px] xl:w-[1440px]">
         <Image
-          src="/foot 2.svg"
+          src="/foot 2.webp"
           alt=""
           width={1440}
           height={387}
@@ -78,7 +78,7 @@ const Footer = () => {
       <div className="relative z-10 px-6 pb-20 pt-12 md:hidden">
         <Link href="/" className="mb-5 inline-block">
           <Image
-            src="/logo light.svg"
+            src="/logo light.webp"
             alt="Starix Logo"
             width={198}
             height={57}
@@ -162,7 +162,7 @@ const Footer = () => {
           <div className="max-w-[300px] shrink-0 xl:max-w-[460px]">
             <Link href="/" className="mb-6 inline-block">
               <Image
-                src="/logo light.svg"
+                src="/logo light.webp"
                 alt="Starix Logo"
                 width={198}
                 height={57}

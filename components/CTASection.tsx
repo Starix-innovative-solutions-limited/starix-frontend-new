@@ -35,7 +35,7 @@ const CTASection = () => {
           <>
             <div className="pointer-events-none absolute bottom-[15%] left-1/2 z-[1] w-[125%] -translate-x-1/2 select-none opacity-45 md:hidden">
               <Image
-                src="/foot.svg"
+                src="/foot.webp"
                 alt=""
                 width={1407}
                 height={434}
@@ -44,7 +44,7 @@ const CTASection = () => {
             </div>
             <div className="pointer-events-none absolute bottom-[-4%] left-1/2 z-[1] w-[125%] -translate-x-1/2 select-none opacity-45 md:hidden">
               <Image
-                src="/foot.svg"
+                src="/foot.webp"
                 alt=""
                 width={1407}
                 height={434}
@@ -53,7 +53,7 @@ const CTASection = () => {
             </div>
             <div className="pointer-events-none absolute top-[38%] left-1/2 z-0 hidden w-[118%] -translate-x-1/2 select-none opacity-50 md:block xl:hidden">
               <Image
-                src="/foot.svg"
+                src="/foot.webp"
                 alt=""
                 width={1407}
                 height={434}
@@ -71,7 +71,7 @@ const CTASection = () => {
               }}
             >
               <Image
-                src="/foot.svg"
+                src="/foot.webp"
                 alt=""
                 width={1407}
                 height={434}
@@ -89,7 +89,7 @@ const CTASection = () => {
               }`}
             >
               <Image
-                src="/foot.svg"
+                src="/foot.webp"
                 alt=""
                 width={1407}
                 height={434}
@@ -108,7 +108,7 @@ const CTASection = () => {
               }}
             >
               <Image
-                src="/foot.svg"
+                src="/foot.webp"
                 alt=""
                 width={1407}
                 height={434}
@@ -189,7 +189,7 @@ const CTASection = () => {
         {(isForCreators || isForBrands) && (
           <div className="pointer-events-none absolute right-[6px] bottom-[4px] z-20 w-[112px] md:top-1/2 md:right-[28px] md:bottom-auto md:w-[210px] md:-translate-y-1/2 xl:right-[52px] xl:w-[303px]">
             <Image
-              src="/candy 1.svg"
+              src="/candy 1.webp"
               alt=""
               width={606}
               height={515}
@@ -206,7 +206,7 @@ const CTASection = () => {
           <>
             <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[60%] overflow-hidden md:hidden">
               <Image
-                src="/troph.svg"
+                src="/troph.webp"
                 alt="3D Trophy"
                 width={1340}
                 height={604}
@@ -215,7 +215,7 @@ const CTASection = () => {
             </div>
             <div className="pointer-events-none absolute top-[80%] left-1/2 z-20 hidden w-[88%] -translate-x-1/2 -translate-y-1/2 md:block xl:top-[85%] xl:w-[850px]">
               <Image
-                src="/troph.svg"
+                src="/troph.webp"
                 alt="3D Trophy"
                 width={1340}
                 height={604}

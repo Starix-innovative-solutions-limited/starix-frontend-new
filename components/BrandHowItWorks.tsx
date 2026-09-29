@@ -11,7 +11,7 @@ const steps = [
     leftTitle: "Create a \n Challenge",
     bottomLeft: "Build campaigns \n with real creators",
     bottomRight: "that align \n with your \n brand story.",
-    image: "/trophy-flo.svg", 
+    image: "/trophy-flo.webp", 
     bgColor: "#F5EFF4", 
     // INDIVIDUAL STYLING: Massive, centered, slightly lowered
     imgClass: "w-full h-full left-[15%]",
@@ -22,7 +22,7 @@ const steps = [
     leftTitle: "Fund with \n Confidence",
     bottomLeft: "Funds held \n securely",
     bottomRight: "until winners \n are selected.",
-    image: "/mbag.svg", 
+    image: "/mbag.webp", 
     bgColor: "#F5EFF4",
     // INDIVIDUAL STYLING: Shifted right and slightly smaller to feel "heavy"
     imgClass: "w-[80%] h-[80%] translate-x-16 translate-y-16",
@@ -33,7 +33,7 @@ const steps = [
     leftTitle: "Get Submissions",
     bottomLeft: "Creators \n submit content",
     bottomRight: "You \n review \n what \n comes in.",
-    image: "/mailbox.svg", 
+    image: "/mailbox.webp", 
     bgColor: "#F5EFF4",
     // INDIVIDUAL STYLING: Centered with a slight "organic" tilt
     imgClass: "w-full h-full bottom-[5%] left-[7%]",
@@ -44,7 +44,7 @@ const steps = [
     leftTitle: "Approve \n Winners",
     bottomLeft: "Pick the best. \n They get paid.",
     bottomRight: "You get the \n  content.",
-    image: "/torch.svg", 
+    image: "/torch.webp", 
     bgColor: "#F5EFF4",
     // INDIVIDUAL STYLING: Tall, reaching toward the top-right
     imgClass: "w-[100%] h-[100%] left-[10%] ",

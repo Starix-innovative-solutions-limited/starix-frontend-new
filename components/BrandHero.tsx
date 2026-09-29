@@ -20,7 +20,7 @@ const BrandHero = () => {
         className="absolute left-[-24%] top-[-10%] w-[120%] h-[110%] z-10"
       >
         <Image
-          src="/closeup.svg" // Replace with your purple glass/scallop asset
+          src="/closeup.webp" // Replace with your purple glass/scallop asset
           alt="3D Decorative Asset"
           fill
           sizes="100vw"
@@ -37,7 +37,7 @@ const BrandHero = () => {
         className="absolute right-[-17%] top-[0%] w-[120%] h-[110%] z-10"
       >
         <Image
-          src="/diamondssss.svg" // Replace with your blue crystal asset
+          src="/diamondssss.webp" // Replace with your blue crystal asset
           alt="3D Decorative Asset"
           fill
           sizes="100vw"

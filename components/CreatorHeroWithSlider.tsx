@@ -9,27 +9,27 @@ const testimonials = [
   {
     name: "John Doe",
     quote: "I stopped pitching. Brands started finding me.",
-    avatar: "/1.svg",
+    avatar: "/1.webp",
   },
   {
     name: "Jane Smith",
     quote: "My approach shifted from selling to storytelling.",
-    avatar: "/2.svg",
+    avatar: "/2.webp",
   },
   {
     name: "Emily Johnson",
     quote: "Engagement soared once I prioritized authenticity.",
-    avatar: "/3.svg",
+    avatar: "/3.webp",
   },
   {
     name: "Michael Brown",
     quote: "I learned that connection beats promotion every time.",
-    avatar: "/4.svg",
+    avatar: "/4.webp",
   },
   {
     name: "Sarah Williams",
     quote: "Collaborations feel natural now, never forced.",
-    avatar: "/5.svg",
+    avatar: "/5.webp",
   },
 ];
 
@@ -101,7 +101,7 @@ export default function CreatorHero() {
       <div className="relative mx-auto mt-8 w-full max-w-7xl overflow-hidden md:mt-20 xl:mt-28 xl:overflow-visible">
         <div className="relative aspect-[4/3] w-full overflow-hidden md:aspect-[16/8]">
           <Image
-            src="/masked.svg"
+            src="/masked.webp"
             alt=""
             width={1280}
             height={640}
@@ -122,7 +122,7 @@ export default function CreatorHero() {
 
           <div className="pointer-events-none absolute bottom-0 left-0 z-20 h-[115%] w-full xl:h-[130%]">
             <Image
-              src="/Mask.svg"
+              src="/Mask.webp"
               alt="Creators"
               fill
               className="object-cover object-bottom"

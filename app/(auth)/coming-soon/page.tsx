@@ -138,7 +138,7 @@ const ComingSoonPage = () => {
           {/* BACKGROUND DECOR */}
           <div className="absolute top-[-18%] right-[-10%] pointer-events-none opacity-60">
             <Image 
-              src="/contact star.svg" 
+              src="/contact star.webp" 
               width={300} 
               height={300} 
               className="animate-spin-slow scale-200" 
