@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { FiSearch } from "react-icons/fi";
@@ -372,4 +372,14 @@ const confirmDelete = () => {
   );
 };
 
-export default CircleProfilePage;
+export default function CircleProfileRoute() {
+  return (
+    <Suspense
+      fallback={
+        <div className="p-10 text-center text-sm text-gray-400">Loading circle...</div>
+      }
+    >
+      <CircleProfilePage />
+    </Suspense>
+  );
+}

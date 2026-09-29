@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { Suspense, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import EditProfileModal from "@/components/(creator)/dashboard/EditProfileModal";
 import ConnectSocialsModal from "@/components/(creator)/dashboard/ConnectSocialsModal";
@@ -699,4 +699,14 @@ const CircleRow = ({
 
 
 
-export default UserProfilePage;
+export default function ProfilePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="p-10 text-center text-sm text-gray-400">Loading profile...</div>
+      }
+    >
+      <UserProfilePage />
+    </Suspense>
+  );
+}

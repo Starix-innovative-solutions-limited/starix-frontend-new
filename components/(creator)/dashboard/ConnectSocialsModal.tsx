@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useMemo, useState, useEffect } from "react";
+import React, { Suspense, useMemo, useState, useEffect } from "react";
 import { FiX, FiCheckCircle } from "react-icons/fi";
 import { FaInstagram, FaTiktok, FaYoutube } from "react-icons/fa";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -247,4 +247,12 @@ const ConnectSocialsModal = ({
   );
 };
 
-export default ConnectSocialsModal;
+export default function ConnectSocialsModalWithSuspense(
+  props: ConnectSocialsModalProps
+) {
+  return (
+    <Suspense fallback={null}>
+      <ConnectSocialsModal {...props} />
+    </Suspense>
+  );
+}
