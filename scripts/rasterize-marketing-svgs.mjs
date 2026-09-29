@@ -50,6 +50,11 @@ const FILES = [
   "3.svg",
   "4.svg",
   "5.svg",
+  "briefs.svg",
+  "flag.svg",
+  "timer.svg",
+  "buttons 2.svg",
+  "or-gem.svg",
 ];
 
 const RASTERS = ["frontman.png", "hero-mobile-objects.png"];
