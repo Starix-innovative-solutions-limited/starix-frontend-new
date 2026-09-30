@@ -64,7 +64,7 @@ function AccordionIcon({ open }: { open: boolean }) {
 const ContactButton = ({ className = "" }: { className?: string }) => (
   <Link
     href="/contact"
-    className={`inline-flex h-[48px] items-center rounded-full border border-[#0033FF] px-[22px] text-[16px] font-medium leading-none text-[#0033FF] transition-colors hover:bg-[#0033FF08] md:h-[42px] md:text-[15px] ${className}`}
+    className={`h-[48px] items-center rounded-full border border-[#0033FF] px-[22px] text-[16px] font-medium leading-none text-[#0033FF] transition-colors hover:bg-[#0033FF08] md:h-[42px] md:text-[15px] ${className}`}
   >
     Contact Us
   </Link>
@@ -74,7 +74,7 @@ const FAQ = () => {
   const [openId, setOpenId] = useState<string | null>(null);
 
   return (
-    <section className="bg-white px-5 py-14 font-['Geist'] md:px-10 md:py-16 xl:px-[80px] xl:py-[88px]">
+    <section className="bg-white px-6 py-14 font-['Geist'] md:px-10 md:py-16 xl:px-[80px] xl:py-[88px]">
       <div className="mx-auto grid w-full max-w-[1280px] grid-cols-1 items-start gap-8 md:grid-cols-[240px_minmax(0,1fr)] md:gap-10 xl:grid-cols-[380px_minmax(0,1fr)] xl:gap-[96px]">
         <div>
           <h2 className="font-['Geist'] text-[32px] font-medium leading-[1.1] tracking-[-0.04em] text-[#040136] md:text-[36px] xl:text-[48px] xl:leading-[1.08] xl:tracking-[-0.03em]">
@@ -120,7 +120,7 @@ const FAQ = () => {
           })}
         </div>
 
-        <ContactButton className="mt-2 w-fit md:hidden" />
+        <ContactButton className="mt-2 inline-flex w-fit md:hidden" />
       </div>
     </section>
   );

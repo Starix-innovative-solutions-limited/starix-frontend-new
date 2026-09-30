@@ -57,21 +57,21 @@ const CreatorBuilt = () => {
   const slide = SLIDES[active];
 
   return (
-    <section className="bg-transparent px-6 py-20 md:px-12 lg:px-16">
+    <section className="bg-transparent px-6 py-25 md:px-12 lg:px-16">
       <div className="mx-auto max-w-[1320px]">
-        <div className="mb-8 flex flex-col items-start justify-between gap-5 md:mb-10 md:flex-row md:items-center">
-          <h2 className="flex flex-wrap items-center gap-x-3 font-['Geist'] text-[clamp(34px,4.6vw,60px)] font-normal leading-none tracking-[-0.04em] text-[#040136]">
-            Built for how you
+        <div className="mb-6 flex flex-col items-start justify-between gap-3 md:mb-8 md:flex-row md:items-end md:gap-8 xl:mb-10 xl:items-center xl:gap-5">
+          <h2 className="min-w-0 font-['Geist'] text-[32px] font-normal leading-[1.08] tracking-[-0.04em] text-[#040136] md:flex-1 md:text-[42px] md:leading-[1.05] xl:text-[clamp(34px,4.6vw,60px)] xl:leading-none">
+            Built for how you{" "}
             <Image
               src="/buttons 3.webp"
               alt=""
               width={72}
               height={40}
-              className="inline-block h-[1.92em] w-auto translate-y-[2px]"
-            />
+              className="inline-block h-[1.3em] w-auto translate-y-[1px] md:h-[1.4em] md:translate-y-[2px] xl:h-[1.92em]"
+            />{" "}
             actually work
           </h2>
-          <p className="max-w-[200px] text-[15px] font-normal leading-[1.3] text-[#8B8D98] md:text-right">
+          <p className="max-w-[280px] text-left text-[13px] font-normal leading-[1.3] text-[#8B8D98] md:max-w-[200px] md:shrink-0 md:text-right md:text-[15px] xl:max-w-[200px]">
             No matter what niche
             <br />
             you create content for

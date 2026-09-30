@@ -52,22 +52,22 @@ const ContactPage = () => {
   };
 
   return (
-    <section className="relative w-full py-25 md:py-35 bg-[#F9F9FB] px-6">
+    <section className="relative w-full py-25 md:py-30 xl:py-35 bg-[#F9F9FB] px-6">
       <div className="max-w-[1300px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         
         {/* LEFT SIDE: TYPOGRAPHY & ASSETS */}
-        <div className="flex flex-col pt-0 md:pt-15">
-          <h1 className="text-[#040136] text-[46px] md:text-[56px] text-center md:text-left font-medium leading-[1.1] tracking-tight mb-4">
+        <div className="flex flex-col pt-0 md:pt-0 xl:pt-15">
+          <h1 className="text-[#040136] text-[36px] md:text-[56px] text-center md:text-center xl:text-left font-medium leading-[1.1] tracking-tight mb-4">
             Get in touch
           </h1>
-          <p className="text-[#62636C] text-[18px] text-center md:text-left md:text-[20px] max-w-[650px] leading-relaxed mb-12">
-            Have a question, feedback, or need support? We’re here to help—
-            whether you're a creator building your profile or a brand running 
+          <p className="text-[#62636C] text-[18px] text-center md:text-center xl:text-left md:text-[20px] md:max-w-[700px] xl:max-w-[650px] leading-relaxed mb-12">
+            Have a question, feedback, or need support? We’re here to help whether 
+            you're a creator building your profile or a brand running 
             campaigns on Starix.
           </p>
 
           {/* STACKED CARD PLACEHOLDER */}
-          <div className="relative w-full max-w-[600px] h-[300px] mb-16">
+          <div className="relative w-full max-w-[750px] xl:max-w-[600px] h-[300px] mb-16">
              {/* Back card */}
              <div className="absolute top-[-20px] left-1/2 -translate-x-1/2 w-[90%] h-full bg-[#F3F4F6] rounded-[32px] border border-gray-200" />
              {/* Middle card */}
@@ -77,7 +77,7 @@ const ContactPage = () => {
           </div>
 
           {/* FOOTER INFO */}
-          <div className="flex items-end justify-between max-w-[600px]">
+          <div className="flex items-end justify-between max-w-[750px] xl:max-w-[600px]">
             <div className="space-y-2">
               <h4 className="text-[#040136] font-medium text-lg">Prefer email?</h4>
               <p className="text-[#62636C] text-sm leading-relaxed max-w-[320px]">
@@ -102,7 +102,7 @@ const ContactPage = () => {
         </div>
 
         {/* RIGHT SIDE: FORM OVER 3D BACKGROUND */}
-        <div className="relative w-full min-h-[750px] rounded-[48px] bg-[#B4DFFE] overflow-hidden p-4 md:p-8 flex items-center justify-center">
+        <div className="relative w-full min-h-[750px] rounded-[48px] bg-[#B4DFFE] overflow-hidden p-4 md:p-6 xl:p-8 flex items-center justify-center">
           
           {/* BACKGROUND 3D SHAPES (Abstract assets from Figma) */}
           <div className="absolute inset-0 z-0">

@@ -75,7 +75,7 @@ function Ticker() {
 
 export default function CreatorHero() {
   return (
-    <section className="flex w-full flex-col items-center bg-[#FAFAFA] px-4 pt-[124px] pb-12 text-center font-['Geist'] text-[#0A0A1B] md:px-10 md:pt-24 md:pb-16 xl:px-6 xl:pt-32 xl:pb-20">
+    <section className="flex w-full flex-col items-center bg-[#FAFAFA] px-4 pt-[124px] pb-2 text-center font-['Geist'] text-[#0A0A1B] md:px-10 md:pt-24 md:pb-16 xl:px-6 xl:pt-32 xl:pb-20">
       <h1 className="max-w-[1200px] text-[32px] font-medium leading-[1.1] tracking-[-0.04em] text-[#040136] md:text-[48px] md:leading-[1.08] xl:text-[80px] xl:leading-[100%]">
         Your work should open doors.{" "}
         <br className="hidden xl:inline" />

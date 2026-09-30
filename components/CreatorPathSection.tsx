@@ -12,7 +12,7 @@ const paths = [
     desc: "No followers? No problem. Build your creator portfolio from day one and watch your Starix Score grow with every challenge you join.",
     icon: "/book.webp",
     bg: "bg-[#FFEDE3]",
-    imgClass: "w-[88%] bottom-[-8%] left-[-6%]",
+    imgClass: "w-[88%] bottom-[-8%] left-[12%] md:left-[-6%]",
     rotate: -12,
     y: 42,
     z: 1,
@@ -22,7 +22,7 @@ const paths = [
     desc: "Get access to paid challenges without pitching brands or waiting for collaborations to come to you. Your creativity speaks for itself here.",
     icon: "/packer.webp",
     bg: "bg-[#E7F2FF]",
-    imgClass: "w-[92%] bottom-[-4%] right-[-18%]",
+    imgClass: "w-[92%] bottom-[-5%] right-[-1%] md:right-[-18%]",
     rotate: -6,
     y: 14,
     z: 2,
@@ -30,9 +30,9 @@ const paths = [
   {
     title: "Marketers & Circles",
     desc: "Get access to paid challenges without pitching brands or waiting for collaborations to come to you. Your creativity speaks for itself.",
-    icon: "/buttons 3.webp",
+    icon: "/Group.webp",
     bg: "bg-[#E7FFF4]",
-    imgClass: "w-[78%] bottom-[-2%] left-[8%]",
+    imgClass: "w-[80%] md:w-[100%] bottom-[4%] md:bottom-[-2%] left-[11%] md:left-[8%]" ,
     rotate: 0,
     y: -56,
     z: 5,
@@ -42,7 +42,7 @@ const paths = [
     desc: "If you love jumping on trends, you're in the right place. Join fast-moving challenges designed for viral energy and high engagement.",
     icon: "/flash.webp",
     bg: "bg-[#FFEDE3]",
-    imgClass: "w-[80%] bottom-[-2%] right-[-8%]",
+    imgClass: "w-[95%] md:w-[80%] bottom-[-2%] right-[-1%] md:right-[-8%]",
     rotate: 6,
     y: 14,
     z: 3,
@@ -52,7 +52,7 @@ const paths = [
     desc: "Create your own branded challenges, earn rewards, and ship impactful content at scale. Collaborate with other creators and brands to amplify your influence.",
     icon: "/blustar.webp",
     bg: "bg-[#E7F2FF]",
-    imgClass: "w-[86%] bottom-[-4%] right-[-14%]",
+    imgClass: "w-[95%] md:w-[86%] bottom-[-2%] right-[-1%] md:right-[-14%]",
     rotate: 12,
     y: 42,
     z: 4,
@@ -96,7 +96,7 @@ const PathCard = ({
       onHoverEnd={() => onHover(null)}
       onFocus={() => onHover(index)}
       onBlur={() => onHover(null)}
-      className={`${bg} relative h-[360px] w-[320px] shrink-0 overflow-hidden rounded-[28px] p-7 text-left shadow-[0_18px_40px_rgba(15,23,42,0.08)]`}
+      className={`${bg} relative h-[340px] md:h-[360px] w-[320px] shrink-0 overflow-hidden rounded-[28px] p-7 text-left shadow-[0_18px_40px_rgba(15,23,42,0.08)]`}
       style={{ transformOrigin: "bottom center" }}
     >
       <div className="relative z-10">
@@ -125,9 +125,9 @@ const CreatorPathSection = () => {
   const [hovered, setHovered] = useState<number | null>(null);
 
   return (
-    <section className="overflow-hidden bg-white px-6 py-20">
-      <div className="mx-auto max-w-[1400px]">
-        <h2 className="text-center font-['Geist'] text-[40px] font-medium leading-[1.08] tracking-[-0.03em] text-[#040136] md:text-[56px]">
+    <section className="overflow-hidden bg-white px-6 py-12 md:py-20">
+      <div className="mx-auto max-w-[1400px] space-y-8 md:space-y-0">
+        <h2 className="text-center font-['Geist'] text-[32px] font-medium leading-[1.08] tracking-[-0.03em] text-[#040136] md:text-[56px]">
           Wherever you are,
           <br />
           there’s a path forward
@@ -145,7 +145,7 @@ const CreatorPathSection = () => {
               <p className="text-[15px] leading-[1.4] text-[#040136]/65">
                 {item.desc}
               </p>
-              <div className={`pointer-events-none absolute ${item.imgClass} h-[58%]`}>
+              <div className={`pointer-events-none absolute ${item.imgClass} h-[100%] md:h-[58%]`}>
                 <Image
                   src={item.icon}
                   alt=""
@@ -176,7 +176,7 @@ const CreatorPathSection = () => {
           </div>
         </div>
 
-        <div className="mt-20 flex justify-center md:mt-16">
+        <div className="mt-6 flex justify-center md:mt-16">
           <Link
             href={getSignupHref("creator")}
             className="inline-flex items-center rounded-full bg-[#0033FF] p-3 text-[16px] font-semibold text-[#FAFAFA] transition hover:shadow-sm"
