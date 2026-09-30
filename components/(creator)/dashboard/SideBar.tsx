@@ -8,6 +8,7 @@ import { LuPanelLeftClose } from "react-icons/lu";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { sessionAuth } from "@/utils/sessionAuth";
+import { getLoginHref } from "@/lib/waitlist";
 
 const NAV_ITEMS = [
   { label: "Home", icon: "/home.svg", href: "/dashboard" },
@@ -38,7 +39,7 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
     }
 
     // 3. Clear transient storage window fields and redirect to access entry
-    router.push("/coming-soon"); 
+    router.push(getLoginHref()); 
   };
 
   return (

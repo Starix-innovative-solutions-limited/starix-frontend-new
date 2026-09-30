@@ -1,24 +1,56 @@
 /**
- * Waitlist is for production (starixapp.com / `main`).
- * Testing (`preflight` branch, localhost, Vercel previews) behaves as if launched.
+ * Waitlist is for production (starixapp.com / `main`) only.
+ * Preflight, Vercel previews, and localhost always behave as launched.
  *
- * Override with NEXT_PUBLIC_WAITLIST_ENABLED=true|false.
+ * NEXT_PUBLIC_WAITLIST_ENABLED=false turns it off even on production.
+ * true only applies on the production marketing host — never on preview/preflight.
  */
 export function isWaitlistEnabled() {
-  const flag = process.env.NEXT_PUBLIC_WAITLIST_ENABLED?.trim().toLowerCase();
-  if (flag === "true" || flag === "1") return true;
-  if (flag === "false" || flag === "0") return false;
+  if (isTestDeployment()) return false;
 
+  const flag = process.env.NEXT_PUBLIC_WAITLIST_ENABLED?.trim().toLowerCase();
+  if (flag === "false" || flag === "0") return false;
+  if (flag === "true" || flag === "1") return true;
+
+  return isProductionMarketingHost(resolveHostname());
+}
+
+function isTestDeployment() {
+  const vercelEnv =
+    process.env.NEXT_PUBLIC_VERCEL_ENV || process.env.VERCEL_ENV || "";
+  if (vercelEnv === "preview" || vercelEnv === "development") return true;
+
+  const branch = (
+    process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF ||
+    process.env.VERCEL_GIT_COMMIT_REF ||
+    ""
+  ).toLowerCase();
+  if (branch === "preflight") return true;
+
+  const host = resolveHostname();
+  if (!host) return false;
+  if (host === "localhost" || host === "127.0.0.1") return true;
+  if (host.endsWith(".vercel.app") || host.endsWith(".localhost")) return true;
+  if (
+    host.startsWith("preflight.") ||
+    host.startsWith("dev.") ||
+    host.startsWith("staging.")
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function resolveHostname() {
   if (typeof window !== "undefined") {
-    return isProductionMarketingHost(window.location.hostname);
+    return window.location.hostname.replace(/^www\./, "").toLowerCase();
   }
 
   const site =
+    process.env.VERCEL_URL ||
     process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.VERCEL_PROJECT_PRODUCTION_URL ||
     "";
-  const host = site.replace(/^https?:\/\//, "").split("/")[0] || "";
-  return isProductionMarketingHost(host);
+  return site.replace(/^https?:\/\//, "").split("/")[0]?.toLowerCase() || "";
 }
 
 function isProductionMarketingHost(hostname: string) {

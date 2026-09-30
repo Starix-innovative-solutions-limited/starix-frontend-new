@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { getSignupHref } from "@/lib/waitlist";
 
 const BrandHero = () => {
   return (
@@ -74,13 +75,13 @@ const BrandHero = () => {
           className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           <Link
-            href="/coming-soon"
+            href={getSignupHref("creator")}
             className="w-full sm:w-auto px-10 py-4 rounded-full border-2 border-[#0033FF] text-[#0033FF] font-medium hover:shadow-sm transition-all text-[20px]"
           >
             Join as a Creator
           </Link>
           <Link
-            href="/coming-soon"
+            href={getSignupHref("brand")}
             className="w-full sm:w-auto px-10 py-4 rounded-full bg-[#0033FF] text-white font-medium hover:shadow-sm transition-all shadow-lg text-[20px]"
           >
             Join as a Brand

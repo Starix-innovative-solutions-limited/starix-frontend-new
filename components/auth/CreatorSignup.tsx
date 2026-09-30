@@ -16,6 +16,7 @@ import Image from "next/image";
 import { startGoogleAuth } from "@/lib/auth";
 import { CreatorSignupPayload } from "@/utils/type";
 import { getAuthErrorMessage } from "@/lib/authErrors";
+import { getLoginHref } from "@/lib/waitlist";
 
 const initialForm = {
   first_name: "",
@@ -219,7 +220,7 @@ const CreatorSignup = () => {
         </p>
         <p className="text-[#747682] text-[14px] font-medium">
           Already have an account?{" "}
-          <Link href="/coming-soon" className="underline ml-1">
+          <Link href={getLoginHref()} className="underline ml-1">
             Sign in
           </Link>
         </p>

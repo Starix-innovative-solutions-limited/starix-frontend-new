@@ -6,6 +6,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { HiChevronDown } from "react-icons/hi2";
+import { getSignupHref } from "@/lib/waitlist";
 
 interface AuthProps {
   brand?: boolean;
@@ -29,20 +30,13 @@ const AuthBg = ({ brand }: AuthProps) => {
     mainAsset: brand ? "/bigribbon.svg" : "/bigstar.svg",
   };
 
-  // Optional: Automatically redirect them to coming-soon the moment this auth page mounts 
-  // Remove this useEffect if you still want them to see the background screen before clicking a role!
   useEffect(() => {
-    router.prefetch("/coming-soon");
+    router.prefetch(getSignupHref());
   }, [router]);
 
   const handleSwitch = (type: "brand" | "creator") => {
     setIsOpen(false);
-    
-    // Redirecting directly to the temporary page as requested
-    router.push("/coming-soon"); 
-    
-    // Kept here for your future launch reference:
-    // router.push(`/signup?role=${type}`); 
+    router.push(getSignupHref(type));
   };
 
   return (
