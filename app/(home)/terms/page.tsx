@@ -1,206 +1,121 @@
 "use client";
 
-import React from "react";
+import { useEffect, useState } from "react";
+import { TERMS_SECTIONS } from "@/lib/terms-sections";
+import TermsArticle from "@/components/legal/TermsArticle";
 
-const TermsOfService = () => {
+function ContentsList({
+  activeId,
+  onNavigate,
+}: {
+  activeId: string;
+  onNavigate?: () => void;
+}) {
   return (
-    <div className="bg-white min-h-screen font-['Geist'] text-[#040136]">
-      {/* --- HERO SECTION  --- */}
-      <section className="pt-32 pb-20 bg-[#FAFAFA] px-6 text-center">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-6">
-            <span className="text-[#6E6E6E] text-lg md:text-xl font-medium">
-              Last Updated: April 2026
-            </span>
-          </div>
-          <h1 className="text-[56px] md:text-[80px] font-medium tracking-tight leading-none mb-8">
+    <nav aria-label="Table of contents">
+      <p className="mb-3 text-[12px] font-medium uppercase tracking-[0.08em] text-[#8B8D98] md:mb-4">
+        Contents
+      </p>
+      <ul className="flex flex-col gap-0.5">
+        {TERMS_SECTIONS.map((section) => {
+          const isActive = activeId === section.id;
+          return (
+            <li key={section.id}>
+              <a
+                href={`#${section.id}`}
+                onClick={onNavigate}
+                className={`block border-l-2 py-1.5 pl-3 text-[13px] leading-snug transition-colors md:text-[14px] ${
+                  isActive
+                    ? "border-[#0033FF] font-medium text-[#040136]"
+                    : "border-transparent text-[#5F6368] hover:border-[#DADCE0] hover:text-[#040136]"
+                }`}
+              >
+                {section.title}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+  );
+}
+
+export default function TermsOfService() {
+  const [activeId, setActiveId] = useState<string>(TERMS_SECTIONS[0].id);
+  const [tocOpen, setTocOpen] = useState(false);
+
+  useEffect(() => {
+    const headings = TERMS_SECTIONS.map((section) =>
+      document.getElementById(section.id)
+    ).filter((el): el is HTMLElement => Boolean(el));
+
+    if (!headings.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible?.target.id) setActiveId(visible.target.id);
+      },
+      { rootMargin: "-20% 0px -65% 0px", threshold: [0, 0.25, 0.5, 1] }
+    );
+
+    headings.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-white font-['Geist'] text-[#040136]">
+      <div className="mx-auto max-w-[1120px] px-5 pt-28 pb-16 md:px-10 md:pt-32 md:pb-20 xl:px-8 xl:pt-36 xl:pb-24">
+        <header className="mb-8 max-w-[720px] md:mb-10 xl:mb-12">
+          <p className="mb-3 text-[13px] font-medium text-[#8B8D98] md:text-[14px]">
+            STARIX INNOVATIVE SOLUTIONS LIMITED
+          </p>
+          <h1 className="text-[32px] font-medium leading-[1.15] tracking-[-0.03em] text-[#040136] md:text-[40px] xl:text-[44px]">
             Terms of Service
           </h1>
-          <p className="text-[#6E6E6E] font-medium text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed">
-            These Terms of Service (“Terms”) govern your access to and use of the 
-            Starix platform, including all features, content, and services.
+          <p className="mt-3 text-[14px] text-[#8B8D98] md:mt-4 md:text-[15px]">
+            Last updated February 12, 2026
           </p>
-        </div>
-      </section>
+          <p className="mt-1 text-[14px] text-[#8B8D98] md:text-[15px]">
+            Effective date February 12, 2026
+          </p>
+        </header>
 
-      {/* --- CONTENT SECTION  --- */}
-      <section className="py-16 px-6">
-        <div className="max-w-[1200px]  mx-auto">
-          <div className="mb-12">
-            <p className="text-[#6E6E6E] text-[16px] font-medium">
-              By creating an account or using Starix, you agree to these Terms.
-            </p>
+        <details
+          className="mb-8 rounded-xl border border-[#E8EAED] bg-[#FAFAFA] md:hidden"
+          open={tocOpen}
+          onToggle={(event) =>
+            setTocOpen((event.target as HTMLDetailsElement).open)
+          }
+        >
+          <summary className="cursor-pointer list-none px-4 py-3 text-[15px] font-medium text-[#040136]">
+            <span className="flex items-center justify-between">
+              Jump to a section
+              <span className="text-[#8B8D98]">{tocOpen ? "–" : "+"}</span>
+            </span>
+          </summary>
+          <div className="border-t border-[#E8EAED] px-4 py-4">
+            <ContentsList
+              activeId={activeId}
+              onNavigate={() => setTocOpen(false)}
+            />
           </div>
-          <div className="space-y-12">
-            {/* 1. Eligibility */}
-            <div className="space-y-2">
-              <h2 className="text-3xl font-semibold">1. Eligibility</h2>
-              <p className="text-[#6E6E6E] text-lg">You must be at least 13 years old to use Starix.</p>
-              <div className="space-y-2">
-                <p className="text-[#6E6E6E] text-lg">By using the platform, you confirm that:</p>
-                <ul className="list-disc pl-10 text-[#6E6E6E] text-lg space-y-2">
-                  <li>You meet the minimum age requirement.</li>
-                  <li>You have the authority to enter into these Terms.</li>
-                </ul>
-              </div>
+        </details>
+
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-[220px_minmax(0,1fr)] md:gap-8 xl:grid-cols-[260px_minmax(0,720px)] xl:gap-16">
+          <aside className="hidden md:block">
+            <div className="sticky top-28 max-h-[calc(100svh-8rem)] overflow-y-auto pr-2 xl:top-32">
+              <ContentsList activeId={activeId} />
             </div>
+          </aside>
 
-            {/* 2. Your Account */}
-            <div className="space-y-2">
-              <h2 className="text-3xl font-semibold">2. Your Account</h2>
-              <p className="text-[#6E6E6E] text-lg">You agree to:</p>
-              <ul className="list-disc pl-10 text-[#6E6E6E] text-lg space-y-2">
-                <li>Provide accurate and complete information</li>
-                <li>Keep your login credentials secure</li>
-                <li>Be responsible for all activity under your account</li>
-              </ul>
-              <p className="text-[#6E6E6E] text-lg mt-4">Starix reserves the right to suspend or terminate accounts that violate these Terms.</p>
-            </div>
-
-            {/* 3. Platform Overview */}
-            <div className="space-y-2">
-              <h2 className="text-3xl font-semibold">3. Platform Overview</h2>
-              <p className="text-[#6E6E6E] text-lg">Starix is a platform where:</p>
-              <ul className="list-disc pl-10 text-[#6E6E6E] text-lg space-y-2">
-                <li>Brands create challenges</li>
-                <li>Creators submit content</li>
-                <li>Submissions are evaluated</li>
-                <li>Winners may receive rewards</li>
-              </ul>
-              <p className="text-[#040136] font-medium text-sm">Starix does not guarantee selection, visibility, or earnings.</p>
-            </div>
-
-            {/* 4. Creator Responsibilities */}
-            <div className="space-y-2">
-              <h2 className="text-3xl font-semibold">4. Creator Responsibilities</h2>
-              <ul className="list-disc pl-10 text-[#6E6E6E] text-lg space-y-2">
-                <li>Submit original content or content you have rights to use</li>
-                <li>Follow challenge requirements (including hashtags, mentions, and formats)</li>
-                <li>Provide accurate information</li>
-              </ul>
-              <p className="text-[#6E6E6E] text-lg mt-4">You are solely responsible for the content you submit.</p>
-            </div>
-
-            {/* 5. Brand Responsibilities */}
-            <div className="space-y-2">
-              <h2 className="text-3xl font-semibold">5. Brand Responsibilities</h2>
-              <ul className="list-disc pl-10 text-[#6E6E6E] text-lg space-y-2">
-                <li>Provide clear challenge requirements</li>
-                <li>Define reward structures accurately</li>
-                <li>Review submissions fairly</li>
-                <li>Distribute rewards as stated</li>
-              </ul>
-            </div>
-
-            {/* 6. Submissions */}
-            <div className="space-y-2">
-              <h2 className="text-3xl font-semibold">6. Submissions</h2>
-              <ul className="list-disc pl-10 text-[#6E6E6E] text-lg space-y-2">
-                <li>You grant Starix the right to display and use your submission within the platform</li>
-                <li>You confirm that your submission complies with all applicable laws and platform rules</li>
-              </ul>
-              <p className="text-[#6E6E6E] text-lg mt-2">Starix does not claim ownership of your content.</p>
-            </div>
-
-            {/* 7. Starix Score and Rankings */}
-            <div className="space-y-2">
-              <h2 className="text-3xl font-semibold">7. Starix Score and Rankings</h2>
-              <ul className="list-disc pl-10 text-[#6E6E6E] text-lg space-y-2">
-                <li>Scores range from 0 to 100</li>
-                <li>Rankings may change dynamically</li>
-                <li>Scores and standings are provided "as is"</li>
-              </ul>
-              <p className="text-[#6E6E6E] text-lg">Starix does not guarantee accuracy, outcomes, or performance results.</p>
-            </div>
-
-            {/* 8. Creator Circles */}
-            <div className="space-y-2">
-              <h2 className="text-3xl font-semibold">8. Creator Circles</h2>
-              <p className="text-[#6E6E6E] text-lg">Creators may form groups (“Circles”) with up to 5 members. Circles may define revenue splits (Total split must equal 100%).</p>
-            </div>
-
-            {/* 9. Payments and Rewards */}
-            <div className="space-y-2">
-              <h2 className="text-3xl font-semibold">9. Payments and Rewards</h2>
-              <ul className="list-disc pl-10 text-[#6E6E6E] text-lg space-y-2">
-                <li>Rewards are determined and distributed by brands</li>
-                <li>Starix is not responsible for payment disputes between users</li>
-              </ul>
-            </div>
-
-            {/* 10. Prohibited Conduct */}
-            <div className="space-y-2">
-              <h2 className="text-3xl font-semibold">10. Prohibited Conduct</h2>
-              <p className="text-[#6E6E6E] text-lg">You agree not to:</p>
-              <ul className="list-disc pl-10 text-[#6E6E6E] text-lg space-y-2">
-                <li>Submit fake, misleading, or fraudulent content</li>
-                <li>Violate intellectual property rights</li>
-                <li>Attempt to manipulate rankings or scores</li>
-                <li>Abuse or exploit the platform</li>
-              </ul>
-            </div>
-
-            {/* 11. Suspension and Termination */}
-            <div className="space-y-2">
-              <h2 className="text-3xl font-semibold">11. Suspension and Termination</h2>
-              <p className="text-[#6E6E6E] text-lg">Starix may suspend or terminate accounts that:</p>
-              <ul className="list-disc pl-10 text-[#6E6E6E] text-lg space-y-2">
-                <li>Violate these Terms</li>
-                <li>Engage in harmful or abusive behavior</li>
-                <li>Attempt to manipulate platform systems</li>
-              </ul>
-            </div>
-
-            {/* 12. Disclaimer of Warranties */}
-            <div className="space-y-2">
-              <h2 className="text-3xl font-semibold">12. Disclaimer of Warranties</h2>
-              <p className="text-[#6E6E6E] text-lg">Starix is provided “as is” and “as available.
-                ”We do not guarantee:</p>
-              <ul className="list-disc pl-10 text-[#6E6E6E] text-lg space-y-2">
-                <li>Continuous availability</li>
-                <li>Accuracy of scores or rankings</li>
-                <li>Selection or earnings</li>
-                
-              </ul>
-            </div>
-
-            {/* 13. Limitation of Liability */}
-            <div className="space-y-2">
-              <h2 className="text-3xl font-semibold">13. Limitation of Liability</h2>
-              <p className="text-[#6E6E6E] text-lg">To the fullest extent permitted by law, Starix is not liable for:
-                
-              </p>
-              <ul className="list-disc pl-10 text-[#6E6E6E] text-lg space-y-2">
-                  <li>Loss of earnings</li>
-                  <li>Platform interruptions</li>
-                  <li>User disputes</li>
-                </ul>
-            </div>
-
-            {/* 14. Changes to these Terms */}
-            <div className="space-y-2">
-              <h2 className="text-3xl font-semibold">14. Changes to these Terms </h2>
-              <p className="text-[#6E6E6E] text-lg">We may update these Terms from time to time. </p>
-              <p className="text-[#6E6E6E] text-lg">Continued use of the platform means you accept the updated Terms.</p>
-
-            </div>
-
-            {/* 15. Contact */}
-            <div className="space-y-2">
-              <h2 className="text-3xl font-semibold mb-4">15. Contact</h2>
-              <p className="text-[#6E6E6E] text-lg">
-                For questions, contact: <a href="mailto:Starix@mail.com" className="text-blue-600 hover:underline font-medium transition-colors">Starix@mail.com</a>
-              </p>
-            </div>
-
+          <div className="min-w-0">
+            <TermsArticle />
           </div>
         </div>
-      </section>
-
-      {/* Footer Spacer */}
-      <div className="h-32" />
+      </div>
     </div>
   );
-};
-
-export default TermsOfService;
+}

@@ -10,7 +10,13 @@ const CTASection = () => {
   const isForBrands = path === "/for-brands";
   const isForCreators = path === "/for-creators";
 
-  if (path === "/contact" || path === "/for-creators") return null;
+  if (
+    path === "/contact" ||
+    path === "/for-creators" ||
+    path === "/privacy" ||
+    path === "/terms"
+  )
+    return null;
 
   const isHome = !isForBrands && !isForCreators;
 

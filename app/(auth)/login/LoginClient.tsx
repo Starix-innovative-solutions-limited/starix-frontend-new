@@ -13,6 +13,8 @@ import toast from "react-hot-toast";
 import { useRouter, useSearchParams } from "next/navigation";
 import { startGoogleAuth } from "@/lib/auth";
 import Image from "next/image";
+import Link from "next/link";
+import { getSignupHref } from "@/lib/waitlist";
 
 const Page = () => {
   const searchParams = useSearchParams();
@@ -153,7 +155,26 @@ const Page = () => {
             >
               {isLoading ? <Loader /> : "Login"}
             </motion.button>
-            <p className="text-center text-sm font-light text-neut/60">
+            <div className="flex flex-col items-center gap-2 md:hidden">
+              <p className="text-center text-sm font-light text-neut/60">
+                Don’t have an account?
+              </p>
+              <div className="flex flex-col items-center gap-1.5">
+                <Link
+                  href={getSignupHref("creator")}
+                  className="text-sm font-normal text-dark-navy hover:underline"
+                >
+                  Sign up as creator
+                </Link>
+                <Link
+                  href={getSignupHref("brand")}
+                  className="text-sm font-normal text-dark-navy hover:underline"
+                >
+                  Sign up as brand
+                </Link>
+              </div>
+            </div>
+            <p className="hidden text-center text-sm font-light text-neut/60 md:block">
               Don’t have an account?{" "}
               <a href={`/signup${role === "brand" ? "?role=brand" : ""}`} className="text-dark-navy font-normal hover:underline">
                 Sign up

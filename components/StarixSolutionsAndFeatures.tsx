@@ -25,7 +25,7 @@ const challenges = [
     title: "Brand Credibility",
     desc: "No way to prove you're worth the investment",
     icon: "/cracked.webp",
-    imgClass: "w-[110%] h-[120%] bottom-[-15%] right-[-10%]",
+    imgClass: "w-[110%] h-[100%] md:h-[120%] bottom-[-15%] right-[-10%]",
     titleClass: "top-8 left-8",
     descClass: "top-18 left-8 max-w-[220px]"
   },
@@ -86,10 +86,10 @@ const ChallengeCard = ({
 
 const StarixChallengesSection = () => {
   return (
-    <section className="relative py-24 bg-white px-6">
+    <section className="relative py-12 md:py-24 bg-white px-6">
       <div className="max-w-[1300px] mx-auto">
         {/* HEADER */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-8 md:mb-16">
           <h2 className="text-[#040136] text-[48px] md:text-[72px] font-medium leading-none tracking-tight">
             What’s been <br />
             holding <span className="text-[#FD6C1D]">you back..</span>

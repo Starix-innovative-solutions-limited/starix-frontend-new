@@ -18,8 +18,8 @@ const CreatorEarnBanner = () => {
         />
         <div className="absolute inset-0 bg-[#0D297073]" />
 
-        <div className="relative z-10 flex h-full max-w-[550px] flex-col justify-center px-8 md:px-14">
-          <h2 className="font-['Geist'] text-[36px] font-normal leading-[1.05] tracking-[-0.04em] text-white md:text-[52px]">
+        <div className="relative z-10 flex h-full max-w-[550px] flex-col justify-center px-6 md:px-14">
+          <h2 className="font-['Geist'] text-[30px] font-normal leading-[1.05] tracking-[-0.04em] text-white md:text-[52px]">
             Earn money from
             <br />
             content you already

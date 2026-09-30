@@ -11,10 +11,10 @@ const Lottie = dynamic(() => import("lottie-react"), {
 
 export default function HeroVisual() {
   const [animationData, setAnimationData] = useState(null);
+  const [animationReady, setAnimationReady] = useState(false);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (!window.matchMedia("(min-width: 768px)").matches) return;
     const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
     if (connection?.saveData) return;
 
@@ -47,38 +47,36 @@ export default function HeroVisual() {
 
   return (
     <div
-      className="pointer-events-none relative -mx-4 mt-auto h-[min(46svh,400px)] w-[calc(100%+32px)] overflow-hidden md:mx-0 md:mt-5 md:h-[min(520px,50svh)] md:w-full xl:absolute xl:top-[500px] xl:right-0 xl:left-0 xl:mt-0 xl:h-[500px]"
+      className="pointer-events-none relative -mx-4 mt-auto h-[min(46svh,600px)] w-[calc(100%+32px)] overflow-hidden md:mx-0 md:mt-5 md:h-[min(520px,50svh)] md:w-[calc(108%+32px)] xl:absolute xl:top-[500px] xl:right-0 xl:left-0 xl:mt-0 xl:h-[500px]"
       style={{ zIndex: 0 }}
       aria-hidden
     >
-      <Image
-        src="/hero-mobile-objects.webp"
-        alt=""
-        width={447}
-        height={440}
-        priority
-        className="h-full w-full object-cover object-bottom md:hidden"
-      />
-      {animationData ? (
-        <div className="absolute inset-0 hidden md:block">
+      {!animationReady && (
+        <Image
+          src="/Frame.webp"
+          alt=""
+          width={1200}
+          height={500}
+          priority
+          className="h-full w-full object-cover object-bottom"
+        />
+      )}
+
+      {animationData && (
+        <div
+          className={`absolute inset-0 ${animationReady ? "opacity-100" : "opacity-0"}`}
+        >
           <Lottie
             animationData={animationData}
             loop
             autoplay
+            onDOMLoaded={() => setAnimationReady(true)}
             style={{ width: "100%", height: "100%" }}
             rendererSettings={{
               preserveAspectRatio: "xMidYMid slice",
             }}
           />
         </div>
-      ) : (
-        <Image
-          src="/hero-mobile-objects.webp"
-          alt=""
-          width={1200}
-          height={500}
-          className="hidden h-full w-full object-cover object-bottom md:block"
-        />
       )}
     </div>
   );
