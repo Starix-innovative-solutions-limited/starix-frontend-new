@@ -14,7 +14,11 @@ const CTASection = () => {
     path === "/contact" ||
     path === "/for-creators" ||
     path === "/privacy" ||
-    path === "/terms"
+    path === "/terms" ||
+    path === "/cookies" ||
+    path === "/creator-terms" ||
+    path === "/community-guidelines" ||
+    path === "/intellectual-property"
   )
     return null;
 

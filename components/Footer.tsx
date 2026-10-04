@@ -38,6 +38,16 @@ const SocialIcons = ({
   </div>
 );
 
+const LEGAL_LINKS = [
+  { href: "/terms", label: "Terms of Service" },
+  { href: "/privacy", label: "Privacy Policy" },
+  { href: "/creator-terms", label: "Creator Terms" },
+  { href: "/cookies", label: "Cookie Policy" },
+  { href: "/community-guidelines", label: "Community Guidelines" },
+  { href: "/intellectual-property", label: "Intellectual Property / Copyright" },
+  { href: "/contact", label: "Contact" },
+];
+
 const FooterLink = ({
   href,
   children,
@@ -51,6 +61,31 @@ const FooterLink = ({
   >
     {children}
   </Link>
+);
+
+const LegalBar = ({ className = "" }: { className?: string }) => (
+  <div className={className}>
+    <p className="text-[13px] font-normal leading-[1.5] text-white/70">
+      © 2026 Starix Innovative Solutions Ltd. All rights reserved.
+    </p>
+    <nav
+      aria-label="Legal"
+      className="mt-2 flex flex-wrap items-center gap-x-1 gap-y-1 text-[13px] leading-[1.6] text-white/70"
+    >
+      {LEGAL_LINKS.map((link, index) => (
+        <span key={link.href} className="inline-flex items-center">
+          {index > 0 && (
+            <span aria-hidden className="mx-1.5 text-white/40">
+              ·
+            </span>
+          )}
+          <Link href={link.href} className="transition-colors hover:text-white">
+            {link.label}
+          </Link>
+        </span>
+      ))}
+    </nav>
+  </div>
 );
 
 const Footer = () => {
@@ -91,11 +126,7 @@ const Footer = () => {
           best content. Winners get paid. Brands get work they can use.
         </p>
 
-        <p className="mt-5 text-[13px] font-normal leading-[1.5] text-white/70">
-          @{new Date().getFullYear()} Starix.
-          <br />
-          All rights reserved.
-        </p>
+        <LegalBar className="mt-5" />
 
         <div className="mt-8">
           <h3 className="mb-3 text-[16px] font-semibold text-white">Company</h3>
@@ -118,15 +149,11 @@ const Footer = () => {
         <div className="mt-8">
           <h3 className="mb-3 text-[16px] font-semibold text-white">Legal</h3>
           <ul className="space-y-2.5">
-            <li>
-              <FooterLink href="/terms">Terms of use</FooterLink>
-            </li>
-            <li>
-              <FooterLink href="/privacy">Privacy Policy</FooterLink>
-            </li>
-            <li>
-              <FooterLink href="/privacy">Refund Policy</FooterLink>
-            </li>
+            {LEGAL_LINKS.filter((link) => link.href !== "/contact").map((link) => (
+              <li key={link.href}>
+                <FooterLink href={link.href}>{link.label}</FooterLink>
+              </li>
+            ))}
           </ul>
         </div>
 
@@ -188,12 +215,6 @@ const Footer = () => {
                 <li>
                   <FooterLink href="/for-creators">For Creators</FooterLink>
                 </li>
-                <li>
-                  <FooterLink href="./terms">Terms of Services</FooterLink>
-                </li>
-                <li>
-                  <FooterLink href="./privacy">Privacy Policy</FooterLink>
-                </li>
               </ul>
             </div>
 
@@ -222,7 +243,9 @@ const Footer = () => {
         </div>
       </div>
 
-      <div className="hidden h-[clamp(80px,12vw,160px)] md:block" />
+      <div className="relative z-10 mx-auto hidden max-w-[1400px] px-8 pb-10 pt-10 md:block md:px-12 xl:px-16">
+        <LegalBar />
+      </div>
     </footer>
   );
 };
