@@ -8,27 +8,46 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, ArrowUpRight } from "lucide-react";
 import { getLoginHref, getSignupHref } from "@/lib/waitlist";
 
+function AccordionIcon({ open }: { open: boolean }) {
+  return (
+    <span className="relative grid h-5 w-5 shrink-0 place-items-center" aria-hidden>
+      <span className="absolute h-px w-[18px] bg-white/35" />
+      <span
+        className={`absolute h-[18px] w-px bg-white/35 transition-opacity duration-200 ${
+          open ? "opacity-0" : "opacity-100"
+        }`}
+      />
+    </span>
+  );
+}
+
 export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [joinOpen, setJoinOpen] = useState(false);
   const loginHref = getLoginHref();
-  const joinHref = getSignupHref();
 
-  const navLinks = [
+  const pageLinks = [
     { href: "/for-brands", label: "For Brands" },
     { href: "/for-creators", label: "For Creators" },
     { href: "/contact", label: "Contact Us" },
-    { href: loginHref, label: "Log in" },
   ];
+
+  const navLinks = [...pageLinks, { href: loginHref, label: "Log in" }];
 
   const close = () => setIsOpen(false);
 
   useEffect(() => {
     close();
+    setJoinOpen(false);
   }, [pathname]);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      setLoginOpen(false);
+      return;
+    }
 
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -43,6 +62,16 @@ export default function Navbar() {
       window.removeEventListener("keydown", onKey);
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!joinOpen) return;
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setJoinOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [joinOpen]);
 
   return (
     <header className="fixed top-5 left-0 z-50 w-full px-4 md:top-6">
@@ -74,12 +103,56 @@ export default function Navbar() {
           ))}
         </div>
 
-        <Link
-          href={joinHref}
-          className="hidden whitespace-nowrap rounded-full border border-white/40 bg-[#0033FF] px-4 py-1.5 text-[14px] font-semibold text-[#fff] backdrop-blur-lg md:block xl:px-5 xl:py-2 xl:text-[16px]"
-        >
-          Join Now
-        </Link>
+        <div className="relative hidden md:block">
+          <button
+            type="button"
+            onClick={() => setJoinOpen((open) => !open)}
+            aria-expanded={joinOpen}
+            aria-haspopup="dialog"
+            className="whitespace-nowrap rounded-full border border-white/40 bg-[#0033FF] px-4 py-1.5 text-[14px] font-semibold text-[#fff] backdrop-blur-lg xl:px-5 xl:py-2 xl:text-[16px]"
+          >
+            Join Now
+          </button>
+
+          <AnimatePresence>
+            {joinOpen && (
+              <>
+                <button
+                  type="button"
+                  aria-label="Close join options"
+                  className="fixed inset-0 z-40 cursor-default"
+                  onClick={() => setJoinOpen(false)}
+                />
+                <motion.div
+                  role="dialog"
+                  aria-label="Join as a creator or brand"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 6 }}
+                  transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
+                  className="absolute right-0 top-[calc(100%+10px)] z-50 w-[220px] rounded-2xl border border-[#EBEBEB] bg-[#E1F2FE] p-3 shadow-[0_8px_24px_rgba(0,0,0,0.08)]"
+                >
+                  <div className="flex flex-col gap-2">
+                    <Link
+                      href={getSignupHref("creator")}
+                      onClick={() => setJoinOpen(false)}
+                      className="inline-flex items-center justify-center rounded-full border border-[#0033FF] p-3 text-center text-[13px] font-medium text-[#0033FF] xl:text-[14px]"
+                    >
+                      Join as a Creator
+                    </Link>
+                    <Link
+                      href={getSignupHref("brand")}
+                      onClick={() => setJoinOpen(false)}
+                      className="inline-flex items-center justify-center rounded-full bg-[#0033FF] p-3 text-center text-[13px] font-semibold text-white xl:text-[14px]"
+                    >
+                      Join as a Brand
+                    </Link>
+                  </div>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        </div>
 
         <button
           type="button"
@@ -115,8 +188,8 @@ export default function Navbar() {
             <div className="pointer-events-none absolute -left-10 bottom-28 h-52 w-52 rounded-full bg-[#00A3FF] blur-[80px] opacity-25" />
 
             <div className="relative flex min-h-0 flex-1 flex-col px-6 pt-24 pb-[max(2.5rem,env(safe-area-inset-bottom))]">
-              <nav className="flex flex-1 flex-col overflow-y-auto">
-                {navLinks.map((link) => {
+              <nav className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+                {pageLinks.map((link) => {
                   const active = pathname === link.href;
 
                   return (
@@ -139,13 +212,61 @@ export default function Navbar() {
                   );
                 })}
 
-                <Link
-                  href={joinHref}
-                  onClick={close}
-                  className="mt-8 mx-auto inline-flex p-4 w-1/2 items-center justify-center rounded-full border-2 border-[#0033FF] bg-[#fafafa] text-[16px] font-semibold text-[#0033FF] shadow-[0_0_32px_rgba(0,51,255,0.45)] transition-transform active:scale-[0.98]"
-                >
-                  Join Now
-                </Link>
+                <div className="border-b border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => setLoginOpen((open) => !open)}
+                    aria-expanded={loginOpen}
+                    className="flex w-full items-center justify-between py-5 font-['Geist'] text-[22px] font-medium tracking-[-0.03em] text-white/80"
+                  >
+                    Log in
+                    <AccordionIcon open={loginOpen} />
+                  </button>
+
+                  <div
+                    className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
+                      loginOpen
+                        ? "grid-rows-[1fr] opacity-100"
+                        : "grid-rows-[0fr] opacity-0"
+                    }`}
+                  >
+                    <div className="overflow-hidden">
+                      <Link
+                        href={getLoginHref("creator")}
+                        onClick={close}
+                        className="flex items-center justify-between py-3 font-['Geist'] text-[16px] font-normal tracking-[-0.02em] text-white/70"
+                      >
+                        Log in as a creator
+                        <ArrowUpRight size={16} className="text-white/35" />
+                      </Link>
+                      <Link
+                        href={getLoginHref("brand")}
+                        onClick={close}
+                        className="flex items-center justify-between pb-5 pt-3 font-['Geist'] text-[16px] font-normal tracking-[-0.02em] text-white/70"
+                      >
+                        Log in as a brand
+                        <ArrowUpRight size={16} className="text-white/35" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 flex w-full flex-col items-center gap-2.5">
+                  <Link
+                    href={getSignupHref("creator")}
+                    onClick={close}
+                    className="inline-flex items-center justify-center rounded-full border border-white p-4 text-center text-[14px] font-medium text-white transition-all active:scale-[0.98]"
+                  >
+                    Join as a Creator
+                  </Link>
+                  <Link
+                    href={getSignupHref("brand")}
+                    onClick={close}
+                    className="inline-flex items-center justify-center rounded-full bg-[#0033FF] p-4 text-center text-[14px] font-semibold text-white shadow-[0_0_24px_rgba(0,51,255,0.45)] transition-all active:scale-[0.98]"
+                  >
+                    Join as a Brand
+                  </Link>
+                </div>
               </nav>
 
               <p className="mt-auto pt-10 text-[13px] leading-[1.55] text-white/45">

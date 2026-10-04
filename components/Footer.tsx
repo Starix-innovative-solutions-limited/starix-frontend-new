@@ -57,35 +57,16 @@ const FooterLink = ({
 }) => (
   <Link
     href={href}
-    className="text-[15px] font-normal leading-[1.4] text-white/80 transition-colors hover:text-white md:whitespace-nowrap md:text-[15px] md:font-medium md:text-white/70 xl:text-[clamp(16px,1vw,15px)]"
+    className="text-[15px] font-normal leading-[1.4] text-white/80 transition-colors hover:text-white md:text-[15px] md:font-medium md:text-white/70 xl:text-[clamp(16px,1vw,15px)]"
   >
     {children}
   </Link>
 );
 
-const LegalBar = ({ className = "" }: { className?: string }) => (
-  <div className={className}>
-    <p className="text-[13px] font-normal leading-[1.5] text-white/70">
-      © 2026 Starix Innovative Solutions Ltd. All rights reserved.
-    </p>
-    <nav
-      aria-label="Legal"
-      className="mt-2 flex flex-wrap items-center gap-x-1 gap-y-1 text-[13px] leading-[1.6] text-white/70"
-    >
-      {LEGAL_LINKS.map((link, index) => (
-        <span key={link.href} className="inline-flex items-center">
-          {index > 0 && (
-            <span aria-hidden className="mx-1.5 text-white/40">
-              ·
-            </span>
-          )}
-          <Link href={link.href} className="transition-colors hover:text-white">
-            {link.label}
-          </Link>
-        </span>
-      ))}
-    </nav>
-  </div>
+const Copyright = ({ className = "" }: { className?: string }) => (
+  <p className={`text-[13px] font-normal leading-[1.5] text-white/70 ${className}`}>
+    © 2026 Starix Innovative Solutions Ltd. All rights reserved.
+  </p>
 );
 
 const Footer = () => {
@@ -125,8 +106,6 @@ const Footer = () => {
           Starix is where brands post challenges and creators compete to make the
           best content. Winners get paid. Brands get work they can use.
         </p>
-
-        <LegalBar className="mt-5" />
 
         <div className="mt-8">
           <h3 className="mb-3 text-[16px] font-semibold text-white">Company</h3>
@@ -180,6 +159,7 @@ const Footer = () => {
         </div>
 
         <SocialIcons spread className="mt-10 px-1" />
+        <Copyright className="mt-10" />
         <div className="h-16" />
       </div>
 
@@ -205,7 +185,7 @@ const Footer = () => {
             <SocialIcons />
           </div>
 
-          <div className="flex shrink-0 flex-row gap-10 pt-2 xl:gap-32">
+          <div className="flex shrink-0 flex-row gap-8 pt-2 xl:gap-16">
             <div>
               <h3 className="mb-6 text-[18px] font-semibold text-white">Company</h3>
               <ul className="space-y-4">
@@ -215,6 +195,19 @@ const Footer = () => {
                 <li>
                   <FooterLink href="/for-creators">For Creators</FooterLink>
                 </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="mb-6 text-[18px] font-semibold text-white">Legal</h3>
+              <ul className="space-y-4">
+                {LEGAL_LINKS.filter((link) => link.href !== "/contact").map(
+                  (link) => (
+                    <li key={link.href}>
+                      <FooterLink href={link.href}>{link.label}</FooterLink>
+                    </li>
+                  )
+                )}
               </ul>
             </div>
 
@@ -244,7 +237,7 @@ const Footer = () => {
       </div>
 
       <div className="relative z-10 mx-auto hidden max-w-[1400px] px-8 pb-10 pt-10 md:block md:px-12 xl:px-16">
-        <LegalBar />
+        <Copyright />
       </div>
     </footer>
   );
