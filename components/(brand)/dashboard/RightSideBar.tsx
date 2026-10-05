@@ -11,6 +11,7 @@ import { useModal } from "@/hooks/useModal";
 import CreateChallenge from "@/components/(brand)/challenge/CreateChallenge";
 import BrandProfileRightSidebar from "./BrandProfileRightSidebar";
 import BrandChallengeDetailRightSidebar from "./BrandChallengeDetailRightSidebar";
+import DashboardSidebarFooter from "@/components/dashboard/DashboardSidebarFooter";
 import { useGetBrandChallenges } from "@/hooks/useChallenges";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -272,6 +273,8 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
             </div>
           </div>
         )}
+
+        <DashboardSidebarFooter />
       </div>
     </aside>
   );

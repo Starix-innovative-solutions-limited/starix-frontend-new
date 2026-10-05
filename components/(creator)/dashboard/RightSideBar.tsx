@@ -24,6 +24,7 @@ import {
   type ChallengeItem,
 } from "@/hooks/useChallenges";
 import BrandAvatar from "@/components/(brand)/BrandAvatar";
+import DashboardSidebarFooter from "@/components/dashboard/DashboardSidebarFooter";
 import { formatCompactNaira } from "@/lib/formatMoney";
 import { FaCircle } from "react-icons/fa6";
 
@@ -1077,6 +1078,8 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
             </div>
           </div>
         )}
+
+        <DashboardSidebarFooter />
       </div>
 
       {/* MODAL INJECTIONS */}
