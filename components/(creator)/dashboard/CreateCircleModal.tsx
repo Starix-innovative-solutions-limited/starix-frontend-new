@@ -80,7 +80,7 @@ const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) =
       }
     });
   } catch (err: any) {
-    // This catches both the S3 upload error and the API creation error
+    // This catches both the media upload error and the API creation error
     console.error("Upload/Creation failed:", err);
     alert("Process failed. Please check your file or connection.");
   }

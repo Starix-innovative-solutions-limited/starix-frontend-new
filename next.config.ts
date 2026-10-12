@@ -15,6 +15,18 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
+        hostname: "mybackendstore19712.blob.core.windows.net",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "*.blob.core.windows.net",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "starix-images.s3.eu-west-1.amazonaws.com",
         port: "",
         pathname: "/**",

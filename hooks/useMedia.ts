@@ -7,7 +7,7 @@ import {
 export type { MediaUploadTarget as UploadTarget } from "@/hooks/mediaUpload";
 
 /**
- * React Query wrapper around POST /media/upload-url + S3 PUT.
+ * React Query wrapper around POST /media/upload-url + Azure PUT.
  * Returns { public_url } for create/update forms.
  */
 export const useUploadMedia = () => {

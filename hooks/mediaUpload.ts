@@ -29,6 +29,7 @@ export type UploadUrlResponse = {
   object_key: string;
   public_url: string;
   expires_in: number;
+  upload_headers: Record<string, string>;
 };
 
 const MB = 1024 * 1024;
@@ -88,8 +89,32 @@ function assertValidUpload(file: File, target: MediaUploadTarget) {
   }
 }
 
+function resolveUploadHeaders(
+  uploadHeaders: Record<string, string> | undefined,
+  contentType: string
+): Record<string, string> {
+  const headers: Record<string, string> = { ...(uploadHeaders ?? {}) };
+
+  // Never forward our API token to Azure.
+  for (const key of Object.keys(headers)) {
+    if (key.toLowerCase() === "authorization") {
+      delete headers[key];
+    }
+  }
+
+  if (!Object.keys(headers).some((key) => key.toLowerCase() === "content-type")) {
+    headers["Content-Type"] = contentType;
+  }
+
+  if (!Object.keys(headers).some((key) => key.toLowerCase() === "x-ms-blob-type")) {
+    headers["x-ms-blob-type"] = "BlockBlob";
+  }
+
+  return headers;
+}
+
 /**
- * POST /media/upload-url — mint a single-use presigned S3 PUT URL + public_url.
+ * POST /media/upload-url — mint a single-use Azure PUT URL, headers, and public_url.
  * Does not persist the URL on any parent resource.
  */
 export async function requestMediaUploadUrl(
@@ -104,29 +129,32 @@ export async function requestMediaUploadUrl(
 }
 
 /**
- * PUT file bytes to the presigned URL.
- * Sends Content-Type only — never Authorization (URL is self-authenticating).
+ * PUT raw file bytes to the returned upload_url.
+ * Uses upload_headers from the API (Content-Type, x-ms-blob-type, etc.).
+ * Never sends the API Bearer token.
  */
-export async function putFileToPresignedUrl(
+export async function putFileToUploadUrl(
   uploadUrl: string,
   file: Blob,
-  contentType: string
+  uploadHeaders: Record<string, string>
 ): Promise<void> {
   const uploadResponse = await fetch(uploadUrl, {
     method: "PUT",
-    headers: {
-      "Content-Type": normalizeContentType(contentType),
-    },
+    headers: uploadHeaders,
     body: file,
   });
 
-  if (!uploadResponse.ok) {
-    throw new Error(`S3 upload failed with status ${uploadResponse.status}`);
+  const status = uploadResponse.status;
+  if (status < 200 || status >= 300) {
+    throw new Error(`Upload failed with status ${status}`);
   }
 }
 
+/** @deprecated Use putFileToUploadUrl */
+export const putFileToPresignedUrl = putFileToUploadUrl;
+
 /**
- * Full client flow: validate → compress images → request URL → PUT to S3 → return public_url.
+ * Full client flow: validate → compress images → request URL → PUT to Azure → return public_url.
  * Caller must persist public_url on the parent resource via the relevant create/update endpoint.
  */
 export async function uploadMediaFile(
@@ -142,15 +170,19 @@ export async function uploadMediaFile(
   assertValidUpload(uploadFile, target);
 
   const contentType = normalizeContentType(uploadFile.type);
-  const { upload_url, public_url } = await requestMediaUploadUrl({
+  const { upload_url, public_url, upload_headers } = await requestMediaUploadUrl({
     target,
     filename: uploadFile.name || file.name,
     content_type: contentType,
   });
 
-  await putFileToPresignedUrl(upload_url, uploadFile, contentType);
+  await putFileToUploadUrl(
+    upload_url,
+    uploadFile,
+    resolveUploadHeaders(upload_headers, contentType)
+  );
 
-  return public_url.split("?")[0];
+  return public_url;
 }
 
 /** @deprecated Prefer MediaUploadTarget — kept for gradual migration */
