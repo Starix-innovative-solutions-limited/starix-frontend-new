@@ -13,9 +13,9 @@ export const CircleCard = ({ circle, index }: any) => {
 
   const getImage = (index: any) => {
     const images = [
-      '/stars.svg',
-      '/ball.svg',
-      '/trophys.svg',
+      '/stars.webp',
+      '/ball.webp',
+      '/trophys.webp',
     ];
     return images[index % images.length];
   };

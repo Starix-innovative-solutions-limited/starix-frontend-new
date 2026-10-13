@@ -89,7 +89,7 @@ const WalletPage = () => {
             onClick={() => setIsSettingsModalOpen(true)}
             className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#F9F9FB] hover:bg-gray-100 transition-colors active:scale-95"
           >
-            <Image src="/vectros.svg" alt="Settings" width={20} height={22} unoptimized />
+            <Image src="/vectros.webp" alt="Settings" width={20} height={22} unoptimized />
           </button>
         </header>
 
@@ -98,7 +98,7 @@ const WalletPage = () => {
           <div className="absolute right-0 bottom-0 h-full w-[50%] md:w-[60%] pointer-events-none flex items-end justify-end">
             <div className="relative h-[100%] w-full">
               <Image 
-                src="/groupss.svg" 
+                src="/groupss.webp" 
                 alt="Decorative background" 
                 fill 
                 className="object-contain object-right-bottom"
@@ -110,7 +110,7 @@ const WalletPage = () => {
           <div className="relative p-6 flex flex-col justify-between h-full">
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
-                <img src="/candyyy.svg" alt="Icon" className="w-5 h-5" />
+                <img src="/candyyy.webp" alt="Icon" className="w-5 h-5" />
                 <span className="text-[12px] font-semibold text-[#747682] uppercase tracking-[0.1em]">
                   Wallet Balance
                 </span>
@@ -195,7 +195,7 @@ const WalletPage = () => {
               className="flex flex-col items-center justify-center py-16 px-4 text-center"
             >
               <div className="w-20 h-20 bg-[#F4F7FF] rounded-full flex items-center justify-center mb-4">
-                <Image src="/candyyy.svg" alt="No transactions" width={40} height={40}  />
+                <Image src="/candyyy.webp" alt="No transactions" width={40} height={40}  />
               </div>
               <h3 className="text-[15px] font-semibold text-[#1E1F24] mb-1">
                 {activeTab === "Earnings" ? "No earnings yet" : "No withdrawals yet"}
@@ -224,7 +224,7 @@ const WalletPage = () => {
                     <div className="flex items-center gap-5">
                       <div className="relative w-[50px] h-[50px] flex items-center justify-center rounded-xl overflow-hidden bg-[#F9F9FB] shrink-0 border border-gray-50">
                         <Image 
-                          src={item.brand_logo_url || (activeTab === "Earnings" ? "/Parent.svg" : "/withdraw.svg")} 
+                          src={item.brand_logo_url || (activeTab === "Earnings" ? "/Parent.webp" : "/withdraw.webp")} 
                           alt={item.challenge_title || "Transaction"} 
                           fill
                           className="object-contain p-1" 

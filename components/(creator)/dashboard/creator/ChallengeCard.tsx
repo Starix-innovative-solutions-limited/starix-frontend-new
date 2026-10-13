@@ -79,7 +79,7 @@ const ChallengeCard = ({ challenge, post, onView, onJoin, onLeaderboard }: Chall
   <div className="flex items-start gap-3 sm:gap-4">
     {/* Avatar */}
     <Image
-      src={"/profile.png"}
+      src={"/profile.webp"}
       alt="brand"
       width={48}
       height={48}

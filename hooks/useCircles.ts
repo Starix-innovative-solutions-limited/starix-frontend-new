@@ -444,19 +444,26 @@ export const useRevokeInvitation = (circleId: string) => {
 
 export interface MyInvitation {
   invitation_id: string;
-  circle_id: string;
+  circle_id?: string;
   circle_name: string;
   circle_profile_picture_url: string | null;
   member_count: number;
   global_rank: number;
+  invited_at?: string;
+  token?: string;
+  accept_token?: string;
+  signed_token?: string;
 }
 
 export const useGetMyInvitations = () => {
   return useQuery<MyInvitation[]>({
     queryKey: ["my-invitations"],
     queryFn: async () => {
-      const { data } = await api.get<MyInvitation[]>(`/circles/invitations`);
-      return data;
+      const { data } = await api.get<
+        MyInvitation[] | { items?: MyInvitation[] }
+      >(`/circles/invitations`);
+      if (Array.isArray(data)) return data;
+      return data?.items ?? [];
     },
     initialData: [],
   });
@@ -472,25 +479,35 @@ export interface AcceptInvitationResponse {
 
 
 export const useAcceptInvitation = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: async (invitationId: string) => {
-      // Backend expects 'token', so we pass the ID as 'token'
-      const { data } = await api.post("/circles/invitations/accept", { 
-        token: invitationId 
-      });
+    mutationFn: async (token: string) => {
+      const { data } = await api.post<AcceptInvitationResponse>(
+        "/circles/invitations/accept",
+        { token }
+      );
       return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-invitations"] });
+      queryClient.invalidateQueries({ queryKey: ["circles"] });
     },
   });
 };
 
 export const useDeclineInvitation = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: async (invitationId: string) => {
-      // Backend expects 'token', so we pass the ID as 'token'
-      const { data } = await api.post("/circles/invitations/decline", { 
-        token: invitationId 
+    mutationFn: async (token: string) => {
+      const { data } = await api.post("/circles/invitations/decline", {
+        token,
       });
       return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-invitations"] });
     },
   });
 };

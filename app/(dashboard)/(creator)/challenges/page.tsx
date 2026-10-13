@@ -296,7 +296,7 @@ const ChallengesPage = () => {
                 className="w-full flex flex-col items-center justify-center py-16 px-4 text-center"
               >
                 <Image
-                  src="/dashlogo.svg"
+                  src="/dashlogo.webp"
                   alt="Logo"
                   width={40}
                   height={40}
@@ -339,7 +339,7 @@ const ChallengesPage = () => {
                   >
                     <div className="relative h-12 w-12 md:h-14 md:w-14 rounded-full overflow-hidden border border-[#EAECF0] bg-[#F2F4F7] shrink-0">
                       <Image
-                        src={item.brand_logo_url || "/dash-logo.svg"}
+                        src={item.brand_logo_url || "/dash-logo.webp"}
                         alt={item.brand_name || "Brand"}
                         fill
                         className="object-cover"

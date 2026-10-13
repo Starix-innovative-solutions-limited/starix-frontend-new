@@ -32,9 +32,9 @@ type LeaderboardRow = ChallengeLeaderboardEntry & {
 };
 
 const platformIcons: Record<string, string> = {
-  youtube: "/yt.svg",
-  instagram: "/ig.svg",
-  tiktok: "/tt.svg",
+  youtube: "/yt.webp",
+  instagram: "/ig.webp",
+  tiktok: "/tt.webp",
 };
 
 function formatPostedAgo(dateString?: string) {

@@ -9,12 +9,12 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { sessionAuth } from "@/utils/sessionAuth";
 
 const NAV_ITEMS = [
-  { label: "Overview", icon: "/home.svg", href: "/brand" },
-  { label: "Challenges", icon: "/challenges.svg", href: "/brand/challenges" },
-  { label: "Submissions", icon: "/media.svg", href: "/brand/submissions" },
-  { label: "Analytics", icon: "/pie.svg", href: "/brand/analytics" },
-  { label: "Payments", icon: "/walletss.svg", href: "/brand/payments" },
-  { label: "Profile", icon: "/user.svg", href: "/brand/profile" },
+  { label: "Overview", icon: "/home.webp", href: "/brand" },
+  { label: "Challenges", icon: "/challenges.webp", href: "/brand/challenges" },
+  { label: "Submissions", icon: "/media.webp", href: "/brand/submissions" },
+  { label: "Analytics", icon: "/pie.webp", href: "/brand/analytics" },
+  { label: "Payments", icon: "/walletss.webp", href: "/brand/payments" },
+  { label: "Profile", icon: "/user.webp", href: "/brand/profile" },
 ];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -86,7 +86,7 @@ const SideBar = ({
                 `}
               >
                 <Image
-                  src="/icon-logs.svg"
+                  src="/icon-logs.webp"
                   alt="Starix Icon"
                   fill
                   className="object-contain"
@@ -104,7 +104,7 @@ const SideBar = ({
                 `}
               >
                 <Image
-                  src="/dash-logo.svg"
+                  src="/dash-logo.webp"
                   alt="Starix"
                   width={100}
                   height={32}
@@ -191,14 +191,14 @@ const SideBar = ({
             {collapsed ? (
               <div className="flex cursor-pointer flex-col items-center justify-center py-28">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/bluplay.svg" className="h-16 w-16" alt="" />
+                <img src="/bluplay.webp" className="h-16 w-16" alt="" />
               </div>
             ) : (
               <div className="rounded-[32px] border border-[#EFF0F3] bg-[#F9F9FB] p-2 text-center shadow-sm">
                 <div className="mt-2 flex h-[140px] w-full items-center justify-center">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/dash-group.svg"
+                    src="/dash-group.webp"
                     alt="Challenges"
                     className="mt-11 h-full w-full scale-145 object-contain"
                   />
@@ -230,7 +230,7 @@ const SideBar = ({
           >
             <div className="relative h-6 w-6 shrink-0">
               <Image
-                src="/logout.svg"
+                src="/logout.webp"
                 alt="logout"
                 fill
                 className="object-contain"

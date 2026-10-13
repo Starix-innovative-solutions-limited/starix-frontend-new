@@ -87,7 +87,7 @@ export default function Page() {
         transition={{ duration: 0.8, ease: "easeOut" }}
         className="text-center w-full h-64 flex items-center justify-center rounded"
         style={{
-          backgroundImage: "url('/images/support.png')",
+          backgroundImage: "url('/images/support.webp')",
           backgroundSize: "contain",
           backgroundPosition: "center",
         }}

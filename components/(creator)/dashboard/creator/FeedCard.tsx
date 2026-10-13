@@ -16,7 +16,7 @@ const FeedCard = () => {
     <div className="bg-[#F6F6F8] rounded-2xl overflow-hidden border border-gray-100 w-full shadow-xs">
       {/* TOP IMAGE — FULL BLEED */}
       <Image
-        src="/feed.png"
+        src="/feed.webp"
         alt="feed"
         width={1200}
         height={600}
@@ -29,7 +29,7 @@ const FeedCard = () => {
         {/* USER ROW */}
         <div className="flex items-center gap-3">
           <Image
-            src="/profile.png"
+            src="/profile.webp"
             alt="profile"
             width={40}
             height={40}

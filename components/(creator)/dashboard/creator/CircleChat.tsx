@@ -101,7 +101,7 @@ export default function CircleChat() {
         {messages.map((message, index) => (
           <div key={message.id} className={`flex gap-3 ${message.isOwn ? 'flex-row-reverse' : ''}`}>
             {!message.isOwn && (
-              <img src="/avatar.svg" className="w-10 h-10 rounded-full" />
+              <img src="/avatar.webp" className="w-10 h-10 rounded-full" />
             )}
 
             <div className={`max-w-[70%] ${message.isOwn ? 'items-end' : ''}`}>

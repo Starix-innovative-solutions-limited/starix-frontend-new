@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { FiX } from "react-icons/fi";
 import { toast } from "react-hot-toast";
 import { useModal } from "@/hooks/useModal";
@@ -14,10 +15,15 @@ export default function ChallengeCreatedModal({
   shareUrl,
 }: ChallengeCreatedModalProps) {
   const { close } = useModal();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const resolveShareUrl = () => {
     if (shareUrl) return shareUrl;
-    if (typeof window === "undefined") return "";
+    if (!mounted || typeof window === "undefined") return "";
     if (challengeId) {
       return `${window.location.origin}/dashboard/challenge/${challengeId}`;
     }
@@ -26,6 +32,8 @@ export default function ChallengeCreatedModal({
 
   const handleShare = async () => {
     const url = resolveShareUrl();
+    if (!url) return;
+
     try {
       if (navigator.share) {
         await navigator.share({
@@ -61,7 +69,7 @@ export default function ChallengeCreatedModal({
 
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/trphy.svg"
+          src="/trphy.webp"
           alt=""
           className="h-full w-full object-cover select-none"
           draggable={false}

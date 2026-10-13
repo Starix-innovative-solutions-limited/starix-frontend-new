@@ -11,12 +11,12 @@ import { sessionAuth } from "@/utils/sessionAuth";
 import { getLoginHref } from "@/lib/waitlist";
 
 const NAV_ITEMS = [
-  { label: "Home", icon: "/home.svg", href: "/dashboard" },
-  { label: "Challenges", icon: "/challenges.svg", href: "/challenges" },
-  { label: "Creator Circles", icon: "/circles.svg", href: "/creator-circles" },
-  { label: "Wallet", icon: "/walletss.svg", href: "/portfolio" },
-  { label: "Analytics", icon: "/pie.svg", href: "/analytics" },
-  { label: "Profile", icon: "/user.svg", href: "/profile" },
+  { label: "Home", icon: "/home.webp", href: "/dashboard" },
+  { label: "Challenges", icon: "/challenges.webp", href: "/challenges" },
+  { label: "Creator Circles", icon: "/circles.webp", href: "/creator-circles" },
+  { label: "Wallet", icon: "/walletss.webp", href: "/portfolio" },
+  { label: "Analytics", icon: "/pie.webp", href: "/analytics" },
+  { label: "Profile", icon: "/user.webp", href: "/profile" },
 ];
 
 const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) => {
@@ -85,7 +85,7 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
                   w-10 h-10 relative shrink-0
                 `}
               >
-                <Image src="/icon-logs.svg" alt="Starix Icon" fill className="object-contain" />
+                <Image src="/icon-logs.webp" alt="Starix Icon" fill className="object-contain" />
               </button>
 
               {/* FULL STARIX LOGO (Shown when opened) */}
@@ -95,7 +95,7 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
                   ? "opacity-100 translate-x-0 blur-0" 
                   : "opacity-0 translate-x-4 blur-sm pointer-events-none"}
               `}>
-                <Image src="/dash-logo.svg" alt="Starix" width={100} height={32} priority className="object-contain" />
+                <Image src="/dash-logo.webp" alt="Starix" width={100} height={32} priority className="object-contain" />
               </div>
             </div>
 
@@ -162,7 +162,7 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
           <div className="mt-8 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]">
             {collapsed ? (
               <div className="flex flex-col items-center justify-center py-28 group cursor-pointer">
-                <img src="/bluplay.svg" className="w-16 h-16" alt="" />
+                <img src="/bluplay.webp" className="w-16 h-16" alt="" />
               </div>
             ) : (
               <div className={`
@@ -171,7 +171,7 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
                 opacity-100 scale-100 h-auto
               `}>
                 <div className="w-full h-[140px] mt-2 flex items-center justify-center ">
-                  <img src="/dash-group.svg" alt="Challenges" className="object-contain w-full h-full mt-11 scale-145" />
+                  <img src="/dash-group.webp" alt="Challenges" className="object-contain w-full h-full mt-11 scale-145" />
                 </div>
                 <h4 className="text-[#1A1A1A] text-[14px] font-semibold leading-tight">Earn from Challenges</h4>
                 <p className="text-[#62636C] text-[10px] mt-2 mb-4 text-center leading-snug">
@@ -194,7 +194,7 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
             }`}
           >
             <div className="relative w-6 h-6 shrink-0">
-              <Image src="/logout.svg" alt="logout" fill className="object-contain"
+              <Image src="/logout.webp" alt="logout" fill className="object-contain"
                 style={{ filter: "brightness(0) saturate(100%) invert(21%) sepia(90%) saturate(4649%) hue-rotate(352deg) brightness(89%) contrast(92%)" }} 
               />
             </div>

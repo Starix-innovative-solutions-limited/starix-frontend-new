@@ -50,7 +50,7 @@ const TopBar = () => {
           className="flex items-center gap-4 max-md:hidden group"
         >
           <Image
-            src={profile?.profile_picture || "/profile.png"}
+            src={profile?.profile_picture || "/profile.webp"}
             alt="avatar"
             width={100}
             height={100}

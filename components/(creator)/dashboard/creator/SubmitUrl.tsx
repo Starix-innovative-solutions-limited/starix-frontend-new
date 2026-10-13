@@ -32,7 +32,7 @@ const SOCIAL_PLATFORMS = [
   { 
     id: 'tiktok', 
     icon: (
-      <img src="/tiktok.svg" className='w-24 h-24' alt='tiktok'/>
+      <img src="/tiktok.webp" className='w-24 h-24' alt='tiktok'/>
     )
   }
 ];

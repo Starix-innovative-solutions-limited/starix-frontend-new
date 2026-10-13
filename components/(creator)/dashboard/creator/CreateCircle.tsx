@@ -36,9 +36,9 @@ const CreateCircle = () => {
 
               <div className='flex items-center gap-4 overflow-x-hidden'>
               {
-                ['Trophy 2.svg', 'ball.svg', 'stars.svg', 'Badge 1.svg', 'heart 1.svg', 'Play buttons 1.svg']
+                ['Trophy 2.webp', 'ball.webp', 'stars.webp', 'Badge 1.webp', 'heart 1.webp', 'Play buttons 1.webp']
                   .map((item, i) => {
-                    const isTrophy = item === 'Trophy 2.svg';
+                    const isTrophy = item === 'Trophy 2.webp';
 
                     return (
                       <span

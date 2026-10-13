@@ -352,7 +352,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
           onClick={setCollapsed}
           className={`shrink-0 transition-all duration-300 active:scale-95 ${collapsed ? "opacity-0 pointer-events-none translate-x-[-10px]" : "opacity-100"}`}
         >
-          <Image src="/close.svg" alt="Toggle Sidebar" width={40} height={40} className="object-contain" />
+          <Image src="/close.webp" alt="Toggle Sidebar" width={40} height={40} className="object-contain" />
         </button>
         {!collapsed ? (
           <div className="relative flex-1">
@@ -469,7 +469,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                   recommendedData.items.map((item: any) => (
                     <div key={item.challenge_id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-2xl transition-all">
                       <div className="flex items-center gap-3">
-                        <Image src={item.brand_logo_url || "/default.svg"} width={40} height={40} alt={item.brand_name} className="rounded-full object-cover" />
+                        <Image src={item.brand_logo_url || "/default.webp"} width={40} height={40} alt={item.brand_name} className="rounded-full object-cover" />
                         <div>
                           <h5 className="text-[12px] font-semibold text-[#62636C] leading-tight truncate w-32">{item.title}</h5>
                           <div className="flex items-center gap-1 mt-1 text-[12px] text-[#747682] font-medium">
@@ -512,7 +512,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                           <span className="text-[14px] font-semibold text-[#62636C] w-6">#{entry.rank}</span>
                           <div className="relative w-10 h-10 shrink-0">
                             <Image
-                              src={entry.profile_picture_url || "/circle.svg"}
+                              src={entry.profile_picture_url || "/circle.webp"}
                               fill
                               alt={entry.name}
                               className="object-cover rounded-full"
@@ -554,7 +554,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                       <span className="text-[14px] font-semibold text-[#62636C] w-6">#{circleLeaderboard.my_circle.rank}</span>
                       <div className="relative w-10 h-10 shrink-0">
                         <Image
-                          src={circleLeaderboard.my_circle.profile_picture_url || "/circle.svg"}
+                          src={circleLeaderboard.my_circle.profile_picture_url || "/circle.webp"}
                           fill
                           alt={circleLeaderboard.my_circle.name}
                           className="object-cover rounded-full"
@@ -596,7 +596,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                   <div key={circle.circle_id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-2xl transition-all">
                     <div className="flex items-center gap-3">
                       <div className="relative w-12 h-12 shrink-0">
-                        <Image src={circle.profile_picture_url || "/circle.svg"} fill alt={circle.name} className="object-cover rounded-full" />
+                        <Image src={circle.profile_picture_url || "/circle.webp"} fill alt={circle.name} className="object-cover rounded-full" />
                         <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-[#C9E9FF] border-2 border-white rounded-full flex items-center justify-center">
                           <span className="text-[#050E81] text-[12px] font-semibold leading-none">{circle.members?.length || 0}</span>
                         </div>
@@ -669,7 +669,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="flex items-center justify-center shrink-0 w-10 h-10 bg-white rounded-full border border-gray-50 p-1">
-                      <Image src={activeAccount.bank_logo_url || "/dashlogo.svg"} width={32} height={32} alt="Bank Logo" className="object-contain" onError={(e) => { (e.target as any).src = "/dashlogo.svg"; }} />
+                      <Image src={activeAccount.bank_logo_url || "/dashlogo.webp"} width={32} height={32} alt="Bank Logo" className="object-contain" onError={(e) => { (e.target as any).src = "/dashlogo.webp"; }} />
                     </div>
                     <div className="min-w-0">
                       <h5 className="text-[14px] font-semibold text-[#1E1F24] truncate">
@@ -771,7 +771,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                       <div className="flex items-center">
                         <div className="relative w-6 h-6 rounded-full border-2 border-white overflow-hidden mr-1.5 shrink-0 bg-gray-100">
                           <Image
-                            src={c.brand_profile_picture_url || "/dash-logo.svg"}
+                            src={c.brand_profile_picture_url || "/dash-logo.webp"}
                             fill
                             alt={c.brand_name || "Brand"}
                             className="object-cover"
@@ -816,7 +816,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
               </p>
               <div className="pointer-events-none absolute -bottom-6 -right-4 h-[140px] w-[140px]">
                 <Image
-                  src="/gem.svg"
+                  src="/gem.webp"
                   alt="Prize"
                   fill
                   className="object-contain"
@@ -1008,7 +1008,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                   </p>
                 </div>
                 <div className="relative w-12 h-12 shrink-0">
-                  <Image src="/dashlogo.svg" fill alt="Star Icon" className="object-contain" />
+                  <Image src="/dashlogo.webp" fill alt="Star Icon" className="object-contain" />
                 </div>
               </div>
               <div className="w-full h-[12px] bg-[#D4EBFF] rounded-full mt-6 overflow-hidden">

@@ -201,7 +201,7 @@ const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) =
                     {imagePreview ? (
                         <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
                     ) : (
-                        <Image src="/avatar.svg" width={48} height={48} alt="Placeholder" className="opacity-20" />
+                        <Image src="/avatar.webp" width={48} height={48} alt="Placeholder" className="opacity-20" />
                     )}
                   </div>
                   

@@ -14,8 +14,11 @@ import {
 } from "recharts";
 import { FiChevronDown } from "react-icons/fi";
 import Loader from "@/components/Loader";
+import BrandAvatar from "@/components/(brand)/BrandAvatar";
+import { useGetMe } from "@/hooks/useAuth";
 import { useGetBrandOverview } from "@/hooks/useProfile";
 import { type ChallengeItem, useGetBrandChallenges } from "@/hooks/useChallenges";
+import { useAuthStore } from "@/store/useAuthStore";
 
 type PerformanceMetric = "engagements" | "submissions" | "participants";
 
@@ -129,10 +132,20 @@ function StatCard({ label, value }: { label: string; value: string }) {
   );
 }
 
-function DashboardTicketIcon() {
+function DashboardTicketIcon({
+  src,
+  name,
+}: {
+  src?: string | null;
+  name?: string | null;
+}) {
   return (
-      <img src="/Brands Dp.svg" alt="Dashboard Ticket" width={40} height={40} />
-    
+    <BrandAvatar
+      src={src}
+      name={name}
+      className="h-10 w-10"
+      letterClassName="text-sm"
+    />
   );
 }
 
@@ -157,6 +170,16 @@ export default function Page() {
     document.addEventListener("mousedown", handlePointerDown);
     return () => document.removeEventListener("mousedown", handlePointerDown);
   }, [metricOpen]);
+
+  const { data: me } = useGetMe();
+  const storedProfile = useAuthStore((state) => state.profile);
+  const profile = (me ?? storedProfile) as
+    | (typeof storedProfile & { logo_url?: string | null })
+    | null;
+  const brandPhoto =
+    profile?.logo_url?.trim() ||
+    profile?.profile_picture_url?.trim() ||
+    null;
 
   const { data: overview, isLoading: overviewLoading } = useGetBrandOverview();
   const { data: challengeData, isLoading: challengesLoading } =
@@ -264,7 +287,7 @@ export default function Page() {
             Track your overall performance
           </p>
         </div>
-        <DashboardTicketIcon />
+        <DashboardTicketIcon src={brandPhoto} name={profile?.brand_name} />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">

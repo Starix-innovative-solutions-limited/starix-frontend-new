@@ -711,7 +711,7 @@ const earningsChartData =
             <div>
               <h3 className="flex items-center gap-2 text-[18px] font-semibold">
                 <img
-                  src="/candyyy.svg"
+                  src="/candyyy.webp"
                   alt=""
                   className="h-5 w-5 shrink-0 object-contain"
                 />{" "}
@@ -894,7 +894,7 @@ const earningsChartData =
 const CardLabel = ({ label }: { label: string }) => (
   <div className="flex items-center gap-2">
     <img
-      src="/coin.svg"
+      src="/coin.webp"
       alt=""
       className="h-4 w-4 shrink-0 object-contain"
     />

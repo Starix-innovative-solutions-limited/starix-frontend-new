@@ -18,9 +18,9 @@ type BrandProfileRightSidebarProps = {
 };
 
 const platformIcons: Record<string, string> = {
-  youtube: "/yt.svg",
-  instagram: "/ig.svg",
-  tiktok: "/tt.svg",
+  youtube: "/yt.webp",
+  instagram: "/ig.webp",
+  tiktok: "/tt.webp",
 };
 
 const eligibilityLabels: Record<string, string> = {
@@ -100,7 +100,7 @@ export default function BrandProfileRightSidebar({
         <div className="aspect-[1] overflow-hidden rounded-[18px] bg-[#F8F8FA]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/trphy.svg"
+            src="/trphy.webp"
             alt=""
             className="h-full w-full object-cover"
           />
@@ -210,7 +210,7 @@ export default function BrandProfileRightSidebar({
                       </span>
                       <span className="relative h-5 w-5">
                         <Image
-                          src="/dashlogo.svg"
+                          src="/dashlogo.webp"
                           fill
                           alt="Starix score"
                           className="object-contain"

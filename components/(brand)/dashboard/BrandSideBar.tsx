@@ -113,7 +113,7 @@ const BrandSideBar = ({
                 `}
               >
                 <Image
-                  src="/icon-logs.svg"
+                  src="/icon-logs.webp"
                   alt="Starix"
                   fill
                   className="object-contain"
@@ -132,7 +132,7 @@ const BrandSideBar = ({
                 `}
               >
                 <Image
-                  src="/dash-logo.svg"
+                  src="/dash-logo.webp"
                   alt="starix"
                   width={110}
                   height={36}
@@ -209,7 +209,7 @@ const BrandSideBar = ({
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="/bluplay 2.svg"
+                  src="/bluplay 2.webp"
                   alt=""
                   className="h-12 w-12 object-contain"
                 />
@@ -219,7 +219,7 @@ const BrandSideBar = ({
                 <div className="relative h-[120px] w-full overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/chains.svg"
+                    src="/chains.webp"
                     alt=""
                     className="h-full w-full object-cover py-2 object-[center_5%]"
                   />
@@ -256,7 +256,7 @@ const BrandSideBar = ({
           >
             <div className="relative h-5 w-5 shrink-0">
               <Image
-                src="/logout.svg"
+                src="/logout.webp"
                 alt=""
                 fill
                 className="object-contain"

@@ -40,7 +40,7 @@ const UserProfilePage = () => {
       ? params.id
       : null;
 
-const { data: authUser, isLoading: isAuthLoading } = useGetMe();
+const { data: authUser } = useGetMe();
 
 const isOwnProfile =
   !routeUsernameOrId ||
@@ -52,7 +52,7 @@ const viewedUsername = isOwnProfile
   : routeUsernameOrId ?? "";
 
   
-const { data: viewedProfile, isLoading: isViewedProfileLoading } =
+const { data: viewedProfile } =
   useGetCreatorProfile(viewedUsername, {
     enabled: !!viewedUsername && !isOwnProfile,
   });
@@ -130,13 +130,6 @@ const isCirclesLoading = isOwnProfile
     );
   }, [creatorCircles, searchQuery]);
 
-  console.log({
-  circlesUsername,
-  circlesData,
-  creatorCircles,
-  visibleCircles,
-});
-
   const totalPages = Math.max(1, circlesData?.total_pages ?? 1);
 
   const displayName =
@@ -145,9 +138,6 @@ const isCirclesLoading = isOwnProfile
   "Creator";
 
 const username = profile?.username ? `@${profile.username}` : "";
-
-const isProfileLoading =
-  isOwnProfile ? isAuthLoading && !authUser : isViewedProfileLoading && !viewedProfile;
 
   const profileImage = profile?.profile_picture_url?.trim() || null;
   const bannerImage = profile?.banner_url?.trim() || null;
@@ -245,9 +235,9 @@ const canShowScore = typeof profile?.starix_score === "number";
   };
 
   const PLATFORM_ICON_MAP: Record<string, { icon: string; label: string }> = {
-  youtube: { icon: "/yt.svg", label: "YouTube" },
-  instagram: { icon: "/ig.svg", label: "Instagram" },
-  tiktok: { icon: "/tt.svg", label: "TikTok" },
+  youtube: { icon: "/yt.webp", label: "YouTube" },
+  instagram: { icon: "/ig.webp", label: "Instagram" },
+  tiktok: { icon: "/tt.webp", label: "TikTok" },
 };
 
 const ConnectedPlatformIcons = ({
@@ -346,7 +336,7 @@ const ConnectedPlatformIcons = ({
           <div className="flex items-start justify-between gap-8">
             <div className="max-w-[920px]">
               <h1 className="text-[30px] font-semibold leading-tight tracking-[-0.04em] text-[#111217]">
-                {isProfileLoading ? "Loading..." : displayName}
+                {displayName}
               </h1>
               <p className="mt-1 text-[13px] font-medium text-[#747682]">
                 {username}
@@ -393,14 +383,14 @@ const ConnectedPlatformIcons = ({
 
           <p className="mt-8 max-w-[920px] text-[16px] leading-[1.65] text-[#62636C]">
             {profile?.bio ||
-              "Meet a world-class photographer who calls the vibrant city of Toronto, Canada, home. As the visionary founder of Reckless Studios, they have dedicated their career to capturing stunning visuals that tell compelling stories. This photographer transforms ordinary moments into extraordinary works of art."}
+              ""}
           </p>
         </section>
 
         <section className="mt-8 grid grid-cols-1 gap-3 md:grid-cols-3">
         <StatCard
           tone="green"
-          icon="/coin.svg"
+          icon="/coin.webp"
           label="Total Earnings"
           value={totalEarningsLabel}
           action={isOwnProfile ? "View History" : undefined}
@@ -409,7 +399,7 @@ const ConnectedPlatformIcons = ({
 
         <StatCard
           tone="pink"
-          icon="/diamonddd.svg"
+          icon="/diamonddd.webp"
           label="Total Engagement"
           value={isOwnProfile ? totalEngagementCardLabel : totalEngagementLabel}
           action={isOwnProfile ? "View Trend" : undefined}
@@ -419,7 +409,7 @@ const ConnectedPlatformIcons = ({
 
         <StatCard
           tone="blue"
-          icon="/coin.svg"
+          icon="/coin.webp"
           label="Global Rank"
           value={globalRankLabel}
           action={isOwnProfile ? "View Leaderboard" : undefined}
@@ -532,7 +522,7 @@ const ScoreRing = ({ score }: { score: number }) => {
     <div className="relative flex h-[104px] w-[104px] items-center justify-center rounded-full bg-[#EAF2FF] p-[5px]">
       <div className="flex h-full w-full items-center justify-center rounded-full border-[5px] border-[#114BF6] bg-white">
         <div className="flex h-[72px] w-[72px] flex-col items-center justify-center rounded-full border-[4px] border-[#99D5FF]">
-          <img src="/candyyy.svg" alt="star"/>
+          <img src="/candyyy.webp" alt="star"/>
           <span className="text-[26px] font-semibold leading-none tracking-[-0.05em] text-[#0033FF]">
             {clampedScore}
           </span>
@@ -605,7 +595,7 @@ const StatCard = ({
 
       {showMiniTrend && (
         <div className="absolute bottom-5 right-5 h-[48px] w-[105px]">
-          <img src="/Stroke.svg" alt="" className="h-full w-full object-contain" />
+          <img src="/Stroke.webp" alt="" className="h-full w-full object-contain" />
         </div>
       )}
 

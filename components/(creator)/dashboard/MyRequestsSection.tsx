@@ -40,7 +40,7 @@ export default function MyRequestsSection() {
           <div key={req.request_id} className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <img 
-                src={req.circle_profile_picture_url || "/placeholder-circle.png"} 
+                src={req.circle_profile_picture_url || "/placeholder-circle.webp"} 
                 className="w-10 h-10 rounded-full border border-gray-100 object-cover" 
                 alt={req.circle_name} 
               />

@@ -79,7 +79,7 @@ export default function CreatorLeaderboard() {
                 </div> */}
 
                 <Image
-                  src={"/images/avatar.png"}
+                  src={"/images/avatar.webp"}
                   alt="creators avatar"
                   width={100}
                   height={100}

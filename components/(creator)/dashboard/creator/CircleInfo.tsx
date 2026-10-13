@@ -28,7 +28,7 @@ export default function CircleInfo() {
 
         {challenges.map((c) => (
           <div key={c.id} className="flex items-center gap-2">
-            <Image src="/avatar.svg" width={30} height={30} alt="avatar" className="rounded-full" />
+            <Image src="/avatar.webp" width={30} height={30} alt="avatar" className="rounded-full" />
 
             <span className="text-[#1D0136]/70 text-sm lg:text-xs">
               {c.user}
@@ -46,7 +46,7 @@ export default function CircleInfo() {
         <Header title="Featured Creator of the Week" />
 
         <div className="bg-[#FFF8F5] px-2 rounded-[24px] p-4 flex w-full items-center gap-2 relative">
-          <Image src="/avatar.svg" width={45} height={45} alt="profile" className="rounded-full border-3 border-[#f4dacf]" />
+          <Image src="/avatar.webp" width={45} height={45} alt="profile" className="rounded-full border-3 border-[#f4dacf]" />
 
           <div>
             <h3 className="text-base font-normal text-[#1D0136]">@Favvy</h3>
@@ -60,7 +60,7 @@ export default function CircleInfo() {
           </div>
 
           <Image
-            src="/star.png"
+            src="/star.webp"
             width={70}
             height={70}
             alt="star"
@@ -116,7 +116,7 @@ function Header({ title }: { title: string }) {
   return (
     <>
       <div className="flex items-center gap-3 text-[#6E6E6E] text-lg">
-        <Image src="/badge.svg" width={26} height={26} alt="badge" />
+        <Image src="/badge.webp" width={26} height={26} alt="badge" />
         <span>{title}</span>
       </div>
 

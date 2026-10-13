@@ -61,7 +61,7 @@ const BrandDashboardLayout = ({ children }: { children: React.ReactNode }) => {
               <HiOutlineBars3 size={24} />
             </button>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/dash-logo.svg" alt="starix" className="h-7 w-auto" />
+            <img src="/dash-logo.webp" alt="starix" className="h-7 w-auto" />
           </div>
 
           <div

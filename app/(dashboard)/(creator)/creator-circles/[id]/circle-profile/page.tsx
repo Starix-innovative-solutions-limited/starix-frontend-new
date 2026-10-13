@@ -7,6 +7,7 @@ import { FiSearch } from "react-icons/fi";
 import { FiX } from "react-icons/fi";
 import { FaInstagram, FaTiktok, FaYoutube } from "react-icons/fa";
 import { useGetCircleProfile, useGetCurrentUser, useGetCircleSocials, useDisconnectSocial, useGetCircleMonthlyEarnings} from "@/hooks/useCircles";
+import { useGetMe } from "@/hooks/useAuth";
 import BannerUploadModal from "@/components/(creator)/dashboard/BannerUploadModal";
 import ConnectSocialsModal from "@/components/(creator)/dashboard/ConnectSocialsModal";
 import SettingsModal from "@/components/(creator)/dashboard/SettingsModal";
@@ -22,8 +23,18 @@ const CircleProfilePage = () => {
   // Data fetching
   const { data: profile, isLoading } = useGetCircleProfile(id);
   const { data: currentUser } = useGetCurrentUser();
+  const { data: me } = useGetMe();
 
-  const currentUserId = currentUser?.id ?? "c73faebb-f0a8-4582-abd9-0f2f049ea2f9";
+  const currentUserId = currentUser?.id ?? me?.id ?? "c73faebb-f0a8-4582-abd9-0f2f049ea2f9";
+
+  const memberPhoto = (member: any) => {
+    const fromMember = member?.profile_picture_url?.trim();
+    if (fromMember) return fromMember;
+    if (member?.user_id && member.user_id === me?.id) {
+      return me?.profile_picture_url?.trim() || null;
+    }
+    return null;
+  };
 
 const { data: monthlyEarnings } = useGetCircleMonthlyEarnings(id);  
 
@@ -106,7 +117,7 @@ const confirmDelete = () => {
               onClick={() => setIsSettingsOpen(true)} 
               className="w-[40px] h-[40px] rounded-full bg-white border flex items-center justify-center border-[#8B8D98] hover:bg-gray-50"
             >
-              <img src="/vectros.svg" alt="Settings" />
+              <img src="/vectros.webp" alt="Settings" />
             </button>
           )}
         </div>
@@ -129,31 +140,53 @@ const confirmDelete = () => {
         
         <div className="relative group">
           <div className="flex -space-x-3 cursor-pointer">
-            {circle.members?.slice(0, 4).map((member: any) => (
-              <div key={member.user_id} className="w-8 h-8 rounded-full border-2 border-white bg-gray-200 overflow-hidden transition-all group-hover:translate-x-1">
-                {member.profile_picture_url ? (
-                  <Image src={member.profile_picture_url} width={32} height={32} alt="Member" />
+            {circle.members?.slice(0, 4).map((member: any) => {
+              const photo = memberPhoto(member);
+              return (
+              <div key={member.user_id} className="relative w-8 h-8 rounded-full border-2 border-white bg-gray-200 overflow-hidden transition-all group-hover:translate-x-1">
+                {photo ? (
+                  <Image
+                    src={photo}
+                    fill
+                    sizes="32px"
+                    alt={member.username || "Member"}
+                    className="object-cover"
+                    unoptimized={photo.includes("blob.core.windows.net")}
+                  />
                 ) : (
                   <div className="w-full h-full bg-gray-300" />
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Dropdown Card */}
           <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-100 shadow-xl rounded-2xl p-3 z-50 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto">
             <p className="text-[12px] font-semibold text-gray-400 mb-2 px-2">Circle Members</p>
-            {circle.members?.map((member: any) => (
+            {circle.members?.map((member: any) => {
+              const photo = memberPhoto(member);
+              return (
               <div key={member.user_id} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg">
-                <div className="w-6 h-6 rounded-full bg-gray-200 overflow-hidden">
-                  {member.profile_picture_url && <Image src={member.profile_picture_url} width={24} height={24} alt="" />}
+                <div className="relative w-6 h-6 rounded-full bg-gray-200 overflow-hidden">
+                  {photo && (
+                    <Image
+                      src={photo}
+                      fill
+                      sizes="24px"
+                      alt=""
+                      className="object-cover"
+                      unoptimized={photo.includes("blob.core.windows.net")}
+                    />
+                  )}
                 </div>
                 <div className="text-[12px]">
                   <p className="font-medium">{member.username}</p>
                   <p className="text-[10px] text-gray-500 capitalize">{member.role}</p>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -222,7 +255,7 @@ const confirmDelete = () => {
           <div className="bg-[#E5FFE5] p-4 rounded-[24px] w-full">
             <div className="flex items-center mb-2">
               <div className="w-8 h-8 rounded-full flex items-center justify-center">
-                <img src="/coin.svg" alt="" />
+                <img src="/coin.webp" alt="" />
               </div>
               <p className="text-[16px] font-medium text-[#1E1F24]">Total Earnings</p>
             </div>
@@ -254,7 +287,7 @@ const confirmDelete = () => {
           <div className="bg-[#FFF0FD] p-4 rounded-[24px] relative">
             <div className="flex items-center mb-2">
               <div className="w-8 h-8 rounded-full flex items-center justify-center">
-                <img src="/diamonddd.svg" alt="Engagement" />
+                <img src="/diamonddd.webp" alt="Engagement" />
               </div>
               <p className="text-[16px] font-medium text-[#1E1F24]">Total Engagement</p>
             </div>
@@ -307,7 +340,7 @@ const confirmDelete = () => {
             <div>
               <div className="flex items-center mb-2">
                 <div className="w-8 h-8 rounded-full flex items-center justify-center">
-                  <img src="/candyyy.svg" alt="" />
+                  <img src="/candyyy.webp" alt="" />
                 </div>
                 <p className="text-[16px] font-medium text-[#1E1F24]">Circle Score</p>
               </div>
@@ -332,7 +365,7 @@ const confirmDelete = () => {
           
           {hasNoChallenges ? (
              <div className="flex flex-col items-center justify-center py-16 text-center">
-               <img src="/circle.svg" alt="Empty" className="w-[120px] h-[120px] mb-6" />
+               <img src="/circle.webp" alt="Empty" className="w-[120px] h-[120px] mb-6" />
                <h3 className="text-[20px] font-semibold mb-2">No active challenges</h3>
                <p className="text-[#62636C] text-[14px] max-w-[400px] mb-8">Your team hasn't joined any challenges yet.</p>
                <button onClick={() => router.push("/challenges/recommended")} className="px-6 py-3 bg-[#0033FF] text-[#FAFAFA] rounded-full font-semibold">Find Challenges</button>

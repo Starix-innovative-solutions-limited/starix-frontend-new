@@ -28,11 +28,11 @@ interface WalletSettingsModalProps {
 }
 
 const BANKS = [
-  { name: "Access Bank", id: "1", icon: "/access.svg" },
-  { name: "FCMB", id: "2", icon: "/fcmb.svg" },
-  { name: "Guaranty Trust Bank", id: "3", icon: "/gtb.svg" },
-  { name: "Moniepoint", id: "4", icon: "/moniepoint.svg" },
-  { name: "Zenith Bank", id: "5", icon: "/zenith.svg" },
+  { name: "Access Bank", id: "1", icon: "/access.webp" },
+  { name: "FCMB", id: "2", icon: "/fcmb.webp" },
+  { name: "Guaranty Trust Bank", id: "3", icon: "/gtb.webp" },
+  { name: "Moniepoint", id: "4", icon: "/moniepoint.webp" },
+  { name: "Zenith Bank", id: "5", icon: "/zenith.webp" },
 ];
 
  

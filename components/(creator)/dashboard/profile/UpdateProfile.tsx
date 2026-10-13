@@ -17,7 +17,7 @@ const UpdateProfile: React.FC = () => {
 
     // Local state for image preview and the actual File object
     const [profileImage, setProfileImage] = useState<string>(
-        profile?.profile_image || "/avatar.svg"
+        profile?.profile_image || "/avatar.webp"
     );
     const [imageFile, setImageFile] = useState<File | null>(null);
 

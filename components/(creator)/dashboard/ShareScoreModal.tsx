@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion";
 import { FiX } from "react-icons/fi";
 import { toast } from "react-hot-toast";
-import { toBlob, toJpeg, toPng } from "html-to-image";
+import { toBlob, toJpeg } from "html-to-image";
 import { useGetMe } from "@/hooks/useAuth";
 import { useGetCreatorProfile } from "@/hooks/useProfile";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -22,7 +22,9 @@ type ShareScoreModalProps = {
 const CARD_BG = "#D4F0FF";
 const SCORE_BLUE = "#0033FF";
 const RING_BLUE = "#114BF6";
-const EXPORT_EDGE = 2880;
+const EXPORT_WIDTH = 1080;
+const EXPORT_HEIGHT = 1290;
+const JPEG_QUALITY = 0.92;
 
 const PLATFORM_URL: Record<SharePlatform, string> = {
   instagram: "https://www.instagram.com/",
@@ -180,26 +182,22 @@ function wrapCenteredText(
   });
 }
 
-async function renderShareCardPng(opts: {
+async function renderShareCard(opts: {
   name: string;
   score: number;
   avatarUrl?: string | null;
 }): Promise<Blob> {
-  const scale = 3;
-  const width = 1080 * scale;
-  const height = 1290 * scale;
   const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
+  canvas.width = EXPORT_WIDTH;
+  canvas.height = EXPORT_HEIGHT;
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Could not create canvas");
 
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
-  ctx.scale(scale, scale);
 
-  const w = 1080;
-  const h = 1290;
+  const w = EXPORT_WIDTH;
+  const h = EXPORT_HEIGHT;
   const clamped = Math.min(100, Math.max(0, Math.round(opts.score)));
   const possessive = toPossessive(opts.name);
 
@@ -211,10 +209,10 @@ async function renderShareCardPng(opts: {
   ctx.clip();
 
   const [logo, avatar, star, collage] = await Promise.all([
-    loadImage("/n-logo.svg"),
+    loadImage("/n-logo.webp"),
     opts.avatarUrl ? loadImage(opts.avatarUrl, false) : Promise.resolve(null),
-    loadImage("/candyyy.svg"),
-    loadImage("/improve.svg"),
+    loadImage("/candyyy.webp"),
+    loadImage("/improve.webp"),
   ]);
 
   if (logo) {
@@ -324,7 +322,7 @@ async function renderShareCardPng(opts: {
   ctx.restore();
 
   const blob = await new Promise<Blob | null>((resolve) => {
-    canvas.toBlob((result) => resolve(result), "image/png");
+    canvas.toBlob((result) => resolve(result), "image/jpeg", JPEG_QUALITY);
   });
 
   if (blob) return blob;
@@ -388,7 +386,7 @@ function ShareScoreRing({ score }: { score: number }) {
         style={{ inset: 10 }}
       >
         <img
-          src="/candyyy.svg"
+          src="/candyyy.webp"
           alt=""
           className="mb-0.5 h-4 w-4 object-contain"
         />
@@ -484,10 +482,7 @@ export default function ShareScoreModal({
     const node = cardRef.current;
 
     if (node) {
-      const pixelRatio = Math.min(
-        6,
-        EXPORT_EDGE / Math.max(node.offsetWidth, 1)
-      );
+      const pixelRatio = EXPORT_WIDTH / Math.max(node.offsetWidth, 1);
       const exportOptions = {
         cacheBust: true,
         pixelRatio,
@@ -495,6 +490,7 @@ export default function ShareScoreModal({
         backgroundColor: CARD_BG,
         canvasWidth: Math.round(node.offsetWidth * pixelRatio),
         canvasHeight: Math.round(node.offsetHeight * pixelRatio),
+        quality: JPEG_QUALITY,
         fetchRequestInit: {
           mode: "cors" as RequestMode,
           credentials: "omit" as RequestCredentials,
@@ -502,29 +498,21 @@ export default function ShareScoreModal({
       };
 
       try {
-        const pngBlob = await toBlob(node, {
+        const jpegBlob = await toBlob(node, {
           ...exportOptions,
-          type: "image/png",
+          type: "image/jpeg",
         });
-        if (pngBlob) return pngBlob;
+        if (jpegBlob) return jpegBlob;
 
-        const pngUrl = await toPng(node, exportOptions);
-        return dataUrlToBlob(pngUrl);
+        const jpegUrl = await toJpeg(node, exportOptions);
+        return dataUrlToBlob(jpegUrl);
       } catch {
-        try {
-          const jpegUrl = await toJpeg(node, {
-            ...exportOptions,
-            quality: 0.95,
-          });
-          return dataUrlToBlob(jpegUrl);
-        } catch {
-          // Fall through to canvas renderer.
-        }
+        // Fall through to canvas renderer.
       }
     }
 
     const exportPhoto = embeddedPhoto || photo;
-    return renderShareCardPng({
+    return renderShareCard({
       name,
       score: clampedScore,
       avatarUrl: exportPhoto,
@@ -612,7 +600,7 @@ export default function ShareScoreModal({
               >
                 <div className="flex flex-col items-center px-5 pt-5 text-center">
                   <img
-                    src="/n-logo.svg"
+                    src="/n-logo.webp"
                     alt="starix"
                     className="h-4 w-auto object-contain"
                   />
@@ -660,7 +648,7 @@ export default function ShareScoreModal({
 
                 <div className="relative mt-1 h-[128px] w-full overflow-hidden">
                   <img
-                    src="/improve.svg"
+                    src="/improve.webp"
                     alt=""
                     className="absolute inset-x-0 bottom-0 h-[210px] w-full object-cover object-bottom"
                   />
@@ -687,7 +675,7 @@ export default function ShareScoreModal({
                     className="flex h-10 w-10 items-center justify-center rounded-full border border-[#E0E1E6] transition hover:bg-[#F8F9FB] disabled:opacity-50"
                     aria-label="Share on Instagram"
                   >
-                    <img src="/ig.svg" alt="" className="h-[18px] w-[18px]" />
+                    <img src="/ig.webp" alt="" className="h-[18px] w-[18px]" />
                   </button>
                   <button
                     type="button"
@@ -696,7 +684,7 @@ export default function ShareScoreModal({
                     className="flex h-10 w-10 items-center justify-center rounded-full border border-[#E0E1E6] transition hover:bg-[#F8F9FB] disabled:opacity-50"
                     aria-label="Share on TikTok"
                   >
-                    <img src="/tt.svg" alt="" className="h-[18px] w-[18px]" />
+                    <img src="/tt.webp" alt="" className="h-[18px] w-[18px]" />
                   </button>
                   <button
                     type="button"
@@ -705,7 +693,7 @@ export default function ShareScoreModal({
                     className="flex h-10 w-10 items-center justify-center rounded-full border border-[#E0E1E6] transition hover:bg-[#F8F9FB] disabled:opacity-50"
                     aria-label="Share on YouTube"
                   >
-                    <img src="/yt.svg" alt="" className="h-3 w-[18px]" />
+                    <img src="/yt.webp" alt="" className="h-3 w-[18px]" />
                   </button>
                   <button
                     type="button"

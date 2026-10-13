@@ -34,7 +34,7 @@ const SubmitSuccessModal = ({
         <div className="p-12 flex flex-col items-center text-center">
           <div className="relative w-[180px] h-[180px] bg-[#F2F4F7] rounded-full flex items-center justify-center mb-10 mt-6">
             <Image
-              src="/dash-logo.svg"
+              src="/dash-logo.webp"
               alt="Starix"
               width={72}
               height={72}

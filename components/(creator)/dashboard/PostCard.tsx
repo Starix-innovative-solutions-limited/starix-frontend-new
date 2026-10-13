@@ -47,7 +47,7 @@ const openSubmissionDetails = () => {
     >
       <div className="relative">
         <Image
-          src={"/card22.png"}
+          src={"/card22.webp"}
           alt="post"
           width={1000}
           height={1000}

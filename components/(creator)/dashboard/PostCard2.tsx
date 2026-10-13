@@ -27,7 +27,7 @@ const PostCard2 = ({
   views = 10,
   platform = "TIKTOK",
   link,
-  image = "/card22.png",
+  image = "/card22.webp",
 }: PostProps) => {
   const router = useRouter();
 

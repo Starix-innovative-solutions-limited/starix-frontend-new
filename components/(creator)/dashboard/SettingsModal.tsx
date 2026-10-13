@@ -680,7 +680,7 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
                         style={{ background: generateChartGradient() }}
                       >
                         <div className="w-[85px] h-[85px] bg-white rounded-full flex items-center justify-center">
-                          <img src="/diamonddd.svg" alt="diamond" className="w-[40px] h-[40px]" />
+                          <img src="/diamonddd.webp" alt="diamond" className="w-[40px] h-[40px]" />
                         </div>
                       </div>
                     </div>

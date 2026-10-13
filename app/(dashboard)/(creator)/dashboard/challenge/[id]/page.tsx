@@ -256,7 +256,7 @@ const ChallengeDetailPage = () => {
       <div className="mb-4 flex items-center gap-4">
         <div className="relative h-14 w-14 overflow-hidden rounded-full border border-gray-100 bg-gray-50">
           <Image
-            src={challenge.brand_profile_picture_url || "/dash-logo.svg"}
+            src={challenge.brand_profile_picture_url || "/dash-logo.webp"}
             alt={challenge.brand_name || "Brand"}
             fill
             className="object-cover"

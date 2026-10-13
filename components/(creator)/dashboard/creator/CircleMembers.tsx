@@ -15,7 +15,7 @@ const CircleMembers = () => {
                 [1,2,3,1,1,1,1,1,1,1,1,1,1,1,1,1]?.map((i) => (
                     <div className="flex items-center justify-between pb-2" key={i}>
                     <div className="flex items-center gap-3">
-                     <Image src={'/profile.png'} alt='profile' width={100} height={100} className='w-10 h-10' />
+                     <Image src={'/profile.webp'} alt='profile' width={100} height={100} className='w-10 h-10' />
                       <div>
                         <h3 className="font-normal text-base text-secondary-100">Favour</h3>
                         <p className="text-sm text-dark font-light -mt-1">@favvy</p>

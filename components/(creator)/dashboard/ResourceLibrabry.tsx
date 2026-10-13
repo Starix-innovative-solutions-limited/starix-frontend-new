@@ -65,7 +65,7 @@ const ResourceLibrary = () => {
         {/* LEFT */}
         <div className="flex items-center gap-5">
           <div className="bg-white w-24 h-24 rounded-2xl grid place-items-center">
-            <Image src="/doc.svg" alt="file" width={60} height={60} />
+            <Image src="/doc.webp" alt="file" width={60} height={60} />
           </div>
 
           <div className="space-y-2">
@@ -77,7 +77,7 @@ const ResourceLibrary = () => {
 
             <div className="flex items-center gap-2">
               <Image
-                src="/avatar.svg"
+                src="/avatar.webp"
                 alt="profile"
                 width={28}
                 height={28}
@@ -112,7 +112,7 @@ const ResourceLibrary = () => {
       {/* IMAGE */}
       <div className="w-28 h-28 rounded-2xl overflow-hidden relative">
         <Image
-          src="/rule.png"
+          src="/rule.webp"
           alt="media"
           fill
           className="object-cover"
@@ -129,7 +129,7 @@ const ResourceLibrary = () => {
 
         <div className="flex items-center gap-2">
           <Image
-            src="/avatar.svg"
+            src="/avatar.webp"
             alt="profile"
             width={28}
             height={28}

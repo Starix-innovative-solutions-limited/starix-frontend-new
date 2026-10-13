@@ -28,7 +28,7 @@ export default function LogoutModal({ onClose }: LogoutProps) {
               className="relative"
             >
               <Image
-                src={"/images/logout.png"}
+                src={"/images/logout.webp"}
                 alt="nkl"
                 width={1000}
                 height={1000}

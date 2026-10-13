@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ChallengeMediaGrid from "@/components/(creator)/challenge/ChallengeMediaGrid";
 
@@ -14,6 +15,20 @@ export type BrandChallengeCardData = {
   submissions: number;
   images?: string[];
 };
+
+function ClientPostedAgo({ postedAgo }: { postedAgo: string }) {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return <span>Recently</span>;
+  }
+
+  return <span>{postedAgo}</span>;
+}
 
 export default function BrandChallengeCard({
   challenge,
@@ -61,7 +76,7 @@ export default function BrandChallengeCard({
       </h3>
 
       <p className="flex flex-wrap items-center gap-x-1.5 text-[12px] font-medium text-[#62636C] sm:text-[13px]">
-        <span>{challenge.postedAgo}</span>
+        <ClientPostedAgo postedAgo={challenge.postedAgo} />
         <span className="text-[16px] text-[#CDCED7]">•</span>
         <span>{challenge.prizePool} prize pool</span>
         <span className="text-[16px] text-[#CDCED7]">•</span>

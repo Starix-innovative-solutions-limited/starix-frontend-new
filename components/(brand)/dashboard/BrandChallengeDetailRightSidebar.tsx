@@ -38,9 +38,9 @@ const eligibilityLabels: Record<string, string> = {
 };
 
 const platformIcons: Record<string, string> = {
-  youtube: "/yt.svg",
-  instagram: "/ig.svg",
-  tiktok: "/tt.svg",
+  youtube: "/yt.webp",
+  instagram: "/ig.webp",
+  tiktok: "/tt.webp",
 };
 
 const ordinals = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th"];

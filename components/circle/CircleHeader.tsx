@@ -14,7 +14,7 @@ export default function CircleHeader() {
         border-[#FFE8DA] flex items-center justify-center">
 
           <Image
-            src="/trophy.svg"
+            src="/trophy.webp"
             alt="circle"
             width={70}
             height={70}

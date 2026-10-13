@@ -78,7 +78,7 @@ const FeedDetails = () => {
             <div className="lg:w-1/3 bg-secondary-100/5 rounded-2xl shadow border border-gray-50 flex flex-col">
               <div className=" pb-2">
                 <div className="flex items-center gap-3 shadow p-6">
-                  <Image src={'/avatar.svg'} alt='profile' width={100} height={100} className='w-10 rounded-full h-10' />
+                  <Image src={'/avatar.webp'} alt='profile' width={100} height={100} className='w-10 rounded-full h-10' />
                   <div>
                     <h3 className="font-normal text-base text-secondary-100">Favour</h3>
                     <p className="text-sm text-dark font-light -mt-1">@favvy</p>
@@ -91,7 +91,7 @@ const FeedDetails = () => {
                 <HiX className="text-secondary-100 ml-auto cursor-pointer" onClick={() => setShowComment(false)} />
                 {comments.map((cmt, idx) => (
                   <div key={idx} className="flex gap-3">
-                    <Image src={'/avatar.svg'} alt='profile' width={100} height={100} className='w-10 rounded-full h-10' />
+                    <Image src={'/avatar.webp'} alt='profile' width={100} height={100} className='w-10 rounded-full h-10' />
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-sm text-gray-900">
@@ -115,7 +115,7 @@ const FeedDetails = () => {
 
               <div className="p-4 bg-white/50">
                 <div className="flex gap-2 items-center">
-                  <Image src={'/avatar.svg'} alt='profile' width={100} height={100} className='w-8 h-8 rounded-full' />
+                  <Image src={'/avatar.webp'} alt='profile' width={100} height={100} className='w-8 h-8 rounded-full' />
 
                   <CustomInput type="text"
                     placeholder="Add a comment"

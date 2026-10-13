@@ -36,7 +36,7 @@ const EarningsHistory = () => {
         </button>
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center gap-4 mb-8">
-            <img src={detail.brand_logo_url || "/default.svg"} className="w-16 h-16 rounded-full object-cover" alt="Brand" />
+            <img src={detail.brand_logo_url || "/default.webp"} className="w-16 h-16 rounded-full object-cover" alt="Brand" />
             <div>
               <h2 className="text-[20px] font-semibold text-[#1E1F24]">{detail.title}</h2>
               <p className="text-[14px] text-gray-500">Gross Prize: ₦{(detail.gross_prize / 100).toLocaleString()}</p>
@@ -48,7 +48,7 @@ const EarningsHistory = () => {
             {detail.payout_splits?.map((split: any, i: number) => (
               <div key={i} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                 <div className="flex items-center gap-3">
-                  <img src={split.profile_picture_url || "/default.svg"} className="w-8 h-8 rounded-full" />
+                  <img src={split.profile_picture_url || "/default.webp"} className="w-8 h-8 rounded-full" />
                   <span className="font-medium text-[#1E1F24]">{split.full_name}</span>
                 </div>
                 <span className="font-semibold text-blue-600">{split.split_percentage}%</span>
@@ -74,7 +74,7 @@ const EarningsHistory = () => {
         {/* Hero Stats Card */}
         <div className="bg-[#F9FAFB] rounded-[32px] p-6 mb-10">
           <div className="flex items-center gap-2 mb-2">
-            <img src="/coin.svg" alt="Coin" className="w-6 h-6" />
+            <img src="/coin.webp" alt="Coin" className="w-6 h-6" />
             <span className="text-[20px] font-medium text-[#1E1F24]">Total Earnings</span>
           </div>
           
@@ -116,7 +116,7 @@ const EarningsHistory = () => {
               >
                 <div className="flex items-center gap-5">
                   <div className="relative w-14 h-14 shrink-0">
-                    <Image src={item.brand_logo_url || "/default.svg"} fill alt="Brand" className="rounded-full object-cover" />
+                    <Image src={item.brand_logo_url || "/default.webp"} fill alt="Brand" className="rounded-full object-cover" />
                     <div className="absolute bottom-0 right-0 w-5 h-5 bg-[#0CC963] rounded-full border-2 border-white flex items-center justify-center">
                       <GoArrowRight className="text-white -rotate-90" size={10} />
                     </div>

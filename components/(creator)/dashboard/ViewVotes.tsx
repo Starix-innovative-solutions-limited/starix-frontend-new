@@ -59,7 +59,7 @@ const ViewVotes = () => {
                   className="flex items-center justify-between p-2 rounded-xl hover:bg-gray-100 transition-colors"
                 >
                     <div className="flex items-center gap-3">
-                     <Image src={'/profile.png'} alt='profile' width={100} height={100} className='w-10 h-10' />
+                     <Image src={'/profile.webp'} alt='profile' width={100} height={100} className='w-10 h-10' />
                       <div>
                         <h3 className="font-normal text-base text-secondary-100">Favour</h3>
                         <p className="text-sm text-dark font-light -mt-1">@favvy</p>
@@ -100,7 +100,7 @@ const ViewVotes = () => {
                   className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-100 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                     <Image src={'/profile.png'} alt='profile' width={100} height={100} className='w-10 h-10' />
+                     <Image src={'/profile.webp'} alt='profile' width={100} height={100} className='w-10 h-10' />
                       <div>
                         <h3 className="font-normal text-base text-secondary-100">Favour</h3>
                         <p className="text-sm text-dark font-light -mt-1">@favvy</p>

@@ -72,7 +72,7 @@ const ChallengeLeaderboard = () => {
               </div>
               <div className="relative">
                 <div className="w-24 h-24 rounded-full flex items-center justify-center transform rotate-12">
-                   <img src="/Badge 1.svg" alt="" />
+                   <img src="/Badge 1.webp" alt="" />
                 </div>
               </div>
             </div>
@@ -89,7 +89,7 @@ const ChallengeLeaderboard = () => {
                 <div className="flex justify-between items-start mb-8">
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 rounded-full bg-[#EAECF0] overflow-hidden">
-                      <img src="/avatar.svg" alt="" className="rounded-full w-14 h-14" />
+                      <img src="/avatar.webp" alt="" className="rounded-full w-14 h-14" />
                     </div>
                     <div>
                       <h3 className="text-[17px] font-bold text-[#101828] leading-tight">{leader.name}</h3>
@@ -98,7 +98,7 @@ const ChallengeLeaderboard = () => {
                   </div>
                   {leader.hasTrophy && (
                      <div className="w-20 h-20 -mt-2 -mr-4 drop-shadow-lg">
-                        <img src="/Trophy22.svg" alt="" />
+                        <img src="/Trophy22.webp" alt="" />
                      </div>
                   )}
                 </div>
@@ -152,7 +152,7 @@ const ChallengeLeaderboard = () => {
                     <td className="px-8 py-6 font-semibold text-[#101828]">#{item.rank}</td>
                     <td className="px-6 py-6">
                       <div className="flex items-center gap-3">
-                        <img src="/avatar.svg" alt="" className="rounded-full"/>
+                        <img src="/avatar.webp" alt="" className="rounded-full"/>
                         <div>
                           <p className="font-semibold text-[#101828] text-sm">Favour</p>
                           <p className="text-xs text-[#667085]">@favvy</p>

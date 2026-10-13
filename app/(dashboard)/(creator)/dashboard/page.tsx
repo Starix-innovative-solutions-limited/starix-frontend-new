@@ -116,7 +116,7 @@ const Page = () => {
       id: item.challenge_id,
       title: item.title,
       brand: item.brand_name || "Brand",
-      logo: item.brand_logo_url?.trim() || "/dash-logo.svg",
+      logo: item.brand_logo_url?.trim() || "/dash-logo.webp",
       status: formatStatusText(item.status),
       pool: `${formatCompactNaira(
         item.prize_pool_formatted ||

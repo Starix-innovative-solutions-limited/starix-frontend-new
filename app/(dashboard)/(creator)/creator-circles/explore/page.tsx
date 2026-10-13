@@ -76,7 +76,7 @@ export default function ExploreCircles() {
             >
               <div className="relative aspect-square w-full rounded-[32px] overflow-hidden">
                 <Image 
-                  src={circle.profile_picture_url || "/default-circle.svg"} 
+                  src={circle.profile_picture_url || "/default-circle.webp"} 
                   alt={circle.name || "Circle"} 
                   fill 
                   className="object-cover z-10"

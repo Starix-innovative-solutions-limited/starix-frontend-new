@@ -81,7 +81,7 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
           }`}
         >
           <Image
-            src="/close.svg"
+            src="/close.webp"
             alt="Toggle Sidebar"
             width={40}
             height={40}

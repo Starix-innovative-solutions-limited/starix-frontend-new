@@ -50,7 +50,7 @@ const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: b
       return {
         id: challenge.id || idx + 1,
         brand: challenge.brand_name || "Brand",
-        logo: challenge.brand_profile_picture_url || "/nivea.svg",
+        logo: challenge.brand_profile_picture_url || "/nivea.webp",
         time: formatTimeAgo(challenge.created_at),
         niche: challenge.category_name
           ? [challenge.category_name]
@@ -69,7 +69,7 @@ const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: b
         images:
           mediaUrls.length > 0
             ? mediaUrls.slice(0, 4)
-            : ["/left1.svg", "/right1.svg"],
+            : ["/left1.webp", "/right1.webp"],
         views: challenge.viewer_count
           ? `${(challenge.viewer_count / 1000).toFixed(1)}k`
           : "0",

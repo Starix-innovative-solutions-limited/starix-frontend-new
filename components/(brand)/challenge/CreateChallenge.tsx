@@ -155,9 +155,9 @@ const SUBMITTER_OPTIONS = [
 const PLATFORM_OPTIONS = ["TikTok", "Instagram", "YouTube"] as const;
 
 const PLATFORM_ICONS: Record<string, string> = {
-  YouTube: "/yt.svg",
-  Instagram: "/ig.svg",
-  TikTok: "/tt.svg",
+  YouTube: "/yt.webp",
+  Instagram: "/ig.webp",
+  TikTok: "/tt.webp",
 };
 
 const PRIZE_CARD_COLORS = [

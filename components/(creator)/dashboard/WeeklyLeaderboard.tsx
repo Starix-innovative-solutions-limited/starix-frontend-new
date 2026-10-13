@@ -66,7 +66,7 @@ const WeeklyLeaderboard = () => {
       <div className="flex justify-center border-b py-2  border-[#6E6E6E33]">
         <div className="flex items-center gap-2">
           <Image
-            src="/badge.svg"
+            src="/badge.webp"
             width={1000}
             height={1000}
             alt="badge"
@@ -152,7 +152,7 @@ const WeeklyLeaderboard = () => {
                       <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-orange-300 to-pink-300 rounded-full shrink-0" />
                     )} */} {/* Using placeholder avatar for now */}
                     <Image
-                      src={creator.avatarUrl || "/avatar.svg"}
+                      src={creator.avatarUrl || "/avatar.webp"}
                       alt={creator.username}
                       width={40}
                       height={40}

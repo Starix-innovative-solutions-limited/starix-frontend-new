@@ -21,7 +21,7 @@ export default function MembersList() {
           <div className="flex gap-4 items-center">
 
             <Image
-              src="/avatar.svg"
+              src="/avatar.webp"
               alt="avatar"
               width={56}
               height={56}
