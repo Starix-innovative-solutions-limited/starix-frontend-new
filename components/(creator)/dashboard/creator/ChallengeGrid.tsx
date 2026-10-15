@@ -99,7 +99,7 @@ const ChallengeGrid = () => {
               >
                 {tab.label}
                 <span className={`text-[11px] px-2 py-0.5 rounded-full ${
-                  isActive ? "bg-[#F9FAFB] text-[#101828] font-bold" : "bg-white text-gray-400 border border-gray-100"
+                  isActive ? "bg-[#F9FAFB] text-[#101828] font-semibold" : "bg-white text-gray-400 border border-gray-100"
                 }`}>
                   {tab.count}
                 </span>

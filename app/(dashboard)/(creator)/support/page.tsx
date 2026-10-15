@@ -93,7 +93,7 @@ export default function Page() {
         }}
       >
         <div>
-          <h1 className="text-4xl font-bold text-[#333333] mb-2">
+          <h1 className="text-4xl font-semibold text-[#333333] mb-2">
             Support Center
           </h1>
           <p className="text-[#333333] mb-4">How can we help you?</p>

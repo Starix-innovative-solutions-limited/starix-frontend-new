@@ -2,38 +2,47 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Sarina } from "next/font/google";
 import { getSignupHref } from "@/lib/waitlist";
+
+const sarina = Sarina({
+  subsets: ["latin"],
+  weight: "400",
+});
 
 const CreatorEarnBanner = () => {
   return (
-    <section className="bg-transparent px-6 pb-20 md:px-12 lg:px-16">
-      <div className="relative mx-auto h-[320px] w-full max-w-[1320px] overflow-hidden rounded-[40px] md:h-[380px]">
-        <Image
-          src="/frontman.webp"
-          alt=""
-          fill
-          priority={false}
-          sizes="(max-width: 768px) 100vw, 1320px"
-          className="object-cover object-[center_35%]"
-        />
-        <div className="absolute inset-0 bg-[#0D297073]" />
+    <section className="relative h-[740px] w-full overflow-hidden md:h-[420px] lg:h-[480px] xl:h-[560px]">
+      <Image
+        src="/grass.webp"
+        alt=""
+        fill
+        sizes="100vw"
+        className="object-cover object-[36%_center] md:object-[center_42%]"
+      />
+      <div className="absolute inset-0 bg-[#0033FF33]" />
 
-        <div className="relative z-10 flex h-full max-w-[550px] flex-col justify-center px-6 md:px-14">
-          <h2 className="font-['Geist'] text-[30px] font-normal leading-[1.05] tracking-[-0.04em] text-white md:text-[52px]">
-            Earn money from
-            <br />
-            content you already
-            <br />
-            make for fun
-          </h2>
+      <div className="relative z-10 mx-auto flex h-full w-full max-w-[1320px] flex-col justify-start px-5 pt-14 md:justify-center md:px-10 md:pt-0 xl:px-16">
+        <p
+          className={`${sarina.className} text-[32px] leading-none font-normal tracking-[-0.04em] text-white md:text-[32px] xl:text-[40px]`}
+        >
+          But On Starix
+        </p>
+        <h2 className="mt-3 max-w-[340px] font-['Geist'] text-[30px] font-medium leading-[1.05] tracking-[-0.04em] text-white md:mt-3 md:max-w-[560px] md:text-[44px] lg:max-w-[640px] lg:text-[52px] xl:max-w-[920px] xl:text-[80px]">
+          You can earn money
+          <br />
+          from challenges you
+          <br />
+          already join for fun
+        </h2>
 
-          <Link
-            href={getSignupHref("creator")}
-            className="mt-7 inline-flex w-fit items-center rounded-full bg-[#FF8A00] px-5 py-2.5 text-[14px] font-medium text-white transition hover:brightness-110"
-          >
-            Find Challenges
-          </Link>
-        </div>
+        <Link
+          href={getSignupHref("creator")}
+          className="mt-8 inline-flex w-fit items-center rounded-full bg-[#FD6C1D] p-3 text-[16px] font-medium text-white transition hover:brightness-105 md:mt-8 md:p-4 xl:p-4"
+        >
+          <span className="md:hidden">Download App</span>
+          <span className="hidden md:inline">Find Challenges</span>
+        </Link>
       </div>
     </section>
   );

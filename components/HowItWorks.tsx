@@ -7,19 +7,19 @@ const HowItWorks = () => {
             icon: "/briefs.webp", 
             title: "Guide with Briefs",
             description: "Give creators direction. Hooks, tone, what to avoid. They handle the rest.",
-            scale: "scale-150 translate-x-[-35px] translate-y-[0px] md:scale-120 md:translate-x-[-16px] md:translate-y-0 xl:scale-100 xl:translate-x-0 xl:translate-y-0"
+            scale: "scale-150 translate-x-[-35px] translate-y-[0px] md:scale-120 md:translate-x-[-16px] md:translate-y-0 xl:scale-150 xl:translate-x-[-80px] xl:translate-y-[40px]"
         },
         {
             icon: "/flag.webp", 
             title: "Create a Challenge",
             description: "Set your goals, budget, and timeline. The challenge goes live.",
-            scale: "scale-150 translate-x-[-35px] translate-y-[25px] md:scale-110 md:translate-x-[-16px] md:translate-y-[0px] xl:scale-100 xl:translate-x-0 xl:translate-y-0"
+            scale: "scale-150 translate-x-[-35px] translate-y-[25px] md:scale-110 md:translate-x-[-16px] md:translate-y-[0px] xl:scale-150 xl:translate-x-[-70px] xl:translate-y-[40px]"
         },
         {
-            icon: "/blue gem.png", 
+            icon: "/blue gem.webp", 
             title: "Track & Reward",
             description: "Performance tracked automatically. Winners get paid. You get the content.",
-            scale: "scale-190 translate-x-[-100px] translate-y-[80px] md:scale-140 md:translate-x-[-40px] md:translate-y-[40px] xl:scale-100 xl:translate-x-0 xl:translate-y-0",
+            scale: "scale-190 translate-x-[-100px] translate-y-[80px] md:scale-140 md:translate-x-[-40px] md:translate-y-[40px] xl:scale-200 xl:translate-x-[-160px] xl:translate-y-[100px]",
         
             
         }
@@ -30,19 +30,19 @@ const HowItWorks = () => {
             icon: "/timer.webp", 
             title: "Discover Challenges",
             description: "Find challenges that fit what you already do. No pitching required.",
-            scale: "scale-200 translate-x-[-100px] translate-y-[40px] md:scale-180 md:translate-x-[-60px] md:translate-y-[16px] xl:scale-80 xl:translate-x-0 xl:translate-y-0"
+            scale: "scale-200 translate-x-[-100px] translate-y-[40px] md:scale-180 md:translate-x-[-60px] md:translate-y-[16px] xl:scale-250 xl:translate-x-[-180px] xl:translate-y-[80px]"
         },
         {
             icon: "/buttons 2.webp", 
             title: "Create Content",
             description: "Make the content your way. Submit when you're ready.",
-            scale: "scale-180 translate-x-[-60px] translate-y-[20px] md:scale-160 md:translate-x-[-40px] md:translate-y-[8px] xl:scale-80 xl:translate-x-0 xl:translate-y-0"
+            scale: "scale-180 translate-x-[-60px] translate-y-[20px] md:scale-160 md:translate-x-[-40px] md:translate-y-[8px] xl:scale-200 xl:translate-x-[-100px] xl:translate-y-[50px]"
         },
         {
             icon: "/or-gem.webp", 
             title: "Earn Rewards",
             description: "Win and get paid. No invoices, no chasing, no waiting.",
-            scale: "scale-160 translate-x-[-80px] translate-y-[-20px] rotate-[15deg] md:scale-120 md:translate-x-[-32px] md:translate-y-[-8px] xl:scale-80 xl:translate-x-0 xl:translate-y-0"
+            scale: "scale-160 translate-x-[-80px] translate-y-[-20px] rotate-[15deg] md:scale-120 md:translate-x-[-32px] md:translate-y-[-8px] xl:scale-180 xl:translate-x-[-130px] xl:translate-y-[30px]"
         }
     ];
 

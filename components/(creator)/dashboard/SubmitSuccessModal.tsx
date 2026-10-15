@@ -42,7 +42,7 @@ const SubmitSuccessModal = ({
             />
           </div>
 
-          <h2 className="text-[28px] md:text-[32px] font-bold text-[#101828] leading-tight mb-3">
+          <h2 className="text-[28px] md:text-[32px] font-semibold text-[#101828] leading-tight mb-3">
             Submission Successful
           </h2>
           <p className="text-[#667085] text-[15px] md:text-[16px] font-normal leading-relaxed mb-12 max-w-[340px]">

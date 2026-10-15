@@ -11,7 +11,7 @@ const CreatorCircles = () => {
     <div className="max-w-[1200px] mx-auto p-6 font-sans">
       <header className="flex justify-between items-center mb-10">
         <div>
-          <h1 className="text-2xl font-bold">Creator Circles</h1>
+          <h1 className="text-2xl font-semibold">Creator Circles</h1>
           <p className="text-gray-500 text-sm">Collaborate and grow with creators</p>
         </div>
       </header>
@@ -19,20 +19,20 @@ const CreatorCircles = () => {
       {/* Hero Buttons */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
         <div className="bg-[#FFEBE4] p-8 rounded-[32px] h-[200px] flex flex-col justify-between">
-          <h2 className="text-xl font-bold text-[#1E1F24]">Start a Circle</h2>
+          <h2 className="text-xl font-semibold text-[#1E1F24]">Start a Circle</h2>
           <button 
             onClick={() => {
                 setForceEmpty(true);
                 setIsCreateModalOpen(true);
             }} 
-            className="w-fit px-6 py-2 border border-gray-400 rounded-full font-bold text-sm hover:bg-white transition-colors"
+            className="w-fit px-6 py-2 border border-gray-400 rounded-full font-semibold text-sm hover:bg-white transition-colors"
           >
             Create Circle
           </button>
         </div>
         <div className="bg-[#E9F6FF] p-8 rounded-[32px] h-[200px] flex flex-col justify-between">
-          <h2 className="text-xl font-bold text-[#1E1F24]">Join a Circle</h2>
-          <button className="w-fit px-6 py-2 border border-gray-400 rounded-full font-bold text-sm hover:bg-white transition-colors">
+          <h2 className="text-xl font-semibold text-[#1E1F24]">Join a Circle</h2>
+          <button className="w-fit px-6 py-2 border border-gray-400 rounded-full font-semibold text-sm hover:bg-white transition-colors">
             Enter Code
           </button>
         </div>
@@ -40,11 +40,11 @@ const CreatorCircles = () => {
 
       {/* Content Area */}
       <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200">
-          <h3 className="text-2xl font-bold mb-4 text-[#1E1F24]">No circles yet</h3>
+          <h3 className="text-2xl font-semibold mb-4 text-[#1E1F24]">No circles yet</h3>
           <p className="text-gray-500 mb-8">Create a circle or join one to start collaborating.</p>
           <button 
             onClick={() => setIsCreateModalOpen(true)} 
-            className="px-10 py-4 bg-[#0047FF] text-white rounded-full font-bold shadow-lg hover:bg-blue-700 transition-all"
+            className="px-10 py-4 bg-[#0047FF] text-white rounded-full font-semibold shadow-lg hover:bg-blue-700 transition-all"
           >
             Create Circle
           </button>

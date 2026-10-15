@@ -75,7 +75,7 @@ const BannerUploadModal = ({ isOpen, onClose, onUploadSuccess }: ModalProps) => 
       <div className="bg-white w-full max-w-[540px] rounded-[32px] overflow-hidden relative shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between p-8 pb-0">
-          <h2 className="text-[22px] font-bold text-[#1E1F24]">Upload Banner Image</h2>
+          <h2 className="text-[22px] font-semibold text-[#1E1F24]">Upload Banner Image</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
             <FiX size={24} />
           </button>
@@ -113,11 +113,11 @@ const BannerUploadModal = ({ isOpen, onClose, onUploadSuccess }: ModalProps) => 
                       className="text-[#0033FF] transition-all duration-300 stroke-round" 
                     />
                   </svg>
-                  <span className="absolute inset-0 flex items-center justify-center text-[16px] font-bold text-[#1E1F24]">
+                  <span className="absolute inset-0 flex items-center justify-center text-[16px] font-semibold text-[#1E1F24]">
                     {progress}%
                   </span>
                 </div>
-                <p className="text-[14px] font-bold text-[#1E1F24] truncate px-4">{fileName}</p>
+                <p className="text-[14px] font-semibold text-[#1E1F24] truncate px-4">{fileName}</p>
                 <p className="text-[12px] text-gray-400 mt-1">Uploading • {fileSize}</p>
               </div>
             )}

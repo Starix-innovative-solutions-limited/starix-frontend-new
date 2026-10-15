@@ -7,14 +7,22 @@ import { FaInstagram, FaTiktok, FaYoutube } from "react-icons/fa";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useInitiateSocialConnection } from "@/hooks/useSocials";
-import { useGetMe } from "@/hooks/useAuth";
-import type { UserProfile } from "@/utils/type";
+import { useGetCircleSocials } from "@/hooks/useCircles";
+import {
+  useGetCreatorProfile,
+  type CreatorProfile,
+} from "@/hooks/useProfile";
+import {
+  clearSocialOAuthCallback,
+  readSocialOAuthCallback,
+} from "@/lib/socialOAuth";
 import toast from "react-hot-toast";
 
 interface ConnectSocialsModalProps {
   isOpen: boolean;
   onClose: () => void;
   circleId?: string;
+  username?: string;
 }
 
 type PlatformId = "instagram" | "tiktok" | "youtube";
@@ -26,110 +34,95 @@ function normalizePlatformId(value: string | null): PlatformId | null {
   return null;
 }
 
-function readOAuthResult() {
-  if (typeof window === "undefined") return null;
-
-  const hashParams = new URLSearchParams(
-    window.location.hash.replace(/^#/, "")
-  );
-  const query = new URLSearchParams(window.location.search);
-
-  const platform =
-    hashParams.get("platform") || query.get("platform") || null;
-  const status =
-    hashParams.get("status") ||
-    query.get("status") ||
-    query.get("social_auth") ||
-    null;
-  const platformUserId =
-    hashParams.get("platform_user_id") ||
-    query.get("platform_user_id") ||
-    null;
-  const errorMessage =
-    hashParams.get("error_message") ||
-    query.get("error_message") ||
-    query.get("error") ||
-    null;
-
-  if (!platform && !status && !errorMessage) return null;
-
-  return { platform, status, platformUserId, errorMessage };
-}
-
 const ConnectSocialsModal = ({
   isOpen,
   onClose,
+  circleId,
+  username,
 }: ConnectSocialsModalProps) => {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
   const queryClient = useQueryClient();
   const connectSocialMutation = useInitiateSocialConnection();
-  const { data: me } = useGetMe();
+  const { data: creatorProfile } = useGetCreatorProfile(username ?? "", {
+    enabled: !circleId && !!username,
+  });
+  const { data: circleSocials } = useGetCircleSocials(circleId ?? "");
+  const handledCallback = React.useRef(false);
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  /** Platforms confirmed via OAuth before /auth/me refreshes */
   const [justConnected, setJustConnected] = useState<Set<PlatformId>>(
     () => new Set()
   );
 
   const connectedFromProfile = useMemo(() => {
     const set = new Set<PlatformId>();
-    for (const item of me?.connected_platforms ?? []) {
+    const source = circleId
+      ? circleSocials ?? []
+      : creatorProfile?.connected_platforms ?? [];
+    for (const item of source) {
       const id = normalizePlatformId(item.platform);
       if (id) set.add(id);
     }
     return set;
-  }, [me?.connected_platforms]);
+  }, [circleId, circleSocials, creatorProfile?.connected_platforms]);
 
   const isConnected = (id: PlatformId) =>
     connectedFromProfile.has(id) || justConnected.has(id);
 
-  // Capture post-OAuth redirection parameters (query or hash)
   useEffect(() => {
-    const result = readOAuthResult();
+    const result = readSocialOAuthCallback();
     if (!result) return;
 
-    const { platform, status, platformUserId, errorMessage: oauthError } =
-      result;
-    const platformId = normalizePlatformId(platform);
+    if (!handledCallback.current) {
+      handledCallback.current = true;
 
-    if (status === "connected" || status === "success") {
-      if (platformId) {
-        setJustConnected((prev) => new Set(prev).add(platformId));
+      if (result.kind === "success") {
+        const platformId = normalizePlatformId(result.platform);
+        if (platformId) {
+          setJustConnected((prev) => new Set(prev).add(platformId));
 
-        queryClient.setQueryData<UserProfile>(["me"], (current) => {
-          if (!current) return current;
-          const existing = current.connected_platforms ?? [];
-          const already = existing.some(
-            (p) => p.platform.toLowerCase() === platformId
-          );
-          if (already) return current;
-          return {
-            ...current,
-            connected_platforms: [
-              ...existing,
-              {
-                platform: platformId,
-                username: platformUserId || platformId,
-              },
-            ],
-          };
+          if (!circleId && username) {
+            queryClient.setQueryData<CreatorProfile>(
+              ["creatorProfile", username],
+              (current) => {
+                if (!current) return current;
+                const existing = current.connected_platforms ?? [];
+                const already = existing.some(
+                  (p) => p.platform.toLowerCase() === platformId
+                );
+                if (already) return current;
+                return {
+                  ...current,
+                  connected_platforms: [
+                    ...existing,
+                    {
+                      platform: platformId,
+                      username: result.platformUserId || platformId,
+                    },
+                  ],
+                };
+              }
+            );
+          }
+        }
+        queryClient.invalidateQueries({
+          queryKey: circleId
+            ? ["circle-socials", circleId]
+            : ["creatorProfile", username],
         });
+      } else {
+        setErrorMessage(result.message);
+        toast.error(result.message);
       }
-      queryClient.invalidateQueries({ queryKey: ["me"] });
-    } else if (status === "failed" || oauthError) {
-      const message =
-        oauthError || "Authentication process was canceled or failed.";
-      setErrorMessage(message);
-      toast.error(message);
     }
 
-    if (typeof window !== "undefined") {
-      window.history.replaceState(null, "", pathname);
+    if (isOpen) {
+      clearSocialOAuthCallback(pathname);
+      router.replace(pathname, { scroll: false });
     }
-    router.replace(pathname, { scroll: false });
-  }, [isOpen, searchParams, pathname, router, queryClient]);
+  }, [isOpen, searchParams, pathname, router, queryClient, circleId, username]);
 
   if (!isOpen) return null;
 
@@ -160,6 +153,7 @@ const ConnectSocialsModal = ({
       const response = await connectSocialMutation.mutateAsync({
         platform: platformId,
         callbackUrl: currentCallbackUrl,
+        circleId,
       });
 
       if (response?.authorization_url) {

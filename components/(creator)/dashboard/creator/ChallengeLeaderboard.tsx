@@ -81,7 +81,7 @@ const ChallengeLeaderboard = () => {
 
         {/* CURRENT LEADERS */}
         <section>
-          <h2 className="text-[20px] font-bold text-[#101828] mb-4">Current Leaders</h2>
+          <h2 className="text-[20px] font-semibold text-[#101828] mb-4">Current Leaders</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {leaders.map((leader, index) => (
               <div key={index} className="bg-white p-6 border border-[#FAFAFA] shadow-xxs relative min-h-[260px]">
@@ -92,7 +92,7 @@ const ChallengeLeaderboard = () => {
                       <img src="/avatar.webp" alt="" className="rounded-full w-14 h-14" />
                     </div>
                     <div>
-                      <h3 className="text-[17px] font-bold text-[#101828] leading-tight">{leader.name}</h3>
+                      <h3 className="text-[17px] font-semibold text-[#101828] leading-tight">{leader.name}</h3>
                       <p className="text-sm text-[#667085] font-medium">{leader.handle}</p>
                     </div>
                   </div>
@@ -105,15 +105,15 @@ const ChallengeLeaderboard = () => {
 
                 <div className="flex justify-between items-center pt-6 border-t border-[#F2F4F7]">
                   <div>
-                    <p className="text-[10px] text-[#98A2B3] uppercase font-bold tracking-widest mb-1">Starix Score:</p>
+                    <p className="text-[10px] text-[#98A2B3] uppercase font-semibold tracking-widest mb-1">Starix Score:</p>
                     <p className="text-[18px] font-normal text-[#101828]">{leader.score}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-[#98A2B3] uppercase font-bold tracking-widest mb-1">Views:</p>
+                    <p className="text-[10px] text-[#98A2B3] uppercase font-semibold tracking-widest mb-1">Views:</p>
                     <p className="text-[18px] font-normal text-[#101828]">{leader.views}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-[#98A2B3] uppercase font-bold tracking-widest mb-1">Likes:</p>
+                    <p className="text-[10px] text-[#98A2B3] uppercase font-semibold tracking-widest mb-1">Likes:</p>
                     <p className="text-[18px] font-normal text-[#101828]">{leader.likes}</p>
                   </div>
                 </div>
@@ -121,7 +121,7 @@ const ChallengeLeaderboard = () => {
                 {/* Rank Badge - EXTREME LEFT BOTTOM */}
                 <div className="absolute bottom-6 left-6">
                   <div className="w-6 h-6 rounded-full border-[1.5px] border-dashed border-[#FDB022] flex items-center justify-center">
-                    <span className="text-[#101828] font-bold text-sm">{leader.rank}</span>
+                    <span className="text-[#101828] font-semibold text-sm">{leader.rank}</span>
                   </div>
                 </div>
               </div>
@@ -131,7 +131,7 @@ const ChallengeLeaderboard = () => {
 
         {/* GLOBAL RANKING */}
         <section>
-          <h2 className="text-[20px] font-bold text-[#101828] mb-8">Global Ranking</h2>
+          <h2 className="text-[20px] font-semibold text-[#101828] mb-8">Global Ranking</h2>
           <div className="bg-white rounded-[24px] border border-[#FAFAFA] shadow-xxs overflow-hidden">
             <table className="w-full text-left">
               <thead>

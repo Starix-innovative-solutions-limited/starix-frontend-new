@@ -24,7 +24,7 @@ const FeedBack2 = () => {
           /* SUCCESS STATE */
           <div className="py-12 text-center space-y-4">
             <div className="text-6xl mb-6">🎉</div>
-            <h3 className="text-[22px] font-bold text-[#0A0A30]">Feedback Request Sent</h3>
+            <h3 className="text-[22px] font-semibold text-[#0A0A30]">Feedback Request Sent</h3>
             <p className="text-[#667085] text-base font-light">
               Brands usually respond within 24–48 hours.
             </p>

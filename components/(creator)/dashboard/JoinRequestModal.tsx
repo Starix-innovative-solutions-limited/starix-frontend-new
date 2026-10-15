@@ -48,12 +48,10 @@ const JoinRequestModal = ({ isOpen, onClose, circleId, circleName, circleLogo }:
         <div className="w-[180px] h-[180px] bg-white rounded-[40px] shadow-xs border border-gray-50 flex items-center justify-center shrink-0 overflow-hidden p-6">
           <div className="relative w-full h-full">
             <Image 
-              src={circleLogo || "/default-circle.webp"} 
-              fill
-              sizes="180px"
+              src={circleLogo || "/default-circle.svg"} 
+              fill 
               alt={circleName} 
               className="object-contain"
-              unoptimized={Boolean(circleLogo && (circleLogo.includes("blob.core.windows.net") || circleLogo.includes("amazonaws.com")))}
             />
           </div>
         </div>
@@ -70,7 +68,7 @@ const JoinRequestModal = ({ isOpen, onClose, circleId, circleName, circleLogo }:
             <button
               onClick={onClose}
               disabled={isPending}
-              className="px-8 py-3.5 border border-[#E5E7EB] rounded-full text-[15px] font-bold text-[#1E1F24] hover:bg-gray-50 transition-all"
+              className="px-8 py-3.5 border border-[#E5E7EB] rounded-full text-[15px] font-semibold text-[#1E1F24] hover:bg-gray-50 transition-all"
             >
               Cancel
             </button>

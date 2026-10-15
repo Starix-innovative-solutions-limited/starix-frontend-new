@@ -230,7 +230,7 @@ const BrandSignup = () => {
 
           {(form.password ?? "").length > 0 && (
             <div className="space-y-3 rounded-[24px] border border-[#F3F4F6] bg-[#F9FAFB] p-5">
-              <p className="mb-1 text-[11px] font-bold tracking-widest text-[#9CA3AF] uppercase">
+              <p className="mb-1 text-[11px] font-semibold tracking-widest text-[#9CA3AF] uppercase">
                 Security Checklist
               </p>
               {passwordRequirements.map((req, index) => (
@@ -256,7 +256,7 @@ const BrandSignup = () => {
         <button
           type="submit"
           disabled={isPending || !isFormComplete}
-          className="mt-4 flex w-full items-center justify-center rounded-full bg-[#0033FF] py-4 text-lg font-bold text-white shadow-sm shadow-blue-200 transition-all disabled:opacity-50"
+          className="mt-4 flex w-full items-center justify-center rounded-full bg-[#0033FF] py-4 text-lg font-semibold text-white shadow-sm shadow-blue-200 transition-all disabled:opacity-50"
         >
           {isPending ? <Loader /> : "Sign Up"}
         </button>

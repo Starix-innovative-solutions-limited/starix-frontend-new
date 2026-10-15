@@ -266,7 +266,7 @@ export default function BrandChallengePerformancePage() {
           </p>
           {isCompleted ? (
             <div className="mt-4 grid grid-cols-[28px_1fr_1fr] items-center gap-3">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-[#1769E0] text-[16px] font-bold text-[#1769E0]">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-[#1769E0] text-[16px] font-semibold text-[#1769E0]">
                 ✓
               </span>
               <p className="text-[10px] leading-relaxed text-[#62636C]">

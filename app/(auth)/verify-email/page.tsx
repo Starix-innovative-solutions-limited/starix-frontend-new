@@ -143,7 +143,7 @@ const VerifyEmailContent = () => {
       </motion.div>
       
       <motion.div className="flex flex-col gap-3 mb-10" variants={variants?.itemVariants}>
-        <h3 className="font-bold md:text-[40px] text-[32px] tracking-tight text-[#040136]">Verify your email</h3>
+        <h3 className="font-semibold md:text-[40px] text-[32px] tracking-tight text-[#040136]">Verify your email</h3>
         <p className="text-[#747682] text-base font-normal">
           {displayEmail
             ? `Enter the code sent to ${displayEmail}.`
@@ -180,7 +180,7 @@ const VerifyEmailContent = () => {
              className={`font-semibold ${canResend && !isRequestingOtp ? "text-[#000842] hover:underline" : "text-gray-400 cursor-not-allowed"}`}
              onClick={handleResend}
            >
-             {canResend ? (isRequestingOtp ? "Sending..." : "Resend Code") : <>Resend Code in <span className="font-bold">00:{timeLeft < 10 ? `0${timeLeft}` : timeLeft}</span></>}
+             {canResend ? (isRequestingOtp ? "Sending..." : "Resend Code") : <>Resend Code in <span className="font-semibold">00:{timeLeft < 10 ? `0${timeLeft}` : timeLeft}</span></>}
            </button>
         </div>
       </motion.form>

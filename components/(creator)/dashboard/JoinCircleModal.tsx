@@ -72,7 +72,7 @@ const JoinCircleModal = ({ isOpen, onClose }: JoinCircleModalProps) => {
         <button
           onClick={handleJoin}
           disabled={code.length < 6 || joinMutation.isPending}
-          className={`w-full py-5 rounded-full font-bold text-[16px] transition-all
+          className={`w-full py-5 rounded-full font-semibold text-[16px] transition-all
             ${code.length === 6 && !joinMutation.isPending
               ? "bg-[#0047FF] text-white hover:bg-blue-700 shadow-lg shadow-blue-100" 
               : "bg-[#93B1FF] text-white cursor-not-allowed opacity-80"}

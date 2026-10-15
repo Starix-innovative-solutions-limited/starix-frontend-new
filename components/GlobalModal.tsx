@@ -431,7 +431,7 @@ function ModalRoot({
 //   function MyModalContent({ close }: { close: () => void }) {
 //     return (
 //       <div className="p-8 space-y-4">
-//         <h2 className="text-2xl font-bold">Hello from modal</h2>
+//         <h2 className="text-2xl font-semibold">Hello from modal</h2>
 //         <p>Put any React node here — forms, lists, images, etc.</p>
 //         <div className="flex justify-end">
 //           <button onClick={close} className="px-4 py-2 rounded-md border">Close</button>

@@ -125,7 +125,7 @@ if (!isOpen) return null;
         
         {/* Modal Navigation Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4 bg-white">
-          <h2 className="text-[20px] font-bold text-[#1E1F24]">Edit Profile</h2>
+          <h2 className="text-[20px] font-semibold text-[#1E1F24]">Edit Profile</h2>
           <button 
             onClick={onClose}
             className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition cursor-pointer"
@@ -141,7 +141,7 @@ if (!isOpen) return null;
           
           {/* FIELD 1: PROFILE PORTRAIT IMAGE CONTROL */}
           <div>
-            <label className="block text-[14px] font-bold text-[#1E1F24] mb-3">
+            <label className="block text-[14px] font-semibold text-[#1E1F24] mb-3">
               Profile Picture
             </label>
             
@@ -203,7 +203,7 @@ if (!isOpen) return null;
 
           {/* FIELD 2: HERO BANNER DESIGN UPLOADER LAYOUT VARIATIONS */}
           <div>
-            <label className="block text-[14px] font-bold text-[#1E1F24] mb-3">
+            <label className="block text-[14px] font-semibold text-[#1E1F24] mb-3">
               Banner Image
             </label>
             
@@ -256,7 +256,7 @@ if (!isOpen) return null;
 
           {/* FIELD 3: RADIO INTERACTIVE VISIBILITY CHANNELS CHOICE */}
           <div className="space-y-3">
-            <label className="block text-[14px] font-bold text-[#1E1F24]">
+            <label className="block text-[14px] font-semibold text-[#1E1F24]">
               Starix Score Visibility
             </label>
             

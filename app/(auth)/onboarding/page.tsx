@@ -18,6 +18,10 @@ import {
   useSaveOnboardingProfile,
 } from "@/hooks/useCreatorOnboarding";
 import toast from "react-hot-toast";
+import {
+  clearSocialOAuthCallback,
+  readSocialOAuthCallback,
+} from "@/lib/socialOAuth";
 
 const FALLBACK_CATEGORIES = [
   "beauty",
@@ -66,6 +70,7 @@ const OnboardingPage = () => {
     display_name: "",
     bio: "",
   });
+  const [socialError, setSocialError] = useState<string | null>(null);
 
   const isSavingProfile = saveProfile.isPending;
   const isSavingCategories = saveCategories.isPending;
@@ -79,7 +84,11 @@ const OnboardingPage = () => {
       return;
     }
 
-    setStep(onboardingStepToIndex(onboarding.onboarding_step));
+    setStep(
+      readSocialOAuthCallback()
+        ? 3
+        : onboardingStepToIndex(onboarding.onboarding_step)
+    );
 
     setForm((prev) => ({
       ...prev,
@@ -97,6 +106,19 @@ const OnboardingPage = () => {
 
     setHasHydrated(true);
   }, [onboarding, hasHydrated, router]);
+
+  useEffect(() => {
+    const result = readSocialOAuthCallback();
+    if (!result) return;
+
+    setStep(3);
+    if (result.kind === "error") {
+      setSocialError(result.message);
+      toast.error(result.message);
+    }
+    clearSocialOAuthCallback("/onboarding");
+    router.replace("/onboarding", { scroll: false });
+  }, [router]);
 
   const categories =
     apiCategories.length > 0
@@ -217,6 +239,7 @@ const OnboardingPage = () => {
   const handleConnectSocial = async (
     platform: "instagram" | "tiktok" | "youtube"
   ) => {
+    setSocialError(null);
     const callbackUrl =
       typeof window !== "undefined"
         ? `${window.location.origin}/onboarding`
@@ -449,6 +472,11 @@ const OnboardingPage = () => {
             className="mt-10"
           >
             <div className="space-y-5">
+              {socialError && (
+                <div className="rounded-xl border border-red-200 bg-red-50 p-3.5 text-left text-[13px] font-medium text-red-700">
+                  {socialError}
+                </div>
+              )}
               {socialPlatforms.map((social) => (
                 <button
                   key={social.platform}

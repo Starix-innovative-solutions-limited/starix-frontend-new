@@ -84,7 +84,7 @@ const EarningInsight = () => {
                   ${payment.amount}
                 </td>
                 <td className="py-6">
-                  <span className="bg-[#F9FAFB] text-gray-500 text-[10px] px-2 py-1 rounded-md font-bold tracking-tight border border-gray-50">
+                  <span className="bg-[#F9FAFB] text-gray-500 text-[10px] px-2 py-1 rounded-md font-semibold tracking-tight border border-gray-50">
                     {payment.status}
                   </span>
                 </td>

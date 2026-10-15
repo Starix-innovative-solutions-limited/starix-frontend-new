@@ -1,406 +1,621 @@
 "use client";
 
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { FiSearch } from "react-icons/fi";
-import { FiX } from "react-icons/fi";
-import { FaInstagram, FaTiktok, FaYoutube } from "react-icons/fa";
-import { useGetCircleProfile, useGetCurrentUser, useGetCircleSocials, useDisconnectSocial, useGetCircleMonthlyEarnings} from "@/hooks/useCircles";
-import { useGetMe } from "@/hooks/useAuth";
+import { GoArrowLeft, GoArrowRight, GoCheckCircleFill } from "react-icons/go";
+import {
+  PolarAngleAxis,
+  RadialBar,
+  RadialBarChart,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  useGetCircleProfile,
+  useGetCurrentUser,
+  useGetCircleChallenges,
+  type CircleChallengeFilter,
+} from "@/hooks/useCircles";
 import BannerUploadModal from "@/components/(creator)/dashboard/BannerUploadModal";
 import ConnectSocialsModal from "@/components/(creator)/dashboard/ConnectSocialsModal";
 import SettingsModal from "@/components/(creator)/dashboard/SettingsModal";
 import InviteMemberModal from "@/components/(creator)/dashboard/InviteMemberModal";
+import { hasSocialOAuthCallback } from "@/lib/socialOAuth";
+import { formatCompactNaira } from "@/lib/formatMoney";
 
+const PLATFORM_ICON_MAP: Record<string, { icon: string; label: string }> = {
+  youtube: { icon: "/yt.svg", label: "YouTube" },
+  youtube_shorts: { icon: "/yt.svg", label: "YouTube" },
+  instagram: { icon: "/ig.svg", label: "Instagram" },
+  tiktok: { icon: "/tt.svg", label: "TikTok" },
+};
 
-
+const CHALLENGE_TABS: { id: CircleChallengeFilter; label: string }[] = [
+  { id: "active", label: "Active" },
+  { id: "completed", label: "Completed" },
+  { id: "saved", label: "Saved" },
+];
 
 const CircleProfilePage = () => {
   const { id } = useParams() as { id: string };
   const router = useRouter();
 
-  // Data fetching
   const { data: profile, isLoading } = useGetCircleProfile(id);
   const { data: currentUser } = useGetCurrentUser();
-  const { data: me } = useGetMe();
+  const currentUserId = currentUser?.id;
 
-  const currentUserId = currentUser?.id ?? me?.id ?? "c73faebb-f0a8-4582-abd9-0f2f049ea2f9";
-
-  const memberPhoto = (member: any) => {
-    const fromMember = member?.profile_picture_url?.trim();
-    if (fromMember) return fromMember;
-    if (member?.user_id && member.user_id === me?.id) {
-      return me?.profile_picture_url?.trim() || null;
-    }
-    return null;
-  };
-
-const { data: monthlyEarnings } = useGetCircleMonthlyEarnings(id);  
-
-  const circle = profile;
-
-  // Modals state
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<CircleChallengeFilter>("active");
+  const [page, setPage] = useState(1);
 
-  // Helpers
-  const adminId = circle?.members?.[0]?.user_id; 
-  const isAdmin = 
-    circle?.role === 'admin' || 
-    circle?.members?.some((m: any) => m.user_id === currentUserId);
+  useEffect(() => {
+    if (hasSocialOAuthCallback()) setIsConnectModalOpen(true);
+  }, []);
 
-  
-const hasNoChallenges = (circle?.active_challenge_count ?? 0) === 0;
+  const circle = profile;
 
+  const viewerRole =
+    circle?.role ??
+    circle?.members?.find((member) => member.user_id === currentUserId)?.role;
+  const isAdmin =
+    viewerRole === "admin" || viewerRole === "manager";
 
+  const { data: challengesData, isLoading: isChallengesLoading } =
+    useGetCircleChallenges(id, activeTab, page, 5, { enabled: !!id });
 
-const { data: socials } = useGetCircleSocials(id);
-const PLATFORM_ICONS: Record<string, React.ReactNode> = {
-  instagram: <FaInstagram size={18} />,
-  tiktok: <FaTiktok size={18} />,
-  youtube: <FaYoutube size={18} />,
-};
+  const members = circle?.members ?? [];
+  const visibleMembers = members.slice(0, 4);
+  const extraMembers = Math.max(0, members.length - visibleMembers.length);
 
-const [platformToDelete, setPlatformToDelete] = useState<string | null>(null);
-const disconnectMutation = useDisconnectSocial();
+  const platforms = useMemo(() => {
+    return (circle?.connected_platforms ?? [])
+      .map((item) => (typeof item === "string" ? item : item.platform))
+      .filter(Boolean);
+  }, [circle?.connected_platforms]);
 
-const confirmDelete = () => {
-  if (platformToDelete) {
-    disconnectMutation.mutate({ circleId: id, platform: platformToDelete });
-    setPlatformToDelete(null); // Reset after action
+  const niches = circle?.niches ?? [];
+  const activeChallengeCount = circle?.active_challenge_count ?? 0;
+  const challengeTotal =
+    activeTab === "active"
+      ? activeChallengeCount
+      : challengesData?.total_items ?? 0;
+  const totalPages = Math.max(1, challengesData?.total_pages ?? 1);
+
+  const visibleChallenges = useMemo(() => {
+    const items = challengesData?.items ?? [];
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return items;
+    return items.filter(
+      (item) =>
+        item.title.toLowerCase().includes(query) ||
+        item.brand_name.toLowerCase().includes(query)
+    );
+  }, [challengesData?.items, searchQuery]);
+
+  const earningsMinor = circle?.all_time_earnings_minor ?? 0;
+  const earningsLabel = new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency: "NGN",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(earningsMinor / 100);
+
+  const views = circle?.all_time_views ?? 0;
+  const viewsLabel =
+    views >= 1_000_000
+      ? `${(views / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`
+      : views >= 1_000
+        ? `${Math.round(views / 1000)}K`
+        : String(views);
+
+  const viewsDelta = circle?.views_delta_percentage ?? 0;
+  const viewsDirection = circle?.views_direction ?? (viewsDelta > 0 ? "up" : viewsDelta < 0 ? "down" : "flat");
+  const circleScore = Math.round(circle?.circle_score ?? 0);
+
+  if (isLoading) {
+    return <div className="p-20 text-center text-sm text-[#747682]">Loading Circle Profile...</div>;
   }
-};
-
-  // Loading/Error States
-  if (isLoading) return <div className="p-20 text-center">Loading Circle Profile...</div>;
-  if (!circle) return <div className="p-20 text-center text-red-500">Circle not found.</div>;
-
-  
+  if (!circle) {
+    return <div className="p-20 text-center text-red-500">Circle not found.</div>;
+  }
 
   return (
-    <div className="w-full  bg-white font-sans text-[#1E1F24]">
-      {/* --- Modals --- */}
-      {isAdmin && (
-        <SettingsModal 
-          isOpen={isSettingsOpen} 
-          onClose={() => setIsSettingsOpen(false)} 
-          circleId={id} 
-          currentData={id} 
-        />
-      )}
-      <BannerUploadModal isOpen={isBannerModalOpen} onClose={() => setIsBannerModalOpen(false)} circleId={id} />
-      <ConnectSocialsModal isOpen={isConnectModalOpen} onClose={() => setIsConnectModalOpen(false)} circleId={id} />
-      <InviteMemberModal isOpen={isInviteModalOpen} onClose={() => setIsInviteModalOpen(false)} circleId={id} />
-        
-      {/* HERO BANNER */}
-      <div className="relative w-full h-[250px] bg-[#F3F4F6]">
+    <div className="min-h-screen w-full bg-white font-sans text-[#1E1F24] antialiased">
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        circleId={id}
+        currentData={id}
+      />
+      <BannerUploadModal
+        isOpen={isBannerModalOpen}
+        onClose={() => setIsBannerModalOpen(false)}
+        circleId={id}
+      />
+      <ConnectSocialsModal
+        isOpen={isConnectModalOpen}
+        onClose={() => setIsConnectModalOpen(false)}
+        circleId={id}
+      />
+      <InviteMemberModal
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        circleId={id}
+      />
+
+      <div className="relative h-[178px] w-full overflow-hidden bg-[#EAF2FF]">
         {circle.banner_url ? (
-          <Image src={circle.banner_url} alt="Banner" fill className="object-cover" priority />
+          <Image
+            src={circle.banner_url}
+            alt={`${circle.name} cover`}
+            fill
+            sizes="100vw"
+            priority
+            className="object-cover object-center"
+          />
         ) : (
-          <div className="w-full h-full bg-[#F3F4F6]" />
+          <div className="h-full w-full bg-[#EAF2FF]" aria-label="No banner image" />
         )}
-
-        <div className="absolute right-8 bottom-[-60px] z-20 flex gap-2">
-          {isAdmin ? (
-            <>
-              <button onClick={() => setIsConnectModalOpen(true)} className="px-2 h-[40px] rounded-full text-[#1E1F24] bg-white border border-[#8B8D98] font-medium text-[12px] hover:bg-gray-50">Connect Socials</button>
-              <button onClick={() => setIsBannerModalOpen(true)} className="px-2 h-[40px] rounded-full text-[#1E1F24] bg-white border border-[#8B8D98] font-medium text-[12px] hover:bg-gray-50">Upload Banner</button>
-              <button onClick={() => setIsInviteModalOpen(true)} className="px-2 h-[40px] rounded-full text-[#1E1F24] bg-white border border-[#8B8D98] font-medium text-[12px] hover:bg-gray-50">Invite Member</button>
-            </>
-          ) : null}
-
-          {isAdmin && (
-            <button 
-              onClick={() => setIsSettingsOpen(true)} 
-              className="w-[40px] h-[40px] rounded-full bg-white border flex items-center justify-center border-[#8B8D98] hover:bg-gray-50"
-            >
-              <img src="/vectros.webp" alt="Settings" />
-            </button>
-          )}
-        </div>
-
-        <div className="absolute -bottom-16 left-8 z-30">
-          <div className="w-[150px] h-[150px] rounded-[32px] overflow-hidden bg-white border-[2px] border-white shadow-sm">
-            {circle.profile_picture_url ? (
-              <Image src={circle.profile_picture_url} alt="Logo" width={150} height={150} className="object-cover" />
-            ) : (
-              <div className="flex items-center justify-center h-full bg-gray-100 font-semibold text-4xl uppercase">
-                {circle.name?.charAt(0) ?? "?"}
-              </div>
-            )}
-          </div>
-        </div>
+        {isAdmin && (
+          <button
+            type="button"
+            onClick={() => setIsBannerModalOpen(true)}
+            className="absolute inset-0 cursor-pointer"
+            aria-label="Upload banner"
+          />
+        )}
       </div>
 
-      <div className="mx-auto px-2 pt-24 pb-24 max-w-[1200px]">
-        <h1 className="text-[24px] font-medium">{circle.name}</h1>
-        
-        <div className="relative group">
-          <div className="flex -space-x-3 cursor-pointer">
-            {circle.members?.slice(0, 4).map((member: any) => {
-              const photo = memberPhoto(member);
-              return (
-              <div key={member.user_id} className="relative w-8 h-8 rounded-full border-2 border-white bg-gray-200 overflow-hidden transition-all group-hover:translate-x-1">
-                {photo ? (
-                  <Image
-                    src={photo}
-                    fill
-                    sizes="32px"
-                    alt={member.username || "Member"}
-                    className="object-cover"
-                    unoptimized={photo.includes("blob.core.windows.net")}
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-300" />
-                )}
-              </div>
-              );
-            })}
+      <main className="relative px-8 pb-10">
+        <section className="relative pt-[72px]">
+          <div className="absolute -top-[78px] left-0">
+            <div className="relative h-[120px] w-[120px] overflow-hidden rounded-[28px] bg-[#F5F6F8] shadow-[0_8px_24px_rgba(16,24,40,0.08)]">
+              {circle.profile_picture_url ? (
+                <Image
+                  src={circle.profile_picture_url}
+                  alt={circle.name}
+                  fill
+                  sizes="120px"
+                  className="object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-[#F5F6F8] text-4xl font-semibold uppercase text-[#62636C]">
+                  {circle.name?.charAt(0) ?? "?"}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Dropdown Card */}
-          <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-100 shadow-xl rounded-2xl p-3 z-50 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto">
-            <p className="text-[12px] font-semibold text-gray-400 mb-2 px-2">Circle Members</p>
-            {circle.members?.map((member: any) => {
-              const photo = memberPhoto(member);
-              return (
-              <div key={member.user_id} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg">
-                <div className="relative w-6 h-6 rounded-full bg-gray-200 overflow-hidden">
-                  {photo && (
-                    <Image
-                      src={photo}
-                      fill
-                      sizes="24px"
-                      alt=""
-                      className="object-cover"
-                      unoptimized={photo.includes("blob.core.windows.net")}
-                    />
-                  )}
-                </div>
-                <div className="text-[12px]">
-                  <p className="font-medium">{member.username}</p>
-                  <p className="text-[10px] text-gray-500 capitalize">{member.role}</p>
-                </div>
-              </div>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 mb-1 text-[12px]">
-            <span className="text-[#747682]">{hasNoChallenges ? "No Active Challenges" : `${circle.active_challenge_count} Active Challenges`}</span>
-            <span className="text-gray-300 text-[12px]">•</span>
-            <span className="text-[#747682]">{circle.global_rank === 0 ? "Unranked" : `Ranked ${circle.global_rank} Globally`}</span>
-        </div>
-
-        <div className="flex gap-2 mb-5">
-          {circle.niches?.map((tag: string) => ( 
-            <span key={tag} className="px-1.5 py-1 bg-[#F5FBFF] text-[#3379A5] rounded-lg text-[10px] font-medium tracking-wide">{tag}</span>
-          ))}
-        </div>
-
-        <div className="flex gap-3">
-          {socials?.map((platformData: any) => {
-            // Safely get the platform name and icon
-            const platformKey = platformData?.platform?.toLowerCase();
-            const Icon = PLATFORM_ICONS[platformKey];
-
-            // Only render if we have a valid platform and icon
-            if (!Icon || !platformData?.profile_url) return null;
-
-            return (
-              <div 
-              key={platformData.id} 
-              className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-full group"
+          <div className="absolute right-0 top-4 z-20 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setIsInviteModalOpen(true)}
+              className="h-[40px] rounded-full border border-[#8B8D98] bg-white px-5 text-[13px] font-medium text-[#1E1F24] transition hover:bg-gray-50"
             >
-              <a
-                href={platformData.profile_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 hover:opacity-70 transition-opacity"
-              >
-                {Icon}
-                <span className="text-[12px] font-semibold text-gray-700 capitalize">
-                  {platformData.platform}
-                </span>
-                {platformData.followers_count !== undefined && (
-                  <span className="text-[10px] text-gray-400 font-normal">
-                    ({platformData.followers_count.toLocaleString()})
-                  </span>
+              Invite Member
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsSettingsOpen(true)}
+              className="flex h-[40px] w-[40px] items-center justify-center rounded-full border border-[#8B8D98] bg-white hover:bg-gray-50"
+              aria-label="Circle settings"
+            >
+              <Image
+                src="/vectros.webp"
+                alt="Settings"
+                width={20}
+                height={22}
+                unoptimized
+              />
+            </button>
+          </div>
+
+          <h1 className="text-[30px] font-semibold leading-tight tracking-[-0.04em] text-[#111217]">
+            {circle.name}
+          </h1>
+
+          <div className="relative mt-3 inline-flex">
+            <div className="group relative">
+              <div className="flex cursor-pointer items-center -space-x-2">
+                {visibleMembers.map((member) => (
+                  <div
+                    key={member.user_id}
+                    className="relative h-7 w-7 overflow-hidden rounded-full border-2 border-white bg-[#F5F6F8]"
+                  >
+                    {member.profile_picture_url ? (
+                      <img
+                        src={member.profile_picture_url}
+                        alt={member.username ?? "Member"}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-full w-full bg-[#E5E7EB]" />
+                    )}
+                  </div>
+                ))}
+                {extraMembers > 0 && (
+                  <div className="relative z-10 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-[#C9E9FF] text-[10px] font-semibold text-[#050E81]">
+                    +{extraMembers}
+                  </div>
                 )}
-              </a>
-              
-              {/* Only show delete button for Admins */}
-              {isAdmin && (
+              </div>
+
+              <div className="pointer-events-none absolute top-full left-0 z-50 mt-2 w-56 rounded-2xl border border-gray-100 bg-white p-3 opacity-0 shadow-xl transition-opacity group-hover:pointer-events-auto group-hover:opacity-100">
+                <p className="mb-2 px-2 text-[12px] font-semibold text-gray-400">
+                  Circle Members
+                </p>
+                {members.map((member) => (
+                  <div
+                    key={member.user_id}
+                    className="flex items-center gap-2 rounded-lg p-2 hover:bg-gray-50"
+                  >
+                    <div className="h-6 w-6 overflow-hidden rounded-full bg-gray-200">
+                      {member.profile_picture_url && (
+                        <img
+                          src={member.profile_picture_url}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                      )}
+                    </div>
+                    <div className="text-[12px]">
+                      <p className="font-medium">
+                        {member.username ?? member.full_name ?? "Member"}
+                      </p>
+                      <p className="text-[10px] capitalize text-gray-500">
+                        {member.role}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <p className="mt-2 text-[13px] font-medium text-[#747682]">
+            <span className="font-semibold text-[#1E1F24]">{activeChallengeCount}</span>{" "}
+            Active Challenges
+            <span className="mx-2 text-[#D9D9D9]">•</span>
+            {circle.global_rank
+              ? `Ranked ${circle.global_rank} Globally`
+              : "Unranked"}
+          </p>
+
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {platforms.map((platform) => {
+              const meta = PLATFORM_ICON_MAP[platform.toLowerCase()];
+              if (!meta) return null;
+              return (
+                <img
+                  key={platform}
+                  src={meta.icon}
+                  alt={meta.label}
+                  title={meta.label}
+                  className="h-6 w-6"
+                />
+              );
+            })}
+
+            {niches.map((niche) => (
+              <span
+                key={niche}
+                className="rounded-full bg-[#F5FBFF] px-2.5 py-1 text-[12px] font-medium capitalize text-[#3379A5]"
+              >
+                {niche}
+              </span>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8 grid grid-cols-1 gap-3 md:grid-cols-3">
+          <button
+            type="button"
+            onClick={() =>
+              router.push(`/creator-circles/${id}/circle-profile/earnings`)
+            }
+            className="h-[140px] rounded-[14px] bg-[#E8FFE9] p-5 text-left transition hover:brightness-[0.99]"
+          >
+            <div className="mb-3 flex items-center gap-2">
+              <img src="/coin.svg" alt="" className="h-5 w-5 object-contain" />
+              <h3 className="text-[18px] font-semibold tracking-[-0.03em]">
+                Total Earnings
+              </h3>
+            </div>
+            <p className="text-[30px] font-semibold leading-none tracking-[-0.05em]">
+              {earningsLabel}
+            </p>
+            <p className="mt-3 flex items-center gap-2 text-[13px] font-medium text-[#62636C]">
+              View History <GoArrowRight size={18} />
+            </p>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => router.push("/analytics")}
+            className="relative h-[140px] overflow-hidden rounded-[14px] bg-[#FFF0FD] p-5 text-left transition hover:brightness-[0.99]"
+          >
+            <div className="mb-3 flex items-center gap-2">
+              <img src="/diamonddd.svg" alt="" className="h-5 w-5 object-contain" />
+              <h3 className="text-[18px] font-semibold tracking-[-0.03em]">
+                Total Engagement
+              </h3>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-[30px] font-semibold leading-none tracking-[-0.05em]">
+                {viewsLabel}
+              </span>
+              <span className="text-[12px] font-medium text-[#747682]">Views</span>
+            </div>
+            <p className="mt-3 flex items-center gap-2 text-[13px] font-medium text-[#62636C]">
+              View Trend <GoArrowRight size={18} />
+            </p>
+            <div className="absolute bottom-5 right-5 h-[48px] w-[105px]">
+              <div className="mb-1 text-right text-[10px] font-semibold">
+                {viewsDirection === "down" ? (
+                  <span className="text-[#EF4444]">{Math.abs(viewsDelta)}% ↓</span>
+                ) : viewsDirection === "up" ? (
+                  <span className="text-[#0CC963]">{viewsDelta}% ↑</span>
+                ) : (
+                  <span className="text-[#9CA3AF]">0% ↑</span>
+                )}
+              </div>
+              <img src="/Stroke.svg" alt="" className="h-[32px] w-full object-contain" />
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => router.push("/analytics")}
+            className="flex h-[140px] items-center justify-between rounded-[14px] bg-[#EAF6FF] p-5 text-left transition hover:brightness-[0.99]"
+          >
+            <div className="min-w-0 pr-3">
+              <div className="mb-2 flex items-center gap-2">
+                <img src="/dashlogo.webp" alt="" className="h-5 w-5 object-contain" />
+                <h3 className="text-[18px] font-semibold tracking-[-0.03em]">
+                  Circle Score
+                </h3>
+              </div>
+              <p className="max-w-[190px] text-[10px] leading-tight text-[#62636C]">
+                Circle score is the average of the starix score of all the members.
+              </p>
+              <p className="mt-3 flex items-center gap-2 text-[13px] font-medium text-[#62636C]">
+                View Breakdown <GoArrowRight size={18} />
+              </p>
+            </div>
+            <ScoreRing score={circleScore} />
+          </button>
+        </section>
+
+        <section className="mt-10">
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <h2 className="text-[26px] font-semibold tracking-[-0.03em] text-[#1E1F24]">
+              Circle Challenges ({challengeTotal})
+            </h2>
+            <div className="relative w-[220px]">
+              <FiSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-[#8B8D98]" />
+              <input
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search Challenges"
+                className="h-[44px] w-full rounded-full border border-[#E5E7EB] bg-white pl-12 pr-5 text-[13px] font-medium text-[#1E1F24] outline-none placeholder:text-[#747682]"
+              />
+            </div>
+          </div>
+
+          <div className="mb-2 flex items-center gap-8 border-b border-[#EAECF0]">
+            {CHALLENGE_TABS.map((tab) => {
+              const isActive = activeTab === tab.id;
+              const count =
+                tab.id === "active"
+                  ? activeChallengeCount
+                  : isActive
+                    ? challengesData?.total_items
+                    : undefined;
+              return (
                 <button
-                  onClick={() => setPlatformToDelete(platformData.platform.toLowerCase())}
-                  className="ml-1 text-gray-400 hover:text-red-500 transition-colors"
+                  key={tab.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    setPage(1);
+                    setSearchQuery("");
+                  }}
+                  className={`relative pb-3 text-[14px] font-medium transition-colors ${
+                    isActive ? "text-[#0033FF]" : "text-[#667085] hover:text-[#101828]"
+                  }`}
                 >
-                  <FiX size={14} />
+                  {tab.label}
+                  {typeof count === "number" ? ` (${count})` : ""}
+                  {isActive && (
+                    <span className="absolute bottom-0 left-0 right-0 h-[2px] rounded-full bg-[#0033FF]" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {isChallengesLoading ? (
+            <div className="py-16 text-center text-sm text-[#747682]">
+              Loading challenges...
+            </div>
+          ) : visibleChallenges.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <img src="/circle.svg" alt="" className="mb-6 h-[120px] w-[120px]" />
+              <h3 className="mb-2 text-[20px] font-semibold">No {activeTab} challenges</h3>
+              <p className="mb-8 max-w-[400px] text-[14px] text-[#62636C]">
+                {searchQuery
+                  ? `No matches for “${searchQuery}”.`
+                  : "Your team hasn't joined any challenges yet."}
+              </p>
+              {!searchQuery && (
+                <button
+                  onClick={() => router.push("/challenges/recommended")}
+                  className="rounded-full bg-[#0033FF] px-6 py-3 font-semibold text-[#FAFAFA]"
+                >
+                  Find Challenges
                 </button>
               )}
             </div>
-              
-            );
-          })}
-        </div>
-
-        {/* STATS SECTION */}
-        <div className="grid grid-cols-1 md:grid-cols-[0.3fr_0.3fr_0.4fr] gap-2 mb-12">
-          
-          {/* Total Earnings Card */}
-          <div className="bg-[#E5FFE5] p-4 rounded-[24px] w-full">
-            <div className="flex items-center mb-2">
-              <div className="w-8 h-8 rounded-full flex items-center justify-center">
-                <img src="/coin.webp" alt="" />
-              </div>
-              <p className="text-[16px] font-medium text-[#1E1F24]">Total Earnings</p>
-            </div>
-            
-            <h3 className="text-[26px] font-semibold text-[#1E1F24]">
-              ₦{((monthlyEarnings?.current_month_earnings ?? 0) / 100).toLocaleString()}
-              <span className="text-[#80828D] text-[26px]">.00</span>
-            </h3>
-            
-            {monthlyEarnings && (
-              <p className={`text-[12px] font-medium mt-2 ${
-                monthlyEarnings.direction === 'up' ? 'text-[#0CC963]' : 
-                monthlyEarnings.direction === 'down' ? 'text-[#EF4444]' : 'text-gray-500'
-              }`}>
-                {monthlyEarnings.direction === 'up' ? '+' : monthlyEarnings.direction === 'down' ? '-' : ''}
-                {monthlyEarnings.delta_percentage}% higher than last month
-              </p>
-            )}
-            
-            <button 
-              onClick={() => router.push(`/creator-circles/${id}/circle-profile/earnings`)}
-              className="text-[12px] text-[#62636C] font-medium mt-2 flex items-center gap-1"
-            >
-              View History →
-            </button>
-          </div>
-
-          {/* Total Engagement Card */}
-          <div className="bg-[#FFF0FD] p-4 rounded-[24px] relative">
-            <div className="flex items-center mb-2">
-              <div className="w-8 h-8 rounded-full flex items-center justify-center">
-                <img src="/diamonddd.webp" alt="Engagement" />
-              </div>
-              <p className="text-[16px] font-medium text-[#1E1F24]">Total Engagement</p>
-            </div>
-
-            <div className="flex justify-between items-end">
-              <div>
-                <h3 className="text-[26px] font-semibold text-[#1E1F24]">
-                  {((profile.all_time_views ?? 0) / 1000).toFixed(0)}K
-                  <span className="text-[12px] text-[#62636C] font-normal ml-1">Views</span>
-                </h3>
-                <button className="text-[12px] text-[#62636C] font-medium mt-1 flex items-center gap-1 hover:text-black">
-                  View Trend →
-                </button>
-              </div>
-
-              {/* Live Trend Box */}
-              <div className="bg-white w-[110px] h-[60px] rounded-2xl p-2 border border-gray-100 flex flex-col justify-between">
-                <div className="text-[10px] font-semibold">
-                  {(profile.views_delta_percentage ?? 0) > 0 ? (
-                    <span className="text-[#0CC963]">{profile.views_delta_percentage}% ↑</span>
-                  ) : (profile.views_delta_percentage ?? 0) < 0 ? (
-                    <span className="text-[#EF4444]">{Math.abs(profile.views_delta_percentage ?? 0)}% ↓</span>
-                  ) : (
-                    <span className="text-[#9CA3AF]">N/A ↑</span>
-                  )}
-                </div>
-
-                <svg className="w-full h-full" viewBox="0 0 100 30" preserveAspectRatio="none">
-                  <path
-                    d={(profile.views_delta_percentage ?? 0) > 0 
-                      ? "M0 25 C 20 25, 20 5, 40 5 C 60 5, 60 20, 100 15" // Upward
-                      : (profile.views_delta_percentage ?? 0) < 0
-                      ? "M0 10 C 20 10, 20 20, 40 15 C 60 10, 60 25, 100 25" // Downward
-                      : "M0 20 C 20 15, 40 25, 100 18" // N/A Neutral Wave
-                    }
-                    fill="none"
-                    stroke={(profile.views_delta_percentage ?? 0) > 0 ? "#0CC963" : (profile.views_delta_percentage ?? 0) < 0 ? "#EF4444" : "#D1D5DB"}
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          
-
-          {/* Circle Score Card */}
-          <div className="bg-[#E9F6FF] p-4 rounded-[24px]  flex justify-between items-center">
-            <div>
-              <div className="flex items-center mb-2">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center">
-                  <img src="/candyyy.webp" alt="" />
-                </div>
-                <p className="text-[16px] font-medium text-[#1E1F24]">Circle Score</p>
-              </div>
-              <p className="text-[10px] text-[#62636C] max-w-[150px] leading-tight">Circle score is the average of the starix score of all the members. </p>
-              <button className="text-[12px] text-[#62636C] font-medium mt-2 flex items-center gap-1">View Breakdown →</button>
-            </div>
-            <div className="w-[72px] h-[72px] rounded-full border-[4px] border-[#0033FF] flex items-center justify-center text-[32px] font-semibold text-[#0033FF]">
-              {profile.circle_score}
-            </div>
-          </div>
-        </div>
-
-        {/* CHALLENGES SECTION */}
-        <div className="pt-6">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-[20px] font-semibold">Circle Challenges </h2>
-            <div className="relative w-full max-w-[200px]">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><FiSearch size={14} /></div>
-              <input type="text" placeholder="Search Challenges" className="w-full pl-12 pr-4 py-3 border border-gray-100 rounded-full text-[12px] outline-none" />
-            </div>
-          </div>
-          
-          {hasNoChallenges ? (
-             <div className="flex flex-col items-center justify-center py-16 text-center">
-               <img src="/circle.webp" alt="Empty" className="w-[120px] h-[120px] mb-6" />
-               <h3 className="text-[20px] font-semibold mb-2">No active challenges</h3>
-               <p className="text-[#62636C] text-[14px] max-w-[400px] mb-8">Your team hasn't joined any challenges yet.</p>
-               <button onClick={() => router.push("/challenges/recommended")} className="px-6 py-3 bg-[#0033FF] text-[#FAFAFA] rounded-full font-semibold">Find Challenges</button>
-             </div>
           ) : (
-             <div className="text-gray-500">Challenges list would go here...</div>
+            <div className="divide-y divide-[#EFF0F3] border-y border-[#EFF0F3]">
+              {visibleChallenges.map((item) => (
+                <ChallengeRow key={item.challenge_id} item={item} />
+              ))}
+            </div>
           )}
-        </div>
-      </div>
 
-      {/* Delete Confirmation Modal */}
-      {platformToDelete && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white p-6 rounded-2xl w-full max-w-[320px] shadow-xl">
-            <h3 className="text-lg font-semibold mb-2">Disconnect Account?</h3>
-            <p className="text-sm text-gray-600 mb-6">
-              Are you sure you want to remove {platformToDelete}? This will stop data syncing for this account.
-            </p>
-            <div className="flex gap-3">
-              <button 
-                onClick={() => setPlatformToDelete(null)} 
-                className="flex-1 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm font-medium"
+          {visibleChallenges.length > 0 && (
+            <div className="mt-5 flex items-center justify-between">
+              <button
+                disabled={page <= 1}
+                onClick={() => setPage((current) => Math.max(1, current - 1))}
+                className="flex h-[44px] items-center gap-2 rounded-full border border-[#8B8D98] bg-white px-6 text-[14px] font-medium text-[#62636C] disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Cancel
+                Previous <GoArrowLeft size={18} />
               </button>
-              <button 
-                onClick={confirmDelete}
-                className="flex-1 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium"
+
+              <div className="flex items-center gap-3 text-[14px] font-medium text-[#62636C]">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F8FAFC] text-[#1E1F24]">
+                  {page}
+                </span>
+                {totalPages > 1 && (
+                  <>
+                    <span>...</span>
+                    <span>{totalPages}</span>
+                  </>
+                )}
+              </div>
+
+              <button
+                disabled={page >= totalPages}
+                onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+                className="flex h-[44px] items-center gap-2 rounded-full border border-[#8B8D98] bg-white px-6 text-[14px] font-medium text-[#62636C] disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Disconnect
+                Next <GoArrowRight size={18} />
               </button>
             </div>
+          )}
+        </section>
+      </main>
+    </div>
+  );
+};
+
+const ScoreRing = ({ score }: { score: number }) => {
+  const clampedScore = Math.min(100, Math.max(0, Math.round(score)));
+
+  return (
+    <div className="relative h-[82px] w-[82px] shrink-0">
+      <ResponsiveContainer width="100%" height="100%">
+        <RadialBarChart
+          innerRadius="76%"
+          outerRadius="100%"
+          data={[{ value: clampedScore }]}
+          startAngle={90}
+          endAngle={-270}
+        >
+          <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
+          <RadialBar
+            dataKey="value"
+            cornerRadius={20}
+            fill="#245BFF"
+            background={{ fill: "#C5D8FF" }}
+          />
+        </RadialBarChart>
+      </ResponsiveContainer>
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-[26px] font-semibold tracking-[-0.04em] text-[#245BFF]">
+        {clampedScore}
+      </div>
+    </div>
+  );
+};
+
+function formatStatusLabel(status?: string) {
+  if (!status) return "Active";
+  const labels: Record<string, string> = {
+    awaiting_review: "Awaiting Review",
+    under_review: "Under Review",
+    in_progress: "In Progress",
+    approved: "Approved",
+    not_qualified: "Not Qualified",
+    ranked: "Ranked",
+    winner: "Winner",
+    finalist: "Finalist",
+    saved: "Saved",
+  };
+  if (labels[status]) return labels[status];
+  return status.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function getStatusStyle(status?: string) {
+  switch (status?.toLowerCase()) {
+    case "winner":
+      return "bg-[#ECFDF3] text-[#027A48]";
+    case "ranked":
+      return "bg-[#F9F0FF] text-[#9E77ED]";
+    case "finalist":
+      return "bg-[#EFF8FF] text-[#175CD3]";
+    case "under_review":
+    case "awaiting_review":
+      return "bg-[#FFFAEB] text-[#B54708]";
+    case "not_qualified":
+      return "bg-[#FEF3F2] text-[#B42318]";
+    default:
+      return "bg-[#F3F4F6] text-[#6B7280]";
+  }
+}
+
+const ChallengeRow = ({
+  item,
+}: {
+  item: {
+    challenge_id: string;
+    title: string;
+    brand_name: string;
+    brand_logo_url: string | null;
+    prize_pool: number;
+    status: string;
+  };
+}) => {
+  const prize = formatCompactNaira(item.prize_pool / 100, "₦");
+
+  return (
+    <div className="flex items-center justify-between gap-4 py-4">
+      <Link
+        href={`/dashboard/challenge/${item.challenge_id}`}
+        className="flex min-w-0 flex-1 items-center gap-4"
+      >
+        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-[#EAECF0] bg-[#F2F4F7]">
+          <Image
+            src={item.brand_logo_url || "/dash-logo.webp"}
+            alt={item.brand_name || "Brand"}
+            fill
+            className="object-cover"
+          />
+        </div>
+        <div className="min-w-0">
+          <h3 className="truncate text-[15px] font-semibold leading-snug text-[#101828]">
+            {item.title}
+          </h3>
+          <div className="mt-1 flex items-center gap-1.5 text-[13px] font-medium text-[#667085]">
+            <span className="truncate">{item.brand_name || "Brand"}</span>
+            <GoCheckCircleFill className="shrink-0 text-[#12B76A]" size={14} />
+            <span className="text-[#D0D5DD]">•</span>
+            <span className="whitespace-nowrap">{prize} prize pool</span>
           </div>
         </div>
-      )}
+      </Link>
+      <span
+        className={`inline-flex min-w-[110px] justify-center rounded-full px-3 py-1.5 text-[12px] font-semibold ${getStatusStyle(item.status)}`}
+      >
+        {formatStatusLabel(item.status)}
+      </span>
     </div>
   );
 };
@@ -415,4 +630,4 @@ export default function CircleProfileRoute() {
       <CircleProfilePage />
     </Suspense>
   );
-}
+};

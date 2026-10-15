@@ -9,7 +9,7 @@ const StatCard = ({ title, value, subtitle, bgColor }: any) => (
       <span className="text-sm text-gray-600">{title}</span>
       <Info className="w-4 h-4 text-gray-400" />
     </div>
-    <div className="text-3xl font-bold text-gray-900 mb-1">{value}</div>
+    <div className="text-3xl font-semibold text-gray-900 mb-1">{value}</div>
     <div className="text-sm text-gray-500">{subtitle}</div>
   </div>
 );

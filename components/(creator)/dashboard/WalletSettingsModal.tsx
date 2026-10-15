@@ -322,7 +322,7 @@ const isSetupFlowActive =
                     <HiArrowLeft size={20} className="text-[#111827]" />
                   </button>
                 )}
-                <h2 className="text-[18px] font-bold text-[#111827] tracking-tight">
+                <h2 className="text-[18px] font-semibold text-[#111827] tracking-tight">
                   {step === "settings" && "Wallet Settings"}
                   {step === "set-pin" && "Set Wallet PIN"}
                   {step === "change-pin" && "Change Wallet PIN"}
@@ -337,11 +337,11 @@ const isSetupFlowActive =
 
             <div className="space-y-5">
               {activeGlobalErrorMessage && (
-                <p className="text-xs font-bold text-red-500 bg-red-50 p-3 rounded-xl border border-red-100">{activeGlobalErrorMessage}</p>
+                <p className="text-xs font-semibold text-red-500 bg-red-50 p-3 rounded-xl border border-red-100">{activeGlobalErrorMessage}</p>
               )}
 
               {activeMutation.isSuccess && (
-                <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-600 text-xs font-bold">
+                <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-600 text-xs font-semibold">
                   <FiCheckCircle size={16} />
                   <span>Wallet Security context configured successfully!</span>
                 </div>
@@ -377,7 +377,7 @@ const isSetupFlowActive =
                          <label className="text-[13px] font-semibold text-[#1E1F24]">Current PIN</label>
                          <button 
                            onClick={() => navigateToStep("reset-pin-recovery")}
-                           className="text-[12px] font-bold text-[#0047FF] hover:underline"
+                           className="text-[12px] font-semibold text-[#0047FF] hover:underline"
                          >
                            Forgot PIN?
                          </button>
@@ -395,7 +395,7 @@ const isSetupFlowActive =
                     <input 
                       type="password" placeholder="••••" maxLength={4}
                       value={pins.new}
-                      className="w-full px-5 py-4 border border-[#E5E7EB] rounded-[16px] text-center tracking-widest text-[18px] font-bold focus:border-[#0047FF] outline-none transition-all"
+                      className="w-full px-5 py-4 border border-[#E5E7EB] rounded-[16px] text-center tracking-widest text-[18px] font-semibold focus:border-[#0047FF] outline-none transition-all"
                       onChange={(e) => setPins({...pins, new: e.target.value.replace(/\D/g, "")})}
                     />
                   </div>
@@ -404,14 +404,14 @@ const isSetupFlowActive =
                     <input 
                       type="password" placeholder="••••" maxLength={4}
                       value={pins.confirm}
-                      className="w-full px-5 py-4 border border-[#E5E7EB] rounded-[16px] text-center tracking-widest text-[18px] font-bold focus:border-[#0047FF] outline-none transition-all"
+                      className="w-full px-5 py-4 border border-[#E5E7EB] rounded-[16px] text-center tracking-widest text-[18px] font-semibold focus:border-[#0047FF] outline-none transition-all"
                       onChange={(e) => setPins({...pins, confirm: e.target.value.replace(/\D/g, "")})}
                     />
                   </div>
                   <button 
                     onClick={handleInitialPinNextStep}
                     disabled={!isPinFormValid}
-                    className={`w-full py-4 text-white rounded-full font-bold text-[15px] mt-2 transition-all flex items-center justify-center h-[52px]
+                    className={`w-full py-4 text-white rounded-full font-semibold text-[15px] mt-2 transition-all flex items-center justify-center h-[52px]
                       ${!isPinFormValid 
                         ? "bg-[#8C9FFF] opacity-60 cursor-not-allowed" 
                         : "bg-[#0047FF] shadow-lg shadow-blue-100/50 active:scale-[0.98]"
@@ -467,7 +467,7 @@ const isSetupFlowActive =
                     // ✅ FIXED: Use the new handleSaveSecurityQuestion function
                     onClick={handleSaveSecurityQuestion}
                     disabled={!isQuestionsFormValid || setSecurityQuestionMutation.isPending}
-                    className={`w-full py-4 text-white rounded-full font-bold text-[15px] mt-2 transition-all flex items-center justify-center h-[52px]
+                    className={`w-full py-4 text-white rounded-full font-semibold text-[15px] mt-2 transition-all flex items-center justify-center h-[52px]
                       ${!isQuestionsFormValid || setSecurityQuestionMutation.isPending
                         ? "bg-[#8C9FFF] opacity-60 cursor-not-allowed" 
                         : "bg-[#0047FF] shadow-lg shadow-blue-100/50 active:scale-[0.98]"
@@ -485,7 +485,7 @@ const isSetupFlowActive =
                   <div className="bg-amber-50 border border-amber-100 rounded-[20px] p-4 flex gap-3 items-start">
                     <FiLock className="text-amber-600 shrink-0 mt-0.5" size={18} />
                     <div className="space-y-0.5">
-                      <h5 className="text-[12px] font-bold text-amber-900">Wallet Identification Required</h5>
+                      <h5 className="text-[12px] font-semibold text-amber-900">Wallet Identification Required</h5>
                       <p className="text-[11px] text-amber-800 leading-normal">
                         Answer your configured security fallback prompt to authorize a new PIN issuance.
                       </p>
@@ -494,14 +494,14 @@ const isSetupFlowActive =
 
                   {/* ⚡ REAL-TIME VIEW SWITCHBOARD */}
                   <div className="space-y-1">
-                    <span className="text-[11px] font-bold uppercase text-[#9CA3AF] tracking-wider">Your Active Question Profile</span>
+                    <span className="text-[11px] font-semibold uppercase text-[#9CA3AF] tracking-wider">Your Active Question Profile</span>
                     {isLoadingQuestion ? (
                       <div className="w-full bg-[#F9F9FB] border border-[#EFF0F3] p-5 rounded-[16px] flex items-center justify-center">
                         <div className="w-5 h-5 border-2 border-[#0047FF] border-t-transparent rounded-full animate-spin" />
                         <span className="text-xs text-[#62636C] font-semibold ml-2.5">Fetching security profile...</span>
                       </div>
                     ) : (
-                      <p className="text-[14px] font-bold text-[#111827] bg-[#F9F9FB] border border-[#EFF0F3] p-4 rounded-[16px] leading-relaxed">
+                      <p className="text-[14px] font-semibold text-[#111827] bg-[#F9F9FB] border border-[#EFF0F3] p-4 rounded-[16px] leading-relaxed">
                         {serverQuestion?.question_label || "No security question configured for this account profile."}
                       </p>
                     )}
@@ -543,7 +543,7 @@ const isSetupFlowActive =
                     />
                   </div>
                   {resetPinConfirmMutation.isSuccess && (
-                  <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-600 text-xs font-bold">
+                  <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-600 text-xs font-semibold">
                     <FiCheckCircle size={16} />
                     <span>PIN reset successfully!</span>
                   </div>
@@ -552,7 +552,7 @@ const isSetupFlowActive =
                   <button 
                   onClick={handleExecuteRecoveryReset}
                   disabled={!isRecoveryFormValid || resetPinStartMutation.isPending || resetPinConfirmMutation.isPending}
-                  className={`w-full py-4 text-white rounded-full font-bold text-[15px] mt-2 transition-all flex items-center justify-center h-[52px]
+                  className={`w-full py-4 text-white rounded-full font-semibold text-[15px] mt-2 transition-all flex items-center justify-center h-[52px]
                     ${!isRecoveryFormValid || resetPinStartMutation.isPending || resetPinConfirmMutation.isPending
                       ? "bg-[#8C9FFF] opacity-60 cursor-not-allowed" 
                       : "bg-[#0047FF] shadow-lg shadow-blue-100/50 active:scale-[0.98]"
@@ -602,7 +602,7 @@ const isSetupFlowActive =
                                <div className="w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center p-1">
                                  <Image src={bank.icon} alt={bank.name} width={24} height={24} className="object-contain" />
                                </div>
-                               <span className="text-[13px] font-bold text-[#111827]">{bank.name}</span>
+                               <span className="text-[13px] font-semibold text-[#111827]">{bank.name}</span>
                             </div>
                           </div>
                         ))}
@@ -623,7 +623,7 @@ const isSetupFlowActive =
 
                   <button 
                     disabled={!isAccountValid}
-                    className={`w-full py-4 text-white rounded-full font-bold text-[15px] mt-2 transition-all flex items-center justify-center h-[52px]
+                    className={`w-full py-4 text-white rounded-full font-semibold text-[15px] mt-2 transition-all flex items-center justify-center h-[52px]
                       ${!isAccountValid
                         ? "bg-[#8C9FFF] opacity-60 cursor-not-allowed" 
                         : "bg-[#0047FF] shadow-lg shadow-blue-100/50 active:scale-[0.98]"

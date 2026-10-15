@@ -266,27 +266,74 @@ export const useUpdateCircle = (circleId: string) => {
 };
 
 export interface CircleProfile {
-  circle_id: string;
+  circle_id?: string;
   name: string;
   description?: string | null;
   privacy?: "public" | "private" | string;
   niches?: string[];
   profile_picture_url: string | null;
   banner_url?: string | null;
+  member_count?: number;
   active_challenge_count: number;
-  global_rank: number;
-  role: "admin" | "manager" | "member" | string;
+  global_rank: number | null;
+  role?: "admin" | "manager" | "member" | string;
   members: {
     user_id: string;
+    username?: string;
     full_name?: string;
     profile_picture_url: string | null;
     role?: string;
   }[];
+  connected_platforms?: (string | { platform: string })[];
   join_code?: string | null;
+  all_time_earnings_minor?: number;
   all_time_views?: number;
+  current_month_views?: number;
   views_delta_percentage?: number;
-  circle_score?: number;
+  views_direction?: "up" | "down" | "flat" | string;
+  circle_score?: number | null;
 }
+
+export type CircleChallengeFilter = "active" | "completed" | "saved" | "all";
+
+export interface CircleChallengeEntry {
+  challenge_id: string;
+  title: string;
+  brand_name: string;
+  brand_logo_url: string | null;
+  prize_pool: number;
+  status: string;
+}
+
+export interface CircleChallengesPage {
+  items: CircleChallengeEntry[];
+  page: number;
+  page_size: number;
+  total_items: number;
+  total_pages: number;
+  prev_url: string | null;
+  next_url: string | null;
+}
+
+export const useGetCircleChallenges = (
+  circleId: string,
+  filter: CircleChallengeFilter,
+  page: number = 1,
+  pageSize: number = 5,
+  options?: { enabled?: boolean }
+) => {
+  return useQuery<CircleChallengesPage>({
+    queryKey: ["circle-challenges", circleId, filter, page, pageSize],
+    queryFn: async () => {
+      const { data } = await api.get<CircleChallengesPage>(
+        `/circles/${circleId}/challenges`,
+        { params: { filter, page, page_size: pageSize } }
+      );
+      return data;
+    },
+    enabled: (options?.enabled ?? true) && !!circleId,
+  });
+};
 
 export const useGetCircleProfile = (circleId: string) => {
   return useQuery<CircleProfile>({
@@ -444,26 +491,19 @@ export const useRevokeInvitation = (circleId: string) => {
 
 export interface MyInvitation {
   invitation_id: string;
-  circle_id?: string;
+  circle_id: string;
   circle_name: string;
   circle_profile_picture_url: string | null;
   member_count: number;
   global_rank: number;
-  invited_at?: string;
-  token?: string;
-  accept_token?: string;
-  signed_token?: string;
 }
 
 export const useGetMyInvitations = () => {
   return useQuery<MyInvitation[]>({
     queryKey: ["my-invitations"],
     queryFn: async () => {
-      const { data } = await api.get<
-        MyInvitation[] | { items?: MyInvitation[] }
-      >(`/circles/invitations`);
-      if (Array.isArray(data)) return data;
-      return data?.items ?? [];
+      const { data } = await api.get<MyInvitation[]>(`/circles/invitations`);
+      return data;
     },
     initialData: [],
   });
@@ -479,35 +519,25 @@ export interface AcceptInvitationResponse {
 
 
 export const useAcceptInvitation = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: async (token: string) => {
-      const { data } = await api.post<AcceptInvitationResponse>(
-        "/circles/invitations/accept",
-        { token }
-      );
+    mutationFn: async (invitationId: string) => {
+      // Backend expects 'token', so we pass the ID as 'token'
+      const { data } = await api.post("/circles/invitations/accept", { 
+        token: invitationId 
+      });
       return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["my-invitations"] });
-      queryClient.invalidateQueries({ queryKey: ["circles"] });
     },
   });
 };
 
 export const useDeclineInvitation = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: async (token: string) => {
-      const { data } = await api.post("/circles/invitations/decline", {
-        token,
+    mutationFn: async (invitationId: string) => {
+      // Backend expects 'token', so we pass the ID as 'token'
+      const { data } = await api.post("/circles/invitations/decline", { 
+        token: invitationId 
       });
       return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["my-invitations"] });
     },
   });
 };

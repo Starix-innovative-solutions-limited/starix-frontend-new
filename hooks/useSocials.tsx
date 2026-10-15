@@ -4,6 +4,7 @@ import {api} from "@/lib/api";
 export interface ConnectSocialPayload {
   platform: "instagram" | "tiktok" | "youtube" | "x";
   callbackUrl: string;
+  circleId?: string;
 }
 
 export interface ConnectSocialResponse {
@@ -13,15 +14,28 @@ export interface ConnectSocialResponse {
 
 export const useInitiateSocialConnection = () => {
   return useMutation({
-    mutationFn: async ({ platform, callbackUrl }: ConnectSocialPayload) => {
-      const { data } = await api.get<ConnectSocialResponse>(
-        `/platforms/${platform}/connect`, // <-- Updated to match your exact backend route
-        {
-            params: {
-            callback_url: callbackUrl,
-            },
-        }
+    mutationFn: async ({
+      platform,
+      callbackUrl,
+      circleId,
+    }: ConnectSocialPayload) => {
+      if (circleId) {
+        const { data } = await api.post<ConnectSocialResponse>(
+          `/circles/${circleId}/social-accounts/${platform}/connect`,
+          {},
+          { params: { callback_url: callbackUrl } }
         );
+        return data;
+      }
+
+      const { data } = await api.get<ConnectSocialResponse>(
+        `/platforms/${platform}/connect`,
+        {
+          params: {
+            callback_url: callbackUrl,
+          },
+        }
+      );
       return data;
     },
   });

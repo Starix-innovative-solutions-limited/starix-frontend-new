@@ -3,6 +3,7 @@
 import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Loader from "@/components/Loader";
+import { isSocialOAuthErrorCode } from "@/lib/socialOAuth";
 
 // 1. Move the logic into a internal handler component
 const CallbackHandler = () => {
@@ -34,6 +35,13 @@ const CallbackHandler = () => {
       localStorage.getItem("loginRole");
   
     if (error) {
+      if (isSocialOAuthErrorCode(error) || searchParams.get("error_description")) {
+        const description = searchParams.get("error_description") ?? "";
+        const params = new URLSearchParams({ error });
+        if (description) params.set("error_description", description);
+        router.replace(`/profile?${params.toString()}`);
+        return;
+      }
       console.error("OAuth Error:", error);
       router.replace("/login?error=auth_failed");
       return;

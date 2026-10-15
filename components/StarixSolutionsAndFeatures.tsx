@@ -1,106 +1,299 @@
 "use client";
 
-import React from "react";
-import Image from "next/image";
-import { motion } from "framer-motion";
+import { useState } from "react";
 
-const challenges = [
+const slides = [
   {
-    title: "Fast-Moving Trends",
-    desc: "Trends move fast. By the time you catch one it's already gone",
-    icon: "/or-clock.webp",
-    imgClass: "w-[110%] h-[100%] bottom-[-25%] left-[-10%]",
-    titleClass: "top-8 max-w-[160px] left-6",
-    descClass: "top-24  max-w-[115px] right-[4%] text-right"
+    id: "01",
+    title: ["Fast-", "Moving", "Trends"],
+    pillTitle: "Fast-Moving Trends",
+    desc: "Find your people. Share what's working. Rise together.",
+    image: "/clock it.webp",
+    bg: "#FFF1E8",
+    art: {
+      width: "80%",
+      top: "90%",
+      left: "85%",
+      rotate: "-20deg",
+    },
+    mobileArt: {
+      width: "310%",
+      top: "124%",
+      left: "72%",
+      rotate: "-10deg",
+    },
   },
   {
-    title: "Hard to Grow Audience",
+    id: "02",
+    title: ["Hard-", "to-Grow", "Audience"],
+    pillTitle: "Hard-to-Grow Audience",
     desc: "Hard to grow when you don't know what's working",
-    icon: "/blue-seats.webp",
-    imgClass: "w-[120%] h-[110%] bottom-[-12%] right-[-20%]",
-    titleClass: "top-8 max-w-[150px] left-8",
-    descClass: "top-10 right-[4%] text-right max-w-[120px]"
+    image: "/seaters.webp",
+    bg: "#E8F4FF",
+    art: {
+      width: "60%",
+      top: "90%",
+      left: "80%",
+      rotate: "4.67deg",
+    },
+    mobileArt: {
+      width: "250%",
+      top: "118%",
+      left: "40%",
+      rotate: "0deg",
+    },
   },
   {
-    title: "Brand Credibility",
-    desc: "No way to prove you're worth the investment",
-    icon: "/cracked.webp",
-    imgClass: "w-[110%] h-[100%] md:h-[120%] bottom-[-15%] right-[-10%]",
-    titleClass: "top-8 left-8",
-    descClass: "top-18 left-8 max-w-[220px]"
+    id: "03",
+    title: ["Low", "Brand", "Credibility"],
+    pillTitle: "Low Brand Credibility",
+    desc: "No way to prove you're worth the investment.",
+    image: "/shield.webp",
+    bg: "#FFF1E8",
+    art: {
+      width: "60%",
+      top: "100%",
+      left: "80%",
+      rotate: "13.11deg",
+    },
+    mobileArt: {
+      width: "210%",
+      top: "112%",
+      left: "48%",
+      rotate: "8deg",
+    },
   },
   {
-    title: "Limited Opportunities",
+    id: "04",
+    title: ["Limited", "Access to", "Opportunity"],
+    pillTitle: "Limited Access to Opportunity",
     desc: "Opportunities exist. They're just not reaching you.",
-    icon: "/gateway.webp",
-    imgClass: "w-[125%] h-[100%] bottom-[-18%] right-[5%]",
-    titleClass: "top-8 max-w-[150px] left-8",
-    descClass: "top-28 right-[4%] text-right max-w-[200px]"
+    image: "/gatekeep.webp",
+    bg: "#E8F4FF",
+    art: {
+      width: "50%",
+      top: "100%",
+      left: "85%",
+      rotate: "10deg",
+    },
+    mobileArt: {
+      width: "185%",
+      top: "122%",
+      left: "50%",
+      rotate: "-8deg",
+    },
   },
-];
+] as const;
 
-const ChallengeCard = ({
-  title,
-  desc,
-  icon,
-  imgClass,
-  titleClass,
-  descClass,
-  index,
-}: any) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.5, delay: index * 0.1 }}
-    className="bg-[#F3F5FC] rounded-[24px] h-[400px] relative overflow-hidden"
-  >
-    {/* TITLE */}
-    <h3
-      className={`absolute z-10 text-[#040136] font-medium text-[28px] leading-tight tracking-tight ${titleClass}`}
-    >
-      {title}
-    </h3>
+function SlideArt({
+  slide,
+  art,
+}: {
+  slide: (typeof slides)[number];
+  art: (typeof slides)[number]["art"] | (typeof slides)[number]["mobileArt"];
+}) {
+  return (
+    <img
+      src={slide.image}
+      alt=""
+      className="pointer-events-none absolute max-w-none"
+      style={{
+        width: art.width,
+        height: "auto",
+        top: art.top,
+        left: art.left,
+        transform: `translate(-50%, -50%) rotate(${art.rotate})`,
+        transformOrigin: "center center",
+        zIndex: 0,
+      }}
+    />
+  );
+}
 
-    {/* DESCRIPTION */}
-    <p
-      className={`absolute z-10 text-[#747682] text-[16px] leading-snug ${descClass}`}
-    >
-      {desc}
-    </p>
-
-    {/* IMAGE */}
+function SlideCard({ slide }: { slide: (typeof slides)[number] }) {
+  return (
     <div
-      className={`absolute ${imgClass} pointer-events-none transition-transform duration-500`}
+      className="relative min-w-0 flex-1 overflow-hidden rounded-[28px]"
+      style={{ backgroundColor: slide.bg }}
     >
-      <Image
-        src={icon}
-        alt={title}
-        fill
-        sizes="(max-width: 768px) 100vw, 320px"
-        className="object-contain object-bottom"
+      <SlideArt slide={slide} art={slide.art} />
+
+      <span className="absolute top-6 right-8 z-10 text-[24px] font-medium tracking-tight text-[#747682]">
+        {slide.id}
+      </span>
+
+      <div className="relative z-10 max-w-[56%] px-8 pt-9 lg:max-w-[48%] xl:max-w-[42%] xl:px-10 xl:pt-10">
+        <h3 className="text-[36px] leading-[0.92] font-medium tracking-[-0.05em] text-[#1E1F24] lg:text-[40px] xl:text-[60px]">
+          {slide.title.map((line) => (
+            <span key={line} className="block">
+              {line}
+            </span>
+          ))}
+        </h3>
+        <p className="mt-3 max-w-[250px] text-[20px] leading-[1.45] text-[#203646B2]">
+          {slide.desc}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function MobileNumber({
+  id,
+  className,
+}: {
+  id: string;
+  className: string;
+}) {
+  return (
+    <span
+      className={`pointer-events-none absolute right-5 z-30 w-8 text-right font-medium ${className}`}
+    >
+      {id}
+    </span>
+  );
+}
+
+function MobilePill({
+  slide,
+  onSelect,
+}: {
+  slide: (typeof slides)[number];
+  onSelect: () => void;
+}) {
+  return (
+    <div className="relative w-full">
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={onSelect}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            onSelect();
+          }
+        }}
+        className="flex h-[58px] w-full cursor-pointer items-center rounded-full bg-[#EFF0F3] px-5 pr-14"
+        aria-label={`Show ${slide.pillTitle}`}
+      >
+        <span className="min-w-0 truncate text-[15px] font-medium tracking-[-0.02em] text-[#3D3F4A]">
+          {slide.pillTitle}
+        </span>
+      </div>
+      <MobileNumber
+        id={slide.id}
+        className="top-0 text-[16px] leading-[58px] text-[#8A8E99]"
       />
     </div>
-  </motion.div>
-);
+  );
+}
 
-const StarixChallengesSection = () => {
+function MobileSlideCard({ slide }: { slide: (typeof slides)[number] }) {
   return (
-    <section className="relative py-12 md:py-24 bg-white px-6">
-      <div className="max-w-[1300px] mx-auto">
-        {/* HEADER */}
-        <div className="text-center mb-8 md:mb-16">
-          <h2 className="text-[#040136] text-[48px] md:text-[72px] font-medium leading-none tracking-tight">
-            What’s been <br />
-            holding <span className="text-[#FD6C1D]">you back..</span>
-          </h2>
+    <div className="relative w-full">
+      <div
+        className="relative h-[540px] w-full overflow-hidden rounded-[24px]"
+        style={{ backgroundColor: slide.bg }}
+      >
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <SlideArt slide={slide} art={slide.mobileArt} />
         </div>
 
-        {/* GRID */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {challenges.map((item, i) => (
-            <ChallengeCard key={i} {...item} index={i} />
-          ))}
+        <div className="relative z-10 px-5 pt-6 pr-14">
+          <h3 className="text-[34px] leading-[0.92] font-medium tracking-[-0.05em] text-[#1E1F24]">
+            {slide.title.map((line) => (
+              <span key={line} className="block">
+                {line}
+              </span>
+            ))}
+          </h3>
+          <p className="mt-3 max-w-[230px] text-[14px] leading-[1.4] text-[#8B8580]">
+            {slide.desc}
+          </p>
+        </div>
+      </div>
+      <MobileNumber
+        id={slide.id}
+        className="top-[26px] text-[26px] leading-none text-[#747682]"
+      />
+    </div>
+  );
+}
+
+const StarixChallengesSection = () => {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  return (
+    <section className="bg-white px-5 py-12 md:px-10 md:py-20 xl:px-16">
+      <div className="mx-auto max-w-[1320px]">
+        <div className="md:hidden">
+          <h2 className="mb-7 text-center text-[28px] leading-[1.15] font-medium tracking-[-0.04em] text-[#040136]">
+            So what&apos;s been
+            <br />
+            holding you back?
+          </h2>
+
+          <div className="flex w-full flex-col gap-[17px]">
+            {slides.map((slide, index) =>
+              index === activeIndex ? (
+                <MobileSlideCard key={slide.id} slide={slide} />
+              ) : (
+                <MobilePill
+                  key={slide.id}
+                  slide={slide}
+                  onSelect={() => setActiveIndex(index)}
+                />
+              )
+            )}
+          </div>
+        </div>
+
+        <div className="hidden md:block">
+          <div className="mb-8 flex items-start justify-between gap-8">
+            <h2 className="text-[36px] leading-[1.05] font-medium tracking-[-0.05em] text-[#111111] md:text-[48px] xl:text-[64px]">
+              So what&apos;s been
+              <br />
+              holding <span className="text-[#F68A2F]">you</span> back?
+            </h2>
+
+            <button
+              type="button"
+              onClick={() =>
+                setActiveIndex((current) => (current + 1) % slides.length)
+              }
+              aria-label="Show next challenge"
+              className="mt-1 flex h-[72px] w-[150px] shrink-0 items-center justify-end overflow-visible"
+            >
+              <img
+                src="/orange arrow.webp"
+                alt=""
+                className="max-w-none"
+                style={{
+                  width: 168,
+                  height: "auto",
+                  transform: "rotate(45deg)",
+                }}
+              />
+            </button>
+          </div>
+
+          <div className="flex h-[380px] gap-4 lg:h-[320px] xl:h-[340px]">
+            {slides.map((slide, index) =>
+              index === activeIndex ? (
+                <SlideCard key={slide.id} slide={slide} />
+              ) : (
+                <button
+                  key={slide.id}
+                  type="button"
+                  onClick={() => setActiveIndex(index)}
+                  className="flex h-full w-[64px] shrink-0 items-start justify-center rounded-[28px] bg-[#F0F1F4] pt-6 text-[24px] font-medium tracking-tight text-[#C5C9D3] lg:w-[72px] xl:w-[84px]"
+                  aria-label={`Show ${slide.title.join(" ")}`}
+                >
+                  {slide.id}
+                </button>
+              )
+            )}
+          </div>
         </div>
       </div>
     </section>

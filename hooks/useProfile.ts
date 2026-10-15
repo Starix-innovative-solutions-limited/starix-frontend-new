@@ -13,10 +13,10 @@ export interface CreatorProfile {
   banner_url: string;
   niches: string[];
   total_completed_challenges: number;
-  connected_platforms: { platform: string; username: string }[];
+  connected_platforms: { platform: string; username: string | null }[];
   lifetime_engagements: number;
-  starix_score?: number; // Optional because it's hidden if private
-  bio: string;
+  starix_score?: number | null;
+  bio: string | null;
 }
 
 export const useGetCreatorProfile = (username: string, options?: any) => {
@@ -159,6 +159,7 @@ export function useUpdateCreatorProfile() {
     onSuccess: (updatedData: any) => {
       queryClient.invalidateQueries({ queryKey: ["authMe"] });
       queryClient.invalidateQueries({ queryKey: ["me"] });
+      queryClient.invalidateQueries({ queryKey: ["creatorProfile"] });
       queryClient.invalidateQueries({ queryKey: ["creators", "onboarding"] });
 
       queryClient.setQueryData(["authMe"], updatedData);

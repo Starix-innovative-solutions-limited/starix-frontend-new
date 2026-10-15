@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion";
 import { FiX } from "react-icons/fi";
 import { toast } from "react-hot-toast";
-import { toBlob, toJpeg } from "html-to-image";
+import { toBlob, toJpeg, toPng } from "html-to-image";
 import { useGetMe } from "@/hooks/useAuth";
 import { useGetCreatorProfile } from "@/hooks/useProfile";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -22,9 +22,7 @@ type ShareScoreModalProps = {
 const CARD_BG = "#D4F0FF";
 const SCORE_BLUE = "#0033FF";
 const RING_BLUE = "#114BF6";
-const EXPORT_WIDTH = 1080;
-const EXPORT_HEIGHT = 1290;
-const JPEG_QUALITY = 0.92;
+const EXPORT_EDGE = 2880;
 
 const PLATFORM_URL: Record<SharePlatform, string> = {
   instagram: "https://www.instagram.com/",
@@ -182,22 +180,26 @@ function wrapCenteredText(
   });
 }
 
-async function renderShareCard(opts: {
+async function renderShareCardPng(opts: {
   name: string;
   score: number;
   avatarUrl?: string | null;
 }): Promise<Blob> {
+  const scale = 3;
+  const width = 1080 * scale;
+  const height = 1290 * scale;
   const canvas = document.createElement("canvas");
-  canvas.width = EXPORT_WIDTH;
-  canvas.height = EXPORT_HEIGHT;
+  canvas.width = width;
+  canvas.height = height;
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Could not create canvas");
 
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
+  ctx.scale(scale, scale);
 
-  const w = EXPORT_WIDTH;
-  const h = EXPORT_HEIGHT;
+  const w = 1080;
+  const h = 1290;
   const clamped = Math.min(100, Math.max(0, Math.round(opts.score)));
   const possessive = toPossessive(opts.name);
 
@@ -322,7 +324,7 @@ async function renderShareCard(opts: {
   ctx.restore();
 
   const blob = await new Promise<Blob | null>((resolve) => {
-    canvas.toBlob((result) => resolve(result), "image/jpeg", JPEG_QUALITY);
+    canvas.toBlob((result) => resolve(result), "image/png");
   });
 
   if (blob) return blob;
@@ -482,7 +484,10 @@ export default function ShareScoreModal({
     const node = cardRef.current;
 
     if (node) {
-      const pixelRatio = EXPORT_WIDTH / Math.max(node.offsetWidth, 1);
+      const pixelRatio = Math.min(
+        6,
+        EXPORT_EDGE / Math.max(node.offsetWidth, 1)
+      );
       const exportOptions = {
         cacheBust: true,
         pixelRatio,
@@ -490,7 +495,6 @@ export default function ShareScoreModal({
         backgroundColor: CARD_BG,
         canvasWidth: Math.round(node.offsetWidth * pixelRatio),
         canvasHeight: Math.round(node.offsetHeight * pixelRatio),
-        quality: JPEG_QUALITY,
         fetchRequestInit: {
           mode: "cors" as RequestMode,
           credentials: "omit" as RequestCredentials,
@@ -498,21 +502,29 @@ export default function ShareScoreModal({
       };
 
       try {
-        const jpegBlob = await toBlob(node, {
+        const pngBlob = await toBlob(node, {
           ...exportOptions,
-          type: "image/jpeg",
+          type: "image/png",
         });
-        if (jpegBlob) return jpegBlob;
+        if (pngBlob) return pngBlob;
 
-        const jpegUrl = await toJpeg(node, exportOptions);
-        return dataUrlToBlob(jpegUrl);
+        const pngUrl = await toPng(node, exportOptions);
+        return dataUrlToBlob(pngUrl);
       } catch {
-        // Fall through to canvas renderer.
+        try {
+          const jpegUrl = await toJpeg(node, {
+            ...exportOptions,
+            quality: 0.95,
+          });
+          return dataUrlToBlob(jpegUrl);
+        } catch {
+          // Fall through to canvas renderer.
+        }
       }
     }
 
     const exportPhoto = embeddedPhoto || photo;
-    return renderShareCard({
+    return renderShareCardPng({
       name,
       score: clampedScore,
       avatarUrl: exportPhoto,

@@ -40,7 +40,7 @@
 //               <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5h3m-6.75 3h10.5a2.25 2.25 0 0 0 2.25-2.25V4.5a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 4.5v15a2.25 2.25 0 0 0 2.25 2.25Z" />
 //             </svg>
 //           </div>
-//           <h1 className="text-[22px] font-bold tracking-tight mb-2">Tablet or Desktop Only</h1>
+//           <h1 className="text-[22px] font-semibold tracking-tight mb-2">Tablet or Desktop Only</h1>
 //           <p className="text-gray-400 text-[14px] max-w-[280px] leading-relaxed">
 //             Starix is best experienced on an iPad, tablet, or laptop device screen. Please upscale your window or switch devices to continue.
 //           </p>

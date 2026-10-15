@@ -21,7 +21,7 @@ const AnalyticsPreview = ({ stats }: StatsCardProps) => {
             className=""
         >
             <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold">Analytics Preview</h2>
+                <h2 className="text-xl font-semibold">Analytics Preview</h2>
                 <button className="text-sm font-light text-dark-navy hover:text-blue-600">View</button>
             </div>
 

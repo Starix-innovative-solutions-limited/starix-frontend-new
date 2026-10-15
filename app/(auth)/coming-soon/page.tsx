@@ -48,7 +48,7 @@ const ComingSoonPage = () => {
         
         {/* TOP SECTION - NOW CENTERED */}
         <div className="text-center space-y-2 flex flex-col items-center">
-          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#F3F6FF] border border-[#E0E7FF] text-[#0033FF] text-[13px] font-bold uppercase tracking-[0.1em]">
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#F3F6FF] border border-[#E0E7FF] text-[#0033FF] text-[13px] font-semibold uppercase tracking-[0.1em]">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0033FF] opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0033FF]"></span>
@@ -89,7 +89,7 @@ const ComingSoonPage = () => {
                   <button
                     type="submit"
                     disabled={isPending}
-                    className="w-full h-[64px] bg-[#0033FF] text-white rounded-[20px] font-bold text-[16px] flex items-center justify-center gap-3 hover:bg-[#0026CC] transition-all active:scale-[0.98] shadow-xl shadow-blue-100 disabled:opacity-70"
+                    className="w-full h-[64px] bg-[#0033FF] text-white rounded-[20px] font-semibold text-[16px] flex items-center justify-center gap-3 hover:bg-[#0026CC] transition-all active:scale-[0.98] shadow-xl shadow-blue-100 disabled:opacity-70"
                   >
                     {isPending ? (
                       <FiLoader className="animate-spin text-[24px]" />
@@ -113,7 +113,7 @@ const ComingSoonPage = () => {
                     </div>
                 </div>
                 
-                <h3 className="text-[#0033FF] font-bold text-[24px] mb-2">You&apos;re in!</h3>
+                <h3 className="text-[#0033FF] font-semibold text-[24px] mb-2">You&apos;re in!</h3>
                 <p className="text-[#040136] text-[16px] font-semibold leading-snug max-w-[400px]">
                     Your spot is secured. We’ve sent a confirmation to <span className="text-[#6B7280] font-semibold">{email}</span>.
                 </p>
@@ -130,7 +130,7 @@ const ComingSoonPage = () => {
                 ))}
               </div>
               <p className="text-[14px] font-medium text-[#6B7280]">
-                Joined by <span className="text-[#040136] font-bold">{waitlistTotal}</span> other creators
+                Joined by <span className="text-[#040136] font-semibold">{waitlistTotal}</span> other creators
               </p>
             </div>
           </div>

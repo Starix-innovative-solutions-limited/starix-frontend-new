@@ -75,7 +75,7 @@ export default function Navbar() {
 
   return (
     <header className="fixed top-5 left-0 z-50 w-full px-4 md:top-6">
-      <nav className="relative z-50 mx-auto flex w-[min(280px,calc(100%-48px))] items-center justify-between rounded-full border border-white/80 bg-white px-5 py-2 shadow-[0_8px_24px_rgba(0,0,0,0.06)] backdrop-blur-md transition-all md:w-auto md:max-w-fit md:justify-start md:gap-5 md:border-white/20 md:bg-white/40 md:px-5 md:py-1.5 xl:gap-10 xl:px-6">
+      <nav className="relative z-50 mx-auto flex w-[min(280px,calc(100%-48px))] items-center justify-between rounded-full border border-white/20 bg-white/40 px-5 py-2 shadow-[0_8px_24px_rgba(0,0,0,0.06)] backdrop-blur-md transition-all md:w-[min(320px,calc(100%-64px))] lg:w-auto lg:max-w-fit lg:justify-start lg:gap-5 lg:px-5 lg:py-1.5 xl:gap-10 xl:px-6">
         <Link href="/" className="shrink-0" onClick={close}>
           <Image
             src="/n-logo.svg"
@@ -87,7 +87,7 @@ export default function Navbar() {
           />
         </Link>
 
-        <div className="hidden items-center gap-5 md:flex xl:gap-8">
+        <div className="hidden items-center gap-5 lg:flex xl:gap-8">
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -103,7 +103,7 @@ export default function Navbar() {
           ))}
         </div>
 
-        <div className="relative hidden md:block">
+        <div className="relative hidden lg:block">
           <button
             type="button"
             onClick={() => setJoinOpen((open) => !open)}
@@ -156,7 +156,7 @@ export default function Navbar() {
 
         <button
           type="button"
-          className="grid h-8 w-8 place-items-center text-[#040136] md:hidden"
+          className="grid h-8 w-8 place-items-center text-[#040136] lg:hidden"
           onClick={() => setIsOpen((open) => !open)}
           aria-label={isOpen ? "Close menu" : "Open menu"}
           aria-expanded={isOpen}
@@ -173,7 +173,7 @@ export default function Navbar() {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 32, stiffness: 320, mass: 0.8 }}
-            className="fixed inset-0 z-40 flex flex-col bg-[#0C2792] md:hidden"
+            className="fixed inset-0 z-40 flex flex-col bg-[#0C2792] lg:hidden"
           >
             <div
               aria-hidden

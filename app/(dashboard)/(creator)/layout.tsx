@@ -116,38 +116,28 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
   return (
     <main className={`${workSans.variable} bg-[#fff] h-screen font-sans overflow-hidden`}>
       <div className="flex h-full overflow-hidden">
-        
-        {/* LEFT SIDEBAR */}
-        <SideBar 
-          collapsed={leftCollapsed} 
-          setCollapsed={toggleLeft} 
-          className="max-lg:hidden md:max-h-[95vh] transition-all duration-300 flex-shrink-0" 
+        <SideBar
+          collapsed={leftCollapsed}
+          setCollapsed={toggleLeft}
+          className="max-lg:hidden md:max-h-[95vh] transition-all duration-300 flex-shrink-0"
         />
 
-        {/* MAIN CONTENT AREA */}
-        <div className="flex-1 flex flex-col h-full min-w-0">
+        <div className="flex h-full min-w-0 flex-1 flex-col">
           <div
             ref={scrollRef}
-            /* When on a profile page view, padding is exactly 'p-0' so your banner 
-              stretches and touches both sidebars seamlessly without layout gaps.
-            */
-            className={`flex-1 overflow-y-auto scrollbar-none hide-sc  ${
-              isFlushProfileView 
-                ? "p-0" 
-                : "max-md:pt-4 md:p-8 md:py-6"
+            className={`hide-sc flex-1 overflow-y-auto scrollbar-none ${
+              isFlushProfileView ? "p-0" : "max-md:pt-4 md:p-8 md:py-6"
             }`}
           >
             {children}
           </div>
         </div>
 
-        {/* RIGHT SIDEBAR */}
-        <RightSideBar 
-          collapsed={rightCollapsed} 
+        <RightSideBar
+          collapsed={rightCollapsed}
           setCollapsed={toggleRight}
           className="max-lg:hidden md:max-h-[95vh] transition-all duration-300 flex-shrink-0"
         />
-        
       </div>
     </main>
   );

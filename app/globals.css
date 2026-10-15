@@ -154,7 +154,6 @@ body {
 /* Custom weights for Geist */
 .font-medium { font-weight: 500; }
 .font-semibold { font-weight: 600; }
-.font-bold { font-weight: 700; }
 
 .flex-center { @apply flex items-center justify-center; }
 .flex-between { @apply flex items-center justify-between; }

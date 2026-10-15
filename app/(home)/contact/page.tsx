@@ -128,7 +128,7 @@ const ContactPage = () => {
             className="relative z-10 w-full max-w-[500px] bg-white rounded-[32px] p-6 md:p-10 shadow-xl"
           >
             <div className="mb-8">
-              <h3 className="text-[#040136] text-[24px] font-bold mb-2">Send us a message</h3>
+              <h3 className="text-[#040136] text-[24px] font-semibold mb-2">Send us a message</h3>
               <p className="text-[#62636C] text-sm">Fill in the details below and we'll get back to you as soon as possible.</p>
             </div>
 
@@ -206,7 +206,7 @@ const ContactPage = () => {
               <button 
                 type="submit"
                 disabled={contactMutation.isPending}
-                className="w-full py-4 bg-[#050E81] text-white font-bold rounded-full hover:shadow-sm transition-all mt-4 disabled:bg-gray-400 flex items-center justify-center cursor-pointer"
+                className="w-full py-4 bg-[#050E81] text-white font-semibold rounded-full hover:shadow-sm transition-all mt-4 disabled:bg-gray-400 flex items-center justify-center cursor-pointer"
               >
                 {contactMutation.isPending ? "Sending..." : "Contact Us"}
               </button>

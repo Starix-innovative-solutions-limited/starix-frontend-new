@@ -10,7 +10,9 @@ import CreatorHeroWithSlider from "@/components/CreatorHeroWithSlider";
 import StarixSolutionsAndFeatures from "@/components/StarixSolutionsAndFeatures";
 import CreatorBuilt from "@/components/CreatorBuilt";
 import CreatorEarnBanner from "@/components/CreatorEarnBanner";
+import CreatorHowToUse from "@/components/CreatorHowToUse";
 import CreatorPathSection from "@/components/CreatorPathSection";
+import CreatorJoinBanner from "@/components/CreatorJoinBanner";
 
 
 const Page = () => {
@@ -21,9 +23,11 @@ const Page = () => {
         <CreatorHeroWithSlider />
 
         <StarixSolutionsAndFeatures />
-        <CreatorBuilt />
         <CreatorEarnBanner />
+        <CreatorHowToUse />
+        <CreatorBuilt />
         <CreatorPathSection />
+        <CreatorJoinBanner />
 
 
       </div>

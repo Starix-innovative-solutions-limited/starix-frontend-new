@@ -515,7 +515,7 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
               ) : (
                 <div className="space-y-6">
                   <div>
-                    <h4 className="text-[12px] font-bold text-[#7B8190] uppercase tracking-wider mb-3">
+                    <h4 className="text-[12px] font-semibold text-[#7B8190] uppercase tracking-wider mb-3">
                       Active Members ({members.length})
                     </h4>
                     
@@ -536,7 +536,7 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
                           </div>
 
                           <div className="flex items-center gap-3">
-                            <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full uppercase ${
+                            <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full uppercase ${
                               member.role?.toLowerCase() === "admin" 
                                 ? "text-[#D847FF] bg-[#FDF2FF]" 
                                 : "text-[#0085FF] bg-[#F0F7FF]"
@@ -561,7 +561,7 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
                   {/* Pending Invitations Section */}
                   {pendingInvites.length > 0 && (
                     <div className="border-t border-gray-100 pt-4">
-                      <h4 className="text-[12px] font-bold text-[#7B8190] uppercase tracking-wider mb-3">
+                      <h4 className="text-[12px] font-semibold text-[#7B8190] uppercase tracking-wider mb-3">
                         Sent Invites ({pendingInvites.length})
                       </h4>
                       <div className="space-y-3">
@@ -605,7 +605,7 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
           {/* ================= REQUESTS TAB ================= */}
           {isAdmin && activeTab === "Requests" && (
             <div className="space-y-4">
-              <h4 className="text-[12px] font-bold text-[#7B8190] uppercase tracking-wider mb-3">
+              <h4 className="text-[12px] font-semibold text-[#7B8190] uppercase tracking-wider mb-3">
                 Pending Requests ({joinRequests.length})
               </h4>
               
@@ -661,7 +661,7 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                         <h3 className="text-[20px] font-semibold text-[#1E1F24]">Payout Auto-Splitting</h3>
-                        <span className={`px-2 py-0.5 text-[10px] font-bold rounded-md uppercase ${
+                        <span className={`px-2 py-0.5 text-[10px] font-semibold rounded-md uppercase ${
                           payoutData.fully_approved ? "bg-green-100 text-green-700" : "bg-[#FFFBEB] text-[#D97706]"
                         }`}>
                           {payoutData.fully_approved ? "confirmed" : "pending"}
@@ -702,7 +702,7 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
                             <button
                               onClick={() => approvePayoutMutation.mutate()}
                               disabled={approvePayoutMutation.isPending}
-                              className="text-[10px] font-bold px-3 py-1 rounded-md bg-[#0033FF] text-white hover:bg-blue-700 transition"
+                              className="text-[10px] font-semibold px-3 py-1 rounded-md bg-[#0033FF] text-white hover:bg-blue-700 transition"
                             >
                               {approvePayoutMutation.isPending ? "Approving..." : "Approve Share"}
                             </button>
@@ -747,7 +747,7 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
                               type="number" 
                               value={input.percentage}
                               onChange={(e) => handlePercentageChange(input.user_id, parseInt(e.target.value) || 0)}
-                              className="w-12 bg-transparent text-right font-bold outline-none"
+                              className="w-12 bg-transparent text-right font-semibold outline-none"
                             />
                             <span className="text-gray-400 font-semibold">%</span>
                           </div>
@@ -756,7 +756,7 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
                     })}
                     
                     {/* Live validation feedback */}
-                    <div className={`text-center font-bold ${
+                    <div className={`text-center font-semibold ${
                       payoutInputs.reduce((s, i) => s + i.percentage, 0) === 100 
                         ? "text-green-600" 
                         : "text-red-500"
@@ -766,7 +766,7 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
                   </div>
 
                   {/* Validation UI */}
-                  <div className="text-center font-bold text-[14px]">
+                  <div className="text-center font-semibold text-[14px]">
                       Total: {payoutInputs.reduce((sum, i) => sum + i.percentage, 0)}%
                   </div>
 

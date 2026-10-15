@@ -19,6 +19,13 @@ import {
   type UpdateCreatorProfilePayload,
 } from "@/hooks/useProfile";
 import { useGetMyCircle, type MyCircle } from "@/hooks/useCircles";
+import { hasSocialOAuthCallback } from "@/lib/socialOAuth";
+import {
+  PolarAngleAxis,
+  RadialBar,
+  RadialBarChart,
+  ResponsiveContainer,
+} from "recharts";
 
 type Circle = CreatorCircle | MyCircle;
 
@@ -40,7 +47,7 @@ const UserProfilePage = () => {
       ? params.id
       : null;
 
-const { data: authUser } = useGetMe();
+const { data: authUser, isLoading: isAuthLoading } = useGetMe();
 
 const isOwnProfile =
   !routeUsernameOrId ||
@@ -52,9 +59,9 @@ const viewedUsername = isOwnProfile
   : routeUsernameOrId ?? "";
 
   
-const { data: viewedProfile } =
+const { data: viewedProfile, isLoading: isViewedProfileLoading } =
   useGetCreatorProfile(viewedUsername, {
-    enabled: !!viewedUsername && !isOwnProfile,
+    enabled: !!viewedUsername,
   });
 
 const { data: metricsData, isLoading: isMetricsLoading } = useGetCreatorMetrics(
@@ -64,7 +71,7 @@ const { data: metricsData, isLoading: isMetricsLoading } = useGetCreatorMetrics(
 
 const metrics = metricsData as CreatorMetricsResponse | null | undefined;
 
-const profile = isOwnProfile ? authUser : viewedProfile;
+const profile = viewedProfile;
   
 
   const circlesUsername = profile?.username ?? viewedUsername;
@@ -106,16 +113,10 @@ const isCirclesLoading = isOwnProfile
   const [isPortfolioOpen, setIsPortfolioOpen] = useState(false);
   const [scoreVisibility, setScoreVisibility] = useState("anyone");
 
-  // After OAuth redirect to /profile#platform=...&status=connected — reopen the modal
+  // Reopen after OAuth: success is in the hash, errors are query params
   useEffect(() => {
     if (typeof window === "undefined" || !isOwnProfile) return;
-
-    const hashParams = new URLSearchParams(
-      window.location.hash.replace(/^#/, "")
-    );
-    if (hashParams.get("platform") || hashParams.get("status")) {
-      setIsSocialsOpen(true);
-    }
+    if (hasSocialOAuthCallback()) setIsSocialsOpen(true);
   }, [isOwnProfile]);
 
   const creatorCircles: Circle[] = circlesData?.items ?? [];
@@ -138,6 +139,10 @@ const isCirclesLoading = isOwnProfile
   "Creator";
 
 const username = profile?.username ? `@${profile.username}` : "";
+
+const isProfileLoading =
+  (isOwnProfile && isAuthLoading && !authUser) ||
+  (isViewedProfileLoading && !viewedProfile);
 
   const profileImage = profile?.profile_picture_url?.trim() || null;
   const bannerImage = profile?.banner_url?.trim() || null;
@@ -235,15 +240,15 @@ const canShowScore = typeof profile?.starix_score === "number";
   };
 
   const PLATFORM_ICON_MAP: Record<string, { icon: string; label: string }> = {
-  youtube: { icon: "/yt.webp", label: "YouTube" },
-  instagram: { icon: "/ig.webp", label: "Instagram" },
-  tiktok: { icon: "/tt.webp", label: "TikTok" },
+  youtube: { icon: "/yt.svg", label: "YouTube" },
+  instagram: { icon: "/ig.svg", label: "Instagram" },
+  tiktok: { icon: "/tt.svg", label: "TikTok" },
 };
 
 const ConnectedPlatformIcons = ({
   platforms,
 }: {
-  platforms: { platform: string; username: string }[];
+  platforms: { platform: string; username?: string | null }[];
 }) => {
   if (!platforms.length) return null;
 
@@ -257,11 +262,11 @@ const ConnectedPlatformIcons = ({
 
         return (
           <img
-            key={`${item.platform}-${item.username}`}
+            key={`${item.platform}-${item.username ?? "connected"}`}
             src={platform.icon}
             alt={platform.label}
             className="h-6 w-6"
-            title={item.username}
+            title={item.username ?? platform.label}
           />
         );
       })}
@@ -270,25 +275,25 @@ const ConnectedPlatformIcons = ({
 };
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-white font-sans text-[#1E1F24] antialiased">
-      <div className="relative h-[230px] w-full overflow-hidden bg-[#EAF2FF]">
-      {bannerImage ? (
+    <div className="min-h-screen w-full bg-white font-sans text-[#1E1F24] antialiased">
+      <div className="relative h-[180px] w-[full] mx-auto overflow-hidden bg-[#EAF2FF]">
+        {bannerImage ? (
           <Image
             src={bannerImage}
             alt="User profile cover"
             fill
             sizes="100vw"
             priority
-            className="object-cover"
+            className="object-cover object-center"
           />
         ) : (
           <div className="h-full w-full bg-[#EAF2FF]" aria-label="No banner image" />
         )}
       </div>
 
-      <main className="relative px-8 pb-8">
-        <section className="relative pt-[86px]">
-          <div className="absolute -top-[72px] left-0">
+      <main className="relative px-8 pb-10">
+        <section className="relative pt-[72px]">
+          <div className="absolute -top-[78px] left-0">
             <div className="flex h-[138px] w-[138px] items-center justify-center rounded-full bg-[conic-gradient(#114BF6_0deg,#114BF6_180deg,#FF7A1A_180deg,#FF7A1A_360deg)] p-[5px] shadow-sm">
               <div className="relative h-full w-full overflow-hidden rounded-full bg-gray-100">
               {profileImage ? (
@@ -336,7 +341,7 @@ const ConnectedPlatformIcons = ({
           <div className="flex items-start justify-between gap-8">
             <div className="max-w-[920px]">
               <h1 className="text-[30px] font-semibold leading-tight tracking-[-0.04em] text-[#111217]">
-                {displayName}
+                {isProfileLoading ? "Loading..." : displayName}
               </h1>
               <p className="mt-1 text-[13px] font-medium text-[#747682]">
                 {username}
@@ -390,7 +395,7 @@ const ConnectedPlatformIcons = ({
         <section className="mt-8 grid grid-cols-1 gap-3 md:grid-cols-3">
         <StatCard
           tone="green"
-          icon="/coin.webp"
+          icon="/coin.svg"
           label="Total Earnings"
           value={totalEarningsLabel}
           action={isOwnProfile ? "View History" : undefined}
@@ -399,7 +404,7 @@ const ConnectedPlatformIcons = ({
 
         <StatCard
           tone="pink"
-          icon="/diamonddd.webp"
+          icon="/diamonddd.svg"
           label="Total Engagement"
           value={isOwnProfile ? totalEngagementCardLabel : totalEngagementLabel}
           action={isOwnProfile ? "View Trend" : undefined}
@@ -409,7 +414,7 @@ const ConnectedPlatformIcons = ({
 
         <StatCard
           tone="blue"
-          icon="/coin.webp"
+          icon="/coin.svg"
           label="Global Rank"
           value={globalRankLabel}
           action={isOwnProfile ? "View Leaderboard" : undefined}
@@ -502,6 +507,7 @@ const ConnectedPlatformIcons = ({
         <ConnectSocialsModal
           isOpen={isSocialsOpen}
           onClose={() => setIsSocialsOpen(false)}
+          username={viewedUsername}
         />
       )}
 
@@ -516,17 +522,36 @@ const ConnectedPlatformIcons = ({
 };
 
 const ScoreRing = ({ score }: { score: number }) => {
-  const clampedScore = Math.min(100, Math.max(0, score));
+  const clampedScore = Math.min(100, Math.max(0, Math.round(score)));
 
   return (
-    <div className="relative flex h-[104px] w-[104px] items-center justify-center rounded-full bg-[#EAF2FF] p-[5px]">
-      <div className="flex h-full w-full items-center justify-center rounded-full border-[5px] border-[#114BF6] bg-white">
-        <div className="flex h-[72px] w-[72px] flex-col items-center justify-center rounded-full border-[4px] border-[#99D5FF]">
-          <img src="/candyyy.webp" alt="star"/>
-          <span className="text-[26px] font-semibold leading-none tracking-[-0.05em] text-[#0033FF]">
-            {clampedScore}
-          </span>
-        </div>
+    <div className="relative h-[86px] w-[86px]">
+      <ResponsiveContainer width="100%" height="100%">
+        <RadialBarChart
+          innerRadius="76%"
+          outerRadius="100%"
+          data={[{ value: clampedScore }]}
+          startAngle={90}
+          endAngle={-270}
+        >
+          <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
+          <RadialBar
+            dataKey="value"
+            cornerRadius={20}
+            fill="#245BFF"
+            background={{ fill: "#EAF2FF" }}
+          />
+        </RadialBarChart>
+      </ResponsiveContainer>
+      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+        <img
+          src="/dashlogo.webp"
+          alt=""
+          className="h-[14px] w-[14px] object-contain"
+        />
+        <span className="text-[24px] font-semibold leading-none tracking-[-0.04em] text-[#245BFF]">
+          {clampedScore}
+        </span>
       </div>
     </div>
   );
@@ -595,7 +620,7 @@ const StatCard = ({
 
       {showMiniTrend && (
         <div className="absolute bottom-5 right-5 h-[48px] w-[105px]">
-          <img src="/Stroke.webp" alt="" className="h-full w-full object-contain" />
+          <img src="/Stroke.svg" alt="" className="h-full w-full object-contain" />
         </div>
       )}
 

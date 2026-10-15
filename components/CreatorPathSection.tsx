@@ -1,123 +1,224 @@
 "use client";
 
-import React, { useState } from "react";
-import Image from "next/image";
+import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { getSignupHref } from "@/lib/waitlist";
 
 const paths = [
   {
-    title: "New Creators",
-    desc: "No followers? No problem. Build your creator portfolio from day one and watch your Starix Score grow with every challenge you join.",
-    icon: "/book.webp",
-    bg: "bg-[#FFEDE3]",
-    imgClass: "w-[88%] bottom-[-8%] left-[12%] md:left-[-6%]",
-    rotate: -12,
-    y: 42,
+    title: "Micro Creators and\nNiched Creatives",
+    image: "/antenna.webp",
+    bg: "#0061FD",
+    titleColor: "#FFFFFF",
+    imgClass: "bottom-[0%] left-[-4%] w-[120%] max-w-none",
+    rotate: -10,
+    y: 40,
     z: 1,
   },
   {
-    title: "Micro Creators",
-    desc: "Get access to paid challenges without pitching brands or waiting for collaborations to come to you. Your creativity speaks for itself here.",
-    icon: "/packer.webp",
-    bg: "bg-[#E7F2FF]",
-    imgClass: "w-[92%] bottom-[-5%] right-[-1%] md:right-[-18%]",
-    rotate: -6,
-    y: 14,
+    title: "Industry leaders\nGlobal Creators",
+    image: "/starrr.webp",
+    bg: "#B8FBE8",
+    titleColor: "#040136",
+    imgClass: "top-[-5%] right-[0%] w-[120%] max-w-none",
+    rotate: -7,
+    y: 60,
     z: 2,
   },
   {
-    title: "Marketers & Circles",
-    desc: "Get access to paid challenges without pitching brands or waiting for collaborations to come to you. Your creativity speaks for itself.",
-    icon: "/Group.webp",
-    bg: "bg-[#E7FFF4]",
-    imgClass: "w-[80%] md:w-[100%] bottom-[4%] md:bottom-[-2%] left-[11%] md:left-[8%]" ,
-    rotate: 0,
-    y: -56,
+    title: "New Creators, and\nContent Enthusiasts",
+    image: "/hearts.webp",
+    bg: "#E1677E",
+    titleColor: "#FFFFFF",
+    imgClass: "top-[-7%] right-[0%] w-[115%] max-w-none",
+    rotate: 2,
+    y: 0,
     z: 5,
   },
   {
-    title: "Trend Creators",
-    desc: "If you love jumping on trends, you're in the right place. Join fast-moving challenges designed for viral energy and high engagement.",
-    icon: "/flash.webp",
-    bg: "bg-[#FFEDE3]",
-    imgClass: "w-[95%] md:w-[80%] bottom-[-2%] right-[-1%] md:right-[-8%]",
-    rotate: 6,
-    y: 14,
+    title: "Trend Creators and\ntrusted Influencers",
+    image: "/filmclose.webp",
+    bg: "#B8FBE8",
+    titleColor: "#040136",
+    imgClass: "bottom-[0%] right-[0%] w-[110%] max-w-none",
+    rotate: 7,
+    y: 52,
     z: 3,
   },
   {
-    title: "Mega Creators",
-    desc: "Create your own branded challenges, earn rewards, and ship impactful content at scale. Collaborate with other creators and brands to amplify your influence.",
-    icon: "/blustar.webp",
-    bg: "bg-[#E7F2FF]",
-    imgClass: "w-[95%] md:w-[86%] bottom-[-2%] right-[-1%] md:right-[-14%]",
-    rotate: 12,
-    y: 42,
+    title: "Marketing Agencies\n& Creative Studios",
+    image: "/chainsmokers.webp",
+    bg: "#0061FD",
+    titleColor: "#FFFFFF",
+    imgClass: "top-[0%] right-[0%] w-[110%] max-w-none",
+    rotate: 13,
+    y: 22,
     z: 4,
   },
-];
+] as const;
+
+const actions = [
+  { label: "Find Challenges", href: "/challenges" },
+  { label: "Join a Circle", href: "/creator-circles" },
+  { label: "Follow Studio", href: "https://instagram.com", external: true },
+  { label: "Follow HQ", href: "https://linkedin.com", external: true },
+] as const;
+
+const PEEK = 3;
+const PEEK_STEP = 10;
 
 type PathCardProps = (typeof paths)[number] & {
   index: number;
   isActive: boolean;
-  isDimmed: boolean;
   onHover: (index: number | null) => void;
 };
 
 const PathCard = ({
   title,
-  desc,
-  icon,
+  image,
   bg,
+  titleColor,
   imgClass,
   rotate,
   y,
   z,
   index,
   isActive,
-  isDimmed,
   onHover,
 }: PathCardProps) => {
   return (
-    <motion.button
-      type="button"
-      initial={{ opacity: 0, y: 120, rotate }}
+    <motion.article
+      initial={false}
       animate={{
-        opacity: isDimmed ? 0.7 : 1,
-        y: isActive ? y - 32 : y,
+        y: isActive ? y - 24 : y,
         rotate: isActive ? 0 : rotate,
-        scale: isActive ? 1.06 : 1,
+        scale: isActive ? 1.04 : 1,
         zIndex: isActive ? 50 : z,
       }}
-      transition={{ type: "spring", stiffness: 280, damping: 26, delay: index * 0.04 }}
+      transition={{ type: "spring", stiffness: 280, damping: 26 }}
       onHoverStart={() => onHover(index)}
       onHoverEnd={() => onHover(null)}
-      onFocus={() => onHover(index)}
-      onBlur={() => onHover(null)}
-      className={`${bg} relative h-[340px] md:h-[360px] w-[320px] shrink-0 overflow-hidden rounded-[28px] p-7 text-left shadow-[0_18px_40px_rgba(15,23,42,0.08)]`}
-      style={{ transformOrigin: "bottom center" }}
+      className="relative h-[270px] w-[206px] shrink-0 overflow-hidden rounded-[26px] p-5 shadow-[0_16px_40px_rgba(4,1,54,0.06)] xl:h-[360px] xl:w-[268px] xl:p-6"
+      style={{ backgroundColor: bg, transformOrigin: "bottom center" }}
     >
-      <div className="relative z-10">
-        <h3 className="mb-2 font-['Geist'] text-[26px] font-normal leading-none tracking-[-0.03em] text-[#040136]">
-          {title}
-        </h3>
-        <p className="max-w-[260px] font-['Geist'] text-[15px] font-normal leading-[1.35] tracking-[-0.02em] text-[#040136]/65">
-          {desc}
-        </p>
-      </div>
+      <h3
+        className="relative z-10 max-w-[200px] whitespace-pre-line font-['Geist'] text-[20px] leading-[1.15] font-medium tracking-[-0.03em] xl:text-[22px]"
+        style={{ color: titleColor }}
+      >
+        {title}
+      </h3>
+      <img
+        src={image}
+        alt=""
+        aria-hidden
+        className={`pointer-events-none absolute z-0 h-auto select-none object-contain ${imgClass}`}
+      />
+    </motion.article>
+  );
+};
 
-      <div className={`pointer-events-none absolute ${imgClass} h-[58%]`}>
-        <Image
-          src={icon}
-          alt=""
-          fill
-          sizes="220px"
-          className="object-contain object-bottom"
-        />
-      </div>
-    </motion.button>
+const ActionPills = ({
+  className = "",
+  large = false,
+}: {
+  className?: string;
+  large?: boolean;
+}) => (
+  <div
+    className={`grid grid-cols-2 ${
+      large
+        ? "w-full max-w-[300px] gap-2.5 md:max-w-[400px] md:gap-3.5"
+        : "w-[300px] shrink-0 gap-2.5"
+    } ${className}`}
+  >
+    {actions.map((action) => {
+      const pillClass = large
+        ? "inline-flex h-[46px] min-w-0 w-full items-center justify-center rounded-full border-[1.5px] border-[#0033FF] px-2 text-[13px] font-medium whitespace-nowrap text-[#0033FF] transition hover:bg-[#0033FF]/5 md:h-[52px] md:px-4 md:text-[16px]"
+        : "inline-flex h-[40px] items-center justify-center rounded-full border border-[#0033FF] px-3 text-[13px] font-medium whitespace-nowrap text-[#0033FF] transition hover:bg-[#0033FF]/5 xl:h-[44px] xl:px-4 xl:text-[14px]";
+      if ("external" in action && action.external) {
+        return (
+          <a
+            key={action.label}
+            href={action.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={pillClass}
+          >
+            {action.label}
+          </a>
+        );
+      }
+      return (
+        <Link key={action.label} href={action.href} className={pillClass}>
+          {action.label}
+        </Link>
+      );
+    })}
+  </div>
+);
+
+const PathDeck = () => {
+  const [active, setActive] = useState(2);
+  const count = paths.length;
+
+  const go = (dir: 1 | -1) => {
+    setActive((current) => (current + dir + count) % count);
+  };
+
+  return (
+    <div className="relative h-[380px] w-[min(100%,292px)] md:h-[560px] md:w-[460px]">
+      {paths.map((item, index) => {
+        const depth = (index - active + count) % count;
+        const hidden = depth > PEEK;
+
+        return (
+          <motion.article
+            key={item.title}
+            initial={false}
+            animate={{
+              x: depth * PEEK_STEP,
+              y: depth * PEEK_STEP,
+              scale: 1 - depth * 0.012,
+              zIndex: 20 - depth,
+              opacity: hidden ? 0 : 1,
+            }}
+            transition={{ type: "spring", stiffness: 320, damping: 30 }}
+            drag={depth === 0 ? "x" : false}
+            dragDirectionLock
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.16}
+            onDragEnd={(_, info) => {
+              if (info.offset.x < -48 || info.velocity.x < -400) go(1);
+              else if (info.offset.x > 48 || info.velocity.x > 400) go(-1);
+            }}
+            onTap={depth === 0 ? () => go(1) : undefined}
+            className="absolute top-0 left-0 h-[calc(100%-30px)] w-[calc(100%-30px)] cursor-grab overflow-hidden rounded-[28px] p-6 shadow-[0_18px_40px_rgba(4,1,54,0.08)] active:cursor-grabbing md:rounded-[32px] md:p-8"
+            style={{
+              backgroundColor: item.bg,
+              pointerEvents: depth === 0 ? "auto" : "none",
+            }}
+            aria-hidden={depth !== 0}
+            aria-label={
+              depth === 0 ? `${item.title.replace(/\n/g, " ")}. Show next type` : undefined
+            }
+            role={depth === 0 ? "button" : undefined}
+          >
+            <h3
+              className="relative z-10 max-w-[240px] whitespace-pre-line font-['Geist'] text-[22px] leading-[1.15] font-medium tracking-[-0.03em] md:max-w-[300px] md:text-[28px]"
+              style={{ color: item.titleColor }}
+            >
+              {item.title}
+            </h3>
+            <img
+              src={item.image}
+              alt=""
+              aria-hidden
+              className="pointer-events-none absolute inset-0 z-0 h-full w-full select-none object-cover"
+            />
+          </motion.article>
+        );
+      })}
+    </div>
   );
 };
 
@@ -125,64 +226,47 @@ const CreatorPathSection = () => {
   const [hovered, setHovered] = useState<number | null>(null);
 
   return (
-    <section className="overflow-hidden bg-white px-6 py-12 md:py-20">
-      <div className="mx-auto max-w-[1400px] space-y-8 md:space-y-0">
-        <h2 className="text-center font-['Geist'] text-[32px] font-medium leading-[1.08] tracking-[-0.03em] text-[#040136] md:text-[56px]">
-          Wherever you are,
-          <br />
-          there’s a path forward
-        </h2>
-
-        <div className="flex flex-col items-center gap-6 md:hidden">
-          {paths.map((item, index) => (
-            <div
-              key={item.title}
-              className={`${item.bg} relative h-[360px] w-full max-w-[340px] overflow-hidden rounded-[28px] p-7`}
-            >
-              <h3 className="mb-2 text-[26px] font-normal text-[#040136]">
-                {item.title}
-              </h3>
-              <p className="text-[15px] leading-[1.4] text-[#040136]/65">
-                {item.desc}
-              </p>
-              <div className={`pointer-events-none absolute ${item.imgClass} h-[100%] md:h-[58%]`}>
-                <Image
-                  src={item.icon}
-                  alt=""
-                  fill
-                  className="object-contain object-bottom"
-                />
-              </div>
-            </div>
-          ))}
+    <section
+      id="creator-path"
+      className="overflow-hidden bg-white px-5 py-12 md:px-10 md:py-16 xl:px-16 xl:py-20"
+    >
+      <div className="mx-auto max-w-[1400px]">
+        <div className="hidden lg:flex lg:items-start lg:justify-between lg:gap-10">
+          <h2 className="max-w-[620px] font-['Geist'] text-[42px] leading-[1.08] font-medium tracking-[-0.04em] text-[#040136] xl:text-[52px]">
+            Wherever you are,
+            <br />
+            there&apos;s a path forward
+          </h2>
+          <ActionPills />
         </div>
 
-        <div className="relative mx-auto hidden h-[500px] max-w-[1400px] md:block">
-          <div className="absolute inset-0 flex items-end justify-center">
+        <div className="flex w-full flex-col items-center overflow-x-hidden lg:hidden">
+          <h2 className="w-full max-w-[320px] text-center font-['Geist'] text-[30px] leading-[1.1] font-medium tracking-[-0.04em] text-[#040136] md:max-w-[520px] md:text-[42px] md:leading-[1.08]">
+            Wherever you are,
+            <br />
+            there&apos;s a path forward
+          </h2>
+
+          <div className="mt-8 flex w-full justify-center md:mt-10">
+            <PathDeck />
+          </div>
+
+          <ActionPills large className="mt-8 md:mt-12" />
+        </div>
+
+        <div className="relative mx-auto mt-6 hidden h-[500px] lg:block xl:mt-8 xl:h-[520px]">
+          <div className="absolute inset-0 flex items-start justify-center pt-2">
             {paths.map((item, index) => (
-              <div
-                key={item.title}
-                className="-mx-[62px] first:ml-0 last:mr-0"
-              >
+              <div key={item.title} className="-mx-8 xl:-mx-8">
                 <PathCard
                   {...item}
                   index={index}
                   isActive={hovered === index}
-                  isDimmed={hovered !== null && hovered !== index}
                   onHover={setHovered}
                 />
               </div>
             ))}
           </div>
-        </div>
-
-        <div className="mt-6 flex justify-center md:mt-16">
-          <Link
-            href={getSignupHref("creator")}
-            className="inline-flex items-center rounded-full bg-[#0033FF] p-3 text-[16px] font-semibold text-[#FAFAFA] transition hover:shadow-sm"
-          >
-            Start Earning
-          </Link>
         </div>
       </div>
     </section>

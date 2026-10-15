@@ -9,7 +9,6 @@ import JoinCircleModal from "@/components/(creator)/dashboard/JoinCircleModal";
 import CreateCircleModal from "@/components/(creator)/dashboard/CreateCircleModal";
 import RequestsModal from "@/components/(creator)/dashboard/RequestsModal";
 import { useGetCircles } from "@/hooks/useCircles";
-import { useGetMe } from "@/hooks/useAuth";
 import { CircleMembersAvatar } from "@/components/(creator)/dashboard/CircleMembersAvatar";
 import NotificationDropdown from "@/components/(creator)/dashboard/NotificationDropdown";
 import Link from "next/link";
@@ -17,8 +16,6 @@ import Link from "next/link";
 const CreatorCircles = () => {
   const [page, setPage] = useState(1);
   const { data: circleData, isLoading } = useGetCircles(page);
-  const { data: user } = useGetMe();
-  const profileImage = user?.profile_picture_url?.trim() || null;
   
   const [searchQuery, setSearchQuery] = useState("");
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
@@ -45,25 +42,13 @@ const CreatorCircles = () => {
         </div>
         <div className="flex items-center gap-4">
           <NotificationDropdown />
-          <Link
-            href="/profile"
-            className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border-2 border-blue-600 p-0.5 md:h-14 md:w-14"
-          >
-            <span className="relative block h-full w-full overflow-hidden rounded-full bg-gray-200">
-              {profileImage ? (
-                <Image
-                  src={profileImage}
-                  alt="Your profile"
-                  fill
-                  sizes="56px"
-                  className="object-cover"
-                  unoptimized={profileImage.includes("blob.core.windows.net")}
-                />
-              ) : (
-                <span className="block h-full w-full bg-gray-300" />
-              )}
-            </span>
-          </Link>
+          <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-blue-600 p-0.5 cursor-pointer">
+            <div className="w-full h-full rounded-full bg-gray-200 overflow-hidden relative flex items-center justify-center">
+              <Link href="/creator-circles/circle-profile">
+                <div className="w-full h-full bg-gray-300" />
+              </Link>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -76,8 +61,8 @@ const CreatorCircles = () => {
             </div>
             <button onClick={() => setIsCreateModalOpen(true)} className="w-fit px-6 py-2.5 bg-transparent border border-[#8B8D98] rounded-full font-semibold text-[12px] z-10 hover:shadow-sm transition-all">Create Circle</button>
             <div className="absolute top-0 right-0 h-full w-[80%] pointer-events-none">
-                <Image src="/sw1.webp" fill className="object-contain object-right" alt="Graphic" />
-                <Image src="/sw2.webp" fill className="object-contain object-right" alt="Graphic" />
+                <Image src="/sw1.svg" fill className="object-contain object-right" alt="Graphic" />
+                <Image src="/sw2.svg" fill className="object-contain object-right" alt="Graphic" />
             </div>
         </div>
 
@@ -89,12 +74,11 @@ const CreatorCircles = () => {
             <button onClick={() => setIsJoinModalOpen(true)} className="w-fit px-6 py-2.5 bg-transparent border border-[#8B8D98] rounded-full font-semibold text-[12px] z-10 hover:shadow-sm transition-all">Enter Code</button>
             <div className="absolute top-0 right-0 h-full w-auto pointer-events-none">
                 <Image
-                  src="/puzzle.webp"
+                  src="/puzzle.svg"
                   alt="Hero"
                   width={400}
                   height={400}
-                  priority
-                  className="h-full w-auto"
+                  priority // This tells Next.js to fetch it immediately
                 />
             </div>
         </div>
@@ -147,16 +131,9 @@ const CreatorCircles = () => {
                     <div className="flex items-center gap-5">
                       <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-100 relative bg-gray-200 flex items-center justify-center">
                         {circle.profile_picture_url ? (
-                          <Image
-                            src={circle.profile_picture_url}
-                            fill
-                            sizes="48px"
-                            alt={circle.name}
-                            className="object-cover"
-                            unoptimized={circle.profile_picture_url.includes("blob.core.windows.net") || circle.profile_picture_url.includes("amazonaws.com")}
-                          />
+                          <Image src={circle.profile_picture_url} fill alt={circle.name} className="object-cover" />
                         ) : (
-                          <span className="text-sm font-bold text-gray-500 uppercase">{circle.name.charAt(0)}</span>
+                          <span className="text-sm font-semibold text-gray-500 uppercase">{circle.name.charAt(0)}</span>
                         )}
                       </div>
                       <div>

@@ -230,13 +230,13 @@ export default function WithdrawModal({ isOpen, onClose, balance: initialBalance
             {step === "withdraw" ? (
               <>
                 <header className="flex justify-between items-center p-8 pb-6 border-b border-gray-50">
-                  <h2 className="text-[20px] font-bold text-[#111827]">Withdraw</h2>
+                  <h2 className="text-[20px] font-semibold text-[#111827]">Withdraw</h2>
                   <button onClick={handleClose} className="text-[#9CA3AF] hover:text-[#111827] transition-colors"><FiX size={24} /></button>
                 </header>
 
                 <div className="p-8 pt-6 flex flex-col gap-6">
                   {getQuoteMutation.isError && activeGlobalErrorMessage && (
-                    <p className="text-xs font-bold text-red-500 bg-red-50 p-3 rounded-xl border border-red-100">{activeGlobalErrorMessage}</p>
+                    <p className="text-xs font-semibold text-red-500 bg-red-50 p-3 rounded-xl border border-red-100">{activeGlobalErrorMessage}</p>
                   )}
 
                   <div className="space-y-4">
@@ -249,18 +249,18 @@ export default function WithdrawModal({ isOpen, onClose, balance: initialBalance
                       ) : activeAccount && activeAccount.is_active ? (
                         <>
                           <div className="min-w-0 flex-1 mr-2">
-                            <h5 className="text-[14px] font-bold text-[#1E1F24] truncate">
+                            <h5 className="text-[14px] font-semibold text-[#1E1F24] truncate">
                               {activeAccount.account_number} 
                               <span className="text-[#9CA3AF] font-medium"> • {activeAccount.bank_name}</span>
                             </h5>
                             <p className="text-[12px] text-[#62636C] truncate mt-0.5">{activeAccount.account_name}</p>
                           </div>
-                          <button onClick={() => setStep("change-bank")} className="px-4 py-2 border border-[#8B8D98] rounded-full text-[12px] font-bold text-[#1E1F24] hover:bg-white active:scale-95 transition-all shrink-0">Change</button>
+                          <button onClick={() => setStep("change-bank")} className="px-4 py-2 border border-[#8B8D98] rounded-full text-[12px] font-semibold text-[#1E1F24] hover:bg-white active:scale-95 transition-all shrink-0">Change</button>
                         </>
                       ) : (
                         <div className="flex items-center justify-between w-full">
                           <p className="text-sm font-medium text-[#62636C]">No withdrawal account linked yet.</p>
-                          <button onClick={() => setStep("change-bank")} className="px-4 py-2 bg-[#111827] text-white rounded-full text-[12px] font-bold hover:bg-black active:scale-95 transition-all shrink-0">Link Bank</button>
+                          <button onClick={() => setStep("change-bank")} className="px-4 py-2 bg-[#111827] text-white rounded-full text-[12px] font-semibold hover:bg-black active:scale-95 transition-all shrink-0">Link Bank</button>
                         </div>
                       )}
                     </div>
@@ -271,7 +271,7 @@ export default function WithdrawModal({ isOpen, onClose, balance: initialBalance
                     <div className="flex-1 border-t-2 border-dashed border-[#E5E7EB] mx-4" />
                     <div className="flex items-baseline shrink-0">
                         <span className="text-[#111827] font-semibold">₦{balance.toLocaleString()}</span>
-                        <span className="text-[#9CA3AF] font-bold">.00</span>
+                        <span className="text-[#9CA3AF] font-semibold">.00</span>
                     </div>
                   </div>
 
@@ -280,15 +280,15 @@ export default function WithdrawModal({ isOpen, onClose, balance: initialBalance
                     <div className={`flex items-center border rounded-[16px] px-5 py-4 transition-all ${errors.amount ? "border-red-500 bg-red-50/5" : "border-[#E5E7EB] focus-within:border-[#111827]"}`}>
                       <span className="text-[16px] font-semibold text-[#111827] mr-1">₦</span>
                       <input type="text" value={displayAmount} onChange={handleAmountChange} placeholder={`Min ${MINIMUM_WITHDRAWAL.toLocaleString()}`} className="w-full text-[16px] font-semibold focus:outline-none bg-transparent placeholder:font-normal placeholder:text-[#9CA3AF]" />
-                      {displayAmount && <span className="text-[#9CA3AF] font-bold ml-1">.00</span>}
-                      {errors.amount && <span className="text-[12px] font-bold text-red-500 whitespace-nowrap ml-2">{errors.amount}</span>}
+                      {displayAmount && <span className="text-[#9CA3AF] font-semibold ml-1">.00</span>}
+                      {errors.amount && <span className="text-[12px] font-semibold text-red-500 whitespace-nowrap ml-2">{errors.amount}</span>}
                     </div>
                   </div>
 
                   <button 
                     onClick={handleProceedToPreview} 
                     disabled={isWithdrawSetupDisabled} 
-                    className={`w-full py-4.5 text-white rounded-full font-bold text-[16px] transition-all flex items-center justify-center h-[54px]
+                    className={`w-full py-4.5 text-white rounded-full font-semibold text-[16px] transition-all flex items-center justify-center h-[54px]
                       ${isWithdrawSetupDisabled 
                         ? "bg-[#8C9FFF] opacity-60 cursor-not-allowed shadow-none" 
                         : "bg-[#0047FF] shadow-lg shadow-blue-100/50 active:scale-[0.98]"
@@ -304,20 +304,20 @@ export default function WithdrawModal({ isOpen, onClose, balance: initialBalance
               <>
                 <header className="flex items-center gap-4 p-8 pb-6 border-b border-gray-50">
                   <button onClick={() => setStep("withdraw")} className="text-[#111827] p-1.5 rounded-full hover:bg-gray-50"><HiArrowLeft size={20} /></button>
-                  <h2 className="text-[20px] font-bold text-[#111827]">Confirm Payout</h2>
+                  <h2 className="text-[20px] font-semibold text-[#111827]">Confirm Payout</h2>
                   <button onClick={handleClose} className="ml-auto text-[#9CA3AF] hover:text-[#111827] transition-colors"><FiX size={24} /></button>
                 </header>
 
                 <div className="p-8 pt-6 flex flex-col gap-6">
                   {executeWithdrawalMutation.isError && activeGlobalErrorMessage && (
-                    <p className="text-xs font-bold text-red-500 bg-red-50 p-3 rounded-xl border border-red-100">{activeGlobalErrorMessage}</p>
+                    <p className="text-xs font-semibold text-red-500 bg-red-50 p-3 rounded-xl border border-red-100">{activeGlobalErrorMessage}</p>
                   )}
 
                   {/* Authorization Breakdown Context Records Mapping */}
                   <div className="bg-[#F9F9FB] border border-[#EFF0F3] rounded-[24px] p-6 space-y-4">
                     <div className="flex justify-between items-center text-[14px]">
                       <span className="text-[#62636C] font-medium">Withdrawal Amount</span>
-                      <span className="text-[#111827] font-bold">{getQuoteMutation.data?.amount}</span>
+                      <span className="text-[#111827] font-semibold">{getQuoteMutation.data?.amount}</span>
                     </div>
                     <div className="flex justify-between items-center text-[14px]">
                       <span className="text-[#62636C] font-medium">Provider Fee (Flutterwave)</span>
@@ -325,8 +325,8 @@ export default function WithdrawModal({ isOpen, onClose, balance: initialBalance
                     </div>
                     <hr className="border-[#EFF0F3] border-dashed" />
                     <div className="flex justify-between items-center text-[15px]">
-                      <span className="text-[#111827] font-bold">Net Payout Deducted</span>
-                      <span className="text-[#0047FF] font-bold text-[16px]">{getQuoteMutation.data?.net_amount}</span>
+                      <span className="text-[#111827] font-semibold">Net Payout Deducted</span>
+                      <span className="text-[#0047FF] font-semibold text-[16px]">{getQuoteMutation.data?.net_amount}</span>
                     </div>
                   </div>
 
@@ -345,7 +345,7 @@ export default function WithdrawModal({ isOpen, onClose, balance: initialBalance
                   <button 
                     onClick={handleWithdrawalSubmission} 
                     disabled={isConfirmWithdrawDisabled} 
-                    className={`w-full py-4.5 text-white rounded-full font-bold text-[16px] transition-all flex items-center justify-center h-[54px]
+                    className={`w-full py-4.5 text-white rounded-full font-semibold text-[16px] transition-all flex items-center justify-center h-[54px]
                       ${isConfirmWithdrawDisabled 
                         ? "bg-[#8C9FFF] opacity-60 cursor-not-allowed shadow-none" 
                         : "bg-[#0047FF] shadow-xs shadow-blue-100/50 active:scale-[0.98]"
@@ -364,13 +364,13 @@ export default function WithdrawModal({ isOpen, onClose, balance: initialBalance
               <>
                 <header className="flex items-center gap-4 p-8 pb-6 border-b border-gray-50">
                   <button onClick={() => { setStep("withdraw"); resetBankSelectionSubForm(); }} className="text-[#111827] p-1.5 rounded-full hover:bg-gray-50"><HiArrowLeft size={20} /></button>
-                  <h2 className="text-[20px] font-bold text-[#111827]">Change Withdrawal Account</h2>
+                  <h2 className="text-[20px] font-semibold text-[#111827]">Change Withdrawal Account</h2>
                   <button onClick={handleClose} className="ml-auto text-[#9CA3AF]"><FiX size={24} /></button>
                 </header>
 
                 <div className="p-8 pt-6 space-y-6">
                   {updateAccountMutation.isError && activeGlobalErrorMessage && (
-                    <p className="text-xs font-bold text-red-500 bg-red-50 p-3 rounded-xl border border-red-100">{activeGlobalErrorMessage}</p>
+                    <p className="text-xs font-semibold text-red-500 bg-red-50 p-3 rounded-xl border border-red-100">{activeGlobalErrorMessage}</p>
                   )}
 
                   <div className="space-y-2">
@@ -402,7 +402,7 @@ export default function WithdrawModal({ isOpen, onClose, balance: initialBalance
                             className="flex items-center justify-between p-4 hover:bg-gray-50 border-b border-[#F9F9FB] cursor-pointer last:border-none"
                           >
                             <div className="flex flex-col min-w-0 py-0.5">
-                              <span className="text-[14px] font-bold text-[#111827] truncate">{bank.name}</span>
+                              <span className="text-[14px] font-semibold text-[#111827] truncate">{bank.name}</span>
                               <span className="text-[11px] text-[#9CA3AF] font-medium mt-0.5">Code: {bank.code}</span>
                             </div>
                           </div>
@@ -426,7 +426,7 @@ export default function WithdrawModal({ isOpen, onClose, balance: initialBalance
                   <button 
                     onClick={handleSaveNewAccount} 
                     disabled={isBankButtonDisabled}
-                    className={`w-full py-4.5 text-white rounded-full font-bold text-[16px] transition-all flex items-center justify-center h-[54px]
+                    className={`w-full py-4.5 text-white rounded-full font-semibold text-[16px] transition-all flex items-center justify-center h-[54px]
                       ${isBankButtonDisabled 
                         ? "bg-[#8C9FFF] opacity-60 cursor-not-allowed shadow-none" 
                         : "bg-[#0047FF] shadow-lg shadow-blue-100/50 active:scale-[0.98]"

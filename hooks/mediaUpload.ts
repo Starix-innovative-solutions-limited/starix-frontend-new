@@ -128,41 +128,21 @@ export async function requestMediaUploadUrl(
   return data;
 }
 
-function shouldProxyBlobUpload() {
-  if (typeof window === "undefined") return false;
-  const host = window.location.hostname;
-  return host === "localhost" || host === "127.0.0.1";
-}
-
 /**
  * PUT raw file bytes to the returned upload_url.
  * Uses upload_headers from the API (Content-Type, x-ms-blob-type, etc.).
  * Never sends the API Bearer token.
- * Localhost goes through /api/blob-upload so CORS is not limited to :3000.
  */
 export async function putFileToUploadUrl(
   uploadUrl: string,
   file: Blob,
   uploadHeaders: Record<string, string>
 ): Promise<void> {
-  const useProxy = shouldProxyBlobUpload();
-  const requestUrl = useProxy ? "/api/blob-upload" : uploadUrl;
-  const headers = useProxy
-    ? { ...uploadHeaders, "x-starix-upload-url": uploadUrl }
-    : uploadHeaders;
-
-  let uploadResponse: Response;
-  try {
-    uploadResponse = await fetch(requestUrl, {
-      method: "PUT",
-      headers,
-      body: file,
-    });
-  } catch {
-    throw new Error(
-      "Upload failed. If you are on localhost, retry after the page reloads, or use port 3000."
-    );
-  }
+  const uploadResponse = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: uploadHeaders,
+    body: file,
+  });
 
   const status = uploadResponse.status;
   if (status < 200 || status >= 300) {

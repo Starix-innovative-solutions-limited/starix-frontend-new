@@ -22,25 +22,25 @@ const contentMap: Record<
     tag: "UGC COMMUNITY",
     title: "Create Challenge for Thousands of Creators",
     desc: "Launch structured UGC challenges, set rules, rewards, and timelines—then let creators compete.",
-    img: "/keyFeaturesFram4.png",
+    img: "/keyFeaturesFram4.webp",
   },
   Guidance: {
     tag: "CREATOR GUIDANCE",
     title: "Guide Submissions with Briefs & Direction",
     desc: "Provide hooks, captions, tone and examples so creators stay aligned with your brand voice.",
-    img: "/keyFeaturesFram5.png",
+    img: "/keyFeaturesFram5.webp",
   },
   Entries: {
     tag: "ENTRIES SYSTEM",
     title: "Track Entries and Performance in One Place",
     desc: "See submissions, engagement, and winners with clear performance visibility and ROI signals.",
-    img: "/keyFeaturesFram6.png",
+    img: "/keyFeaturesFram6.webp",
   },
   Reward: {
     tag: "REWARDS",
     title: "Reward Creators Seamlessly",
     desc: "Manage payouts, escrow, and creator rewards automatically with full transparency.",
-    img: "/keyFeaturesFram3.png",
+    img: "/keyFeaturesFram3.webp",
   },
 };
 
@@ -105,7 +105,7 @@ const KeyFeaturesSection = () => {
                 times: [0, 0.25, 0.5, 0.75, 1],
               }}
             >
-              <Image src="/Arrow 1.png" alt="" width={90} height={64} />
+              <Image src="/Arrow 1.webp" alt="" width={90} height={64} />
             </motion.div>
 
             {/* BOTTOM */}
@@ -119,7 +119,7 @@ const KeyFeaturesSection = () => {
                 times: [0, 0.25, 0.5, 0.75, 1],
               }}
             >
-              <Image src="/Arrow 1.png" alt="" width={70} height={48} />
+              <Image src="/Arrow 1.webp" alt="" width={70} height={48} />
             </motion.div>
           </motion.div>
 
@@ -149,7 +149,7 @@ const KeyFeaturesSection = () => {
             times: [0, 0.25, 0.5, 0.75, 1],
           }}
         >
-          <Image src="/Arrow 1.png" alt="" width={150} height={106} />
+          <Image src="/Arrow 1.webp" alt="" width={150} height={106} />
         </motion.div>
 
         <motion.div
@@ -162,7 +162,7 @@ const KeyFeaturesSection = () => {
             times: [0, 0.25, 0.5, 0.75, 1],
           }}
         >
-          <Image src="/Arrow 1.png" alt="" width={117} height={80} />
+          <Image src="/Arrow 1.webp" alt="" width={117} height={80} />
         </motion.div>
       </motion.div>
     </div>
@@ -343,7 +343,7 @@ const KeyFeaturesSection = () => {
               </AnimatePresence>
 
               <div className="flex justify-center mt-6">
-                <Image src="/playButtons.png" alt="icon" width={60} height={60} className="w-10 h-auto" />
+                <Image src="/playButtons.webp" alt="icon" width={60} height={60} className="w-10 h-auto" />
               </div>
             </div>
 

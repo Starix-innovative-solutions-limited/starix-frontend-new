@@ -8,7 +8,7 @@ const IconOverlayHero = () => {
             <div
                 className="absolute inset-0 z-0"
                 style={{
-                    backgroundImage: `url('/hero-bg.png')`, // Replace with your grid image path
+                    backgroundImage: `url('/hero-bg.webp')`, // Replace with your grid image path
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat'
@@ -19,7 +19,7 @@ const IconOverlayHero = () => {
             <div
                 className="absolute inset-0 z-10 pointer-events-none"
                 style={{
-                    backgroundImage: `url('/hero-grid-img.svg')`, // Replace with your icons image path
+                    backgroundImage: `url('/hero-grid-img.webp')`, // Replace with your icons image path
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat'

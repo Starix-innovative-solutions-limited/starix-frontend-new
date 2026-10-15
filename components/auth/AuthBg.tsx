@@ -80,13 +80,13 @@ const AuthBg = ({ brand }: AuthProps) => {
               >
                 <button
                   onClick={() => handleSwitch("creator")}
-                  className="w-full text-left px-4 py-3 text-[12px] font-bold uppercase tracking-wider text-[#054D81] hover:bg-[#B4DFFE55] rounded-xl transition-colors"
+                  className="w-full text-left px-4 py-3 text-[12px] font-semibold uppercase tracking-wider text-[#054D81] hover:bg-[#B4DFFE55] rounded-xl transition-colors"
                 >
                   For Creators
                 </button>
                 <button
                   onClick={() => handleSwitch("brand")}
-                  className="w-full text-left px-4 py-3 text-[12px] font-bold uppercase tracking-wider text-[#A67BA1] hover:bg-[#EFE6EE] rounded-xl transition-colors"
+                  className="w-full text-left px-4 py-3 text-[12px] font-semibold uppercase tracking-wider text-[#A67BA1] hover:bg-[#EFE6EE] rounded-xl transition-colors"
                 >
                   For Brands
                 </button>

@@ -99,10 +99,10 @@ const variants: Variants = {
 };
 
   const cards = [
-  { id: "poor", src: "/poor.png" },
-  { id: "uneasy", src: "/uneasy1.png" },
-  { id: "creator", src: "/creator1.png" },
-  { id: "purple", src: "/purple1.png" },
+  { id: "poor", src: "/poor.webp" },
+  { id: "uneasy", src: "/uneasy1.webp" },
+  { id: "creator", src: "/creator1.webp" },
+  { id: "purple", src: "/purple1.webp" },
 ];
 
   const challengeSteps = [
@@ -114,19 +114,19 @@ const variants: Variants = {
 
   const brandFeatures = [
     {
-      icon: "playButtons.svg",
+      icon: "playButtons.webp",
       title: "Real-time Leaderboard",
       description: "Set campaign goals, budget, and duration.",
       gradient: "from-orange-100 via-pink-50 to-green-100",
     },
     {
-      icon: "diamond.svg",
+      icon: "diamond.webp",
       title: "Content Insight",
       description: "Suggest hooks, captions, and tone that fit your brand voice.",
       gradient: "from-blue-100 via-indigo-50 to-purple-100",
     },
     {
-      icon: "trophy.svg",
+      icon: "trophy.webp",
       title: "Content Performance",
       description: "Starix measures likes and comments automatically.",
       gradient: "from-red-100 via-orange-50 to-blue-100",

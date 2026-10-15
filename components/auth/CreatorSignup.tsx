@@ -177,7 +177,7 @@ const CreatorSignup = () => {
           {/* SECURITY CHECKLIST */}
           {form.password.length > 0 && (
             <div className="bg-[#F9FAFB] p-5 rounded-[24px] space-y-3 border border-[#F3F4F6]">
-              <p className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-widest mb-1">
+              <p className="text-[11px] font-semibold text-[#9CA3AF] uppercase tracking-widest mb-1">
                 Security Checklist
               </p>
 
@@ -206,7 +206,7 @@ const CreatorSignup = () => {
         <button
           type="submit"
           disabled={isPending || !isFormComplete}
-          className="w-full rounded-full py-4 font-bold text-white bg-[#0033FF] hover:bg-[#0033FF] transition-all mt-4 flex items-center justify-center text-lg disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-blue-100 active:scale-[0.98]"
+          className="w-full rounded-full py-4 font-semibold text-white bg-[#0033FF] hover:bg-[#0033FF] transition-all mt-4 flex items-center justify-center text-lg disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-blue-100 active:scale-[0.98]"
         >
           {isPending ? <Loader /> : "Sign Up"}
         </button>

@@ -1730,7 +1730,7 @@ export default function CreateChallenge({
                       <p className="text-[12px] font-medium text-[#667085]">
                         {ordinal} place
                       </p>
-                      <p className="mt-1.5 text-[15px] font-bold text-[#101828]">
+                      <p className="mt-1.5 text-[15px] font-semibold text-[#101828]">
                         ₦{formatMoney(parseAmount(prize.amount))}
                       </p>
                     </div>
