@@ -30,7 +30,7 @@ const HowItWorks = () => {
             icon: "/timer.webp", 
             title: "Discover Challenges",
             description: "Find challenges that fit what you already do. No pitching required.",
-            scale: "scale-200 translate-x-[-100px] translate-y-[40px] md:scale-180 md:translate-x-[-60px] md:translate-y-[16px] xl:scale-250 xl:translate-x-[-180px] xl:translate-y-[80px]"
+            scale: "scale-200 translate-x-[-100px] translate-y-[40px] md:scale-180 md:translate-x-[-60px] md:translate-y-[16px] xl:scale-25i xl:translate-x-[-180px] xl:translate-y-[80px]"
         },
         {
             icon: "/buttons 2.webp", 
