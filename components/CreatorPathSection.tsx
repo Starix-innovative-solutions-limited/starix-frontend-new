@@ -10,7 +10,7 @@ const paths = [
     image: "/antenna.webp",
     bg: "#0061FD",
     titleColor: "#FFFFFF",
-    imgClass: "bottom-[0%] left-[-4%] w-[120%] max-w-none",
+    imgClass: "bottom-[-4%] left-[-2%] w-[110%] max-w-none md:w-[88%] lg:bottom-[0%] lg:left-[-4%] lg:w-[120%]",
     rotate: -10,
     y: 40,
     z: 1,
@@ -20,7 +20,7 @@ const paths = [
     image: "/starrr.webp",
     bg: "#B8FBE8",
     titleColor: "#040136",
-    imgClass: "top-[-5%] right-[0%] w-[120%] max-w-none",
+    imgClass: "top-[30%] right-[-4%] w-[120%] max-w-none md:w-[88%] lg:top-[23%] lg:right-[0%] lg:w-[120%]",
     rotate: -7,
     y: 60,
     z: 2,
@@ -30,7 +30,7 @@ const paths = [
     image: "/hearts.webp",
     bg: "#E1677E",
     titleColor: "#FFFFFF",
-    imgClass: "top-[-7%] right-[0%] w-[115%] max-w-none",
+    imgClass: "top-[25%] right-[0%] w-[120%] max-w-none md:w-[86%] lg:top-[30%] lg:right-[0%] lg:w-[115%]",
     rotate: 2,
     y: 0,
     z: 5,
@@ -40,7 +40,7 @@ const paths = [
     image: "/filmclose.webp",
     bg: "#B8FBE8",
     titleColor: "#040136",
-    imgClass: "bottom-[0%] right-[0%] w-[110%] max-w-none",
+    imgClass: "bottom-[-2%] right-[-4%] w-[100%] max-w-none md:w-[86%] lg:bottom-[0%] lg:right-[0%] lg:w-[110%]",
     rotate: 7,
     y: 52,
     z: 3,
@@ -50,7 +50,7 @@ const paths = [
     image: "/chainsmokers.webp",
     bg: "#0061FD",
     titleColor: "#FFFFFF",
-    imgClass: "top-[0%] right-[0%] w-[110%] max-w-none",
+    imgClass: "top-[24%] right-[-26%] w-[130%] max-w-none md:w-[86%] lg:top-[30%] lg:right-[0%] lg:w-[110%]",
     rotate: 13,
     y: 22,
     z: 4,
@@ -60,8 +60,8 @@ const paths = [
 const actions = [
   { label: "Find Challenges", href: "/challenges" },
   { label: "Join a Circle", href: "/creator-circles" },
-  { label: "Follow Studio", href: "https://instagram.com", external: true },
-  { label: "Follow HQ", href: "https://linkedin.com", external: true },
+  { label: "Follow Studio", href: "https://instagram.com/starixcreatives", external: true },
+  { label: "Follow HQ", href: "https://instagram.com/starix.hq", external: true },
 ] as const;
 
 const PEEK = 3;
@@ -213,7 +213,7 @@ const PathDeck = () => {
               src={item.image}
               alt=""
               aria-hidden
-              className="pointer-events-none absolute inset-0 z-0 h-full w-full select-none object-cover"
+              className={`pointer-events-none absolute z-0 h-auto select-none object-contain ${item.imgClass}`}
             />
           </motion.article>
         );

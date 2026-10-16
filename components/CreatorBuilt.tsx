@@ -12,7 +12,7 @@ const SLIDES = [
     bg: "#FF6A1E",
     art: "/tags.webp",
     artClass:
-      "bottom-[-10%] left-1/2 w-[78%] max-w-none -translate-x-1/2 md:bottom-[-16%] md:left-auto md:right-[-8%] md:w-[48%] md:translate-x-0 lg:bottom-[-2%] lg:left-[-18%] lg:right-auto lg:w-[120%]",
+      "bottom-[-10%] left-1/2 w-[50%] max-w-none -translate-x-1/2 md:bottom-[-16%] md:left-auto md:right-[-8%] md:w-[48%] md:translate-x-0 lg:bottom-[-2%] lg:left-[-18%] lg:right-auto lg:w-[120%]",
   },
   {
     title: ["Automated", "Portfolio"],
@@ -20,7 +20,7 @@ const SLIDES = [
     bg: "#0033FF",
     art: "/scroll.webp",
     artClass:
-      "bottom-[0%] right-[10%] w-[80%] max-w-none md:bottom-[-10%] md:right-[-4%] md:w-[46%] lg:bottom-[0%] lg:right-[0%] lg:w-[100%]",
+      "bottom-[0%] right-[10%] w-[60%] max-w-none md:bottom-[-10%] md:right-[-4%] md:w-[46%] lg:bottom-[0%] lg:right-[0%] lg:w-[100%]",
   },
   {
     title: ["Create or", "join Circles"],
@@ -28,7 +28,7 @@ const SLIDES = [
     bg: "#FF6A1E",
     art: "/rings.webp",
     artClass:
-      "bottom-[-10%] right-[-3%] w-[82%] max-w-none md:bottom-[-12%] md:right-[-4%] md:w-[50%] lg:bottom-[0%] lg:left-[5%] lg:right-auto lg:w-[100%]",
+      "bottom-[-10%] right-[-3%] w-[75%] max-w-none md:bottom-[-12%] md:right-[-4%] md:w-[50%] lg:bottom-[0%] lg:left-[5%] lg:right-auto lg:w-[100%]",
   },
 ] as const;
 
