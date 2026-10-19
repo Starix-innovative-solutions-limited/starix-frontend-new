@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { HiChevronDown } from "react-icons/hi2";
-import { getSignupHref } from "@/lib/waitlist";
+import { getLoginHref, getSignupHref } from "@/lib/waitlist";
 
 interface AuthProps {
   brand?: boolean;
@@ -14,6 +14,7 @@ interface AuthProps {
 
 const AuthBg = ({ brand }: AuthProps) => {
   const router = useRouter();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
   const colors = {
@@ -30,13 +31,11 @@ const AuthBg = ({ brand }: AuthProps) => {
     mainAsset: brand ? "/bigribbon.webp" : "/bigstar.webp",
   };
 
-  useEffect(() => {
-    router.prefetch(getSignupHref());
-  }, [router]);
-
   const handleSwitch = (type: "brand" | "creator") => {
     setIsOpen(false);
-    router.push(getSignupHref(type));
+    const href =
+      pathname === "/login" ? getLoginHref(type) : getSignupHref(type);
+    router.push(href);
   };
 
   return (

@@ -159,20 +159,16 @@ const Page = () => {
               <p className="text-center text-sm font-light text-neut/60">
                 Don’t have an account?
               </p>
-              <div className="flex flex-col items-center gap-1.5">
-                <Link
-                  href={getSignupHref("creator")}
-                  className="text-sm font-normal text-dark-navy hover:underline"
-                >
-                  Sign up as creator
+              <p className="whitespace-nowrap text-sm font-normal text-dark-navy">
+                Sign up as a{" "}
+                <Link href={getSignupHref("creator")} className="text-[#0033FF] hover:underline">
+                  Creator
+                </Link>{" "}
+                or{" "}
+                <Link href={getSignupHref("brand")} className="text-[#0033FF] hover:underline">
+                  Brand
                 </Link>
-                <Link
-                  href={getSignupHref("brand")}
-                  className="text-sm font-normal text-dark-navy hover:underline"
-                >
-                  Sign up as brand
-                </Link>
-              </div>
+              </p>
             </div>
             <p className="hidden text-center text-sm font-light text-neut/60 md:block">
               Don’t have an account?{" "}

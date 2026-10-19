@@ -104,14 +104,14 @@ const CreatorSignup = () => {
       className="bg-[#fff] mx-auto w-full max-w-[650px] py-12 px-6 md:max-w-none md:px-8 md:py-10 xl:max-w-[650px] xl:px-6 xl:py-12 flex flex-col items-center font-sans"
     >
       {/* Logo & Header */}
-      <header className="text-center mb-10 md:mb-6 xl:mb-10">
-        <div className="flex justify-center mb-8 md:mb-5 xl:mb-8">
+      <header className="text-center mb-4 md:mb-6 xl:mb-10">
+        <div className="flex justify-center mb-2 md:mb-5 xl:mb-8">
           <Image src="/contact star.webp" alt="Starix Logo" width={60} height={60} className="object-contain" />
         </div>
-        <h1 className="text-[36px] xl:text-[40px] font-medium text-[#040136] tracking-tight">
+        <h1 className="text-[24px] xl:text-[40px] font-medium text-[#040136] tracking-tight">
           Create an Account
         </h1>
-        <p className="text-[#6B7280] text-lg">
+        <p className="text-[#6B7280] text-[14px]">
           Sign up to start building your creator profile on Starix.
         </p>
       </header>
@@ -213,12 +213,12 @@ const CreatorSignup = () => {
       </form>
 
       {/* Footer Links */}
-      <div className="mt-10 text-center space-y-6">
+      <div className="mt-6 text-center space-y-2">
 
         <p className="text-[#747682] text-[14px] font-medium">
           By continuing, you agree to our <Link href="/terms" className="underline ml-1">terms</Link> and <Link href="/privacy" className="underline ml-1">privacy policy</Link>
         </p>
-        <p className="text-[#747682] text-[14px] font-medium">
+        <p className="text-[#747682] text-[18px] font-medium">
           Already have an account?{" "}
           <Link href={getLoginHref()} className="underline ml-1">
             Sign in
