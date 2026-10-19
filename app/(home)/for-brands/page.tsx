@@ -13,6 +13,8 @@ import KeyFeaturesSection from "@/components/KeyFeaturesSection";
 import BrandHero from "@/components/BrandHero";
 import ProblemsSection from "@/components/ProblemsSection";
 import BrandHowItWorks from "@/components/BrandHowItWorks";
+import BrandControlCentre from "@/components/BrandControlCentre";
+import CreatorJoinBanner from "@/components/CreatorJoinBanner";
 
 
 const Page = () => {
@@ -159,7 +161,9 @@ const variantMap = ["front", "mid", "back", "far"];
           
             <ProblemsSection />
             <StarixSolutionsSection />
+            <BrandControlCentre />
             <BrandHowItWorks/>
+            <CreatorJoinBanner variant="brand" />
 
             
           

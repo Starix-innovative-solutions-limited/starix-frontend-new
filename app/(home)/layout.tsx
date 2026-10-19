@@ -3,7 +3,7 @@ import Navbar from "@/components/Navbar";
 import React from "react";
 import dynamic from "next/dynamic";
 
-const CTASection = dynamic(() => import("@/components/CTASection"));
+
 
 const HomeLayout = ({
   children,
@@ -14,7 +14,7 @@ const HomeLayout = ({
     <div className="">
       <Navbar />
       {children}
-      <CTASection />
+     
       <Footer />
     </div>
   );

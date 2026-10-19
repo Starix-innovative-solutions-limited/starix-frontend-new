@@ -1,121 +1,94 @@
 "use client";
 
-import React from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
 const solutions = [
   {
-    title: "UGC Scoring Engine",
-    desc: "Challenges that fit your niche. No pitching required. Challenges that fit your niche.",
-    asset: "/handsss.webp",
-    uiImg: "/recty.webp",
-    // Individual sizes for this asset
-    assetWidth: "w-[400px]",
-    assetHeight: "h-[401px]",
+    title: ["Guide", "with Briefs"],
+    desc: "Give creators direction. Hooks, tone, what to avoid. They handle the rest.",
+    asset: "/float.webp",
+    assetClass:
+      "left-[40%] top-[8%] w-[54%] md:left-[60%] md:top-[6%] md:w-[30%] lg:left-[14%] lg:top-[6%] lg:w-[68%]",
   },
   {
-    title: "Verified Creator Profiles",
-    desc: "Challenges that fit your niche. No pitching required. Challenges that fit your niche.",
-    asset: "/people.webp",
-    uiImg: "/recty.webp",
-    assetWidth: "w-[592px]",
-    assetHeight: "h-[600px]",
+    title: ["Create a", "Challenge"],
+    desc: "Set your goals, budget, and timeline. The challenge goes live.",
+    asset: "/brandflag.webp",
+    assetClass:
+      "left-[42%] top-[6%] w-[52%] md:left-[62%] md:top-[4%] md:w-[30%] lg:left-[22%] lg:top-[6%] lg:w-[64%]",
   },
   {
-    title: "Trend Intelligence",
-    desc: "Challenges that fit your niche. No pitching required. Challenges that fit your niche.",
-    asset: "/dish.webp",
-    uiImg: "/recty.webp",
-    assetWidth: "w-[455px]",
-    assetHeight: "h-[405px]",
-  },
-  {
-    title: "Challenge Control Center",
-    desc: "Challenges that fit your niche. No pitching required. Challenges that fit your niche.",
-    asset: "/joystick.webp",
-    uiImg: "/recty.webp",
-    assetWidth: "w-[400px]",
-    assetHeight: "h-[420px]",
+    title: ["Track &", "Reward"],
+    desc: "Performance tracked automatically. Winners get paid. You get the content.",
+    asset: "/branddiamond.webp",
+    assetClass:
+      "left-[36%] top-[10%] w-[60%] md:left-[58%] md:top-[12%] md:w-[36%] lg:left-[24%] lg:top-[12%] lg:w-[70%]",
   },
 ];
 
-const SolutionCard = ({ title, desc, asset, uiImg, index, assetWidth, assetHeight }: any) => (
-  <motion.div
-    initial={{ opacity: 0, y: 40 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.6, delay: index * 0.08 }}
-    className="relative w-full mb-6 last:mb-0 bg-[#ECF0FF] min-w-[900px] rounded-[28px] overflow-hidden"
-  >
-    {/* TOP SECTION: text left, 3D asset right */}
-    <div className="relative flex items-start justify-between px-8 md:px-12 pt-10 pb-0">
-
-      {/* TEXT */}
-      <div className="flex flex-col z-10 max-w-[60%]">
-        <h3
-          className="text-[#040136] font-light leading-tight mb-3 text-[48px] tracking-[-0.01em]"
-          style={{ fontFamily: "Geist" }}
-        >
-          {title}
-        </h3>
-        <p className="text-[#203646B2] font-normal leading-relaxed text-[32px] min-w-[900px]">
-          {desc}
-        </p>
-      </div>
-
-      {/* 3D ASSET — Now uses individual sizes from props */}
-      <div 
-        className={`absolute pointer-events-none z-[1] top-[-5px] right-[-10px] ${assetWidth} ${assetHeight}`}
-      >
-        <Image
-          src={asset}
-          alt=""
-          fill
-          sizes="(max-width: 768px) 100vw, 600px"
-          className="object-contain object-right-top"
-        />
-      </div>
-    </div>
-
-    {/* DASHBOARD SCREENSHOT */}
-    <div className="relative mx-6 mt-6 z-20 rounded-t-[14px] overflow-hidden">
-      <Image
-        src={uiImg}
-        alt={`${title} dashboard`}
-        width={1200}
-        height={800}
-        className="w-full h-auto object-top"
-      />
-    </div>
-  </motion.div>
-);
-
 const StarixSolutionsSection = () => {
   return (
-    <section className="py-24 bg-white px-6 md:px-12 lg:px-20">
-      <div className="max-w-[1400px] mx-auto">
-
-        {/* HEADER */}
-        <div className="flex flex-row justify-between items-start mb-12 gap-6">
-          <h2 className="font-regular flex items-center gap-2 text-[#040136] leading-[1.1] tracking-tight text-[clamp(28px,4vw,64px)]">
-            Built for how you
-            <Image src="/idaya.webp" alt="" width={96} height={96} className="h-[1em] w-auto inline-block" />
-            actually work
-          </h2>
-
-          <p className="text-[#6E6E6E] font-regular text-right text-[20px] self-center">
-            No matter what niche <br/> of content you need
+    <section className="bg-white px-5 py-16 md:px-10 md:py-24 lg:px-12">
+      <div className="mx-auto max-w-[1280px]">
+        <div className="mb-8 flex flex-col gap-4 md:mb-10 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <span className="inline-block rounded-full bg-[#DDE4FF] px-3 py-1 text-[12px] font-medium uppercase tracking-[0.02em] text-[#0A3BFF]">
+              The Solution
+            </span>
+            <h2 className="mt-3 flex flex-wrap items-center gap-x-2 font-geist text-[24px] font-medium leading-[1.25] tracking-[-0.03em] text-[#040136] md:gap-x-3 md:text-[44px] md:leading-[1.1] md:tracking-[-0.04em] lg:text-[60px]">
+              <span className="w-full lg:w-auto">
+                Built to help<span className="lg:hidden"> you</span>
+              </span>
+              <Image
+                src="/Play 2.webp"
+                alt=""
+                width={96}
+                height={96}
+                className="inline-block h-[0.9em] w-auto"
+              />
+              scale campaigns
+            </h2>
+          </div>
+          <p className="max-w-[260px] text-[14px] leading-[1.4] text-[#6E6E78] md:max-w-none md:text-[16px] lg:mb-3 lg:text-right">
+            No matter what industry or
+            <br className="hidden lg:block" /> niche your brand exists in
           </p>
         </div>
 
-        {/* CARDS STACK */}
-        <div className="flex flex-col gap-5">
+        <div className="grid grid-cols-1 gap-4 rounded-[24px] bg-[#E3E8FB] p-4 md:gap-5 md:p-5 lg:grid-cols-3 lg:gap-5 lg:p-6">
           {solutions.map((item, i) => (
-            <SolutionCard key={i} {...item} index={i} />
+            <motion.div
+              key={item.asset}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: i * 0.08 }}
+              className="relative flex aspect-[282/242] flex-col justify-end overflow-hidden rounded-[16px] bg-[#F4F5FF] p-5 md:aspect-[2.4/1] md:p-8 lg:aspect-square lg:p-6"
+            >
+              <div className={`pointer-events-none absolute ${item.assetClass}`}>
+                <Image
+                  src={item.asset}
+                  alt=""
+                  width={800}
+                  height={800}
+                  sizes="(min-width: 1024px) 280px, 60vw"
+                  className="h-auto w-full"
+                />
+              </div>
+              <div className="relative z-10">
+                <h3 className="font-geist text-[30px] font-normal leading-[1.05] tracking-[-0.03em] text-[#040136] md:text-[32px]">
+                  {item.title[0]}
+                  <br />
+                  {item.title[1]}
+                </h3>
+                <p className="mt-3 max-w-[300px] text-[14px] leading-[1.45] text-[#6E6E78]">
+                  {item.desc}
+                </p>
+              </div>
+            </motion.div>
           ))}
         </div>
-
       </div>
     </section>
   );

@@ -54,7 +54,7 @@ const FooterLink = ({
 }) => (
   <Link
     href={href}
-    className="text-[15px] font-normal leading-[1.45] text-white/80 transition-colors hover:text-white md:text-[16px]"
+    className="text-[15px] font-normal leading-[1.45] text-white/80 transition-colors hover:text-white md:text-[16px] lg:text-[14px]"
   >
     {children}
   </Link>
@@ -68,15 +68,15 @@ const LinkColumn = ({
   children: React.ReactNode;
 }) => (
   <div>
-    <h3 className="mb-3.5 text-[16px] font-semibold text-white md:mb-5 md:text-[18px]">
+    <h3 className="mb-3.5 text-[16px] font-semibold text-white md:mb-5 md:text-[18px] lg:mb-3 lg:text-[14px]">
       {title}
     </h3>
-    <ul className="space-y-2.5 md:space-y-3.5">{children}</ul>
+    <ul className="space-y-2.5 md:space-y-3.5 lg:space-y-2">{children}</ul>
   </div>
 );
 
 const Copyright = ({ className = "" }: { className?: string }) => (
-  <p className={`text-[13px] leading-[1.5] text-white/70 md:text-[14px] ${className}`}>
+  <p className={`text-[13px] leading-[1.5] text-white/70 md:text-[14px] lg:text-[11px] ${className}`}>
     © 2026 Starix.
     <br />
     All rights reserved.
@@ -85,29 +85,29 @@ const Copyright = ({ className = "" }: { className?: string }) => (
 
 const BrandBlock = () => (
   <div className="max-w-[360px] lg:max-w-[300px] xl:max-w-[340px]">
-    <Link href="/" className="mb-4 inline-block md:mb-5 lg:mb-6">
+    <Link href="/" className="mb-4 inline-block md:mb-5 lg:mb-3">
       <Image
         src="/logo light.webp"
         alt="Starix Logo"
         width={220}
         height={63}
-        className="h-auto w-[168px] md:w-[196px] xl:w-[200px]"
+        className="h-auto w-[168px] md:w-[196px] lg:w-[200px]"
       />
     </Link>
-    <p className="text-[14px] leading-[1.6] text-white/85 md:text-[16px] md:leading-[1.55]">
+    <p className="text-[14px] leading-[1.6] text-white/85 md:text-[16px] md:leading-[1.55] lg:text-[14px] lg:leading-[1.45]">
       Starix is where brands post challenges and creators compete to make the
       best content. Winners get paid. Brands get work they can use.
     </p>
     {/* Phone + iPad: copyright sits under the blurb */}
     <Copyright className="mt-5 md:mt-6 lg:hidden" />
     {/* Desktop: socials + copyright stay in the left column */}
-    <SocialIcons className="mt-7 hidden lg:flex" />
-    <Copyright className="mt-6 hidden lg:block" />
+    <SocialIcons className="mt-4 hidden lg:flex [&_img]:!h-4 [&_img]:!w-4" />
+    <Copyright className="mt-4 hidden lg:block" />
   </div>
 );
 
 const LinkColumns = () => (
-  <div className="grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-10 lg:gap-14 xl:gap-20">
+  <div className="grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-10 lg:translate-x-6 lg:grid-cols-[auto_auto_auto] lg:gap-12">
     <LinkColumn title="Company">
       {COMPANY_LINKS.map((link) => (
         <li key={link.label}>
@@ -126,7 +126,7 @@ const LinkColumns = () => (
       <li>
         <a
           href="tel:+2349015000078"
-          className="text-[15px] text-white/80 transition-colors hover:text-white md:text-[16px]"
+          className="text-[15px] text-white/80 transition-colors hover:text-white md:text-[16px] lg:text-[14px]"
         >
           +234 901 500 0078
         </a>
@@ -134,7 +134,7 @@ const LinkColumns = () => (
       <li>
         <a
           href="mailto:contact@starixapp.com"
-          className="text-[15px] text-white/80 transition-colors hover:text-white md:text-[16px]"
+          className="text-[15px] text-white/80 transition-colors hover:text-white md:text-[16px] lg:text-[14px]"
         >
           contact@starixapp.com
         </a>
@@ -146,27 +146,27 @@ const LinkColumns = () => (
 const Footer = () => {
   return (
     <footer className="relative overflow-hidden bg-[#0C2792] font-['Geist'] text-white">
-      <div className="relative h-[200px] w-full overflow-hidden md:h-[280px] lg:h-[340px] xl:h-[380px]">
+      <div className="relative h-[200px] w-full overflow-hidden md:h-[280px] lg:h-auto lg:aspect-[2880/629]">
         <Image
           src="/comp.webp"
           alt=""
           fill
           sizes="100vw"
-          className="object-cover object-[28%_top] md:object-[36%_top] lg:object-contain lg:object-top"
+          className="object-cover object-[28%_top] md:object-[36%_top] lg:object-cover lg:object-top"
         />
       </div>
 
-      <div className="pointer-events-none absolute inset-x-[-4%] -bottom-[4%] z-0 h-[220px] overflow-hidden md:h-[300px] lg:-bottom-[0%] lg:h-[380px] xl:h-[400px]">
+      <div className="pointer-events-none absolute inset-x-[-2%] -bottom-[6%] z-[1] h-[220px] overflow-hidden md:h-[300px] lg:inset-x-0 lg:bottom-[-5%] lg:h-[300px]">
         <Image
-          src="/foot 2.webp"
+          src="/Vectorsss.svg"
           alt=""
           fill
           sizes="140vw"
-          className="object-contain object-left-bottom opacity-[0.14] md:opacity-[0.12]"
+          className="object-contain object-left-bottom opacity-[0.14] md:opacity-[0.12] lg:object-cover lg:object-left-top lg:opacity-[0.08]"
         />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-[1400px] px-6 pb-16 pt-6 md:px-12 md:pb-24 md:pt-8 lg:px-16 lg:pb-36 xl:px-20 xl:pt-4">
+      <div className="relative z-10 mx-auto max-w-[1400px] px-6 pb-16 pt-6 md:px-12 md:pb-24 md:pt-8 lg:px-16 lg:pb-[272px] lg:pt-8 xl:px-20 xl:pb-[296px] xl:pt-8">
         <div className="flex flex-col gap-10 md:gap-12 lg:flex-row lg:items-start lg:justify-between lg:gap-16">
           <BrandBlock />
           <LinkColumns />

@@ -12,7 +12,7 @@ const SLIDES = [
     bg: "#FF6A1E",
     art: "/tags.webp",
     artClass:
-      "bottom-[-10%] left-1/2 w-[50%] max-w-none -translate-x-1/2 md:bottom-[-16%] md:left-auto md:right-[-8%] md:w-[48%] md:translate-x-0 lg:bottom-[-2%] lg:left-[-18%] lg:right-auto lg:w-[120%]",
+      "bottom-[-10%] left-1/2 w-[50%] max-w-none -translate-x-1/2 md:bottom-[-16%] md:left-auto md:right-[-8%] md:w-[48%] md:translate-x-0 lg:bottom-[-5%] lg:left-[15%] lg:right-auto lg:w-[80%]",
   },
   {
     title: ["Automated", "Portfolio"],

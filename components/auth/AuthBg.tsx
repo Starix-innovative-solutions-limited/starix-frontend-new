@@ -26,8 +26,8 @@ const AuthBg = ({ brand }: AuthProps) => {
     labelStyles: brand 
       ? "border-[#A67BA1] text-[#A67BA1] bg-[#EFE6EE]" 
       : "border-[#054D81] text-[#054D81] bg-[#B4DFFE]",
-    topAsset: "/stacked.svg", 
-    mainAsset: brand ? "/bigribbon.svg" : "/bigstar.svg",
+    topAsset: "/stacked.webp", 
+    mainAsset: brand ? "/bigribbon.webp" : "/bigstar.webp",
   };
 
   useEffect(() => {
