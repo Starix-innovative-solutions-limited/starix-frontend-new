@@ -170,52 +170,52 @@ export function useUpdateCreatorProfile() {
   });
 }
 
+export type BrandProfile = {
+  profile_picture_url: string | null;
+  banner_image_url: string | null;
+  niches: string[];
+  brand_description: string | null;
+  brand_name: string;
+  website_url: string | null;
+};
+
 export type UpdateBrandProfilePayload = {
-  profile_picture_url?: string | null;
-  banner_url?: string | null;
-  website_or_social_link?: string | null;
-  bio?: string | null;
+  profile_picture_url: string | null;
+  brand_name: string;
+  website_url: string;
+  brand_description: string;
+  banner_image_url: string | null;
+  niches: string[];
 };
 
 /**
- * Brand profile updates span two backend endpoints:
- * - brand identity fields → PUT /brands/onboarding/profile
- * - banner image → PATCH /auth/me
+ * GET /brands/profile returns the canonical values used by the brand
+ * edit-profile form, including the industry as `niches`.
  */
+export function useGetBrandProfile() {
+  return useQuery({
+    queryKey: ["brands", "profile"],
+    queryFn: async () => {
+      const { data } = await api.get<BrandProfile>("/brands/profile");
+      return data;
+    },
+  });
+}
+
 export function useUpdateBrandProfile() {
   const queryClient = useQueryClient();
   const { setProfile } = useAuthStore();
 
   return useMutation({
     mutationFn: async (payload: UpdateBrandProfilePayload) => {
-      const onboardingPayload: Omit<UpdateBrandProfilePayload, "banner_url"> =
-        {};
-
-      if ("profile_picture_url" in payload) {
-        onboardingPayload.profile_picture_url = payload.profile_picture_url;
-      }
-      if ("website_or_social_link" in payload) {
-        onboardingPayload.website_or_social_link =
-          payload.website_or_social_link;
-      }
-      if ("bio" in payload) {
-        onboardingPayload.bio = payload.bio;
-      }
-
-      if (Object.keys(onboardingPayload).length > 0) {
-        await api.put("/brands/onboarding/profile", onboardingPayload);
-      }
-
-      if ("banner_url" in payload) {
-        await api.patch("/auth/me", { banner_url: payload.banner_url });
-      }
-
+      await api.put("/brands/profile", payload);
       const { data } = await api.get("/auth/me");
       return data;
     },
     onSuccess: (updatedData: any) => {
       queryClient.setQueryData(["me"], updatedData);
       queryClient.setQueryData(["authMe"], updatedData);
+      queryClient.invalidateQueries({ queryKey: ["brands", "profile"] });
       queryClient.invalidateQueries({ queryKey: ["brands", "onboarding"] });
       if (updatedData) setProfile(updatedData);
     },

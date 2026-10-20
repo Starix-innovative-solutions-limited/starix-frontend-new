@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {api} from "@/lib/api"; 
 
 export interface ConnectSocialPayload {
@@ -37,6 +37,35 @@ export const useInitiateSocialConnection = () => {
         }
       );
       return data;
+    },
+  });
+};
+
+export const useDisconnectSocialConnection = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      platform,
+      circleId,
+    }: {
+      platform: ConnectSocialPayload["platform"];
+      circleId?: string;
+    }) => {
+      const endpoint = circleId
+        ? `/circles/${circleId}/social-accounts/${platform}`
+        : `/platforms/${platform}/disconnect`;
+      await api.delete(endpoint);
+    },
+    onSuccess: (_, { circleId }) => {
+      if (circleId) {
+        queryClient.invalidateQueries({
+          queryKey: ["circle-socials", circleId],
+        });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["creatorProfile"] });
+        queryClient.invalidateQueries({ queryKey: ["me"] });
+      }
     },
   });
 };

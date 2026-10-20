@@ -13,12 +13,15 @@ export type BrandChallengeCardData = {
   prizePool: string;
   submissions: number;
   images?: string[];
+  status?: "active" | "drafts" | "completed" | "other";
 };
 
 export default function BrandChallengeCard({
   challenge,
+  onOpenDraft,
 }: {
   challenge: BrandChallengeCardData;
+  onOpenDraft?: (challengeId: string) => void;
 }) {
   const router = useRouter();
 
@@ -49,10 +52,14 @@ export default function BrandChallengeCard({
 
         <button
           type="button"
-          onClick={() => router.push(`/brand/challenges/${challenge.id}`)}
+          onClick={() =>
+            challenge.status === "drafts" && onOpenDraft
+              ? onOpenDraft(challenge.id)
+              : router.push(`/brand/challenges/${challenge.id}`)
+          }
           className="shrink-0 rounded-full border border-[#D0D5DD] px-3 py-1 text-[12px] font-medium text-[#344054] transition-colors hover:bg-gray-50"
         >
-          View
+          {challenge.status === "drafts" ? "Continue" : "View"}
         </button>
       </div>
 

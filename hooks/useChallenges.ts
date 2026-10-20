@@ -61,6 +61,15 @@ export interface ChallengeItem {
   is_published: boolean;
   is_saved?: boolean;
   media?: ChallengeMedia[];
+  submission_eligibility?: "anyone" | "creators" | "circles";
+  required_hashtags?: string[] | null;
+  required_mentions?: string[] | null;
+  platforms?: string[] | null;
+  posting_rules?: string | null;
+  brief_document_url?: string | null;
+  prize_amounts?: Array<number | string> | null;
+  prize_amounts_display?: string[] | null;
+  campaign_objective?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -81,14 +90,14 @@ export type ChallengeDetailMeta = {
 
 export type ChallengeDetailResult = ChallengeItem &
   ChallengeDetailMeta & {
-    required_hashtags?: string[];
-    required_mentions?: string[];
-    posting_rules?: string;
-    brief_document_url?: string;
+    required_hashtags?: string[] | null;
+    required_mentions?: string[] | null;
+    posting_rules?: string | null;
+    brief_document_url?: string | null;
     submission_eligibility?: string;
-    platforms?: string[];
+    platforms?: string[] | null;
     num_winners?: number;
-    prize_amounts_display?: string[];
+    prize_amounts_display?: string[] | null;
   };
 
 function findChallengeInCache(
@@ -240,6 +249,36 @@ export function useCreateChallenge() {
           refetchType: "active",
         }),
       ]);
+    },
+  });
+}
+
+/** PATCH /brands/challenges/{id} — update an owned draft challenge. */
+export function useUpdateChallenge() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      challengeId,
+      data,
+    }: {
+      challengeId: string;
+      data: Partial<CreateChallengePayload>;
+    }) => {
+      const { data: updated } = await api.patch<ChallengeItem>(
+        `/brands/challenges/${challengeId}`,
+        data
+      );
+      return updated;
+    },
+    onSuccess: async (updated) => {
+      queryClient.setQueryData(
+        ["brands", "challenges", "detail", updated.id],
+        updated
+      );
+      await queryClient.invalidateQueries({
+        queryKey: ["brands", "challenges"],
+      });
     },
   });
 }

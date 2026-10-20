@@ -20,7 +20,13 @@ import {
 import { BsFileEarmarkPdf, BsFileEarmarkFill } from "react-icons/bs";
 import { toast } from "react-hot-toast";
 import { useModal } from "@/hooks/useModal";
-import { useCreateChallenge, useFundChallenge, type CreateChallengePayload } from "@/hooks/useChallenges";
+import {
+  useCreateChallenge,
+  useFundChallenge,
+  useUpdateChallenge,
+  type ChallengeItem,
+  type CreateChallengePayload,
+} from "@/hooks/useChallenges";
 import { useUploadMedia } from "@/hooks/useMedia";
 import { useGetCategories } from "@/hooks/useCategories";
 
@@ -177,11 +183,12 @@ const PRIZE_ORDINALS = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", 
 
 type MediaItem = {
   id: string;
-  file: File;
+  file?: File;
   preview: string;
   progress: number;
   type: "image" | "video";
   url?: string;
+  originalFilename?: string;
   error?: string;
 };
 
@@ -234,6 +241,84 @@ const initialForm: FormState = {
   ],
   documents: [],
 };
+
+export const LOCAL_DRAFT_KEY = "starix:brand-challenge-draft";
+
+type LocalChallengeDraft = {
+  step: number;
+  form: FormState;
+  media: Array<{
+    id: string;
+    preview: string;
+    type: "image" | "video";
+    url: string;
+    originalFilename?: string;
+  }>;
+  document?: { name: string; size: number; url: string };
+};
+
+function isoDateInput(value?: string) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return "";
+  return date.toISOString().slice(0, 10);
+}
+
+function draftObjective(value?: string | null) {
+  if (value === "quality_engagement" || value === "audience_response") {
+    return "engagement";
+  }
+  if (value === "visibility" || value === "awareness") return "awareness";
+  return value ? "ugc" : "";
+}
+
+function displayPlatform(value: string) {
+  const platform = value.toLowerCase();
+  if (platform === "tiktok") return "TikTok";
+  if (platform === "youtube") return "YouTube";
+  if (platform === "instagram") return "Instagram";
+  return value;
+}
+
+function formFromDraft(draft: ChallengeItem): FormState {
+  const prizeAmounts = draft.prize_amounts?.length
+    ? draft.prize_amounts.map((amount, index) => ({
+        id: `p${index + 1}`,
+        amount: String((Number(amount) || 0) / 100),
+      }))
+    : initialForm.prizes;
+
+  return {
+    ...initialForm,
+    title: draft.title ?? "",
+    description: draft.description ?? "",
+    objective: draftObjective(draft.campaign_objective),
+    submitter_type: draft.submission_eligibility ?? "anyone",
+    start_date: isoDateInput(draft.start_date),
+    end_date: isoDateInput(draft.end_date),
+    platforms:
+      draft.platforms?.map(displayPlatform) ?? ["TikTok"],
+    hashtags: draft.required_hashtags?.join(" ") ?? "",
+    mentions: draft.required_mentions?.join(" ") ?? "",
+    posting_rules: draft.posting_rules ?? "",
+    currency: draft.currency || "NGN",
+    prize_pool: String((Number(draft.prize_pool) || 0) / 100),
+    prizes: prizeAmounts,
+    documents: draft.brief_document_url
+      ? [draft.brief_document_url]
+      : [],
+  };
+}
+
+function readLocalDraft(): LocalChallengeDraft | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(LOCAL_DRAFT_KEY);
+    return raw ? (JSON.parse(raw) as LocalChallengeDraft) : null;
+  } catch {
+    return null;
+  }
+}
 
 function parseAmount(value: string) {
   return Number(String(value).replace(/[^0-9.]/g, "")) || 0;
@@ -319,15 +404,27 @@ function FooterActions({
   disabled,
   onBack,
   onContinue,
+  onSaveAndClose,
 }: {
   step: number;
   loading?: boolean;
   disabled?: boolean;
   onBack: () => void;
   onContinue: () => void;
+  onSaveAndClose?: () => void;
 }) {
   return (
     <div className="mt-8 flex items-center justify-end gap-3">
+      {onSaveAndClose && (
+        <button
+          type="button"
+          onClick={onSaveAndClose}
+          disabled={loading}
+          className="mr-auto text-[13px] font-semibold text-[#667085] transition hover:text-[#0033FF] disabled:opacity-50"
+        >
+          Save as draft
+        </button>
+      )}
       {step > 1 && (
         <button
           type="button"
@@ -397,6 +494,7 @@ function formatChallengeDuration(startIso: string, endIso: string) {
 function DateField({
   label,
   value,
+  minDate,
   onChange,
   error,
   open,
@@ -405,6 +503,7 @@ function DateField({
 }: {
   label: string;
   value: string;
+  minDate?: string;
   onChange: (iso: string) => void;
   error?: string;
   open: boolean;
@@ -455,6 +554,12 @@ function DateField({
         return null;
       })()
     : null;
+  const minimumDay = minDate ? parseLocalDay(minDate) : null;
+  const previousMonthEnd = new Date(viewYear, viewMonth, 0, 23, 59, 59, 999);
+  const canGoToPreviousMonth =
+    !minimumDay ||
+    !Number.isFinite(minimumDay.getTime()) ||
+    previousMonthEnd >= minimumDay;
 
   return (
     <div ref={rootRef} className="relative">
@@ -482,6 +587,7 @@ function DateField({
               <button
                 type="button"
                 aria-label="Previous month"
+                disabled={!canGoToPreviousMonth}
                 onClick={() => {
                   if (viewMonth === 0) {
                     setViewMonth(11);
@@ -490,7 +596,7 @@ function DateField({
                     setViewMonth((m) => m - 1);
                   }
                 }}
-                className="rounded-lg p-1.5 text-[#667085] hover:bg-gray-50"
+                className="rounded-lg p-1.5 text-[#667085] hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30"
               >
                 <FiChevronLeft size={16} />
               </button>
@@ -531,16 +637,18 @@ function DateField({
               const iso = toIsoDate(viewYear, viewMonth, day);
               const isSelected = selectedDay === day;
               const isFirst = day === 1;
+              const isBeforeMinimum = Boolean(minDate && iso < minDate);
               return (
                 <button
                   key={iso}
                   type="button"
+                  disabled={isBeforeMinimum}
                   onClick={() => {
                     onChange(iso);
                     onClose();
                   }}
-                  className={`flex h-8 w-full items-center justify-center rounded-full text-[13px] transition ${
-                    isSelected
+                  className={`flex h-8 w-full items-center justify-center rounded-full text-[13px] transition disabled:cursor-not-allowed disabled:text-[#D0D5DD] disabled:hover:bg-transparent ${
+                    isSelected && !isBeforeMinimum
                       ? "border-2 border-[#0033FF] font-semibold text-[#0033FF]"
                       : isFirst
                         ? "font-medium text-[#0033FF] hover:bg-[#EAF1FF]"
@@ -614,23 +722,67 @@ function CircularProgress({
 
 export default function CreateChallenge({
   onCreated,
+  onLocalDraftSaved,
+  draft,
 }: {
   onCreated?: (challenge: {
     id: string;
     status?: string;
   }) => void;
+  onLocalDraftSaved?: (title: string) => void;
+  draft?: ChallengeItem;
 } = {}) {
   const { close } = useModal();
   const createChallenge = useCreateChallenge();
+  const updateChallenge = useUpdateChallenge();
   const fundChallenge = useFundChallenge();
   const uploadMedia = useUploadMedia();
   const { data: categories = [] } = useGetCategories();
 
-  const [step, setStep] = useState(1);
-  const [form, setForm] = useState<FormState>(initialForm);
-  const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
+  const recoveredDraft = useMemo(
+    () => (draft ? null : readLocalDraft()),
+    [draft]
+  );
+
+  const [step, setStep] = useState(
+    draft ? 1 : Math.min(recoveredDraft?.step ?? 1, TOTAL_STEPS)
+  );
+  const [form, setForm] = useState<FormState>(() =>
+    draft
+      ? formFromDraft(draft)
+      : recoveredDraft?.form ?? initialForm
+  );
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>(() => {
+    if (draft?.media?.length) {
+      return draft.media.map((media, index) => ({
+        id: media.id ?? `saved-${index}`,
+        preview: media.media_url,
+        progress: 100,
+        type: media.media_type === "video" ? "video" : "image",
+        url: media.media_url,
+        originalFilename: media.original_filename,
+      }));
+    }
+    return (recoveredDraft?.media ?? []).map((media) => ({
+      ...media,
+      progress: 100,
+    }));
+  });
   const [mediaError, setMediaError] = useState<string | null>(null);
-  const [doc, setDoc] = useState<DocState>({ status: "idle" });
+  const [doc, setDoc] = useState<DocState>(() => {
+    if (draft?.brief_document_url) {
+      return {
+        status: "success",
+        name: "Challenge brief.pdf",
+        size: 0,
+        url: draft.brief_document_url,
+      };
+    }
+    if (recoveredDraft?.document) {
+      return { status: "success", ...recoveredDraft.document };
+    }
+    return { status: "idle" };
+  });
   const [rewardError, setRewardError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -642,6 +794,42 @@ export default function CreateChallenge({
   const mediaInputRef = useRef<HTMLInputElement>(null);
   const docInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    if (draft || typeof window === "undefined") return;
+
+    const hasContent =
+      form.title.trim() ||
+      form.description.trim() ||
+      form.start_date ||
+      form.end_date ||
+      mediaItems.some((item) => item.url);
+
+    if (!hasContent) {
+      window.localStorage.removeItem(LOCAL_DRAFT_KEY);
+      return;
+    }
+
+    const localDraft: LocalChallengeDraft = {
+      step,
+      form,
+      media: mediaItems
+        .filter((item): item is MediaItem & { url: string } => Boolean(item.url))
+        .map((item) => ({
+          id: item.id,
+          preview: item.url,
+          type: item.type,
+          url: item.url,
+          originalFilename: item.file?.name ?? item.originalFilename,
+        })),
+      document:
+        doc.status === "success"
+          ? { name: doc.name, size: doc.size, url: doc.url }
+          : undefined,
+    };
+
+    window.localStorage.setItem(LOCAL_DRAFT_KEY, JSON.stringify(localDraft));
+  }, [doc, draft, form, mediaItems, step]);
+
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     setFieldErrors((prev) => {
@@ -652,6 +840,8 @@ export default function CreateChallenge({
   };
 
   const totalPool = parseAmount(form.prize_pool);
+  const now = new Date();
+  const today = toIsoDate(now.getFullYear(), now.getMonth(), now.getDate());
 
   const prizePercents = useMemo(() => {
     const amounts = form.prizes.map((p) => parseAmount(p.amount));
@@ -683,6 +873,9 @@ export default function CreateChallenge({
       }
       if (!form.start_date) errors.start_date = "Start date is required";
       if (!form.end_date) errors.end_date = "End date is required";
+      if (form.start_date && form.start_date < today) {
+        errors.start_date = "Start date cannot be in the past";
+      }
       if (form.start_date && form.end_date && form.end_date < form.start_date) {
         errors.end_date = "End date must be after start date";
       }
@@ -755,6 +948,66 @@ export default function CreateChallenge({
   };
 
   const back = () => setStep((s) => Math.max(s - 1, 1));
+
+  const saveProgressAndClose = async () => {
+    const hasProgress =
+      form.title.trim() ||
+      form.description.trim() ||
+      form.start_date ||
+      form.end_date ||
+      mediaItems.some((item) => item.url);
+    if (!hasProgress) {
+      close();
+      return;
+    }
+
+    const canSaveToServer =
+      form.title.trim().length >= 3 &&
+      form.description.trim().length >= 10 &&
+      Boolean(form.start_date) &&
+      Boolean(form.end_date) &&
+      form.start_date >= today &&
+      form.end_date >= form.start_date &&
+      totalPool > 0 &&
+      form.prizes.length > 0 &&
+      form.prizes.every((prize) => parseAmount(prize.amount) > 0) &&
+      Math.abs(prizeSum - totalPool) <= 0.01;
+
+    if (canSaveToServer) {
+      await handlePublish(true);
+      return;
+    }
+
+    if (typeof window !== "undefined") {
+      const localDraft: LocalChallengeDraft = {
+        step,
+        form,
+        media: mediaItems
+          .filter(
+            (item): item is MediaItem & { url: string } => Boolean(item.url)
+          )
+          .map((item) => ({
+            id: item.id,
+            preview: item.url,
+            type: item.type,
+            url: item.url,
+            originalFilename: item.file?.name ?? item.originalFilename,
+          })),
+        document:
+          doc.status === "success"
+            ? { name: doc.name, size: doc.size, url: doc.url }
+            : undefined,
+      };
+      window.localStorage.setItem(
+        LOCAL_DRAFT_KEY,
+        JSON.stringify(localDraft)
+      );
+    }
+
+    onLocalDraftSaved?.(form.title.trim() || "Untitled challenge");
+    toast.success("Draft saved");
+    close();
+  };
 
   const handleMediaSelect = async (files: FileList | null) => {
     if (!files?.length) return;
@@ -942,7 +1195,7 @@ export default function CreateChallenge({
       .map((m) => ({
         media_url: m.url as string,
         media_type: m.type,
-        original_filename: m.file.name,
+        original_filename: m.file?.name ?? m.originalFilename ?? null,
       }));
 
     const platforms = form.platforms
@@ -950,14 +1203,15 @@ export default function CreateChallenge({
       .map((p) => (p === "youtube" ? "youtube" : p));
 
     const objectiveMap: Record<string, string> = {
-      engagement: "quality_engagement",
-      awareness: "visibility",
+      engagement: "audience_response",
+      awareness: "awareness",
       ugc: "balanced",
       // product_launch: "virality",
       // sales: "conversions",
     };
 
     const category =
+      draft?.category_name ||
       categories[0]?.name ||
       form.content_type.replace(/_/g, " ") ||
       "lifestyle";
@@ -992,7 +1246,7 @@ export default function CreateChallenge({
     };
   };
 
-  const handlePublish = async (isDraft: boolean) => {
+  async function handlePublish(isDraft: boolean) {
     if (!isDraft && !validateStep(4)) return;
 
     const uploadedMedia = mediaItems.filter((m) => m.url);
@@ -1003,14 +1257,22 @@ export default function CreateChallenge({
 
     setLoading(true);
     try {
-      const created = await createChallenge.mutateAsync(
-        buildPayload(!isDraft)
-      );
+      const payload = buildPayload(!isDraft);
+      const saved = draft
+        ? await updateChallenge.mutateAsync({
+            challengeId: draft.id,
+            data: payload,
+          })
+        : await createChallenge.mutateAsync(payload);
 
       onCreated?.({
-        id: created.id,
-        status: created.status ?? (isDraft ? "draft" : "publishing"),
+        id: saved.id,
+        status: saved.status ?? (isDraft ? "draft" : "publishing"),
       });
+
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem(LOCAL_DRAFT_KEY);
+      }
 
       if (isDraft) {
         toast.success("Draft saved");
@@ -1020,10 +1282,10 @@ export default function CreateChallenge({
 
       // Publishing requires funding — redirect to Flutterwave (test or live) checkout
       const funded = await fundChallenge.mutateAsync({
-        challengeId: created.id,
+        challengeId: saved.id,
         callbackUrl:
           typeof window !== "undefined"
-            ? `${window.location.origin}/brand/challenges?funded=1&challenge_id=${created.id}`
+            ? `${window.location.origin}/brand/challenges?funded=1&challenge_id=${saved.id}`
             : undefined,
       });
 
@@ -1045,12 +1307,12 @@ export default function CreateChallenge({
                 .map((d: { msg?: string }) => d?.msg)
                 .filter(Boolean)
                 .join(", ")
-            : "Failed to create challenge";
-      toast.error(message || "Failed to create challenge");
+            : "Failed to save challenge";
+      toast.error(message || "Failed to save challenge");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   const mediaBusy = mediaItems.some((m) => m.progress < 100);
 
@@ -1060,11 +1322,11 @@ export default function CreateChallenge({
   };
 
   return (
-    <div className="relative w-[min(92vw,520px)] max-h-[min(90vh,860px)] overflow-y-auto rounded-[28px] bg-white p-8 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] md:p-10">
+    <div className="relative w-[min(94vw,640px)] max-h-[min(90vh,860px)] overflow-y-auto rounded-[28px] bg-white p-8 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] md:p-10">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-[22px] font-semibold leading-tight text-[#101828] md:text-[24px]">
-            Create Challenge
+            {draft || recoveredDraft ? "Continue Challenge" : "Create Challenge"}
           </h2>
           <p className="mt-1.5 text-[13px] text-[#667085] md:text-[14px]">
             {STEP_LABELS[step - 1]}
@@ -1072,7 +1334,7 @@ export default function CreateChallenge({
         </div>
         <button
           type="button"
-          onClick={close}
+          onClick={draft ? close : saveProgressAndClose}
           className="rounded-full p-1.5 text-[#98A2B3] transition hover:bg-gray-100 hover:text-[#101828]"
           aria-label="Close"
         >
@@ -1119,7 +1381,13 @@ export default function CreateChallenge({
               <DateField
                 label="Start Date"
                 value={form.start_date}
-                onChange={(v) => update("start_date", v)}
+                minDate={today}
+                onChange={(v) => {
+                  update("start_date", v);
+                  if (form.end_date && form.end_date < v) {
+                    update("end_date", "");
+                  }
+                }}
                 error={fieldErrors.start_date}
                 open={openDatePicker === "start"}
                 onOpen={() => setOpenDatePicker("start")}
@@ -1128,6 +1396,7 @@ export default function CreateChallenge({
               <DateField
                 label="End Date"
                 value={form.end_date}
+                minDate={form.start_date || today}
                 onChange={(v) => update("end_date", v)}
                 error={fieldErrors.end_date}
                 open={openDatePicker === "end"}
@@ -1169,7 +1438,12 @@ export default function CreateChallenge({
               </div>
             </Field>
 
-            <FooterActions step={step} onBack={back} onContinue={next} />
+            <FooterActions
+              step={step}
+              onBack={back}
+              onContinue={next}
+              onSaveAndClose={draft ? undefined : saveProgressAndClose}
+            />
           </div>
         )}
 
@@ -1268,7 +1542,12 @@ export default function CreateChallenge({
               </div>
             </Field>
 
-            <FooterActions step={step} onBack={back} onContinue={next} />
+            <FooterActions
+              step={step}
+              onBack={back}
+              onContinue={next}
+              onSaveAndClose={draft ? undefined : saveProgressAndClose}
+            />
           </div>
         )}
 
@@ -1459,6 +1738,7 @@ export default function CreateChallenge({
               onBack={back}
               onContinue={next}
               disabled={mediaBusy || doc.status === "uploading"}
+              onSaveAndClose={draft ? undefined : saveProgressAndClose}
             />
           </div>
         )}
@@ -1548,7 +1828,12 @@ export default function CreateChallenge({
               )}
             </div>
 
-            <FooterActions step={step} onBack={back} onContinue={next} />
+            <FooterActions
+              step={step}
+              onBack={back}
+              onContinue={next}
+              onSaveAndClose={draft ? undefined : saveProgressAndClose}
+            />
           </div>
         )}
 
@@ -1747,6 +2032,14 @@ export default function CreateChallenge({
                 className="rounded-full border border-[#D0D5DD] bg-white px-6 py-3 text-[14px] font-semibold text-[#101828] transition hover:bg-gray-50 disabled:opacity-50"
               >
                 Back
+              </button>
+              <button
+                type="button"
+                onClick={() => handlePublish(true)}
+                disabled={loading}
+                className="rounded-full border border-[#0033FF] bg-white px-6 py-3 text-[14px] font-semibold text-[#0033FF] transition hover:bg-[#F5F8FF] disabled:opacity-50"
+              >
+                {loading ? "Saving..." : "Save Draft"}
               </button>
               <button
                 type="button"

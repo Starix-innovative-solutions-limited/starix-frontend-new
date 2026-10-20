@@ -7,6 +7,7 @@ import { useGetBrandChallenges } from "@/hooks/useChallenges";
 import BrandAvatar from "@/components/(brand)/BrandAvatar";
 import EditBrandProfileModal from "@/components/(brand)/profile/EditBrandProfileModal";
 import { useModal } from "@/hooks/useModal";
+import { useGetBrandProfile } from "@/hooks/useProfile";
 
 const activeStatuses = new Set(["active", "published", "publishing", "judging"]);
 
@@ -41,6 +42,7 @@ export default function Page() {
   const { open } = useModal();
   const { profile: storedProfile } = useAuthStore();
   const { data: me } = useGetMe();
+  const { data: editableProfile } = useGetBrandProfile();
   const { data: challengeData } = useGetBrandChallenges({
     limit: 100,
     offset: 0,
@@ -57,10 +59,16 @@ export default function Page() {
       })
     | null;
   const logoUrl =
+    editableProfile?.profile_picture_url?.trim() ||
     profile?.logo_url?.trim() ||
     profile?.profile_picture_url?.trim() ||
     undefined;
-  const bannerUrl = profile?.banner_url?.trim() || undefined;
+  const bannerUrl =
+    editableProfile?.banner_image_url?.trim() ||
+    profile?.banner_url?.trim() ||
+    undefined;
+  const brandName =
+    editableProfile?.brand_name || profile?.brand_name || "Brand";
   const challenges = challengeData?.challenges ?? [];
   const activeChallenges = challenges.filter((challenge) =>
     activeStatuses.has((challenge.status ?? "").toLowerCase())
@@ -71,12 +79,14 @@ export default function Page() {
   const tags = Array.from(
     new Set(
       [
+        ...toTagList(editableProfile?.niches),
         ...toTagList(profile?.niches),
         ...toTagList(profile?.industry),
       ].filter(Boolean)
     )
   ).slice(0, 4);
   const bio =
+    editableProfile?.brand_description ||
     profile?.bio ||
     profile?.description ||
     "Tell creators about your brand, your story, and the campaigns you run.";
@@ -98,7 +108,7 @@ export default function Page() {
         <div className="relative px-5 pb-10 sm:px-10">
           <div className="-mt-[74px] flex items-start justify-between gap-5">
             <BrandAvatar
-              name={profile?.brand_name}
+              name={brandName}
               src={logoUrl}
               className="h-[120px] w-[120px] border-4 border-white shadow-[0_8px_24px_rgba(16,24,40,0.12)] sm:h-[148px] sm:w-[148px]"
               letterClassName="text-4xl sm:text-5xl"
@@ -108,9 +118,20 @@ export default function Page() {
               onClick={() =>
                 open(
                   <EditBrandProfileModal
-                    brandName={profile?.brand_name || "Brand"}
-                    website={profile?.website_or_social_link}
-                    bio={profile?.bio || profile?.description}
+                    brandName={brandName}
+                    website={
+                      editableProfile?.website_url ||
+                      profile?.website_or_social_link
+                    }
+                    bio={
+                      editableProfile?.brand_description ||
+                      profile?.bio ||
+                      profile?.description
+                    }
+                    industry={
+                      editableProfile?.niches?.[0] ||
+                      toTagList(profile?.industry)[0]
+                    }
                     profilePictureUrl={logoUrl}
                     bannerUrl={bannerUrl}
                   />,
@@ -124,7 +145,7 @@ export default function Page() {
           </div>
 
           <h1 className="mt-5 text-[28px] font-semibold tracking-[-0.025em] text-[#101828] sm:text-[32px]">
-            {profile?.brand_name || "Brand Profile"}
+            {brandName}
           </h1>
 
           <div className="mt-1 flex flex-wrap items-center gap-2 text-[15px] text-[#747682]">

@@ -2,15 +2,11 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import {
-  uploadUserMedia
+  uploadUserMedia,
+  type UpdateCreatorProfilePayload,
 } from "@/hooks/useProfile";
+import { useGetCategories } from "@/hooks/useCategories";
 import Image from "next/image";
-
-type UpdateCreatorProfilePayload = {
-  profile_picture_url?: string | null;
-  banner_url?: string | null;
-  starix_score_visibility?: "public" | "private";
-};
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -19,6 +15,7 @@ interface EditProfileModalProps {
     profileImage: string;
     bannerImage: string;
     scoreVisibility: string;
+    niches: string[];
   };
   onSave: (payload: UpdateCreatorProfilePayload) => void;
 }
@@ -30,8 +27,11 @@ const EditProfileModal = ({ isOpen, onClose, currentProfile, onSave }: EditProfi
   const [tempProfileImg, setTempProfileImg] = useState<string | null>(currentProfile.profileImage);
 const [tempBannerImg, setTempBannerImg] = useState<string | null>(currentProfile.bannerImage);
 const [tempVisibility, setTempVisibility] = useState(currentProfile.scoreVisibility);
+const [tempNiches, setTempNiches] = useState<string[]>(currentProfile.niches);
 const [removeProfileImage, setRemoveProfileImage] = useState(false);
 const [removeBannerImage, setRemoveBannerImage] = useState(false);
+const { data: categories = [], isLoading: categoriesLoading } =
+  useGetCategories();
 
 const profileInputRef = useRef<HTMLInputElement | null>(null);
 const bannerInputRef = useRef<HTMLInputElement | null>(null);
@@ -44,12 +44,19 @@ useEffect(() => {
     setTempProfileImg(currentProfile.profileImage);
     setTempBannerImg(currentProfile.bannerImage);
     setTempVisibility(currentProfile.scoreVisibility);
+    setTempNiches(currentProfile.niches);
     setRemoveProfileImage(false);
     setRemoveBannerImage(false);
     profileFileRef.current = null;
     bannerFileRef.current = null;
   }
-}, [isOpen, currentProfile]);
+}, [
+  isOpen,
+  currentProfile.profileImage,
+  currentProfile.bannerImage,
+  currentProfile.scoreVisibility,
+  currentProfile.niches,
+]);
 
 if (!isOpen) return null;
 
@@ -59,7 +66,9 @@ if (!isOpen) return null;
   const isDirty = 
     tempProfileImg !== currentProfile.profileImage ||
     tempBannerImg !== currentProfile.bannerImage ||
-    tempVisibility !== currentProfile.scoreVisibility;
+    tempVisibility !== currentProfile.scoreVisibility ||
+    tempNiches.length !== currentProfile.niches.length ||
+    tempNiches.some((niche) => !currentProfile.niches.includes(niche));
 
     
 
@@ -82,6 +91,7 @@ if (!isOpen) return null;
     const payload: UpdateCreatorProfilePayload = {
       starix_score_visibility:
         tempVisibility === "anyone" ? "public" : "private",
+      niches: tempNiches,
     };
   
     if (removeProfileImage) {
@@ -254,7 +264,48 @@ if (!isOpen) return null;
             )}
           </div>
 
-          {/* FIELD 3: RADIO INTERACTIVE VISIBILITY CHANNELS CHOICE */}
+          <div>
+            <label className="block text-[14px] font-semibold text-[#1E1F24]">
+              Content Niches
+            </label>
+            <p className="mt-1 text-[12px] text-[#80828D]">
+              Select the categories that best describe your content.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {categoriesLoading ? (
+                <span className="text-[13px] text-[#80828D]">
+                  Loading niches...
+                </span>
+              ) : (
+                categories.map((category) => {
+                  const selected = tempNiches.includes(category.name);
+                  return (
+                    <button
+                      key={category.id}
+                      type="button"
+                      onClick={() =>
+                        setTempNiches((current) =>
+                          selected
+                            ? current.filter((niche) => niche !== category.name)
+                            : [...current, category.name]
+                        )
+                      }
+                      aria-pressed={selected}
+                      className={`rounded-full border px-3 py-2 text-[12px] font-medium capitalize transition ${
+                        selected
+                          ? "border-[#0033FF] bg-[#EEF3FF] text-[#0033FF]"
+                          : "border-[#D9DBE2] bg-white text-[#62636C] hover:border-[#8FA8FF]"
+                      }`}
+                    >
+                      {category.name}
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          </div>
+
+          {/* FIELD 4: RADIO INTERACTIVE VISIBILITY CHANNELS CHOICE */}
           <div className="space-y-3">
             <label className="block text-[14px] font-semibold text-[#1E1F24]">
               Starix Score Visibility

@@ -16,6 +16,8 @@ import { FiChevronDown } from "react-icons/fi";
 import Loader from "@/components/Loader";
 import { useGetBrandOverview } from "@/hooks/useProfile";
 import { type ChallengeItem, useGetBrandChallenges } from "@/hooks/useChallenges";
+import { useGetMe } from "@/hooks/useAuth";
+import { useAuthStore } from "@/store/useAuthStore";
 
 type PerformanceMetric = "engagements" | "submissions" | "participants";
 
@@ -129,10 +131,42 @@ function StatCard({ label, value }: { label: string; value: string }) {
   );
 }
 
-function DashboardTicketIcon() {
+function getBrandInitials(brandName: string) {
+  const words = brandName.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "B";
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return `${words[0][0]}${words[words.length - 1][0]}`.toUpperCase();
+}
+
+function DashboardTicketIcon({
+  imageUrl,
+  brandName,
+}: {
+  imageUrl: string | null;
+  brandName: string;
+}) {
+  const [imageFailed, setImageFailed] = useState(false);
+
+  if (imageUrl && !imageFailed) {
+    return (
+      <img
+        src={imageUrl}
+        alt={`${brandName} profile`}
+        width={40}
+        height={40}
+        onError={() => setImageFailed(true)}
+        className="h-10 w-10 rounded-full object-cover"
+      />
+    );
+  }
+
   return (
-      <img src="/Brands Dp.webp" alt="Dashboard Ticket" width={40} height={40} />
-    
+    <div
+      aria-label={`${brandName} initials`}
+      className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#0033FF] text-[14px] font-semibold text-white"
+    >
+      {getBrandInitials(brandName)}
+    </div>
   );
 }
 
@@ -159,8 +193,15 @@ export default function Page() {
   }, [metricOpen]);
 
   const { data: overview, isLoading: overviewLoading } = useGetBrandOverview();
+  const { data: me } = useGetMe();
+  const { profile: storedProfile } = useAuthStore();
   const { data: challengeData, isLoading: challengesLoading } =
     useGetBrandChallenges({ limit: 100, offset: 0 });
+
+  const brandProfile = me ?? storedProfile;
+  const brandName = brandProfile?.brand_name?.trim() || "Brand";
+  const profilePictureUrl =
+    brandProfile?.profile_picture_url?.trim() || null;
 
   const challenges = challengeData?.challenges ?? [];
   const visibleChallenges = useMemo(
@@ -264,7 +305,11 @@ export default function Page() {
             Track your overall performance
           </p>
         </div>
-        <DashboardTicketIcon />
+        <DashboardTicketIcon
+          key={profilePictureUrl ?? brandName}
+          imageUrl={profilePictureUrl}
+          brandName={brandName}
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">

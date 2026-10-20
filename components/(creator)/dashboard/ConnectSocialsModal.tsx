@@ -6,7 +6,10 @@ import { FiX, FiCheckCircle } from "react-icons/fi";
 import { FaInstagram, FaTiktok, FaYoutube } from "react-icons/fa";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { useInitiateSocialConnection } from "@/hooks/useSocials";
+import {
+  useDisconnectSocialConnection,
+  useInitiateSocialConnection,
+} from "@/hooks/useSocials";
 import { useGetCircleSocials } from "@/hooks/useCircles";
 import {
   useGetCreatorProfile,
@@ -45,6 +48,7 @@ const ConnectSocialsModal = ({
   const router = useRouter();
   const queryClient = useQueryClient();
   const connectSocialMutation = useInitiateSocialConnection();
+  const disconnectSocialMutation = useDisconnectSocialConnection();
   const { data: creatorProfile } = useGetCreatorProfile(username ?? "", {
     enabled: !circleId && !!username,
   });
@@ -55,6 +59,8 @@ const ConnectSocialsModal = ({
   const [justConnected, setJustConnected] = useState<Set<PlatformId>>(
     () => new Set()
   );
+  const [disconnectPlatform, setDisconnectPlatform] =
+    useState<PlatformId | null>(null);
 
   const connectedFromProfile = useMemo(() => {
     const set = new Set<PlatformId>();
@@ -171,17 +177,69 @@ const ConnectSocialsModal = ({
     }
   };
 
+  const handleDisconnect = async () => {
+    if (!disconnectPlatform) return;
+    setErrorMessage(null);
+
+    try {
+      await disconnectSocialMutation.mutateAsync({
+        platform: disconnectPlatform,
+        circleId,
+      });
+
+      setJustConnected((current) => {
+        const next = new Set(current);
+        next.delete(disconnectPlatform);
+        return next;
+      });
+
+      if (!circleId && username) {
+        queryClient.setQueryData<CreatorProfile>(
+          ["creatorProfile", username],
+          (current) =>
+            current
+              ? {
+                  ...current,
+                  connected_platforms: current.connected_platforms?.filter(
+                    (item) =>
+                      item.platform.toLowerCase() !== disconnectPlatform
+                  ),
+                }
+              : current
+        );
+      }
+
+      const platformName =
+        socialPlatforms.find((item) => item.id === disconnectPlatform)?.name ??
+        disconnectPlatform;
+      toast.success(`${platformName} disconnected`);
+      setDisconnectPlatform(null);
+    } catch (err: any) {
+      setErrorMessage(
+        err?.response?.data?.detail ||
+          "Could not disconnect this account. Please try again."
+      );
+    }
+  };
+
+  const disconnectPlatformName = socialPlatforms.find(
+    (platform) => platform.id === disconnectPlatform
+  )?.name;
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className="bg-white w-full max-w-[540px] rounded-[32px] overflow-hidden relative shadow-2xl p-8">
         <div className="flex items-start justify-between mb-2">
           <div>
             <h2 className="text-[24px] font-semibold text-[#1E1F24]">
-              Connect Your Socials
+              {disconnectPlatform
+                ? `Disconnect ${disconnectPlatformName}?`
+                : "Connect Your Socials"}
             </h2>
             <p className="text-[#62636C] text-[14px] mt-2 max-w-[400px]">
-              Connect your social media accounts to get a Starix score and
-              verify your credibility
+              {disconnectPlatform
+                ? "Your connected account and its synced insights will be removed from Starix."
+                : "Connect your social media accounts to get a Starix score and verify your credibility"}
             </p>
           </div>
           <button
@@ -198,44 +256,78 @@ const ConnectSocialsModal = ({
           </div>
         )}
 
-        <div className="mt-8 space-y-4">
-          {socialPlatforms.map((platform) => {
-            const isConnectingThis =
-              connectSocialMutation.isPending &&
-              connectSocialMutation.variables?.platform === platform.id;
-            const isPlatformConnected = isConnected(platform.id);
-
-            return (
+        {disconnectPlatform ? (
+          <div className="mt-8">
+            <div className="rounded-2xl border border-[#FECACA] bg-[#FEF2F2] p-4 text-[13px] leading-5 text-[#991B1B]">
+              You can reconnect {disconnectPlatformName} later, but Starix may
+              need time to sync your account again.
+            </div>
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row">
               <button
-                key={platform.name}
-                onClick={() =>
-                  !isPlatformConnected && handleConnect(platform.id)
-                }
-                disabled={
-                  connectSocialMutation.isPending || isPlatformConnected
-                }
-                className="w-full flex items-center justify-between p-3 border border-[#CDCED7] rounded-[32px] hover:bg-gray-50 transition-all group disabled:opacity-70 disabled:hover:bg-white text-left cursor-pointer"
+                type="button"
+                onClick={() => setDisconnectPlatform(null)}
+                disabled={disconnectSocialMutation.isPending}
+                className="w-full rounded-full border border-[#CDCED7] px-5 py-3 text-[14px] font-semibold text-[#1E1F24] transition hover:bg-gray-50 disabled:opacity-60"
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 flex items-center justify-center rounded-xl transition-transform">
-                    {platform.icon}
-                  </div>
-                  <span className="text-[16px] font-semibold text-[#1E1F24]">
-                    {isConnectingThis
-                      ? `Connecting to ${platform.name}...`
-                      : isPlatformConnected
-                        ? `Connected ${platform.name}`
-                        : `Connect ${platform.name}`}
-                  </span>
-                </div>
-
-                {isPlatformConnected && (
-                  <FiCheckCircle size={24} className="text-[#0CC963]" />
-                )}
+                Keep Connected
               </button>
-            );
-          })}
-        </div>
+              <button
+                type="button"
+                onClick={handleDisconnect}
+                disabled={disconnectSocialMutation.isPending}
+                className="w-full rounded-full bg-[#DC2626] px-5 py-3 text-[14px] font-semibold text-white transition hover:bg-[#B91C1C] disabled:opacity-60"
+              >
+                {disconnectSocialMutation.isPending
+                  ? "Disconnecting..."
+                  : "Yes, Disconnect"}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-8 space-y-4">
+            {socialPlatforms.map((platform) => {
+              const isConnectingThis =
+                connectSocialMutation.isPending &&
+                connectSocialMutation.variables?.platform === platform.id;
+              const isPlatformConnected = isConnected(platform.id);
+
+              return (
+                <button
+                  key={platform.name}
+                  type="button"
+                  onClick={() =>
+                    isPlatformConnected
+                      ? setDisconnectPlatform(platform.id)
+                      : handleConnect(platform.id)
+                  }
+                  disabled={
+                    connectSocialMutation.isPending && !isPlatformConnected
+                  }
+                  className="flex w-full cursor-pointer items-center justify-between rounded-[32px] border border-[#CDCED7] p-3 transition-all hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <span className="flex min-w-0 flex-1 items-center gap-4 text-left">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl">
+                      {platform.icon}
+                    </span>
+                    <span className="text-[16px] font-semibold text-[#1E1F24]">
+                      {isConnectingThis
+                        ? `Connecting to ${platform.name}...`
+                        : isPlatformConnected
+                          ? `Connected ${platform.name}`
+                          : `Connect ${platform.name}`}
+                    </span>
+                  </span>
+
+                  {isPlatformConnected && (
+                    <span className="rounded-full p-1 text-[#0CC963]">
+                      <FiCheckCircle size={24} />
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

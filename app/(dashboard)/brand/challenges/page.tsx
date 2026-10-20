@@ -6,7 +6,9 @@ import { motion } from "framer-motion";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import { useModal } from "@/hooks/useModal";
-import CreateChallenge from "@/components/(brand)/challenge/CreateChallenge";
+import CreateChallenge, {
+  LOCAL_DRAFT_KEY,
+} from "@/components/(brand)/challenge/CreateChallenge";
 import ChallengeCreatedModal from "@/components/(brand)/challenge/ChallengeCreatedModal";
 import BrandAvatar from "@/components/(brand)/BrandAvatar";
 import BrandChallengeCard, {
@@ -32,6 +34,34 @@ const TABS = [
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
+
+type LocalDraftSummary = {
+  title: string;
+  prizePool: number;
+  images: string[];
+};
+
+function readLocalDraftSummary(): LocalDraftSummary | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(LOCAL_DRAFT_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as {
+      form?: { title?: string; prize_pool?: string };
+      media?: Array<{ url?: string }>;
+    };
+    return {
+      title: parsed.form?.title?.trim() || "Untitled challenge",
+      prizePool: Number(parsed.form?.prize_pool) || 0,
+      images:
+        parsed.media
+          ?.map((item) => item.url)
+          .filter((url): url is string => Boolean(url)) ?? [],
+    };
+  } catch {
+    return null;
+  }
+}
 
 function formatPostedAgo(dateString?: string) {
   if (!dateString) return "Just now";
@@ -110,8 +140,19 @@ export default function Page() {
   const queryClient = useQueryClient();
   const { profile: storeProfile, userType } = useAuthStore();
   const { data: me, isLoading: meLoading } = useGetMe();
+  const [hasMounted, setHasMounted] = useState(false);
+  const [localDraft, setLocalDraft] = useState<LocalDraftSummary | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>("active");
   const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    setHasMounted(true);
+    setLocalDraft(readLocalDraftSummary());
+    const requestedTab = new URLSearchParams(window.location.search).get("tab");
+    if (TABS.some((tab) => tab.id === requestedTab)) {
+      setActiveTab(requestedTab as TabId);
+    }
+  }, []);
 
   const profile = me ?? storeProfile;
   const logoUrl =
@@ -126,7 +167,7 @@ export default function Page() {
   const isBrand = role === "brand";
   const emailVerified = profile?.is_email_verified !== false;
   const canFetchBrandChallenges =
-    !meLoading && isBrand && emailVerified;
+    hasMounted && !meLoading && isBrand && emailVerified;
 
   // Flutterwave (test/live) redirects here after checkout.
   useEffect(() => {
@@ -199,9 +240,10 @@ export default function Page() {
     [data?.challenges]
   );
 
-  const { byId: detailsById } = useBrandChallengeDetails(challengeIds, {
-    enabled: challengeIds.length > 0,
-  });
+  const { byId: detailsById, isLoading: detailsLoading } =
+    useBrandChallengeDetails(challengeIds, {
+      enabled: challengeIds.length > 0,
+    });
 
   const challenges = useMemo(() => {
     const items = (data?.challenges ?? []).map((summary) => {
@@ -228,11 +270,26 @@ export default function Page() {
     });
   }, [data?.challenges, detailsById, activeTab, search]);
 
+  const selectTab = (tab: TabId) => {
+    setActiveTab(tab);
+    const url = new URL(window.location.href);
+    url.searchParams.set("tab", tab);
+    window.history.replaceState({}, "", url.pathname + url.search);
+  };
+
   const handleOpenCreate = () => {
     open(
       <CreateChallenge
+        onLocalDraftSaved={(title) => {
+          setLocalDraft(
+            readLocalDraftSummary() ?? { title, prizePool: 0, images: [] }
+          );
+          selectTab("drafts");
+          setSearch("");
+        }}
         onCreated={(challenge) => {
-          setActiveTab(
+          setLocalDraft(null);
+          selectTab(
             challenge.status?.toLowerCase() === "draft" ? "drafts" : "active"
           );
           setSearch("");
@@ -244,6 +301,56 @@ export default function Page() {
       { bare: true }
     );
   };
+
+  const handleOpenLocalDraft = () => {
+    open(
+      <CreateChallenge
+        onLocalDraftSaved={(title) => {
+          setLocalDraft(
+            readLocalDraftSummary() ?? { title, prizePool: 0, images: [] }
+          );
+          selectTab("drafts");
+        }}
+        onCreated={() => {
+          setLocalDraft(null);
+          selectTab("drafts");
+          setSearch("");
+          void queryClient.refetchQueries({
+            queryKey: ["brands", "challenges"],
+          });
+        }}
+      />,
+      { bare: true }
+    );
+  };
+
+  const handleOpenDraft = (challengeId: string) => {
+    const draft = detailsById[challengeId];
+    if (!draft) {
+      toast.error("This draft is still loading. Please try again.");
+      return;
+    }
+
+    open(
+      <CreateChallenge
+        draft={draft}
+        onCreated={() => {
+          selectTab("drafts");
+          setSearch("");
+          void queryClient.refetchQueries({
+            queryKey: ["brands", "challenges"],
+          });
+        }}
+      />,
+      { bare: true }
+    );
+  };
+
+  const showLocalDraft =
+    activeTab === "drafts" &&
+    Boolean(localDraft) &&
+    (!search.trim() ||
+      localDraft!.title.toLowerCase().includes(search.trim().toLowerCase()));
 
   return (
     <div className="mx-auto max-w-7xl pb-10">
@@ -285,7 +392,7 @@ export default function Page() {
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => selectTab(tab.id)}
                 className={`relative pb-3 text-[14px] font-medium whitespace-nowrap transition-colors ${
                   isActive
                     ? "text-[#101828]"
@@ -315,7 +422,7 @@ export default function Page() {
           />
         </div>
 
-        {(!isBrand || !emailVerified) && !meLoading ? (
+        {hasMounted && (!isBrand || !emailVerified) && !meLoading ? (
           <div className="rounded-2xl border border-amber-100 bg-amber-50/70 px-6 py-8 text-center">
             <p className="text-[14px] font-semibold text-[#B54708]">
               {!isBrand
@@ -347,7 +454,9 @@ export default function Page() {
           </div>
         ) : null}
 
-        {(meLoading || (canFetchBrandChallenges && isLoading)) && (
+        {(!hasMounted ||
+          meLoading ||
+          (canFetchBrandChallenges && (isLoading || detailsLoading))) && (
           <div className="flex flex-col items-center justify-center gap-3 py-20">
             <Loader />
             <p className="text-[13px] font-medium text-[#62636C]">
@@ -378,8 +487,10 @@ export default function Page() {
 
         {canFetchBrandChallenges &&
         !isLoading &&
+        !detailsLoading &&
         !isError &&
-        challenges.length === 0 ? (
+        challenges.length === 0 &&
+        !showLocalDraft ? (
           <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-[#E4E7EC] bg-white py-20 text-center">
             <p className="text-[16px] font-medium text-[#101828]">
               No challenges found
@@ -397,17 +508,41 @@ export default function Page() {
           </div>
         ) : null}
 
-        {canFetchBrandChallenges &&
-        !isLoading &&
-        !isError &&
-        challenges.length > 0 ? (
+        {showLocalDraft ||
+        (canFetchBrandChallenges &&
+          !isLoading &&
+          !detailsLoading &&
+          !isError &&
+          challenges.length > 0) ? (
           <motion.div
             variants={variants?.containerVariants}
             className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3"
           >
-            {challenges.map((challenge) => (
-              <BrandChallengeCard key={challenge.id} challenge={challenge} />
-            ))}
+            {showLocalDraft && localDraft ? (
+              <BrandChallengeCard
+                challenge={{
+                  id: "local-draft",
+                  title: localDraft.title,
+                  visibility: "Public",
+                  verified: false,
+                  postedAgo: "Saved locally",
+                  prizePool: formatCompactNaira(localDraft.prizePool, "₦"),
+                  submissions: 0,
+                  images: localDraft.images,
+                  status: "drafts",
+                }}
+                onOpenDraft={handleOpenLocalDraft}
+              />
+            ) : null}
+            {!isError
+              ? challenges.map((challenge) => (
+                  <BrandChallengeCard
+                    key={challenge.id}
+                    challenge={challenge}
+                    onOpenDraft={handleOpenDraft}
+                  />
+                ))
+              : null}
           </motion.div>
         ) : null}
       </motion.div>

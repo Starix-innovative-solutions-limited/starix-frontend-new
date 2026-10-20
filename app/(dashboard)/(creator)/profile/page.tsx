@@ -36,9 +36,13 @@ const CIRCLES_PER_PAGE = 4;
 const UserProfilePage = () => {
   const router = useRouter();
   const params = useParams();
+  const [hasMounted, setHasMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
 
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   const routeUsernameOrId =
   typeof params?.username === "string"
@@ -141,6 +145,7 @@ const isCirclesLoading = isOwnProfile
 const username = profile?.username ? `@${profile.username}` : "";
 
 const isProfileLoading =
+  !hasMounted ||
   (isOwnProfile && isAuthLoading && !authUser) ||
   (isViewedProfileLoading && !viewedProfile);
 
@@ -171,7 +176,10 @@ const isProfileLoading =
         ? `${Math.round(engagements / 1000)}K`
         : String(engagements);
 
-  const niches = profile?.niches?.length ? profile.niches : [];
+  const niches = useMemo(
+    () => (profile?.niches?.length ? profile.niches : []),
+    [profile?.niches]
+  );
 
   const handleSaveProfile = (payload: UpdateCreatorProfilePayload) => {
     updateProfileMutation.mutate(payload, {
@@ -498,6 +506,7 @@ const ConnectedPlatformIcons = ({
             profileImage: profileImage ?? "",
             bannerImage: bannerImage ?? "",
             scoreVisibility,
+            niches,
           }}
           onSave={handleSaveProfile}
         />

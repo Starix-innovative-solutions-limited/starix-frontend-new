@@ -16,6 +16,7 @@ import {
   useUpdateBrandProfile,
   type UpdateBrandProfilePayload,
 } from "@/hooks/useProfile";
+import { useGetCategories } from "@/hooks/useCategories";
 
 const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg"];
@@ -24,6 +25,7 @@ type EditBrandProfileModalProps = {
   brandName: string;
   website?: string | null;
   bio?: string | null;
+  industry?: string | null;
   profilePictureUrl?: string | null;
   bannerUrl?: string | null;
 };
@@ -45,16 +47,20 @@ export default function EditBrandProfileModal({
   brandName,
   website,
   bio,
+  industry,
   profilePictureUrl,
   bannerUrl,
 }: EditBrandProfileModalProps) {
   const { close } = useModal();
   const updateProfile = useUpdateBrandProfile();
+  const { data: categories = [], isLoading: categoriesLoading } =
+    useGetCategories();
   const profileInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
 
   const [websiteValue, setWebsiteValue] = useState(website ?? "");
   const [bioValue, setBioValue] = useState(bio ?? "");
+  const [industryValue, setIndustryValue] = useState(industry ?? "");
   const [profileFile, setProfileFile] = useState<File | null>(null);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [profilePreview, setProfilePreview] = useState(
@@ -122,6 +128,7 @@ export default function EditBrandProfileModal({
   const isDirty =
     websiteValue.trim() !== (website ?? "").trim() ||
     bioValue.trim() !== (bio ?? "").trim() ||
+    industryValue !== (industry ?? "") ||
     Boolean(profileFile) ||
     Boolean(bannerFile) ||
     removeProfile ||
@@ -130,33 +137,47 @@ export default function EditBrandProfileModal({
   const save = async () => {
     if (!isDirty || updateProfile.isPending) return;
 
-    const payload: UpdateBrandProfilePayload = {};
     const nextWebsite = websiteValue.trim();
     const nextBio = bioValue.trim();
-
-    if (nextWebsite !== (website ?? "").trim()) {
-      payload.website_or_social_link = nextWebsite || null;
+    if (!industryValue) {
+      toast.error("Select your brand industry");
+      return;
     }
-    if (nextBio !== (bio ?? "").trim()) {
-      payload.bio = nextBio || null;
+    if (!nextWebsite || !/^https?:\/\/\S+$/i.test(nextWebsite)) {
+      toast.error("Enter a valid website URL starting with http:// or https://");
+      return;
+    }
+    if (!nextBio) {
+      toast.error("Enter a brand description");
+      return;
     }
 
     try {
+      let nextProfilePicture = profilePictureUrl ?? null;
       if (removeProfile) {
-        payload.profile_picture_url = null;
+        nextProfilePicture = null;
       } else if (profileFile) {
-        payload.profile_picture_url = await uploadUserMedia(
+        nextProfilePicture = await uploadUserMedia(
           profileFile,
           "profile_picture"
         );
       }
 
+      let nextBanner = bannerUrl ?? null;
       if (removeBanner) {
-        payload.banner_url = null;
+        nextBanner = null;
       } else if (bannerFile) {
-        payload.banner_url = await uploadUserMedia(bannerFile, "user_banner");
+        nextBanner = await uploadUserMedia(bannerFile, "user_banner");
       }
 
+      const payload: UpdateBrandProfilePayload = {
+        profile_picture_url: nextProfilePicture,
+        brand_name: brandName,
+        website_url: nextWebsite,
+        brand_description: nextBio,
+        banner_image_url: nextBanner,
+        niches: [industryValue],
+      };
       await updateProfile.mutateAsync(payload);
       toast.success("Profile updated");
       close();
@@ -270,6 +291,35 @@ export default function EditBrandProfileModal({
             className="w-full rounded-xl border border-[#E4E7EC] px-4 py-3.5 text-[14px] text-[#1E1F24] outline-none placeholder:text-[#98A2B3] focus:border-[#0033FF]"
           />
         </div>
+      </div>
+
+      <div className="mt-6">
+        <label
+          htmlFor="brand-industry"
+          className="mb-2 block text-[14px] font-semibold text-[#1E1F24]"
+        >
+          Brand Industry
+        </label>
+        <select
+          id="brand-industry"
+          value={industryValue}
+          onChange={(event) => setIndustryValue(event.target.value)}
+          disabled={categoriesLoading}
+          className="w-full rounded-xl border border-[#E4E7EC] bg-white px-4 py-3.5 text-[14px] text-[#1E1F24] outline-none focus:border-[#0033FF] disabled:bg-[#F9FAFB]"
+        >
+          <option value="">
+            {categoriesLoading ? "Loading industries..." : "Select industry"}
+          </option>
+          {industryValue &&
+          !categories.some((category) => category.name === industryValue) ? (
+            <option value={industryValue}>{industryValue}</option>
+          ) : null}
+          {categories.map((category) => (
+            <option key={category.id} value={category.name}>
+              {category.name.charAt(0).toUpperCase() + category.name.slice(1)}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="mt-6">

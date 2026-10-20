@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from "@/lib/api";
 import { sessionAuth } from "@/utils/sessionAuth";
+import { useSyncExternalStore } from "react";
 import {
   BrandSignupPayload,
   BrandSignupResponse,
@@ -276,6 +277,12 @@ export const useWaitlistTotal = () => {
 
 export function useGetMe() {
   const { setProfile } = useAuthStore();
+  const token = useAuthStore((state) => state.token);
+  const isClient = useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false
+  );
 
   return useQuery<UserProfile>({
     queryKey: ["me"],
@@ -285,7 +292,7 @@ export function useGetMe() {
       return data;
     },
     enabled:
-      typeof window !== "undefined" && !!localStorage.getItem("token"),
+      isClient && Boolean(token || localStorage.getItem("token")),
     staleTime: 1000 * 60 * 5,
     retry: false,
   });
