@@ -54,6 +54,11 @@ export interface ChallengeItem {
   brand_profile_picture_url?: string | null;
   brand_bio?: string | null;
   participant_count: number;
+  total_submissions?: number;
+  submissions_this_week?: number;
+  pending_engagement_submissions?: number;
+  measured_submissions?: number;
+  total_engagement?: number;
   viewer_count?: number;
   share_count?: number;
   save_count?: number;
@@ -510,8 +515,9 @@ export function useGetJoinedCompletedChallenges(
 
 export interface ChallengeLeaderboardEntry {
   rank: number;
-  user_id: string;
-  username: string;
+  user_id?: string | null;
+  username?: string | null;
+  display_name?: string | null;
   profile_picture_url?: string | null;
   challenge_score?: number | null;
   final_score?: number | null;
@@ -519,6 +525,53 @@ export interface ChallengeLeaderboardEntry {
   placement?: number | null;
   previous_rank?: number | null;
   rank_direction?: "up" | "down" | "same" | "new" | string;
+  platforms?: string[];
+  total_engagement?: number | null;
+  submission_id?: string | null;
+  entrant_id?: string | null;
+  content_url?: string | null;
+  selected_platform?: string | null;
+  engagement_captured_at?: string | null;
+}
+
+function asLeaderboardEntries(value: unknown): ChallengeLeaderboardEntry[] {
+  if (Array.isArray(value)) return value as ChallengeLeaderboardEntry[];
+  return [];
+}
+
+export function normalizeBrandLeaderboard(
+  payload: unknown
+): ChallengeLeaderboardResponse {
+  const root =
+    payload && typeof payload === "object"
+      ? (payload as Record<string, unknown>)
+      : {};
+  const nested =
+    root.data && typeof root.data === "object" && !Array.isArray(root.data)
+      ? (root.data as Record<string, unknown>)
+      : root;
+
+  const entries = asLeaderboardEntries(
+    nested.entries ??
+      nested.items ??
+      nested.results ??
+      root.entries ??
+      root.items ??
+      (Array.isArray(payload) ? payload : [])
+  );
+
+  const total =
+    Number(nested.total_entries ?? nested.total ?? root.total_entries ?? root.total) ||
+    entries.length;
+
+  return {
+    ...(nested as unknown as ChallengeLeaderboardResponse),
+    challenge_id: String(nested.challenge_id ?? root.challenge_id ?? ""),
+    is_tentative: Boolean(nested.is_tentative ?? root.is_tentative),
+    entries,
+    total_entries: total,
+    total,
+  };
 }
 
 export interface ChallengeLeaderboardResponse {
@@ -527,9 +580,12 @@ export interface ChallengeLeaderboardResponse {
   entries: ChallengeLeaderboardEntry[];
   requester_rank?: number | null;
   total_entries: number;
+  total?: number;
+  limit?: number;
+  offset?: number;
 }
 
-/** GET /challenges/{challenge_id}/leaderboard */
+/** GET /challenges/{challenge_id}/leaderboard — creator accounts only */
 export function useGetChallengeLeaderboard(
   challengeId?: string,
   options?: { enabled?: boolean }
@@ -544,6 +600,120 @@ export function useGetChallengeLeaderboard(
     },
     enabled: (options?.enabled ?? true) && Boolean(challengeId),
   });
+}
+
+/** GET /brands/challenges/{challenge_id}/leaderboard — brand owner only */
+export function useGetBrandChallengeLeaderboard(
+  challengeId?: string,
+  options?: { enabled?: boolean; limit?: number; offset?: number }
+) {
+  const limit = options?.limit ?? 100;
+  const offset = options?.offset ?? 0;
+
+  return useQuery<ChallengeLeaderboardResponse>({
+    queryKey: [
+      "brands",
+      "challenges",
+      "leaderboard",
+      challengeId,
+      limit,
+      offset,
+    ],
+    queryFn: async () => {
+      const { data } = await api.get(
+        `/brands/challenges/${challengeId}/leaderboard`,
+        { params: { limit, offset } }
+      );
+      return normalizeBrandLeaderboard(data);
+    },
+    enabled: (options?.enabled ?? true) && Boolean(challengeId),
+  });
+}
+
+export type BrandSubmissionRow = ChallengeLeaderboardEntry & {
+  challenge_id: string;
+  challenge_title: string;
+};
+
+export function submittedCount(challenge?: ChallengeItem | null) {
+  if (!challenge) return 0;
+  return Math.max(
+    challenge.total_submissions ?? 0,
+    challenge.participant_count ?? 0,
+    challenge.pending_engagement_submissions ?? 0,
+    challenge.measured_submissions ?? 0
+  );
+}
+
+export function useGetBrandChallengeSubmissions(challengeId?: string | null) {
+  const list = useGetBrandChallenges(
+    { limit: 100, offset: 0 },
+    { enabled: !challengeId }
+  );
+  const single = useGetBrandChallenge(challengeId || undefined, {
+    enabled: Boolean(challengeId),
+  });
+
+  const challenges: ChallengeItem[] = challengeId
+    ? single.data
+      ? [single.data]
+      : []
+    : (list.data?.challenges ?? []);
+
+  const boards = useQueries({
+    queries: challenges.map((challenge) => ({
+      queryKey: ["brands", "challenges", "leaderboard", challenge.id, 100, 0],
+      queryFn: async () => {
+        const { data } = await api.get(
+          `/brands/challenges/${challenge.id}/leaderboard`,
+          { params: { limit: 100, offset: 0 } }
+        );
+        return normalizeBrandLeaderboard(data);
+      },
+      enabled: Boolean(challenge.id),
+    })),
+  });
+
+  const rows: BrandSubmissionRow[] = boards.flatMap((query, index) => {
+    const challenge = challenges[index];
+    const entries = query.data?.entries ?? [];
+    if (!challenge || entries.length === 0) return [];
+    return entries.map((entry) => ({
+      ...entry,
+      challenge_id: challenge.id,
+      challenge_title: challenge.title,
+    }));
+  });
+
+  const rankedByChallenge = new Map(
+    challenges.map((challenge, index) => {
+      const board = boards[index]?.data;
+      const ranked = board?.total_entries || board?.entries?.length || 0;
+      return [challenge.id, ranked] as const;
+    })
+  );
+
+  const totalSubmitted = challenges.reduce(
+    (sum, challenge) => sum + submittedCount(challenge),
+    0
+  );
+  const pendingCount = challenges.reduce((sum, challenge) => {
+    const ranked = rankedByChallenge.get(challenge.id) ?? 0;
+    return sum + Math.max(0, submittedCount(challenge) - ranked);
+  }, 0);
+
+  return {
+    rows,
+    challenges,
+    isLoading:
+      (challengeId ? single.isLoading : list.isLoading) ||
+      boards.some((query) => query.isLoading),
+    isError:
+      (challengeId ? single.isError : list.isError) ||
+      boards.some((query) => query.isError),
+    pendingCount,
+    totalSubmitted,
+  };
 }
 
 export const useGetRecommendedChallenges = (
@@ -618,6 +788,51 @@ export function useSubmitChallengeEntry() {
     },
   });
 }
+
+export type ChallengeSaveResponse = {
+  is_saved: boolean;
+  save_count: number;
+};
+
+export const useToggleChallengeSave = (challengeId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const { data } = await api.post<ChallengeSaveResponse>(
+        `/challenges/${challengeId}/save`,
+        undefined,
+        {
+          transformRequest: [
+            (_data, headers) => {
+              const requestHeaders = headers as
+                | { delete?: (name: string) => void }
+                | undefined;
+              requestHeaders?.delete?.("Content-Type");
+              requestHeaders?.delete?.("content-type");
+              return undefined;
+            },
+          ],
+        }
+      );
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData<ChallengeDetailResult | null>(
+        ["challenges", "detail", challengeId],
+        (current) =>
+          current
+            ? {
+                ...current,
+                is_saved: data.is_saved,
+                save_count: data.save_count,
+              }
+            : current
+      );
+      queryClient.invalidateQueries({ queryKey: ["challenges", "saved"] });
+    },
+  });
+};
 
 export const useGetChallengeById = (id: string) => {
   const queryClient = useQueryClient();

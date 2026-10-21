@@ -4,7 +4,7 @@ import React, { Suspense, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { FiSearch } from "react-icons/fi";
+import { FiCamera, FiSearch } from "react-icons/fi";
 import { GoArrowLeft, GoArrowRight, GoCheckCircleFill } from "react-icons/go";
 import {
   PolarAngleAxis,
@@ -18,7 +18,8 @@ import {
   useGetCircleChallenges,
   type CircleChallengeFilter,
 } from "@/hooks/useCircles";
-import BannerUploadModal from "@/components/(creator)/dashboard/BannerUploadModal";
+import CirclePhotosModal from "@/components/(creator)/dashboard/CirclePhotosModal";
+import { displayMediaUrl } from "@/lib/displayMediaUrl";
 import ConnectSocialsModal from "@/components/(creator)/dashboard/ConnectSocialsModal";
 import SettingsModal from "@/components/(creator)/dashboard/SettingsModal";
 import InviteMemberModal from "@/components/(creator)/dashboard/InviteMemberModal";
@@ -47,7 +48,7 @@ const CircleProfilePage = () => {
   const currentUserId = currentUser?.id;
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
+  const [isPhotosModalOpen, setIsPhotosModalOpen] = useState(false);
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -133,10 +134,12 @@ const CircleProfilePage = () => {
         circleId={id}
         currentData={id}
       />
-      <BannerUploadModal
-        isOpen={isBannerModalOpen}
-        onClose={() => setIsBannerModalOpen(false)}
+      <CirclePhotosModal
+        isOpen={isPhotosModalOpen}
+        onClose={() => setIsPhotosModalOpen(false)}
         circleId={id}
+        profilePictureUrl={circle.profile_picture_url}
+        coverUrl={circle.banner_url}
       />
       <ConnectSocialsModal
         isOpen={isConnectModalOpen}
@@ -151,43 +154,56 @@ const CircleProfilePage = () => {
 
       <div className="relative h-[178px] w-full overflow-hidden bg-[#EAF2FF]">
         {circle.banner_url ? (
-          <Image
-            src={circle.banner_url}
+          // Native img avoids Next's optimizer URL, which ad blockers treat as ads.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={displayMediaUrl(circle.banner_url)}
             alt={`${circle.name} cover`}
-            fill
-            sizes="100vw"
-            priority
-            className="object-cover object-center"
+            className="h-full w-full object-cover object-center"
           />
         ) : (
-          <div className="h-full w-full bg-[#EAF2FF]" aria-label="No banner image" />
+          <div className="h-full w-full bg-[#EAF2FF]" aria-label="No cover image" />
         )}
         {isAdmin && (
           <button
             type="button"
-            onClick={() => setIsBannerModalOpen(true)}
-            className="absolute inset-0 cursor-pointer"
-            aria-label="Upload banner"
-          />
+            onClick={() => setIsPhotosModalOpen(true)}
+            className="absolute right-4 bottom-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/80 bg-white text-[#1E1F24] shadow-md transition hover:bg-gray-50"
+            aria-label="Edit circle photos"
+          >
+            <FiCamera size={18} />
+          </button>
         )}
       </div>
 
       <main className="relative px-8 pb-10">
         <section className="relative pt-[72px]">
           <div className="absolute -top-[78px] left-0">
-            <div className="relative h-[120px] w-[120px] overflow-hidden rounded-[28px] bg-[#F5F6F8] shadow-[0_8px_24px_rgba(16,24,40,0.08)]">
-              {circle.profile_picture_url ? (
-                <Image
-                  src={circle.profile_picture_url}
-                  alt={circle.name}
-                  fill
-                  sizes="120px"
-                  className="object-cover"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-[#F5F6F8] text-4xl font-semibold uppercase text-[#62636C]">
-                  {circle.name?.charAt(0) ?? "?"}
-                </div>
+            <div className="relative h-[120px] w-[120px]">
+              <div className="relative h-full w-full overflow-hidden rounded-[28px] bg-[#F5F6F8] shadow-[0_8px_24px_rgba(16,24,40,0.08)]">
+                {circle.profile_picture_url ? (
+                  <Image
+                    src={circle.profile_picture_url}
+                    alt={circle.name}
+                    fill
+                    sizes="120px"
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-[#F5F6F8] text-4xl font-semibold uppercase text-[#62636C]">
+                    {circle.name?.charAt(0) ?? "?"}
+                  </div>
+                )}
+              </div>
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={() => setIsPhotosModalOpen(true)}
+                  className="absolute -right-1 -bottom-1 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-white bg-white text-[#1E1F24] shadow-md transition hover:bg-gray-50"
+                  aria-label="Edit circle photos"
+                >
+                  <FiCamera size={14} />
+                </button>
               )}
             </div>
           </div>

@@ -89,6 +89,31 @@ function assertValidUpload(file: File, target: MediaUploadTarget) {
   }
 }
 
+function isAzureBlobUrl(value: string) {
+  try {
+    const url = new URL(value);
+    return (
+      url.protocol === "https:" &&
+      url.hostname.endsWith(".blob.core.windows.net")
+    );
+  } catch {
+    return false;
+  }
+}
+
+function safeUploadFilename(name: string) {
+  const cleaned = name.replace(/banner/gi, "cover").replace(/[^\w.-]+/g, "-");
+  return (cleaned || "image").slice(0, 255);
+}
+
+function resolveStorageTarget(target: MediaUploadTarget): MediaUploadTarget {
+  // Ad blockers treat "banner" in blob paths as ads and abort the PUT.
+  if (target === "circle_banner" || target === "user_banner") {
+    return target === "user_banner" ? "profile_picture" : "circle_profile_picture";
+  }
+  return target;
+}
+
 function resolveUploadHeaders(
   uploadHeaders: Record<string, string> | undefined,
   contentType: string
@@ -138,11 +163,19 @@ export async function putFileToUploadUrl(
   file: Blob,
   uploadHeaders: Record<string, string>
 ): Promise<void> {
-  const uploadResponse = await fetch(uploadUrl, {
-    method: "PUT",
-    headers: uploadHeaders,
-    body: file,
-  });
+  const useSameOriginProxy =
+    typeof window !== "undefined" && isAzureBlobUrl(uploadUrl);
+
+  const uploadResponse = await fetch(
+    useSameOriginProxy ? "/api/blob-upload" : uploadUrl,
+    {
+      method: "PUT",
+      headers: useSameOriginProxy
+        ? { ...uploadHeaders, "x-starix-upload-url": uploadUrl }
+        : uploadHeaders,
+      body: file,
+    }
+  );
 
   const status = uploadResponse.status;
   if (status < 200 || status >= 300) {
@@ -171,8 +204,8 @@ export async function uploadMediaFile(
 
   const contentType = normalizeContentType(uploadFile.type);
   const { upload_url, public_url, upload_headers } = await requestMediaUploadUrl({
-    target,
-    filename: uploadFile.name || file.name,
+    target: resolveStorageTarget(target),
+    filename: safeUploadFilename(uploadFile.name || file.name),
     content_type: contentType,
   });
 

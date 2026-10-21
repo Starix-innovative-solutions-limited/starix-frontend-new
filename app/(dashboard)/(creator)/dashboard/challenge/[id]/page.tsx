@@ -5,12 +5,14 @@ import React, { useMemo, useState } from "react";
 import Image from "next/image";
 import { HiArrowLeft } from "react-icons/hi2";
 import { MdVerified } from "react-icons/md";
-import { FiBarChart2, FiMail, FiClock, FiFileText } from "react-icons/fi";
+import { FiBarChart2, FiMail, FiClock, FiFileText, FiDownload } from "react-icons/fi";
 import { useParams, useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import SubmitEntryModal from "@/components/(creator)/dashboard/SubmitEntryModal";
 import {
   getPartialChallengeMissingFields,
   useGetChallengeById,
+  useToggleChallengeSave,
 } from "@/hooks/useChallenges";
 import { parseApiError } from "@/lib/apiError";
 import { formatCompactNaira } from "@/lib/formatMoney";
@@ -41,6 +43,41 @@ function isVideoUrl(url: string, mediaType?: string) {
   return /\.(mp4|webm|mov)(\?|$)/i.test(url);
 }
 
+function filenameFromMedia(url: string, originalName?: string, fallback = "challenge-media") {
+  if (originalName?.trim()) return originalName.trim();
+  try {
+    const name = decodeURIComponent(new URL(url).pathname.split("/").pop() || "");
+    return name || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+async function downloadFile(url: string, filename: string) {
+  try {
+    const response = await fetch(url, { mode: "cors" });
+    if (!response.ok) throw new Error("Download failed");
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = objectUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(objectUrl);
+  } catch {
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  }
+}
+
 const ChallengeDetailPage = () => {
   const params = useParams();
   const router = useRouter();
@@ -55,6 +92,7 @@ const ChallengeDetailPage = () => {
     isFetching,
     refetch,
   } = useGetChallengeById(challengeId);
+  const saveMutation = useToggleChallengeSave(challengeId);
 
   const isPartial = Boolean(challenge?._partial);
   const parsedError = parseApiError(error, "Unable to load this challenge.");
@@ -239,9 +277,26 @@ const ChallengeDetailPage = () => {
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <button
             type="button"
-            className="whitespace-nowrap rounded-full border border-[#E5E7EB] px-3 py-2.5 text-[13px] font-semibold text-[#1E1F24] transition-all hover:bg-gray-50 sm:px-6 sm:text-[14px]"
+            onClick={async () => {
+              try {
+                const result = await saveMutation.mutateAsync();
+                toast.success(
+                  result.is_saved ? "Challenge saved" : "Challenge removed from saved"
+                );
+              } catch {
+                toast.error("Couldn’t update saved challenges");
+              }
+            }}
+            disabled={saveMutation.isPending || !challengeId}
+            className="whitespace-nowrap rounded-full border border-[#E5E7EB] px-3 py-2.5 text-[13px] font-semibold text-[#1E1F24] transition-all hover:bg-gray-50 sm:px-6 sm:text-[14px] disabled:opacity-60"
           >
-            {challenge.is_saved ? "Saved" : "Save Challenge"}
+            {saveMutation.isPending
+              ? challenge.is_saved
+                ? "Removing..."
+                : "Saving..."
+              : challenge.is_saved
+                ? "Saved"
+                : "Save Challenge"}
           </button>
           <button
             type="button"
@@ -359,10 +414,15 @@ const ChallengeDetailPage = () => {
               {mediaItems.map((item: any, i: number) => {
                 const url = item.media_url as string;
                 const video = isVideoUrl(url, item.media_type);
+                const filename = filenameFromMedia(
+                  url,
+                  item.original_filename,
+                  video ? "challenge-sample.mp4" : "challenge-sample.jpg"
+                );
                 return (
                   <div
                     key={item.id || url || i}
-                    className="relative h-[260px] min-w-[250px] overflow-hidden rounded-[24px] bg-gray-100"
+                    className="group relative h-[260px] min-w-[250px] overflow-hidden rounded-[24px] bg-gray-100"
                   >
                     {video ? (
                       <video
@@ -379,6 +439,21 @@ const ChallengeDetailPage = () => {
                         className="h-full w-full object-cover"
                       />
                     )}
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          await downloadFile(url, filename);
+                        } catch {
+                          toast.error("Couldn’t download this file");
+                        }
+                      }}
+                      className="absolute right-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-semibold text-[#1E1F24] shadow-sm transition hover:bg-white opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-focus-within:opacity-100"
+                      aria-label={`Download ${filename}`}
+                    >
+                      <FiDownload size={14} />
+                      Download
+                    </button>
                   </div>
                 );
               })}
@@ -390,15 +465,26 @@ const ChallengeDetailPage = () => {
           )}
 
           {challenge.brief_document_url ? (
-            <a
-              href={challenge.brief_document_url}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              onClick={async () => {
+                const url = challenge.brief_document_url as string;
+                const filename = filenameFromMedia(
+                  url,
+                  undefined,
+                  "challenge-brief.pdf"
+                );
+                try {
+                  await downloadFile(url, filename);
+                } catch {
+                  toast.error("Couldn’t download the brief");
+                }
+              }}
               className="mt-4 inline-flex items-center gap-2 rounded-full border border-[#E4E7EC] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#1E1F24] transition hover:bg-gray-50"
             >
               <FiFileText size={16} />
-              View brief document
-            </a>
+              Download brief
+            </button>
           ) : null}
         </section>
 

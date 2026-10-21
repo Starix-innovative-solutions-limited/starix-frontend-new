@@ -25,7 +25,7 @@ const BrandDashboardLayout = ({ children }: { children: React.ReactNode }) => {
     /^\/brand\/challenges\/[^/]+/.test(pathname ?? "");
   const canOpenRightSidebar =
     isDashboardView || isProfileView || isChallengeDetailView;
-  const [rightCollapsed, setRightCollapsed] = useState(true);
+  const [rightCollapsed, setRightCollapsed] = useState(!isChallengeDetailView);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isFlushProfileView = pathname === "/brand/profile";
@@ -33,8 +33,8 @@ const BrandDashboardLayout = ({ children }: { children: React.ReactNode }) => {
   // Close mobile drawer on navigation; keep desktop expand/collapse preference
   useEffect(() => {
     setMobileOpen(false);
-    setRightCollapsed(true);
-  }, [pathname]);
+    setRightCollapsed(!isChallengeDetailView);
+  }, [pathname, isChallengeDetailView]);
 
   return (
     <main

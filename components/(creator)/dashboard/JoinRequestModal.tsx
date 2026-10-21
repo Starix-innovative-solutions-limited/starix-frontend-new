@@ -2,7 +2,8 @@
 
 import React from "react";
 import Image from "next/image";
-import { useRequestToJoin } from "@/hooks/useCircles"; // Ensure this is imported
+import toast from "react-hot-toast";
+import { useRequestToJoin } from "@/hooks/useCircles";
 
 interface JoinRequestModalProps {
   isOpen: boolean;
@@ -21,8 +22,7 @@ const JoinRequestModal = ({ isOpen, onClose, circleId, circleName, circleLogo }:
   const handleSend = () => {
   sendRequest(circleId, {
     onSuccess: (data) => {
-      // API returns the request details on success
-      alert(`Successfully requested to join ${data.circle_name}!`);
+      toast.success(`Request sent to join ${data?.circle_name ?? circleName}`);
       onClose();
     },
     onError: (error: any) => {
@@ -36,7 +36,8 @@ const JoinRequestModal = ({ isOpen, onClose, circleId, circleName, circleLogo }:
         message = "This circle is private or inactive and does not accept join requests.";
       }
 
-      alert(message);
+      toast.error(message);
+      onClose();
     }
   });
 };

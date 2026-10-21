@@ -274,7 +274,7 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
           </div>
         )}
 
-        <DashboardSidebarFooter />
+        <DashboardSidebarFooter variant="brand" />
       </div>
     </aside>
   );

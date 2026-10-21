@@ -12,10 +12,14 @@ import { useGetCircles } from "@/hooks/useCircles";
 import { CircleMembersAvatar } from "@/components/(creator)/dashboard/CircleMembersAvatar";
 import NotificationDropdown from "@/components/(creator)/dashboard/NotificationDropdown";
 import Link from "next/link";
+import { useGetMe } from "@/hooks/useAuth";
 
 const CreatorCircles = () => {
   const [page, setPage] = useState(1);
   const { data: circleData, isLoading } = useGetCircles(page);
+  const { data: user } = useGetMe();
+  const profileImage = user?.profile_picture_url?.trim() || null;
+  const userInitial = (user?.first_name || user?.username || "").charAt(0).toUpperCase();
   
   const [searchQuery, setSearchQuery] = useState("");
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
@@ -42,13 +46,19 @@ const CreatorCircles = () => {
         </div>
         <div className="flex items-center gap-4">
           <NotificationDropdown />
-          <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-blue-600 p-0.5 cursor-pointer">
-            <div className="w-full h-full rounded-full bg-gray-200 overflow-hidden relative flex items-center justify-center">
-              <Link href="/creator-circles/circle-profile">
-                <div className="w-full h-full bg-gray-300" />
-              </Link>
-            </div>
-          </div>
+          <Link
+            href="/profile"
+            aria-label="Your profile"
+            className="block w-12 h-12 md:w-14 md:h-14 rounded-full border-2 border-blue-600 p-0.5"
+          >
+            <span className="w-full h-full rounded-full bg-gray-200 overflow-hidden relative flex items-center justify-center">
+              {profileImage ? (
+                <Image src={profileImage} alt="Your profile" fill sizes="56px" className="object-cover" />
+              ) : (
+                <span className="text-[16px] font-semibold text-gray-500">{userInitial}</span>
+              )}
+            </span>
+          </Link>
         </div>
       </header>
 

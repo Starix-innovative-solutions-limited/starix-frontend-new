@@ -3,10 +3,10 @@
 "use client";
 
 import React, { useState, useRef, ChangeEvent, useEffect } from "react";
-import { FiX, FiUploadCloud, FiPlus, FiChevronDown, FiCopy, FiCheck, FiRefreshCcw, FiTrash2 } from "react-icons/fi";
+import { FiX, FiUploadCloud, FiPlus, FiChevronDown, FiCopy, FiCheck, FiRefreshCcw, FiTrash2, FiAlertCircle, FiCheckCircle } from "react-icons/fi";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useCreateCircle } from "@/hooks/useCircles";
+import toast from "react-hot-toast";
+import { useCreateCircle, useSendInvites } from "@/hooks/useCircles";
 import { useUploadMedia } from "@/hooks/useMedia";
 
 type ModalStep = "CREATE" | "SUCCESS" | "INVITE";
@@ -22,10 +22,22 @@ interface Props {
   initialStep?: ModalStep; // 1. Added optional configuration prop
 }
 
+const DEFAULT_INVITES: MemberInvite[] = [
+  { email: "", role: "Admin" },
+  { email: "", role: "Admin" },
+  { email: "", role: "Member" },
+];
+const MAX_CIRCLE_MEMBERS = 7;
+
+function memberOrdinal(position: number) {
+  const suffixes = ["th", "st", "nd", "rd"];
+  const remainder = position % 100;
+  return `${position}${suffixes[(remainder - 20) % 10] || suffixes[remainder] || suffixes[0]}`;
+}
+
 
 
 const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) => {
-  const router = useRouter();
   const [step, setStep] = useState<ModalStep>(initialStep);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
@@ -40,12 +52,14 @@ const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) =
   const [circleName, setCircleName] = useState("");
   const [description, setDescription] = useState("");
   const [privacy, setPrivacy] = useState("Only people with a code or invite can join");
-  const [invites, setInvites] = useState<MemberInvite[]>([
-    { email: "", role: "Admin" },
-    { email: "", role: "Member" },
-  ]);
+  const [invites, setInvites] = useState<MemberInvite[]>(DEFAULT_INVITES);
   const [openDropdownIdx, setOpenDropdownIdx] = useState<number | null>(null);
+  const [inviteSuccess, setInviteSuccess] = useState(false);
+  const [inviteError, setInviteError] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const createdCircleId =
+    createMutation.data?.id || createMutation.data?.circle_id || "";
+  const sendInvitesMutation = useSendInvites(createdCircleId);
 
   const roleOptions: MemberInvite["role"][] = ["Admin", "Member"];
 
@@ -112,12 +126,49 @@ const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) =
 
   if (!isOpen) return null;
 
-  const handleSendInvitesSubmission = () => {
-    router.push("/creator-circles/circle-profile");
+  const resetAndClose = () => {
     onClose();
     setTimeout(() => {
-      setStep("CREATE"); 
+      setStep("CREATE");
+      setInviteSuccess(false);
+      setInviteError(null);
+      setInvites(DEFAULT_INVITES);
     }, 300);
+  };
+
+  const handleSendInvitesSubmission = async () => {
+    setInviteError(null);
+
+    if (inviteSuccess) {
+      resetAndClose();
+      return;
+    }
+
+    const activeInvites = invites.filter((invite) => invite.email.trim() !== "");
+    if (!createdCircleId) {
+      setInviteError("Circle was created, but its ID is missing. Close and try inviting from the circle page.");
+      return;
+    }
+    if (activeInvites.length === 0) {
+      setInviteError("Please enter at least one email address.");
+      return;
+    }
+
+    try {
+      await sendInvitesMutation.mutateAsync(
+        activeInvites.map((invite) => ({
+          email: invite.email.trim(),
+          role: invite.role.toLowerCase() as "member" | "admin",
+        }))
+      );
+      setInviteSuccess(true);
+      toast.success("Invitations sent");
+    } catch (err: unknown) {
+      const detail =
+        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
+        "Failed to send invitations.";
+      setInviteError(typeof detail === "string" ? detail : "Failed to send invitations.");
+    }
   };
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
@@ -148,6 +199,8 @@ const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) =
     const newInvites = [...invites];
     newInvites[index].email = value;
     setInvites(newInvites);
+    setInviteSuccess(false);
+    setInviteError(null);
   };
 
   const updateInviteRole = (index: number, role: MemberInvite["role"]) => {
@@ -160,7 +213,8 @@ const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) =
   };
 
   const addInviteField = () => {
-    if (invites.length < 7) {
+    // Creator is member 1, so invite slots are 2nd–7th.
+    if (invites.length < MAX_CIRCLE_MEMBERS - 1) {
       setInvites([...invites, { email: "", role: "Member" }]);
     }
   };
@@ -180,7 +234,7 @@ const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) =
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-2 bg-black/50 backdrop-blur-sm">
-      <div className={`bg-white w-full ${step === 'SUCCESS' ? 'max-w-[520px]' : 'max-w-[560px]'} rounded-[32px] p-4 md:p-6 shadow-xl transition-all duration-300 overflow-y-auto max-h-[95vh] no-scrollbar`}>
+      <div className={`bg-white w-full ${step === "SUCCESS" ? "max-w-[520px]" : step === "INVITE" ? "max-w-[480px]" : "max-w-[560px]"} ${step === "INVITE" ? "p-6 md:p-8" : "p-4 md:p-6"} rounded-[32px] shadow-xl transition-all duration-300 overflow-y-auto max-h-[95vh] no-scrollbar`}>
         
         {step === "CREATE" && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -328,84 +382,129 @@ const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) =
 
         {step === "INVITE" && (
           <div className="animate-in slide-in-from-right-4 duration-300">
-             <div className="flex justify-between items-start mb-6">
-              <div>
-                <h2 className="text-[24px] font-semibold text-[#1E1F24]">Invite Members</h2>
-                <p className="text-[#62636C] text-[14px] mt-1">Invite creators to your circle and assign roles. You can add up to 7 members.</p>
+            <div className="flex justify-between items-start mb-8">
+              <div className="pr-6">
+                <h2 className="text-[22px] font-semibold text-[#1E1F24] tracking-tight">Invite Members</h2>
+                <p className="text-[#8B8D98] text-[13px] mt-1.5 leading-relaxed">
+                  Invite creators to your circle and assign roles. You can add up to 7 members.
+                </p>
               </div>
-              <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full text-[#9CA3AF]"><FiX size={24} /></button>
+              <button
+                type="button"
+                onClick={resetAndClose}
+                className="p-1 text-[#C1C3CD] hover:text-[#62636C] transition"
+                aria-label="Close"
+              >
+                <FiX size={20} />
+              </button>
             </div>
 
-            <div className="space-y-4">
+            {inviteSuccess && (
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-xl flex items-center gap-2">
+                <FiCheckCircle size={20} />
+                <span className="font-medium">Invitations sent. Recipients will get an email with a join link.</span>
+              </div>
+            )}
+
+            {inviteError && !inviteSuccess && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl flex items-center gap-2">
+                <FiAlertCircle size={16} /> {inviteError}
+              </div>
+            )}
+
+            <div className="space-y-5">
               {invites.map((invite, idx) => (
                 <div
                   key={idx}
                   className={`space-y-2 ${openDropdownIdx === idx ? "relative z-50" : ""}`}
                 >
-                    <label className="text-[12px] font-semibold text-[#1E1F24]">{idx + 1} Creator's email</label>
-                    <div className="relative">
-                        <input
-                          value={invite.email}
-                          onChange={(e) => handleInviteEmailChange(idx, e.target.value)}
-                          placeholder="Enter email address"
-                          className="w-full rounded-xl border py-3 pl-4 pr-28 text-[14px] outline-none focus:border-blue-500"
+                  <label className="text-[13px] font-medium text-[#1E1F24]">
+                    {memberOrdinal(idx + 2)} Creator&apos;s email
+                  </label>
+                  <div className="relative">
+                    <input
+                      value={invite.email}
+                      onChange={(e) => handleInviteEmailChange(idx, e.target.value)}
+                      placeholder="Enter email address"
+                      className="w-full rounded-[14px] border border-[#E8E9EE] py-[14px] pl-4 pr-[108px] text-[14px] text-[#1E1F24] placeholder:text-[#C1C3CD] outline-none focus:border-[#0033FF]"
+                    />
+                    <div
+                      ref={openDropdownIdx === idx ? dropdownRef : undefined}
+                      className="absolute right-3 top-1/2 z-20 -translate-y-1/2"
+                    >
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setOpenDropdownIdx(openDropdownIdx === idx ? null : idx)
+                        }
+                        aria-expanded={openDropdownIdx === idx}
+                        aria-haspopup="listbox"
+                        className="flex items-center gap-1 rounded-full border border-[#E8E9EE] bg-white px-2.5 py-1 text-[12px] font-medium text-[#62636C] hover:bg-gray-50 transition"
+                      >
+                        {invite.role}
+                        <FiChevronDown
+                          size={14}
+                          className={`text-[#8B8D98] transition ${openDropdownIdx === idx ? "rotate-180" : ""}`}
                         />
-                        <div
-                          ref={openDropdownIdx === idx ? dropdownRef : undefined}
-                          className="absolute right-3 top-1/2 z-20 -translate-y-1/2"
-                        >
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setOpenDropdownIdx(openDropdownIdx === idx ? null : idx)
-                            }
-                            aria-expanded={openDropdownIdx === idx}
-                            aria-haspopup="listbox"
-                            className="flex items-center gap-1 rounded-md bg-gray-50 px-2 py-1.5 text-[12px] font-semibold text-gray-500 transition hover:bg-gray-100"
-                          >
-                            {invite.role}{" "}
-                            <FiChevronDown
-                              className={`transition ${openDropdownIdx === idx ? "rotate-180" : ""}`}
-                            />
-                          </button>
+                      </button>
 
-                          {openDropdownIdx === idx && (
-                            <div
-                              role="listbox"
-                              className="absolute right-0 top-[calc(100%+6px)] z-50 min-w-[120px] overflow-hidden rounded-xl border border-[#EEF0F4] bg-white py-1 shadow-lg"
+                      {openDropdownIdx === idx && (
+                        <div
+                          role="listbox"
+                          className="absolute right-0 top-[calc(100%+6px)] z-50 min-w-[120px] overflow-hidden rounded-xl border border-[#EEF0F4] bg-white py-1 shadow-lg"
+                        >
+                          {roleOptions.map((role) => (
+                            <button
+                              key={role}
+                              type="button"
+                              role="option"
+                              aria-selected={invite.role === role}
+                              onClick={() => updateInviteRole(idx, role)}
+                              className={`block w-full px-4 py-2.5 text-left text-[13px] transition hover:bg-[#F8F8FA] ${
+                                invite.role === role
+                                  ? "font-semibold text-[#1E1F24]"
+                                  : "font-normal text-[#62636C]"
+                              }`}
                             >
-                              {roleOptions.map((role) => (
-                                <button
-                                  key={role}
-                                  type="button"
-                                  role="option"
-                                  aria-selected={invite.role === role}
-                                  onClick={() => updateInviteRole(idx, role)}
-                                  className={`block w-full px-4 py-2.5 text-left text-[13px] transition hover:bg-[#F8F8FA] ${
-                                    invite.role === role
-                                      ? "font-semibold text-[#1E1F24]"
-                                      : "font-normal text-[#62636C]"
-                                  }`}
-                                >
-                                  {role}
-                                </button>
-                              ))}
-                            </div>
-                          )}
+                              {role}
+                            </button>
+                          ))}
                         </div>
+                      )}
                     </div>
+                  </div>
                 </div>
               ))}
-              
-              <button onClick={addInviteField} className="w-full py-3 border border-dashed rounded-xl font-semibold text-sm text-gray-500 flex items-center justify-center gap-2">
-                <FiPlus /> Add User
-              </button>
 
-              <button 
-                onClick={handleSendInvitesSubmission} 
-                className="w-full mt-8 py-4 bg-[#0047FF] text-white rounded-full font-semibold transition-colors hover:bg-blue-700"
+              {invites.length < MAX_CIRCLE_MEMBERS - 1 && (
+                <button
+                  type="button"
+                  onClick={addInviteField}
+                  className="relative w-full py-[13px] border border-[#E8E9EE] rounded-full text-[14px] font-medium text-[#1E1F24] hover:bg-gray-50 transition"
+                >
+                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[18px] leading-none text-[#8B8D98]">+</span>
+                  Add User
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={handleSendInvitesSubmission}
+                disabled={
+                  sendInvitesMutation.isPending ||
+                  (!inviteSuccess && !invites.some((invite) => invite.email.trim()))
+                }
+                className={`w-full mt-3 py-4 rounded-full font-semibold text-[15px] transition-colors ${
+                  inviteSuccess || invites.some((invite) => invite.email.trim())
+                    ? "bg-[#0033FF] text-white hover:bg-blue-700"
+                    : "bg-[#8EAAFF] text-white cursor-not-allowed"
+                }`}
               >
-                Send Invites
+                {sendInvitesMutation.isPending
+                  ? "Sending..."
+                  : inviteSuccess
+                    ? "Done"
+                    : "Send Invites"}
               </button>
             </div>
           </div>

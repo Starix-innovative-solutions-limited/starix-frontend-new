@@ -3,36 +3,35 @@
 import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FiSearch, FiArrowLeft } from "react-icons/fi";
-import { useGetOpenCircles, useRequestToJoin } from "@/hooks/useCircles";
+import { useGetOpenCircles, type DiscoverableCircle } from "@/hooks/useCircles";
 import JoinRequestModal from "@/components/(creator)/dashboard/JoinRequestModal";
-import JoinCircleModal from "@/components/(creator)/dashboard/JoinCircleModal";
+import CircleMembershipButton from "@/components/(creator)/dashboard/CircleMembershipButton";
 
 export default function ExploreCircles() {
-  const { data: circles = [], isLoading } = useGetOpenCircles();
-  
+  const router = useRouter();
+  const { data: circles, isLoading } = useGetOpenCircles();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [isJoinRequestModalOpen, setIsJoinRequestModalOpen] = useState(false);
-  const [isPrivateModalOpen, setIsPrivateModalOpen] = useState(false);
-  const [selectedCircle, setSelectedCircle] = useState<any>(null);
+  const [selectedCircle, setSelectedCircle] = useState<DiscoverableCircle | null>(null);
 
-  const joinRequestMutation = useRequestToJoin();
-
-  // Filter circles based on search input
   const filteredCircles = useMemo(() => {
-    return circles.filter((c: any) => 
-      c.name?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const query = searchQuery.trim().toLowerCase();
+    return circles.filter((c) => c.name?.toLowerCase().includes(query));
   }, [circles, searchQuery]);
 
-  const handleCircleClick = (circle: any) => {
+  const openJoinRequest = (circle: DiscoverableCircle) => {
     setSelectedCircle(circle);
-    
-    // logic: if public, auto-join; if private, show the private modal
-    if (circle.is_public) {
-      joinRequestMutation.mutate(circle.circle_id); 
-    } else {
-      setIsPrivateModalOpen(true);
+    setIsJoinRequestModalOpen(true);
+  };
+
+  const handleCircleClick = (circle: DiscoverableCircle) => {
+    if (circle.membership === "member") {
+      router.push(`/creator-circles/${circle.circle_id}/circle-profile`);
+    } else if (circle.membership === "none") {
+      openJoinRequest(circle);
     }
   };
 
@@ -68,22 +67,24 @@ export default function ExploreCircles() {
         {isLoading ? (
           <p className="text-sm text-gray-400">Loading circles...</p>
         ) : filteredCircles.length > 0 ? (
-          filteredCircles.map((circle: any) => (
-            <div 
-              key={circle.circle_id} 
-              onClick={() => handleCircleClick(circle)} 
-              className="group cursor-pointer transition-transform"
+          filteredCircles.map((circle) => (
+            <div
+              key={circle.circle_id}
+              onClick={() => handleCircleClick(circle)}
+              className={`group transition-transform ${
+                circle.membership === "requested" ? "cursor-default" : "cursor-pointer"
+              }`}
             >
               <div className="relative aspect-square w-full rounded-[32px] overflow-hidden">
-                <Image 
-                  src={circle.profile_picture_url || "/default-circle.webp"} 
-                  alt={circle.name || "Circle"} 
-                  fill 
+                <Image
+                  src={circle.profile_picture_url || "/default-circle.webp"}
+                  alt={circle.name || "Circle"}
+                  fill
                   className="object-cover z-10"
                 />
                 <div className="absolute bottom-4 right-4 z-20 w-7 h-7 bg-[#C9E9FF] border-[1px] border-white rounded-full flex items-center justify-center">
                   <span className="text-[#050E81] text-[12px] font-semibold">
-                    {circle.members?.length || 0}
+                    {circle.member_count}
                   </span>
                 </div>
               </div>
@@ -93,12 +94,14 @@ export default function ExploreCircles() {
                   {circle.name}
                 </h3>
                 <p className="text-[12px] text-[#747682] font-medium">
-                  Ranked #{circle.global_rank || "—"} Globally
+                  Ranked #{circle.global_rank ?? "—"} Globally
                 </p>
                 <p className="text-[12px] text-[#747682] font-medium">
-                  {circle.members?.length || 0} Members
+                  {circle.member_count} Members
                 </p>
               </div>
+
+              <CircleMembershipButton circle={circle} onJoin={openJoinRequest} className="mt-3 w-full" />
             </div>
           ))
         ) : (
@@ -106,21 +109,12 @@ export default function ExploreCircles() {
         )}
       </div>
 
-      {/* MODALS */}
-      <JoinCircleModal 
-        isOpen={isPrivateModalOpen} 
-        onClose={() => setIsPrivateModalOpen(false)} 
-        circleId={selectedCircle?.circle_id}
-        circleName={selectedCircle?.name}
-        circleLogo={selectedCircle?.profile_picture_url}
-      />
-
-      <JoinRequestModal 
-        isOpen={isJoinRequestModalOpen} 
-        onClose={() => setIsJoinRequestModalOpen(false)} 
-        circleId={selectedCircle?.circle_id} 
-        circleName={selectedCircle?.name}    
-        circleLogo={selectedCircle?.profile_picture_url} 
+      <JoinRequestModal
+        isOpen={isJoinRequestModalOpen}
+        onClose={() => setIsJoinRequestModalOpen(false)}
+        circleId={selectedCircle?.circle_id ?? ""}
+        circleName={selectedCircle?.name ?? ""}
+        circleLogo={selectedCircle?.profile_picture_url ?? undefined}
       />
     </main>
   );

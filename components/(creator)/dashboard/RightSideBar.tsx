@@ -10,18 +10,25 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import WithdrawModal from "./WithdrawModal";
 import JoinRequestModal from "./JoinRequestModal";
-import JoinCircleModal from "./JoinCircleModal";
+import CircleMembershipButton from "./CircleMembershipButton";
 import ShareScoreModal from "./ShareScoreModal";
 import { useGetMe } from "@/hooks/useAuth";
 import { useGetMyStarixScore, useGetGlobalLeaderboard } from "@/hooks/useProfile";
 import { useGetWithdrawalAccount, useGetEarningsSummary } from "@/hooks/useWallet";
-import { useGetOpenCircles, useRequestToJoin, useGetLeaderboard , useGetEarningDetail, useGetRecommendedChallenges} from "@/hooks/useCircles";
+import {
+  useGetOpenCircles,
+  useGetLeaderboard,
+  useGetEarningDetail,
+  useGetRecommendedChallenges,
+  type DiscoverableCircle,
+} from "@/hooks/useCircles";
 import {
   useGetRecommendedChallenges as useGetCreatorRecommendedChallenges,
   useGetTrendingChallenges as useGetCreatorTrendingChallenges,
   useGetChallengeById,
   useGetChallengeLeaderboard,
   type ChallengeItem,
+  type ChallengeLeaderboardEntry,
 } from "@/hooks/useChallenges";
 import BrandAvatar from "@/components/(brand)/BrandAvatar";
 import DashboardSidebarFooter from "@/components/dashboard/DashboardSidebarFooter";
@@ -106,12 +113,11 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
 
   
 
-  const { data: openCircles = [] } = useGetOpenCircles();
-  const joinRequestMutation = useRequestToJoin();
+  const { data: openCircles } = useGetOpenCircles();
+  const sidebarCircles = openCircles.slice(0, 5);
 
   const [isJoinRequestModalOpen, setIsJoinRequestModalOpen] = useState(false);
-  const [isPrivateModalOpen, setIsPrivateModalOpen] = useState(false);
-  const [selectedCircle, setSelectedCircle] = useState<any>(null);
+  const [selectedCircle, setSelectedCircle] = useState<DiscoverableCircle | null>(null);
 
   const { data: scoreData } = useGetMyStarixScore();
   const { data: leaderboardData } = useGetGlobalLeaderboard(currentUsername);
@@ -201,13 +207,9 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
     userProfile?.username ||
     "Creator";
 
-  const handleJoinClick = (circle: any) => {
+  const handleJoinClick = (circle: DiscoverableCircle) => {
     setSelectedCircle(circle);
-    if (circle.is_public) {
-      joinRequestMutation.mutate(circle.circle_id);
-    } else {
-      setIsPrivateModalOpen(true);
-    }
+    setIsJoinRequestModalOpen(true);
   };
 
   const activeStarixScore = scoreData?.starix_score ?? 0;
@@ -265,21 +267,13 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
     const entries = challengeLeaderboard?.entries ?? [];
     const viewerId = (userProfile as any)?.id as string | undefined;
 
-    const mapEntry = (entry: {
-      rank: number;
-      user_id?: string;
-      username: string;
-      profile_picture_url?: string | null;
-      challenge_score?: number | null;
-      final_score?: number | null;
-      rank_direction?: string;
-    }) => {
+    const mapEntry = (entry: ChallengeLeaderboardEntry) => {
       const isUser =
-        entry.username === currentUsername ||
+        (Boolean(entry.username) && entry.username === currentUsername) ||
         (viewerId ? entry.user_id === viewerId : false);
       return {
         id: entry.rank,
-        name: entry.username || "Creator",
+        name: entry.display_name || entry.username || "Creator",
         score: entry.final_score ?? entry.challenge_score ?? 0,
         avatar: entry.profile_picture_url?.trim() || null,
         isUser,
@@ -591,26 +585,24 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
               </Link>
             </div>
             <div className="p-2 space-y-1">
-              {openCircles && openCircles.length > 0 ? (
-                openCircles.map((circle: any) => (
-                  <div key={circle.circle_id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-2xl transition-all">
-                    <div className="flex items-center gap-3">
+              {sidebarCircles.length > 0 ? (
+                sidebarCircles.map((circle) => (
+                  <div key={circle.circle_id} className="flex items-center justify-between gap-2 p-3 hover:bg-gray-50 rounded-2xl transition-all">
+                    <div className="flex min-w-0 items-center gap-3">
                       <div className="relative w-12 h-12 shrink-0">
                         <Image src={circle.profile_picture_url || "/circle.webp"} fill alt={circle.name} className="object-cover rounded-full" />
                         <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-[#C9E9FF] border-2 border-white rounded-full flex items-center justify-center">
-                          <span className="text-[#050E81] text-[12px] font-semibold leading-none">{circle.members?.length || 0}</span>
+                          <span className="text-[#050E81] text-[12px] font-semibold leading-none">{circle.member_count}</span>
                         </div>
                       </div>
-                      <div>
-                        <h5 className="text-[14px] font-semibold text-[#62636C] leading-tight">{circle.name}</h5>
+                      <div className="min-w-0">
+                        <h5 className="truncate text-[14px] font-semibold text-[#62636C] leading-tight">{circle.name}</h5>
                         <p className="text-[12px] text-[#747682] font-medium mt-0.5">
-                          {circle.members?.length || 0} Members <span className="text-[#D9D9D9] mx-1">•</span> Ranked #{circle.global_rank} Globally
+                          {circle.member_count} Members <span className="text-[#D9D9D9] mx-1">•</span> Ranked #{circle.global_rank ?? "—"} Globally
                         </p>
                       </div>
                     </div>
-                    <button onClick={() => handleJoinClick(circle)} className="px-2 py-2 border border-[#8B8D98] rounded-full text-[12px] font-medium text-[#1E1F24] hover:bg-white hover:border-blue-600 hover:text-blue-600 transition-all">
-                      Join
-                    </button>
+                    <CircleMembershipButton circle={circle} onJoin={handleJoinClick} className="shrink-0" />
                   </div>
                 ))
               ) : (
@@ -796,7 +788,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
         ) : isChallengeView ? (
           /* ── Individual challenge view ── */
           <div className="space-y-5">
-            <div className="bg-[#F5F6F8] rounded-[24px] p-5 relative overflow-hidden min-h-[168px]">
+            <div className="bg-[#F5FBFF] rounded-[24px] p-5 relative overflow-hidden min-h-[168px]">
               <p className="text-[#1E1F24] text-[14px] font-medium">Prize Pool</p>
               <h3 className="text-[#0047FF] text-[28px] font-semibold mt-2 leading-none tracking-tight">
                 {(challengeDetail as any)?.prize_pool_display ||
@@ -814,7 +806,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                 </span>{" "}
                 for this challenge.
               </p>
-              <div className="pointer-events-none absolute -bottom-6 -right-4 h-[140px] w-[140px]">
+              <div className="pointer-events-none absolute -bottom-12 -right-[25%] h-[100%] w-[100%]">
                 <Image
                   src="/gem.webp"
                   alt="Prize"
@@ -1096,19 +1088,12 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
         }
       />
       <WithdrawModal isOpen={isWithdrawModalOpen} onClose={() => setIsWithdrawModalOpen(false)} balance={plainBalanceValue} />
-      <JoinCircleModal
-        isOpen={isPrivateModalOpen}
-        onClose={() => setIsPrivateModalOpen(false)}
-        circleId={selectedCircle?.circle_id}
-        circleName={selectedCircle?.name}
-        circleLogo={selectedCircle?.profile_picture_url}
-      />
       <JoinRequestModal
         isOpen={isJoinRequestModalOpen}
         onClose={() => setIsJoinRequestModalOpen(false)}
-        circleId={selectedCircle?.circle_id}
-        circleName={selectedCircle?.name}
-        circleLogo={selectedCircle?.profile_picture_url}
+        circleId={selectedCircle?.circle_id ?? ""}
+        circleName={selectedCircle?.name ?? ""}
+        circleLogo={selectedCircle?.profile_picture_url ?? undefined}
       />
     </aside>
   );

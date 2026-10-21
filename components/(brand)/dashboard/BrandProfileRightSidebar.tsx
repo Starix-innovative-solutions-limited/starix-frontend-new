@@ -7,7 +7,7 @@ import BrandAvatar from "@/components/(brand)/BrandAvatar";
 import {
   type ChallengeItem,
   useGetBrandChallenge,
-  useGetChallengeLeaderboard,
+  useGetBrandChallengeLeaderboard,
 } from "@/hooks/useChallenges";
 
 type BrandProfileRightSidebarProps = {
@@ -81,10 +81,9 @@ export default function BrandProfileRightSidebar({
     enabled: Boolean(challenge?.id),
   });
   const { data: leaderboard, isLoading: isLeaderboardLoading } =
-    useGetChallengeLeaderboard(
-    challenge?.id,
-    { enabled: Boolean(challenge?.id) }
-  );
+    useGetBrandChallengeLeaderboard(challenge?.id, {
+      enabled: Boolean(challenge?.id),
+    });
 
   if (isChallengesLoading) {
     return (
@@ -177,13 +176,20 @@ export default function BrandProfileRightSidebar({
               entries.map((entry, index) => {
                 const score =
                   entry.final_score ?? entry.challenge_score ?? 0;
+                const name =
+                  entry.display_name || entry.username || "Creator";
                 return (
                   <div
-                    key={entry.user_id}
+                    key={
+                      entry.submission_id ||
+                      entry.entrant_id ||
+                      entry.user_id ||
+                      `${entry.rank}-${index}`
+                    }
                     className="grid grid-cols-[auto_auto_minmax(0,1fr)_auto] items-center gap-3 py-4"
                   >
                     <BrandAvatar
-                      name={entry.username}
+                      name={name}
                       src={entry.profile_picture_url}
                       className="h-10 w-10 border-2 border-[#83B5FF]"
                       letterClassName="text-xs"
@@ -195,7 +201,7 @@ export default function BrandProfileRightSidebar({
                       {index === 0 && (
                         <span className="mr-2 text-[#FFCC00]">★</span>
                       )}
-                      {entry.username || "Creator"}
+                      {name}
                     </span>
                     <div className="flex items-center gap-2">
                       {entry.rank_direction === "up" ? (

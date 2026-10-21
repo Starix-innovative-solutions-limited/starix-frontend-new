@@ -2,886 +2,651 @@
 
 import React, { useMemo, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
   CartesianGrid,
-  Cell,
   Line,
   LineChart,
   PolarAngleAxis,
-  PolarRadiusAxis,
   PolarGrid,
+  PolarRadiusAxis,
   Radar,
   RadarChart,
-  RadialBar,
-  RadialBarChart,
   ResponsiveContainer,
   XAxis,
   YAxis,
-  LabelList,
 } from "recharts";
-import Link from "next/link";
+import { ArrowRight, ArrowUp, ArrowDown, Bell, Plus, Minus, Search } from "lucide-react";
 import { useGetMe } from "@/hooks/useAuth";
-import { FiBell } from "react-icons/fi";
-import { useEffect, useRef } from "react";
-import { useEarnings, useRank, useChallenges, useEngagement, useStarixScore, 
-  EngagementData, useEngagementTrend, useTotalEngagements, useProfileClicks } from "@/hooks/useAnalytics";
+import {
+  useEarnings,
+  useRank,
+  useChallenges,
+  useEngagement,
+  useStarixScore,
+  useEngagementTrend,
+  useTotalEngagements,
+  useProfileClicks,
+  type EngagementData,
+} from "@/hooks/useAnalytics";
 
 type PlatformKey = "All" | "Instagram" | "TikTok" | "YouTube";
+type Comparison = { label?: string; percentage: number | null; positive: boolean } | null | undefined;
+type Point = { x: string; y: number | null };
 
-const previewRankPoints = [
-  { x: "Mon", y: 42 },
-  { x: "Tue", y: 38 },
-  { x: "Wed", y: 35 },
-  { x: "Thu", y: 31 },
-  { x: "Fri", y: 28 },
-  { x: "Sat", y: 24 },
-  { x: "Sun", y: 22 },
-];
+const PLATFORMS = ["instagram", "tiktok", "youtube"] as const;
 
-const previewTrendPoints = [
-  { x: "Jan", y: 120 },
-  { x: "Feb", y: 180 },
-  { x: "Mar", y: 150 },
-  { x: "Apr", y: 240 },
-  { x: "May", y: 310 },
-  { x: "Jun", y: 420 },
-  { x: "Jul", y: 380 },
-];
-
-const hasVisiblePoints = (points?: { y: number | null }[]) =>
-  !!points?.some((point) => typeof point.y === "number" && point.y > 0);
-
-
-
-const PLATFORM_DATA: Record<
-  PlatformKey,
-  {
-    followers: string;
-    likes: string;
-    views: string;
-    comments: string;
-    score: number;
-    totalEngagements: string;
-    profileClicks: string;
-    topAccount: string;
-    changeText: string;
-    trend: { name: string; value: number }[];
-    radar: { metric: string; instagram: number; tiktok: number; youtube: number }[];
-  }
+const PLATFORM_META: Record<
+  (typeof PLATFORMS)[number],
+  { label: string; scoreColor: string; engagementColor: string }
 > = {
-  All: {
-    followers: "800,000",
-    likes: "800,000",
-    views: "800,000",
-    comments: "800,000",
-    score: 82,
-    totalEngagements: "257,378",
-    profileClicks: "1,248",
-    topAccount: "Instagram",
-    changeText: "+ 12% higher than last month",
-    trend: [
-      { name: "Jan", value: 180 },
-      { name: "Feb", value: 220 },
-      { name: "Mar", value: 205 },
-      { name: "Apr", value: 215 },
-      { name: "May", value: 310 },
-      { name: "Jun", value: 330 },
-      { name: "Jul", value: 285 },
-    ],
-    radar: [
-      { metric: "Engagement", instagram: 90, tiktok: 62, youtube: 74 },
-      { metric: "Retention", instagram: 76, tiktok: 55, youtube: 68 },
-      { metric: "Quality", instagram: 82, tiktok: 68, youtube: 75 },
-      { metric: "Authenticity", instagram: 70, tiktok: 80, youtube: 64 },
-      { metric: "Reach", instagram: 78, tiktok: 72, youtube: 83 },
-      { metric: "Liveness", instagram: 84, tiktok: 60, youtube: 72 },
-    ],
-  },
-  Instagram: {
-    followers: "234,000",
-    likes: "118,000",
-    views: "620,000",
-    comments: "42,000",
-    score: 82,
-    totalEngagements: "234k",
-    profileClicks: "1,248",
-    topAccount: "Instagram",
-    changeText: "+ 29% higher than last month",
-    trend: [
-      { name: "Jan", value: 120 },
-      { name: "Feb", value: 160 },
-      { name: "Mar", value: 145 },
-      { name: "Apr", value: 170 },
-      { name: "May", value: 260 },
-      { name: "Jun", value: 280 },
-      { name: "Jul", value: 246 },
-    ],
-    radar: [
-      { metric: "Engagement", instagram: 90, tiktok: 40, youtube: 45 },
-      { metric: "Retention", instagram: 76, tiktok: 38, youtube: 42 },
-      { metric: "Quality", instagram: 82, tiktok: 36, youtube: 46 },
-      { metric: "Authenticity", instagram: 70, tiktok: 35, youtube: 40 },
-      { metric: "Reach", instagram: 78, tiktok: 42, youtube: 45 },
-      { metric: "Liveness", instagram: 84, tiktok: 39, youtube: 43 },
-    ],
-  },
-  TikTok: {
-    followers: "310,000",
-    likes: "1.2M",
-    views: "2.8M",
-    comments: "96,000",
-    score: 65,
-    totalEngagements: "1.2M",
-    profileClicks: "892",
-    topAccount: "TikTok",
-    changeText: "+ 15% higher than last month",
-    trend: [
-      { name: "Jan", value: 140 },
-      { name: "Feb", value: 190 },
-      { name: "Mar", value: 210 },
-      { name: "Apr", value: 205 },
-      { name: "May", value: 260 },
-      { name: "Jun", value: 300 },
-      { name: "Jul", value: 330 },
-    ],
-    radar: [
-      { metric: "Engagement", instagram: 45, tiktok: 72, youtube: 42 },
-      { metric: "Retention", instagram: 40, tiktok: 66, youtube: 44 },
-      { metric: "Quality", instagram: 42, tiktok: 65, youtube: 45 },
-      { metric: "Authenticity", instagram: 39, tiktok: 80, youtube: 43 },
-      { metric: "Reach", instagram: 44, tiktok: 88, youtube: 48 },
-      { metric: "Liveness", instagram: 41, tiktok: 70, youtube: 40 },
-    ],
-  },
-  YouTube: {
-    followers: "450,000",
-    likes: "640,000",
-    views: "1.9M",
-    comments: "58,000",
-    score: 76,
-    totalEngagements: "450k",
-    profileClicks: "1,036",
-    topAccount: "YouTube",
-    changeText: "+ 8% higher than last month",
-    trend: [
-      { name: "Jan", value: 100 },
-      { name: "Feb", value: 130 },
-      { name: "Mar", value: 165 },
-      { name: "Apr", value: 160 },
-      { name: "May", value: 220 },
-      { name: "Jun", value: 250 },
-      { name: "Jul", value: 238 },
-    ],
-    radar: [
-      { metric: "Engagement", instagram: 42, tiktok: 40, youtube: 76 },
-      { metric: "Retention", instagram: 40, tiktok: 44, youtube: 84 },
-      { metric: "Quality", instagram: 46, tiktok: 45, youtube: 75 },
-      { metric: "Authenticity", instagram: 40, tiktok: 43, youtube: 78 },
-      { metric: "Reach", instagram: 45, tiktok: 48, youtube: 72 },
-      { metric: "Liveness", instagram: 43, tiktok: 40, youtube: 68 },
-    ],
-  },
+  instagram: { label: "Instagram", scoreColor: "#21AE5F", engagementColor: "#8ED6AE" },
+  tiktok: { label: "TikTok", scoreColor: "#FB6612", engagementColor: "#FFB586" },
+  youtube: { label: "YouTube", scoreColor: "#B72ADB", engagementColor: "#DB8FF1" },
 };
 
+const RADAR_ORDER = ["engagement", "retention", "quality", "authenticity", "reach", "liveness"];
 
-
-const miniTrendData = [
-  { name: "Mon", value: 20 },
-  { name: "Tue", value: 40 },
-  { name: "Wed", value: 36 },
-  { name: "Thu", value: 44 },
-  { name: "Fri", value: 86 },
-  { name: "Sat", value: 92 },
-  { name: "Sun", value: 78 },
+const previewRadar: Record<string, number>[] = [
+  { instagram: 80, tiktok: 48, youtube: 56 },
+  { instagram: 86, tiktok: 40, youtube: 72 },
+  { instagram: 80, tiktok: 46, youtube: 74 },
+  { instagram: 62, tiktok: 56, youtube: 56 },
+  { instagram: 44, tiktok: 86, youtube: 60 },
+  { instagram: 50, tiktok: 76, youtube: 54 },
 ];
 
-const activeChallenges = [
-  { name: "Ranked", value: 21, color: "#D9A6E8" },
-  { name: "Under Review", value: 15, color: "#F4E7A4" },
-  { name: "Not Qualified", value: 9, color: "#F9B4B4" },
+const previewRankPoints: Point[] = [
+  { x: "Mon", y: 40 },
+  { x: "Tue", y: 34 },
+  { x: "Wed", y: 36 },
+  { x: "Thur", y: 33 },
+  { x: "Fri", y: 22 },
+  { x: "Sat", y: 21 },
+  { x: "Sun", y: 23 },
 ];
 
-const completedChallenges = [
-  { name: "Not Qualified", value: 21, color: "#FFB7C5" },
-  { name: "Ranked", value: 21, color: "#D7A3E8" },
-  { name: "Finalist", value: 32, color: "#A9D3ED" },
-  { name: "Winner", value: 62, color: "#9FDCBE" },
+const previewTrendPoints: Point[] = [
+  { x: "Jan", y: 120 },
+  { x: "Feb", y: 150 },
+  { x: "Mar", y: 138 },
+  { x: "Apr", y: 140 },
+  { x: "May", y: 205 },
+  { x: "Jun", y: 196 },
+  { x: "Jul", y: 168 },
 ];
 
-const scoreBreakdown = [
-  { name: "Instagram", value: 82, color: "#46C989" },
-  { name: "TikTok", value: 65, color: "#FF8A3D" },
-  { name: "YouTube", value: 76, color: "#B24ADB" },
-];
+const previewSparkline: Point[] = [18, 21, 20, 24, 37, 43, 42].map((y, i) => ({ x: String(i), y }));
+
+const activeChallengeBars = [
+  { key: "ranked_count", name: "Ranked", color: "#E8BDF2" },
+  { key: "under_review_count", name: "Under Review", color: "#FFF09D" },
+  { key: "not_qualified_count", name: "Not Qualified", color: "#FFAFA4" },
+] as const;
+
+const hasVisiblePoints = (points?: Point[] | null) =>
+  !!points?.some((point) => typeof point.y === "number" && point.y > 0);
+
+const formatNumber = (value?: number | null) =>
+  typeof value === "number" ? Math.round(value).toLocaleString("en-US") : "0";
+
+const formatCompact = (value: number) => {
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+  if (value >= 1_000) return `${Math.round(value / 1_000)}k`;
+  return String(value);
+};
+
+const formatCurrency = (minor: number) =>
+  (minor / 100).toLocaleString("en-NG", { style: "currency", currency: "NGN" });
+
+/** Keeps the line inside the vertical band the design places it in. */
+const paddedDomain = (points: Point[], topPad: number, bottomPad: number) => {
+  const values = points.map((p) => p.y).filter((y): y is number => typeof y === "number");
+  if (!values.length) return [0, 1] as [number, number];
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const span = max - min || Math.max(Math.abs(max), 1);
+  const total = span / (1 - topPad - bottomPad);
+  return [min - total * bottomPad, max + total * topPad] as [number, number];
+};
 
 const AnalyticsPage = () => {
   const [activePlatform, setActivePlatform] = useState<PlatformKey>("All");
-  const platform = PLATFORM_DATA[activePlatform];
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-  const { data: trendData, isLoading: trendLoading } = useEngagementTrend();
-  const { data: clicks } = useProfileClicks();
 
   const { data: user } = useGetMe();
+  const { data: earnings, isLoading: earningsLoading } = useEarnings();
+  const { data: rank, isLoading: rankLoading } = useRank();
+  const { data: challenges } = useChallenges();
+  const { data: engagement } = useEngagement();
+  const { data: scoreData } = useStarixScore();
+  const { data: trendData } = useEngagementTrend();
+  const { data: totalEngagements } = useTotalEngagements();
+  const { data: clicks } = useProfileClicks();
+
   const profileImage = user?.profile_picture_url?.trim() || null;
+
+  const rankPoints = useMemo(() => {
+    const points = rank?.weekly_chart?.points;
+    return hasVisiblePoints(points) ? points! : previewRankPoints;
+  }, [rank]);
 
   const trendPoints = useMemo(() => {
     const points = trendData?.monthly_chart.points;
-  
-    if (points?.some((point) => typeof point.y === "number" && point.y > 0)) {
-      return points;
-    }
-  
-    return previewTrendPoints;
+    return hasVisiblePoints(points) ? points! : previewTrendPoints;
   }, [trendData]);
 
-const { data: totalEngagements } = useTotalEngagements();
-const { data: rank, isLoading: rankLoading } = useRank();
+  const activeEngagement = useMemo(() => {
+    if (!engagement) return null;
+    return (engagement[activePlatform.toLowerCase()] as EngagementData | null) ?? engagement.overall;
+  }, [engagement, activePlatform]);
 
-const rankChartPoints = useMemo(() => {
-  const points = rank?.weekly_chart?.points;
+  const engagementSparkline = useMemo(() => {
+    const points = activeEngagement?.monthly_chart?.points;
+    return hasVisiblePoints(points) ? points! : previewSparkline;
+  }, [activeEngagement]);
 
-  if (points?.some((point) => typeof point.y === "number" && point.y > 0)) {
-    return points;
-  }
-
-  return previewRankPoints;
-}, [rank]);
-
-const formatCompact = (val: number) => {
-  if (val >= 1000000) return (val / 1000000).toFixed(1) + "M";
-  if (val >= 1000) return (val / 1000).toFixed(0) + "k";
-  return val.toString();
-};
-
- 
-
-  const getDeltaDisplay = (direction: string, delta: number) => {
-    if (direction === "new") return "New";
-    if (direction === "flat") return "Flat";
-    // API says: "up" means rank improved (lower number), 
-    // so an "up" rank usually looks like +delta or green
-    return `${direction === "up" ? "+" : "-"}${delta}`;
-  };
-
-  const { data: engagement } = useEngagement();
-  const ComparisonBadge = ({ comparison }: { 
-  comparison?: { percentage: number | null; positive: boolean } | null 
-}) => {
-  if (!comparison || comparison.percentage === null) {
-    return <p className="mt-1 text-[12px] font-medium text-[#747682]"> — </p>;
-  } 
-  return (
-    <p className={`mt-1 text-[12px] font-medium ${comparison.positive ? "text-[#14A66B]" : "text-red-500"}`}>
-      {comparison.positive ? "+" : "-"}{comparison.percentage}% higher than last month
-    </p>
+  const radarSeries = useMemo(
+    () =>
+      scoreData?.spider.series?.length
+        ? scoreData.spider.series.map((s) => s.platform.toLowerCase())
+        : [...PLATFORMS],
+    [scoreData]
   );
-};
 
-// Resolve active platform data dynamically
-const activeEngagement = useMemo(() => {
-  if (!engagement) return null;
-  
-  const key = activePlatform.toLowerCase();
+  const radarData = useMemo(() => {
+    const dimensions = scoreData?.spider.dimensions ?? [];
+    const series = scoreData?.spider.series ?? [];
 
-  return (engagement[key] as EngagementData) ?? engagement.overall;
-}, [engagement, activePlatform]);
-
-  const { data: challenges} = useChallenges();
-  const activeData = useMemo(() => {
-
-    if (!challenges || challenges.active.total_count === 0) return activeChallenges;
-
-  return [
-
-    { name: "Ranked", value: challenges.active.ranked_count, color: "#D9A6E8" },
-
-    { name: "Under Review", value: challenges.active.under_review_count, color: "#F4E7A4" },
-
-    { name: "Not Qualified", value: challenges.active.not_qualified_count, color: "#F9B4B4" },
-
-  ];
-
-}, [challenges]);
-
-const { data: scoreData } = useStarixScore();
-
-// Transform spider data for Recharts
-const radarData = useMemo(() => {
-  const dimensions = scoreData?.spider.dimensions ?? 
-    ["engagement", "retention", "quality", "reach", "liveness", "authenticity"];
-  
-  if (!scoreData?.spider.series || scoreData.spider.series.length === 0) {
-    return dimensions.map(dim => ({ 
-        metric: dim.charAt(0).toUpperCase() + dim.slice(1), 
-        placeholder: 0 
-    }));
-  }
-
-  return dimensions.map((dim, index) => {
-    const row: any = { metric: dim.charAt(0).toUpperCase() + dim.slice(1) };
-    scoreData.spider.series.forEach(s => {
-      row[s.platform] = s.values[index] ?? 0;
-    });
-    return row;
-  });
-}, [scoreData]);
-
-const radarDisplayData =
-  scoreData?.spider.series?.length ? radarData : platform.radar;
-
-const completedData = useMemo(() => {
-  // If challenges data hasn't loaded yet, return empty buckets with 0 values
-  // This prevents the chart from flickering or throwing errors
-  if (!challenges || challenges.completed.total_count === 0) return completedChallenges;
-  return [
-    { 
-      name: "Not Qualified", 
-      value: challenges.completed.not_qualified_count ?? 0, 
-      color: "#FFB7C5" 
-    },
-    { 
-      name: "Ranked", 
-      value: challenges.completed.ranked_count ?? 0, 
-      color: "#D7A3E8" 
-    },
-    { 
-      name: "Finalist", 
-      value: 0, 
-      color: "#A9D3ED" 
-    },
-    { 
-      name: "Winner", 
-      value: 0, 
-      color: "#9FDCBE" 
-    },
-  ];
-}, [challenges]);
-
-  const { data: earnings, isLoading } = useEarnings();
-
-
-  const formatCurrency = (minor: number) => {
-  return (minor / 100).toLocaleString("en-NG", {
-    style: "currency",
-    currency: "NGN",
-  });
-};
-
-  const notificationRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        notificationRef.current && 
-        !notificationRef.current.contains(event.target as Node)
-      ) {
-        setIsNotificationOpen(false);
+    return RADAR_ORDER.map((dimension, orderIndex) => {
+      const row: Record<string, string | number> = {
+        metric: dimension.charAt(0).toUpperCase() + dimension.slice(1),
+        full: 100,
+      };
+      if (series.length) {
+        const index = dimensions.indexOf(dimension);
+        series.forEach((s) => {
+          row[s.platform.toLowerCase()] = index >= 0 ? s.values[index] ?? 0 : 0;
+        });
+      } else {
+        Object.assign(row, previewRadar[orderIndex]);
       }
-    };
+      return row;
+    });
+  }, [scoreData]);
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  const liveStarixScore = Math.min(Math.max(Math.round(scoreData?.overall_score ?? 0), 0), 100);
+  const bestPlatform = scoreData?.best_performing_platform;
 
-  const activeChallengeTotal = activeData.reduce((sum, item) => sum + item.value, 0);
-  const maxCompletedChallengeValue = Math.max(...completedData.map((item) => item.value), 1);
+  const soloMinor = earnings?.creator_earnings[0]?.total_minor ?? 0;
+  const teamMinor = earnings?.circle_earnings[0]?.total_minor ?? 0;
+  const lifetimeMinor = earnings?.lifetime_earnings[0]?.total_minor ?? 0;
 
-  const engagementCards = useMemo(
-    () => [
-      { label: "Followers", value: platform.followers },
-      { label: "Likes", value: platform.likes },
-      { label: "Views", value: platform.views },
-      { label: "Comments", value: platform.comments },
-    ],
-    [platform]
+  const activeChallengeTotal = challenges?.active.total_count ?? 0;
+  const activeBarMax = Math.max(
+    ...activeChallengeBars.map((bar) => challenges?.active[bar.key] ?? 0),
+    1
   );
 
-  const liveStarixScore = Math.min(
-    Math.max(Math.round(scoreData?.overall_score ?? 0), 0),
-    100
+  const completedBars = [
+    { name: "Not Qualified", value: challenges?.completed.not_qualified_count ?? 0, color: "#FFBCC0" },
+    { name: "Ranked", value: challenges?.completed.ranked_count ?? 0, color: "#E8BFF7" },
+    { name: "Finalist", value: 0, color: "#A9D5F0" },
+    { name: "Winner", value: 0, color: "#A3E3C0" },
+  ];
+  const completedMax = Math.max(...completedBars.map((bar) => bar.value), 1);
+
+  const engagementTotal = PLATFORMS.reduce(
+    (sum, platform) => sum + (totalEngagements?.per_platform[platform]?.value ?? 0),
+    0
   );
-
-  const soloEarningsMinor = earnings?.creator_earnings[0]?.total_minor ?? 0;
-const teamEarningsMinor = earnings?.circle_earnings[0]?.total_minor ?? 0;
-const totalSplitMinor = soloEarningsMinor + teamEarningsMinor;
-
-const earningsChartData =
-  totalSplitMinor > 0
-    ? [
-        {
-          name: "Solo",
-          value: (soloEarningsMinor / totalSplitMinor) * 100,
-          fill: "#5B7CFA",
-        },
-        {
-          name: "Team",
-          value: (teamEarningsMinor / totalSplitMinor) * 100,
-          fill: "#FF8A6B",
-        },
-      ]
-    : [
-        { name: "Solo", value: 72, fill: "#5B7CFA" },
-        { name: "Team", value: 28, fill: "#FF8A6B" },
-      ];
 
   return (
     <div className="min-h-screen bg-white font-sans text-[#1E1F24]">
-      <header className="mb-8 flex items-start justify-between gap-6">
+      <header className="mb-[44px] flex flex-col gap-5 pt-[6px] md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-[24px] font-semibold tracking-[-0.03em]">Analytics</h1>
-          <p className="mt-1 text-[12px] font-medium text-[#747682]">
+          <h1 className="text-[24px] font-semibold leading-[30px] tracking-[-0.03em] text-[#111111]">
+            Analytics
+          </h1>
+          <p className="mt-[3px] text-[12px] leading-4 text-[#5E5E60]">
             Track your performance, monitor growth, and visibility
           </p>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="relative w-[390px]">
-            <svg className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8B8D98]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="m21 21-4.35-4.35" />
-              <circle cx="11" cy="11" r="7" />
-            </svg>
-            <input
-              placeholder="Search Starix"
-              className="h-[48px] w-full rounded-full border border-[#EFF0F3] bg-white pl-12 pr-5 text-[13px] font-medium shadow-[0_2px_10px_rgba(0,0,0,0.03)] outline-none placeholder:text-[#8B8D98]"
+        <div className="flex items-center gap-[22px]">
+          <label className="relative block min-w-0 flex-1 md:w-[376px] md:flex-none">
+            <Search
+              size={16}
+              strokeWidth={1.75}
+              className="pointer-events-none absolute left-[17px] top-1/2 -translate-y-1/2 text-[#5E5E60]"
             />
-          </div>
+            <input
+              type="search"
+              placeholder="Search Starix"
+              className="h-12 w-full rounded-full border border-[#EBEBED] bg-white pl-[45px] pr-5 text-[14px] text-[#1E1F24] shadow-[0_2px_6px_rgba(16,24,40,0.04)] outline-none placeholder:text-[#5E5E60] focus:border-[#0033FF]"
+            />
+          </label>
 
-          <button 
-              onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-[#EFF0F3] bg-white"
-            >
-              <FiBell />
+          <button
+            type="button"
+            aria-label="Notifications"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#EBEBED] bg-white text-[#1E1F24] shadow-[0_2px_6px_rgba(16,24,40,0.04)]"
+          >
+            <Bell size={19} strokeWidth={1.5} />
           </button>
 
-
-          <Link href="/profile" className="block cursor-pointer">
-            <div className="relative h-12 w-12 overflow-hidden rounded-full border-2 border-[#245BFF] bg-gray-100">
-            {profileImage ? (
-              <Image
-                src={profileImage}
-                alt="Profile"
-                fill
-                className="object-cover"
-              />
-            ) : (
-              <div
-                className="h-full w-full rounded-full bg-[#F5F6F8]"
-                aria-label="No profile picture"
-              />
-            )}
-            </div>
+          <Link
+            href="/profile"
+            aria-label="Profile"
+            className="block h-12 w-12 shrink-0 rounded-full bg-[conic-gradient(#1835BD_0deg,#1835BD_180deg,#F08A4B_180deg,#F08A4B_360deg)] p-[2.5px]"
+          >
+            <span className="block h-full w-full rounded-full bg-white p-[2px]">
+              <span className="relative block h-full w-full overflow-hidden rounded-full bg-[#F5F6F8]">
+                {profileImage && (
+                  <Image src={profileImage} alt="Profile" fill sizes="48px" className="object-cover" />
+                )}
+              </span>
+            </span>
           </Link>
         </div>
       </header>
 
-      <section className="mb-7 grid grid-cols-[0.95fr_0.95fr_1.9fr] gap-6">
-      <div className="rounded-[24px] bg-[#E8FFE9] p-5">
-        <CardLabel label="Total Earnings" />
+      {/* Row 1 */}
+      <section className="mb-[34px] grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-[228fr_231fr_470fr]">
+        <div className="flex min-h-[241px] flex-col overflow-hidden rounded-[16px] bg-[#E5FFE4] xl:h-[241px]">
+          <div className="px-[17px] pt-[18px]">
+            <CardTitle label="Total Earnings" />
+            {earningsLoading ? (
+              <p className="mt-[7px] text-[27px] font-semibold leading-[34px] text-[#A0A8A2]">Loading...</p>
+            ) : (
+              <Money
+                minor={lifetimeMinor}
+                className="mt-[7px] block text-[27px] font-semibold leading-[34px] tracking-[-0.02em] text-[#0D1812]"
+                centsClassName="text-[#868C93]"
+              />
+            )}
+            <ViewLink href="/portfolio" label="View Wallet" className="mt-[5px]" />
+          </div>
 
-        {isLoading ? (
-          <h2 className="mt-1 text-[28px] font-semibold text-gray-400">Loading...</h2>
-        ) : (
-          <>
-            <h2 className="mt-1 text-[28px] font-semibold tracking-[-0.04em]">
-              {earnings?.lifetime_earnings[0]
-                ? formatCurrency(earnings.lifetime_earnings[0].total_minor)
-                : "₦0.00"}
-            </h2>
+          <div className="flex flex-1 items-end justify-center pt-3">
+            <EarningsGauge solo={soloMinor} team={teamMinor} />
+          </div>
 
-            <Link
-              href="/portfolio"
-              className="mt-1 inline-block text-[12px] font-semibold text-[#62636C] hover:text-[#1E1F24] hover:underline"
-            >
-              View Wallet →
-            </Link>
-
-            <div className="relative mx-auto mt-2 h-[104px] w-[150px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <RadialBarChart
-                  cx="50%"
-                  cy="78%"
-                  innerRadius="82%"
-                  outerRadius="100%"
-                  barSize={10}
-                  data={earningsChartData}
-                  startAngle={180}
-                  endAngle={0}
-                >
-                  <RadialBar
-                    dataKey="value"
-                    cornerRadius={20}
-                    background={{ fill: "#CFF8D5" }}
-                  />
-                </RadialBarChart>
-              </ResponsiveContainer>
+          <div className="flex justify-between border-t border-[#CFEFCC] px-[17px] pb-[14px] pt-[7px] text-[11px] leading-4 text-[#132316]">
+            <div>
+              <p className="font-medium">Solo Earnings</p>
+              <Money minor={soloMinor} className="font-medium" centsClassName="text-[#868C93]" />
             </div>
-
-            <div className="mt-0 flex justify-between text-[10px] font-semibold text-[#1E1F24]">
-              <span>
-                Solo Earnings
-                <br />
-                {earnings?.creator_earnings[0]
-                  ? formatCurrency(earnings.creator_earnings[0].total_minor)
-                  : "₦0.00"}
-              </span>
-
-              <span className="text-right">
-                Team Earnings
-                <br />
-                {earnings?.circle_earnings[0]
-                  ? formatCurrency(earnings.circle_earnings[0].total_minor)
-                  : "₦0.00"}
-              </span>
+            <div className="text-right">
+              <p className="font-medium">Team Earnings</p>
+              <Money minor={teamMinor} className="font-medium" centsClassName="text-[#868C93]" />
             </div>
-          </>
-        )}
-      </div>
+          </div>
+        </div>
 
-        <div className="rounded-[24px] bg-[#EAF6FF] p-5">
-          <CardLabel label="Global Rank" />
-          
+        <div className="flex min-h-[241px] flex-col rounded-[16px] bg-[#E9F6FF] px-[17px] pb-4 pt-[18px] xl:h-[241px]">
+          <CardTitle label="Global Rank" />
           {rankLoading ? (
-            <h2 className="mt-1 text-[27px] font-semibold text-gray-400">Loading...</h2>
+            <p className="mt-[7px] text-[27px] font-semibold leading-[34px] text-[#9AA6B2]">Loading...</p>
           ) : (
-            <>
-              <h2 className="mt-1 text-[27px] font-semibold tracking-[-0.04em]">
-                {rank?.current_rank?.toLocaleString() ?? "—"} 
-                <span className={`text-[12px] ml-2 ${rank?.direction === "up" ? "text-[#009F61]" : "text-red-500"}`}>
-                  {getDeltaDisplay(rank?.direction || "flat", rank?.delta_count || 0)}
-                </span>
-              </h2>
-              <Link
-                href="/dashboard"
-                className="mt-1 inline-block text-[12px] font-semibold text-[#62636C] hover:text-[#1E1F24] hover:underline"
-              >
-                View Leaderboard →
-              </Link>
-            </>
+            <div className="mt-[7px] flex items-center gap-[10px]">
+              <span className="text-[27px] font-semibold leading-[34px] tracking-[-0.02em] text-[#111317]">
+                {rank?.current_rank != null ? rank.current_rank.toLocaleString("en-US") : "—"}
+              </span>
+              <RankDelta direction={rank?.direction} delta={rank?.delta_count ?? 0} />
+            </div>
           )}
+          <ViewLink href="/dashboard" label="View Leaderboard" className="mt-[5px]" />
 
-          <div className="mt-5 h-[116px] min-h-[116px] min-w-0 rounded-[12px] bg-white/80 p-3">
+          <div className="mt-[14px] min-h-[113px] flex-1 rounded-[10px] bg-white/85">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={rankChartPoints}>
-                <XAxis dataKey="x" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: "#747682" }} />
-                {/* We use domain based on y_min/y_max from the API */}
-                <YAxis
-                  domain={[
-                    rank?.weekly_chart?.y_min ?? 20,
-                    rank?.weekly_chart?.y_max ?? 45,
-                  ]}
-                  reversed
-                  hide
+              <LineChart data={rankPoints} margin={{ top: 10, right: 10, bottom: 0, left: 10 }}>
+                <CartesianGrid
+                  vertical={false}
+                  stroke="#EEF0F3"
+                  horizontalCoordinatesGenerator={({ offset }) => evenLines(offset, 4)}
                 />
-              <Line 
-                    type="monotone" 
-                    dataKey="y" 
-                    stroke="#46D39B" 
-                    strokeWidth={2} 
-                    dot={false} 
-                    connectNulls={false} // This handles the gap for future days
+                <XAxis
+                  dataKey="x"
+                  axisLine={false}
+                  tickLine={false}
+                  height={24}
+                  tickMargin={8}
+                  interval={0}
+                  tick={{ fontSize: 9, fill: "#7F8085" }}
+                />
+                <YAxis hide reversed domain={paddedDomain(rankPoints, 0.2, 0.2)} />
+                <Line
+                  type="monotone"
+                  dataKey="y"
+                  stroke="#3DBE7E"
+                  strokeWidth={1.5}
+                  dot={false}
+                  connectNulls={false}
+                  isAnimationActive={false}
                 />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-[24px] border border-[#EFF0F3] bg-white">
-          <div className="flex items-start justify-between px-5 py-4">
+        <div className="flex flex-col overflow-hidden rounded-[16px] border border-[#EEEEEE] bg-white md:col-span-2 xl:col-span-1 xl:h-[241px]">
+          <div className="flex items-start justify-between px-[17px] pt-[18px]">
             <div>
-              <CardLabel label="Total Challenges" />
-              <h2 className="mt-1 text-[28px] font-semibold tracking-[-0.04em]">
-                {challenges?.lifetime_challenge_count ?? 0}
-              </h2>
+              <CardTitle label="Total Challenges" />
+              <p className="mt-[7px] text-[27px] font-semibold leading-[34px] tracking-[-0.02em] text-[#111317]">
+                {formatNumber(challenges?.lifetime_challenge_count)}
+              </p>
             </div>
-            <Link
-              href="/challenges"
-              className="text-[12px] font-semibold text-[#62636C] hover:text-[#1E1F24] hover:underline"
-            >
-              View Challenge →
-            </Link>
+            <ViewLink href="/challenges" label="View Challenge" />
           </div>
 
-          <div className="grid grid-cols-2 border-t border-[#EFF0F3]">
-            <div className="border-r border-[#EFF0F3] p-4">
-              <div className="mb-2 flex justify-between text-[10px] font-semibold">
-                <span>Active Challenges</span>
-                <span>{challenges?.active.total_count ?? 0}</span>
-              </div>
-              <div className="space-y-3">
-                {activeData.map((item) => (
-                  <div key={item.name}>
-                    <div className="mb-1 flex justify-between text-[9px] text-[#62636C]">
-                      <span>{item.name}</span>
-                      {/* If challenges is loading or data is missing, this defaults to 0 */}
-                      <span>{item.value ?? 0}</span>
+          <div className="grid flex-1 grid-cols-1 border-t border-[#EEEEEE] sm:grid-cols-2">
+            <div className="border-b border-[#EEEEEE] px-4 pb-[11px] pt-[14px] sm:border-b-0 sm:border-r">
+              <ColumnHeader label="Active Challenges" value={activeChallengeTotal} />
+              <div className="mt-[16px] space-y-[3px]">
+                {activeChallengeBars.map((bar) => {
+                  const value = challenges?.active[bar.key] ?? 0;
+                  return (
+                    <div key={bar.key}>
+                      <p className="text-[8.5px] leading-[10px] text-[#84858A]">{bar.name}</p>
+                      <div className="relative mt-[5px] h-[16px]">
+                        <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-[#F2F2F4]" />
+                        <div
+                          className="relative flex h-full min-w-[44px] items-center gap-[3px] rounded-[5px] border border-[#ECECEE] bg-white p-[2px]"
+                          style={{ width: `${Math.max((value / activeBarMax) * 100, 12)}%` }}
+                        >
+                          <span
+                            className="h-full flex-1 rounded-[3px]"
+                            style={{ backgroundColor: bar.color }}
+                          />
+                          <span className="pr-[3px] text-[8.5px] font-semibold leading-none text-[#1E1F24]">
+                            {value}
+                          </span>
+                        </div>
+                      </div>
                     </div>
+                  );
+                })}
+              </div>
+            </div>
 
-                    <div className="h-2 rounded-full bg-[#F7F7F8]">
-                      <div 
-                        className="h-full rounded-full" 
+            <div className="flex flex-col px-4 pb-[14px] pt-[14px]">
+              <ColumnHeader label="Completed Challenges" value={challenges?.completed.total_count ?? 0} />
+              <div className="relative mt-2 flex flex-1 items-end justify-around">
+                <div className="pointer-events-none absolute inset-x-0 bottom-[18px] top-1 flex flex-col justify-between">
+                  {[0, 1, 2, 3].map((line) => (
+                    <span key={line} className="h-px bg-[#F2F2F4]" />
+                  ))}
+                </div>
+                {completedBars.map((bar) => (
+                  <div key={bar.name} className="relative flex w-[44px] flex-col items-center">
+                    <div className="flex w-[41px] flex-col items-center rounded-[7px] border border-[#ECECEE] bg-white p-[2px]">
+                      <span className="py-[2px] text-[8.5px] font-semibold leading-[10px] text-[#1E1F24]">
+                        {bar.value}
+                      </span>
+                      <span
+                        className="w-full rounded-[5px]"
                         style={{
-                          width: `${activeChallengeTotal ? (item.value / activeChallengeTotal) * 100 : 0}%`,
-                          backgroundColor: item.color,
-                        }} 
+                          height: `${Math.max((bar.value / completedMax) * 62, 14)}px`,
+                          backgroundColor: bar.color,
+                        }}
                       />
                     </div>
+                    <span className="mt-[6px] whitespace-nowrap text-[8.5px] leading-[10px] text-[#6B6B70]">
+                      {bar.name}
+                    </span>
                   </div>
                 ))}
               </div>
             </div>
-
-            <div className="p-4">
-              <div className="mb-2 flex justify-between text-[10px] font-semibold">
-                <span>Completed Challenges</span>
-                <span>{challenges?.completed.total_count ?? 0}</span>
-              </div>
-              <ResponsiveContainer width="100%" height={120}>
-                <BarChart data={completedData} margin={{ top: 18, right: 8, left: 8, bottom: 0 }}>
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 8, fill: "#62636C" }} />
-                  <Bar dataKey="value" radius={[8, 8, 8, 8]} barSize={28}>
-                    {completedData.map((entry) => (
-                      
-                      <Cell key={entry.name} fill={entry.color} />
-                    ))}
-                  </Bar>
-                  <LabelList
-                    dataKey="value"
-                    position="top"
-                    fill="#62636C"
-                    fontSize={9}
-                    fontWeight={600}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
           </div>
         </div>
       </section>
 
-      <section className="mb-7 overflow-hidden rounded-[24px] border border-[#EFF0F3] bg-white">
-        <div className="flex items-center justify-between px-5 py-4">
-          <h2 className="text-[18px] font-semibold">Engagement Breakdown</h2>
-
-          <div className="flex gap-2">
-            {(["All", "Instagram", "TikTok", "YouTube"] as PlatformKey[]).map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setActivePlatform(filter)}
-                className={`rounded-full border px-5 py-2 text-[13px] font-semibold transition ${
-                  activePlatform === filter
-                    ? "border-[#245BFF] bg-[#F5FAFF] text-[#245BFF]"
-                    : "border-[#EFF0F3] bg-white text-[#62636C]"
-                }`}
-              >
-                {filter}
-              </button>
-            ))}
+      {/* Row 2 */}
+      <section className="mb-[32px] overflow-hidden rounded-[16px] border border-[#EEEEEE] bg-white">
+        <div className="flex min-h-[65px] flex-wrap items-center justify-between gap-3 px-[17px] py-[17px]">
+          <h2 className="text-[19px] font-semibold leading-6 tracking-[-0.01em] text-[#131315]">
+            Engagement Breakdown
+          </h2>
+          <div className="flex flex-wrap gap-[10px]">
+            {(["All", "Instagram", "TikTok", "YouTube"] as PlatformKey[]).map((filter) => {
+              const isActive = activePlatform === filter;
+              return (
+                <button
+                  key={filter}
+                  type="button"
+                  onClick={() => setActivePlatform(filter)}
+                  className={`h-[31px] rounded-full border px-4 text-[14px] leading-none transition ${
+                    isActive
+                      ? "border-[#1E35B9] bg-[#EEF5FF] font-medium text-[#1E35B9]"
+                      : "border-[#E1E1E4] bg-white text-[#5F5F61] hover:border-[#C9C9CE]"
+                  }`}
+                >
+                  {filter}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        <div className="grid grid-cols-4 border-t border-[#EFF0F3]">
-          { (["followers", "likes", "views", "comments"] as const).map((key, index) => {
-              // 1. Get the current platform's metric block
-              const metricBlock = activeEngagement ? activeEngagement[key] : { value: 0, comparison: null };
-              
-              return (
-                <div key={key} className={`p-5 ${index !== 3 ? "border-r border-[#EFF0F3]" : ""}`}>
-                  <p className="text-[15px] font-medium text-[#62636C] capitalize">{key}</p>
-                  <h3 className="mt-1 text-[28px] font-semibold tracking-[-0.04em]">
-                    {metricBlock?.value?.toLocaleString() ?? 0}
-                  </h3>
-                  
-                  {/* 2. Pass the comparison object here */}
-                  <ComparisonBadge comparison={metricBlock?.comparison} />
+        <div className="grid grid-cols-1 border-t border-[#EEEEEE] sm:grid-cols-2 xl:grid-cols-4">
+          {(["followers", "likes", "views", "comments"] as const).map((key, index) => {
+            const metric = activeEngagement?.[key];
+            const borders = [
+              "border-b sm:border-r xl:border-b-0",
+              "border-b xl:border-b-0 xl:border-r",
+              "border-b sm:border-b-0 sm:border-r",
+              "",
+            ][index];
+
+            return (
+              <div
+                key={key}
+                className={`flex items-center justify-between gap-3 border-[#EEEEEE] px-[17px] py-[17px] ${borders}`}
+              >
+                <div className="min-w-0">
+                  <p className="text-[14px] font-medium capitalize leading-[18px] text-[#18171C]">{key}</p>
+                  <p className="mt-[5px] text-[26px] font-semibold leading-8 tracking-[-0.02em] text-[#111317]">
+                    {formatNumber(metric?.value)}
+                  </p>
+                  <ComparisonText
+                    comparison={metric?.comparison}
+                    suffix="than last month"
+                    className="mt-[5px]"
+                  />
                 </div>
-              );
+                <Sparkline
+                  points={engagementSparkline}
+                  margin={{ top: 22, bottom: 30 }}
+                  className="hidden h-[79px] w-[72px] sm:block"
+                />
+              </div>
+            );
           })}
         </div>
       </section>
 
-      <section className="grid grid-cols-[1.25fr_1.05fr_1.05fr] gap-6">
-        <div className="min-h-[350px] rounded-[24px] border border-[#EFF0F3] bg-white">
-          <div className="flex items-start justify-between border-b border-[#EFF0F3] p-5">
-            <div>
-              <h3 className="flex items-center gap-2 text-[18px] font-semibold">
-                <img
-                  src="/candyyy.webp"
-                  alt=""
-                  className="h-5 w-5 shrink-0 object-contain"
-                />{" "}
-                Starix Score
+      {/* Row 3 */}
+      <section className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-[340fr_292fr_294fr]">
+        <div className="flex min-h-[344px] flex-col overflow-hidden rounded-[16px] border border-[#EEEEEE] bg-white xl:h-[344px]">
+          <div className="flex items-start justify-between gap-3 px-[17px] pb-[18px] pt-[17px]">
+            <div className="min-w-0">
+              <h3 className="flex items-center gap-[6px] text-[20px] font-semibold leading-[26px] tracking-[-0.02em] text-[#111317]">
+                <Image src="/candyyy.webp" alt="" width={18} height={18} className="shrink-0" />
+                Starix Score Breakdown
               </h3>
-              <p className="mt-2 max-w-[285px] text-[10px] leading-relaxed text-[#62636C]">
-                Performance score: <span className="font-semibold text-[#245BFF]">{scoreData?.best_performing_platform ?? "0"}</span>
-              </p>
-            </div>
-
-            <div className="relative h-[86px] w-[86px]">
-              <ResponsiveContainer width="100%" height="100%">
-              <RadialBarChart
-                innerRadius="76%"
-                outerRadius="100%"
-                data={[{ value: liveStarixScore }]}
-                startAngle={90}
-                endAngle={-270}
-              >
-                <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
-                <RadialBar
-                  dataKey="value"
-                  cornerRadius={20}
-                  fill="#245BFF"
-                  background={{ fill: "#EAF2FF" }}
-                />
-              </RadialBarChart>
-              </ResponsiveContainer>
-              <div className="absolute inset-0 flex items-center justify-center text-[24px] font-semibold text-[#245BFF]">
-                {liveStarixScore}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex gap-4 px-5 py-3">
-            {Object.entries(scoreData?.per_platform || {}).map(([platform, score]) => (
-              <div key={platform} className="text-[12px] font-medium text-[#62636C]">
-                {platform.charAt(0).toUpperCase() + platform.slice(1)}: {score ?? 0}
-              </div>
-            ))}
-          </div>
-
-          <div className="mx-auto mt-4 h-[185px] w-[270px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={radarDisplayData}>
-                <PolarGrid stroke="#E9ECF2" />
-                <PolarAngleAxis dataKey="metric" tick={{ fontSize: 10, fill: "#747682" }} />
-                
-                {/* This forces the rings to show even at 0 */}
-                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                {scoreData?.spider.series?.length ? (
-                  scoreData.spider.series.map((s, i) => (
-                    <Radar
-                      key={s.platform}
-                      name={s.platform}
-                      dataKey={s.platform}
-                      stroke={["#46C989", "#FF8A3D", "#B24ADB"][i]}
-                      fill={["#46C989", "#FF8A3D", "#B24ADB"][i]}
-                      fillOpacity={0.12}
-                      strokeWidth={2}
-                    />
-                  ))
-                ) : (
+              <p className="mt-[6px] max-w-[275px] text-[10px] leading-[15.5px] text-[#5E5E60]">
+                A real-time measure of your creator performance, visibility, and brand readiness.
+                {bestPlatform && (
                   <>
-                    <Radar dataKey="instagram" stroke="#46C989" fill="#46C989" fillOpacity={0.12} strokeWidth={2} />
-                    <Radar dataKey="tiktok" stroke="#FF8A3D" fill="#FF8A3D" fillOpacity={0.12} strokeWidth={2} />
-                    <Radar dataKey="youtube" stroke="#B24ADB" fill="#B24ADB" fillOpacity={0.12} strokeWidth={2} />
+                    {" "}Your best performing social account is{" "}
+                    <span className="font-medium text-[#1E35B9]">
+                      {PLATFORM_META[bestPlatform.toLowerCase() as keyof typeof PLATFORM_META]?.label ??
+                        bestPlatform}
+                      .
+                    </span>
                   </>
                 )}
+              </p>
+            </div>
+            <ScoreRing score={liveStarixScore} />
+          </div>
+
+          <div className="flex h-[34px] items-center justify-between border-y border-[#EEEEEE] px-[17px] text-[12.5px] text-[#636365]">
+            {PLATFORMS.map((platform) => {
+              const value = scoreData?.per_platform?.[platform];
+              return (
+                <span key={platform} className="flex items-center gap-[6px]">
+                  <span
+                    className="h-[9px] w-[9px] rounded-[2px]"
+                    style={{ backgroundColor: PLATFORM_META[platform].scoreColor }}
+                  />
+                  {PLATFORM_META[platform].label} {typeof value === "number" ? Math.round(value) : "—"}
+                </span>
+              );
+            })}
+          </div>
+
+          <div className="min-h-[200px] flex-1">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart data={radarData} outerRadius={66} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
+                <PolarGrid stroke="#E3E3E7" />
+                <PolarAngleAxis dataKey="metric" tick={<RadarTick />} />
+                <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
+                <Radar
+                  dataKey="full"
+                  stroke="none"
+                  fill="#EDEDF0"
+                  fillOpacity={0.6}
+                  isAnimationActive={false}
+                />
+                {radarSeries.map((platform) => (
+                  <Radar
+                    key={platform}
+                    dataKey={platform}
+                    stroke={PLATFORM_META[platform as keyof typeof PLATFORM_META]?.scoreColor ?? "#0033FF"}
+                    strokeWidth={2}
+                    strokeLinejoin="round"
+                    fill="transparent"
+                    fillOpacity={0}
+                    isAnimationActive={false}
+                  />
+                ))}
               </RadarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="rounded-[24px] border border-[#EFF0F3] bg-white p-5">
-          <h3 className="text-[16px] font-semibold">Engagement Trend</h3>
-          <h2 className="mt-2 text-[28px] font-semibold tracking-[-0.04em]">
-            {trendData?.lifetime_engagement_count.toLocaleString() ?? "0"}
-          </h2>
+        <div className="flex min-h-[344px] flex-col rounded-[16px] border border-[#EEEEEE] bg-white px-[17px] pb-3 pt-[17px] xl:h-[344px]">
+          <h3 className="text-[16px] font-medium leading-5 text-[#1E1F24]">Engagement Trend</h3>
+          <p className="mt-[8px] text-[26px] font-semibold leading-8 tracking-[-0.02em] text-[#111317]">
+            {formatNumber(trendData?.lifetime_engagement_count)}
+          </p>
 
-          <div className="mt-5 h-[280px] min-h-[280px] min-w-0">
-            <ResponsiveContainer width="100%" height={280}>
-              <AreaChart data={trendPoints}>
-                <CartesianGrid vertical={false} stroke="#F3F4F6" />
-                <XAxis 
-                  dataKey="x" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fontSize: 11, fill: "#62636C" }} 
+          <div className="mt-[32px] min-h-[210px] flex-1">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={trendPoints} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                <CartesianGrid
+                  vertical={false}
+                  stroke="#EFEFF1"
+                  horizontalCoordinatesGenerator={({ offset }) => evenLines(offset, 9)}
                 />
-                <YAxis 
-                  domain={[trendData?.monthly_chart.y_min ?? 0, trendData?.monthly_chart.y_max ?? 1000000]} 
-                  hide 
+                <XAxis
+                  dataKey="x"
+                  axisLine={false}
+                  tickLine={false}
+                  height={46}
+                  tickMargin={30}
+                  interval={0}
+                  padding={{ left: 12, right: 12 }}
+                  tick={{ fontSize: 11, fill: "#767678" }}
                 />
-                <Area
+                <YAxis hide domain={paddedDomain(trendPoints, 0.29, 0.39)} />
+                <Line
                   type="monotone"
                   dataKey="y"
-                  stroke="#245BFF"
+                  stroke="#3352C5"
                   strokeWidth={1.5}
-                  fill="#245BFF"
-                  fillOpacity={0.03}
+                  dot={false}
+                  connectNulls={false}
+                  isAnimationActive={false}
                 />
-              </AreaChart>
+              </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="space-y-6">
-          <div className="rounded-[24px] border border-[#EFF0F3] bg-white p-5">
-            <h3 className="text-[15px] font-semibold">Total Engagements</h3>
-            <h2 className="mt-2 text-[28px] font-semibold tracking-[-0.04em]">
-              {totalEngagements?.lifetime_engagement_count?.toLocaleString() ?? "0"}
-            </h2>
-
-            <div className="mt-3 flex gap-3">
-              {/* Visual Progress Bars */}
-              {["instagram", "tiktok", "youtube"].map((platform) => {
-                  const color = platform === "instagram" ? "#70D0A2" : platform === "tiktok" ? "#F5A07E" : "#C477D9";
-                  return (
-                      <span 
-                          key={platform} 
-                          className="h-1.5 flex-1 rounded-full" 
-                          style={{ backgroundColor: totalEngagements?.per_platform[platform] ? color : "#E5E7EB" }} 
+        <div className="flex flex-col gap-[26px] md:col-span-2 xl:col-span-1 xl:h-[344px]">
+          <div className="rounded-[16px] border border-[#EEEEEE] bg-white xl:h-[158px]">
+            <div className="px-[17px] pb-[14px] pt-[17px]">
+              <h3 className="text-[16px] font-medium leading-5 text-[#1E1F24]">Total Engagements</h3>
+              <div className="mt-[8px] flex items-center gap-4">
+                <p className="shrink-0 text-[26px] font-semibold leading-8 tracking-[-0.02em] text-[#111317]">
+                  {formatNumber(totalEngagements?.lifetime_engagement_count)}
+                </p>
+                <div className="flex flex-1 gap-[7px]">
+                  {PLATFORMS.map((platform) => {
+                    const value = totalEngagements?.per_platform[platform]?.value ?? 0;
+                    return (
+                      <span
+                        key={platform}
+                        className="h-[5px] min-w-[20px] rounded-full"
+                        style={{
+                          flexGrow: engagementTotal ? Math.max(Math.sqrt(value / engagementTotal), 0.3) : 1,
+                          backgroundColor: value > 0 ? PLATFORM_META[platform].engagementColor : "#ECECEF",
+                        }}
                       />
-                  );
-              })}
+                    );
+                  })}
+                </div>
+              </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-3 gap-2 text-[12px] text-[#62636C]">
-              {["instagram", "tiktok", "youtube"].map((platform) => {
+            <div className="grid grid-cols-3 border-t border-[#EEEEEE] px-[17px] pb-[14px] pt-[12px]">
+              {PLATFORMS.map((platform, index) => {
                 const data = totalEngagements?.per_platform[platform];
-                const color = platform === "instagram" ? "#70D0A2" : platform === "tiktok" ? "#F5A07E" : "#C477D9";
-                
-                // Formatting the trend percentage
-                const trend = data?.comparison?.percentage 
-                  ? `${data.comparison.positive ? "+" : "-"}${data.comparison.percentage}%` 
-                  : "%";
-
+                const align = ["items-start", "items-center", "items-end"][index];
                 return (
-                  <LegendMetric 
-                    key={platform}
-                    color={color} 
-                    label={platform.charAt(0).toUpperCase() + platform.slice(1)} 
-                    value={`${formatCompact(data?.value ?? 0)} ${trend}`} 
-                  />
+                  <div key={platform} className={`flex flex-col ${align}`}>
+                    <span className="flex items-center gap-[6px] text-[12px] leading-4 text-[#636365]">
+                      <span
+                        className="h-[8px] w-[8px] rounded-[2px]"
+                        style={{ backgroundColor: PLATFORM_META[platform].engagementColor }}
+                      />
+                      {PLATFORM_META[platform].label}
+                    </span>
+                    <span className="mt-[3px] flex items-center gap-[3px] text-[12px] leading-4 text-[#1E1F24]">
+                      {formatCompact(data?.value ?? 0)}
+                      <InlineDelta comparison={data?.comparison} />
+                    </span>
+                  </div>
                 );
               })}
             </div>
           </div>
 
-          <div className="rounded-[24px] border border-[#EFF0F3] bg-white p-5">
-            <div className="flex items-start justify-between">
+          <div className="flex-1 rounded-[16px] border border-[#EEEEEE] bg-white px-[17px] pb-[17px] pt-[17px] xl:h-[160px]">
+            <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-[15px] font-semibold">Profile Click-Throughs</h3>
-                <h2 className="mt-2 text-[28px] font-semibold tracking-[-0.04em]">
-                  {clicks?.unique_clicks_count ?? 0}
-                </h2>
-                
-                {/* Dynamic comparison text */}
-                <p className={`mt-1 text-[12px] font-medium ${clicks?.comparison?.positive ? "text-[#14A66B]" : "text-red-500"}`}>
-                  {clicks?.comparison 
-                    ? `${clicks.comparison.positive ? "+" : "-"}${clicks.comparison.percentage}% from last month`
-                    : "—"
-                  }
+                <h3 className="text-[16px] font-medium leading-5 text-[#1E1F24]">Profile Click-Throughs</h3>
+                <p className="mt-[8px] text-[26px] font-semibold leading-8 tracking-[-0.02em] text-[#111317]">
+                  {formatNumber(clicks?.unique_clicks_count)}
                 </p>
+                <ComparisonText
+                  comparison={clicks?.comparison}
+                  suffix={`from ${clicks?.comparison?.label ?? "last month"}`}
+                  showDirectionWord={false}
+                  className="mt-[3px] text-[12px]"
+                />
               </div>
-              <MiniSparkline large />
+              <Sparkline
+                points={previewSparkline}
+                margin={{ top: 30, bottom: 18 }}
+                className="h-[82px] w-[110px] shrink-0"
+              />
             </div>
-
-            <p className="mt-4 max-w-[280px] text-[12px] leading-relaxed text-[#747682]">
+            <p className="mt-[6px] text-[11.5px] leading-[17px] text-[#5E5E60]">
               People who clicked through to your social media accounts after viewing your Starix profile.
             </p>
           </div>
@@ -891,56 +656,255 @@ const earningsChartData =
   );
 };
 
-const CardLabel = ({ label }: { label: string }) => (
-  <div className="flex items-center gap-2">
-    <img
-      src="/coin.webp"
-      alt=""
-      className="h-4 w-4 shrink-0 object-contain"
-    />
-    <span className="text-[15px] font-semibold text-[#1E1F24]">{label}</span>
+const evenLines = (offset: { top?: number; height?: number }, count: number) => {
+  const top = offset.top ?? 0;
+  const height = offset.height ?? 0;
+  return Array.from({ length: count }, (_, i) => top + (height * i) / (count - 1));
+};
+
+const CardTitle = ({ label }: { label: string }) => (
+  <div className="flex items-center gap-[6px]">
+    <Image src="/coin.webp" alt="" width={15} height={15} className="shrink-0" />
+    <span className="text-[15.5px] font-medium leading-5 text-[#081F0D]">{label}</span>
   </div>
 );
 
-const MiniSparkline = ({ large = false }: { large?: boolean }) => {
-  const width = large ? 115 : 78;
+const ViewLink = ({ href, label, className = "" }: { href: string; label: string; className?: string }) => (
+  <Link
+    href={href}
+    className={`inline-flex items-center gap-[6px] text-[13px] leading-4 text-[#56635A] transition hover:text-[#1E1F24] ${className}`}
+  >
+    {label}
+    <ArrowRight size={14} strokeWidth={1.5} />
+  </Link>
+);
 
+const Money = ({
+  minor,
+  className = "",
+  centsClassName = "",
+}: {
+  minor: number;
+  className?: string;
+  centsClassName?: string;
+}) => {
+  const text = formatCurrency(minor);
+  const dot = text.lastIndexOf(".");
   return (
-    <div
-      className={`${large ? "h-[72px] w-[115px]" : "h-[72px] w-[78px]"} shrink-0 rounded-[10px] bg-[#FAFAFB] p-2`}
+    <span className={className}>
+      {dot === -1 ? text : text.slice(0, dot)}
+      {dot !== -1 && <span className={centsClassName}>{text.slice(dot)}</span>}
+    </span>
+  );
+};
+
+const RankDelta = ({ direction, delta }: { direction?: string; delta: number }) => {
+  if (!direction || direction === "flat" || direction === "new") {
+    return direction === "new" ? (
+      <span className="text-[12px] font-semibold text-[#1E9E5A]">New</span>
+    ) : null;
+  }
+  const isUp = direction === "up";
+  const Icon = isUp ? ArrowUp : ArrowDown;
+  return (
+    <span
+      className={`flex items-center gap-[2px] text-[12px] font-semibold ${
+        isUp ? "text-[#1E9E5A]" : "text-[#E5484D]"
+      }`}
     >
-      <ResponsiveContainer width={width - 16} height={56}>
-        <LineChart data={miniTrendData}>
+      {isUp ? "+" : "-"}
+      {delta.toLocaleString("en-US")}
+      <Icon size={12} strokeWidth={2} />
+    </span>
+  );
+};
+
+const ComparisonText = ({
+  comparison,
+  suffix,
+  showDirectionWord = true,
+  className = "",
+}: {
+  comparison: Comparison;
+  suffix: string;
+  showDirectionWord?: boolean;
+  className?: string;
+}) => {
+  if (!comparison || comparison.percentage === null) {
+    return <p className={`text-[11px] leading-4 text-[#8B8D98] ${className}`}>No change {suffix.replace(/^than /, "from ")}</p>;
+  }
+  const Icon = comparison.positive ? Plus : Minus;
+  const directionWord = comparison.positive ? "higher" : "lower";
+  return (
+    <p
+      className={`flex items-center gap-[3px] text-[11px] leading-4 ${
+        comparison.positive ? "text-[#1E9E5A]" : "text-[#E5484D]"
+      } ${className}`}
+    >
+      <Icon size={12} strokeWidth={1.75} />
+      {Math.abs(comparison.percentage)}% {showDirectionWord ? `${directionWord} ` : ""}
+      {suffix}
+    </p>
+  );
+};
+
+const InlineDelta = ({ comparison }: { comparison: Comparison }) => {
+  if (!comparison || comparison.percentage === null) return null;
+  const Icon = comparison.positive ? ArrowUp : ArrowDown;
+  return (
+    <span
+      className={`flex items-center text-[10px] font-semibold ${
+        comparison.positive ? "text-[#1E9E5A]" : "text-[#E5484D]"
+      }`}
+    >
+      {comparison.positive ? "+" : "-"}
+      {Math.abs(comparison.percentage)}%
+      <Icon size={10} strokeWidth={2} />
+    </span>
+  );
+};
+
+const ColumnHeader = ({ label, value }: { label: string; value: number }) => (
+  <div className="flex items-center gap-2 text-[10px] font-medium leading-3 text-[#1E1E20]">
+    <span className="shrink-0">{label}</span>
+    <span className="h-px flex-1 border-t border-dotted border-[#E4E4E7]" />
+    <span className="shrink-0">{value}</span>
+  </div>
+);
+
+const Sparkline = ({
+  points,
+  margin,
+  className = "",
+}: {
+  points: Point[];
+  margin: { top: number; bottom: number };
+  className?: string;
+}) => (
+  <div className={`shrink-0 rounded-[8px] bg-[#F8F8FA] ${className}`}>
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={points} margin={{ ...margin, right: 0, left: 0 }}>
+        <YAxis hide domain={["dataMin", "dataMax"]} />
         <Line
           type="monotone"
           dataKey="y"
-          stroke="#54D1A0"
+          stroke="#34C38A"
           strokeWidth={1.5}
           dot={false}
+          isAnimationActive={false}
         />
-        </LineChart>
-      </ResponsiveContainer>
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
+);
+
+const GAUGE = { width: 168, cx: 84, cy: 86, radius: 78, stroke: 11, innerRadius: 64 };
+
+const polar = (angle: number, radius = GAUGE.radius) => {
+  const rad = (angle * Math.PI) / 180;
+  return { x: GAUGE.cx + radius * Math.cos(rad), y: GAUGE.cy - radius * Math.sin(rad) };
+};
+
+const arcPath = (fromAngle: number, toAngle: number, radius = GAUGE.radius) => {
+  const start = polar(fromAngle, radius);
+  const end = polar(toAngle, radius);
+  const largeArc = fromAngle - toAngle > 180 ? 1 : 0;
+  return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArc} 1 ${end.x} ${end.y}`;
+};
+
+const EarningsGauge = ({ solo, team }: { solo: number; team: number }) => {
+  const total = solo + team;
+  // Angle between segment endpoints: visible 7px gap plus both round caps.
+  const gapAngle = ((7 + GAUGE.stroke) / GAUGE.radius) * (180 / Math.PI);
+  const split = total > 0 ? 180 - (solo / total) * 180 : 0;
+
+  return (
+    <svg
+      width={GAUGE.width}
+      height={GAUGE.cy}
+      viewBox={`0 0 ${GAUGE.width} ${GAUGE.cy}`}
+      className="block overflow-hidden"
+      aria-hidden
+    >
+      <path d={arcPath(180, 0, GAUGE.innerRadius)} fill="none" stroke="#C5EFC2" strokeWidth={3} />
+      {total === 0 ? (
+        <path d={arcPath(186, -6)} fill="none" stroke="#CDEFCB" strokeWidth={GAUGE.stroke} strokeLinecap="round" />
+      ) : (
+        <>
+          {solo > 0 && (
+            <path
+              d={arcPath(186, team > 0 ? split + gapAngle / 2 : -6)}
+              fill="none"
+              stroke="#6BA0FF"
+              strokeWidth={GAUGE.stroke}
+              strokeLinecap="round"
+            />
+          )}
+          {team > 0 && (
+            <path
+              d={arcPath(solo > 0 ? split - gapAngle / 2 : 186, -6)}
+              fill="none"
+              stroke="#FF8E73"
+              strokeWidth={GAUGE.stroke}
+              strokeLinecap="round"
+            />
+          )}
+        </>
+      )}
+    </svg>
+  );
+};
+
+const ScoreRing = ({ score }: { score: number }) => {
+  const size = 78;
+  const radius = 35;
+  const circumference = 2 * Math.PI * radius;
+  return (
+    <div className="relative h-[78px] w-[78px] shrink-0">
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90" aria-hidden>
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#C9DAFF" strokeWidth={6} />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="#0033FF"
+          strokeWidth={6}
+          strokeLinecap="round"
+          strokeDasharray={`${(score / 100) * circumference} ${circumference}`}
+        />
+        <circle cx={size / 2} cy={size / 2} r={28} fill="none" stroke="#B9CEFF" strokeWidth={2} />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <Image src="/candyyy.webp" alt="" width={11} height={11} />
+        <span className="text-[23px] font-semibold leading-[26px] tracking-[-0.02em] text-[#0033FF]">
+          {score}
+        </span>
+      </div>
     </div>
   );
 };
 
-const LegendMetric = ({ color, label, value }: { color: string; label: string; value: string }) => {
-  // Now value looks like "234k +6.5%"
-  const parts = value.split(" ");
-  const mainValue = parts[0];
-  const trend = parts[1] || "";
+type RadarTickProps = {
+  x?: number;
+  y?: number;
+  cx?: number;
+  cy?: number;
+  payload?: { value: string };
+};
 
+const RadarTick = ({ x = 0, y = 0, cx = 0, cy = 0, payload }: RadarTickProps) => {
+  const dx = x - cx;
+  const dy = y - cy;
+  const length = Math.hypot(dx, dy) || 1;
+  const push = 2;
+  const tx = x + (dx / length) * push;
+  const ty = y + (dy / length) * push;
+  const anchor = Math.abs(dx) < 4 ? "middle" : dx > 0 ? "start" : "end";
   return (
-    <div>
-      <div className="flex items-center gap-1.5">
-        <span className="h-2 w-2 rounded-[3px]" style={{ backgroundColor: color }} />
-        <span className="text-[#62636C] font-medium text-[12px]">{label}</span>
-      </div>
-      <p className="mt-1 text-[#62636C] text-[12px] font-medium">
-        {mainValue}{""}
-        <span className="text-[#27AE60] text-[10px]">{trend}↑</span>
-      </p>
-    </div>
+    <text x={tx} y={ty} textAnchor={anchor} dominantBaseline="central" fontSize={9} fill="#77787C">
+      {payload?.value}
+    </text>
   );
 };
 

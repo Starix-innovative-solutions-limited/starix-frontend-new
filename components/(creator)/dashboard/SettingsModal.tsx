@@ -129,11 +129,8 @@ const sharesWithColors = payoutData?.shares.map((share: any, index: number) => {
 
   const { data: currentUser } = useGetCurrentUser();
   const currentUserId = currentUser?.id;
-  const isAdmin = !!(circle?.admin_id && currentUser?.id && circle.admin_id === currentUser.id);
  
   const rotateMutation = useRotateJoinCode(circleId);
-
-  
 
   const { data: members = [], isLoading: isMembersLoading } =
   useGetCircleMembers(circleId);
@@ -143,11 +140,24 @@ const sharesWithColors = payoutData?.shares.map((share: any, index: number) => {
   user_id: member.user_id ?? member.id ?? `temp-id-${index}`,
 }));
 
-
+  const myMemberRole = (
+    validMembers.find((member) =>
+      (member.full_name || "").toLowerCase().includes("(you)")
+    )?.role ||
+    validMembers.find((member) => member.user_id === currentUserId)?.role ||
+    ""
+  ).toLowerCase();
+  const isAdmin =
+    myMemberRole === "admin" ||
+    !!(
+      currentUserId &&
+      (circle?.admin_id === currentUserId ||
+        circle?.created_by_user_id === currentUserId)
+    );
 
   const { data: pendingInvites = [], isLoading: isInvitesLoading } =
   useGetPendingInvitations(circleId, {
-    enabled: !!circleId && !!currentUser?.id && !!circle?.admin_id && isAdmin,
+    enabled: !!circleId && isAdmin,
   });
 
   const { data: joinRequests = [], isLoading: isRequestsLoading } = useGetCircleJoinRequests(circleId); 
@@ -263,6 +273,12 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
       setSelectedNiches(circle.niches ?? []);
     }
   }, [circle]);
+
+  useEffect(() => {
+    if (!isAdmin && (view === "edit" || view === "payout_edit" || view === "payout_setup")) {
+      setView("main");
+    }
+  }, [isAdmin, view]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -424,31 +440,35 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
                     </div>
                   </div>
                   
-                  {/* Rotate Code Button */}
-                  <div className="flex gap-2 mt-2">
-                    <button 
-                      onClick={handleRotate}
-                      disabled={rotateMutation.isPending || clearCodeMutation.isPending}
-                      className="flex-1 py-3 border border-blue-100 rounded-xl text-[12px] font-semibold text-[#62636C] hover:bg-gray-50 disabled:opacity-50 transition"
-                    >
-                      {rotateMutation.isPending ? "Updating..." : "Update Code"}
-                    </button>
-                    
-                    <button 
-                      onClick={handleClearCode}
-                      disabled={rotateMutation.isPending || clearCodeMutation.isPending}
-                      className="flex-1 py-3 border border-red-100 rounded-xl text-[12px] font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50 transition"
-                    >
-                      {clearCodeMutation.isPending ? "Clearing..." : "Disable Code"}
-                    </button>
-                  </div>
-                  <p className="text-[10px] text-red-600 text-center">
-                    Clicking this will immediately invalidate your current code.
-                  </p>
+                  {isAdmin && (
+                    <>
+                      <div className="flex gap-2 mt-2">
+                        <button
+                          onClick={handleRotate}
+                          disabled={rotateMutation.isPending || clearCodeMutation.isPending}
+                          className="flex-1 py-3 border border-blue-100 rounded-xl text-[12px] font-semibold text-[#62636C] hover:bg-gray-50 disabled:opacity-50 transition"
+                        >
+                          {rotateMutation.isPending ? "Updating..." : "Update Code"}
+                        </button>
+                        <button
+                          onClick={handleClearCode}
+                          disabled={rotateMutation.isPending || clearCodeMutation.isPending}
+                          className="flex-1 py-3 border border-red-100 rounded-xl text-[12px] font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50 transition"
+                        >
+                          {clearCodeMutation.isPending ? "Clearing..." : "Disable Code"}
+                        </button>
+                      </div>
+                      <p className="text-[10px] text-red-600 text-center">
+                        Clicking this will immediately invalidate your current code.
+                      </p>
+                    </>
+                  )}
                 </div>
-                <button onClick={() => setView("edit")} className="w-full mt-2 bg-[#0033FF] text-white py-4 rounded-full font-semibold text-[14px] hover:bg-blue-700 transition">
-                  Edit General Settings
-                </button>
+                {isAdmin && (
+                  <button onClick={() => setView("edit")} className="w-full mt-2 bg-[#0033FF] text-white py-4 rounded-full font-semibold text-[14px] hover:bg-blue-700 transition">
+                    Edit General Settings
+                  </button>
+                )}
               </div>
             ) : (
               <div className="space-y-6">
@@ -652,7 +672,11 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <div className="w-24 h-24 mb-6 rounded-full bg-gray-50 flex items-center justify-center text-3xl">💎</div>
                   <h3 className="text-[20px] font-semibold text-[#1E1F24] mb-2">No Payout Settings</h3>
-                  <button onClick={() => setView("payout_setup")} className="w-full bg-[#0033FF] text-white py-4 rounded-full font-semibold text-[14px]">Set Payout Percentages</button>
+                  {isAdmin ? (
+                    <button onClick={() => setView("payout_setup")} className="w-full bg-[#0033FF] text-white py-4 rounded-full font-semibold text-[14px]">Set Payout Percentages</button>
+                  ) : (
+                    <p className="text-[13px] text-[#62636C]">Only a circle admin can set payout percentages.</p>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-6">
@@ -718,13 +742,14 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
                     ))}
                   </div>
 
-                  {/* --- ADDED BUTTON HERE --- */}
-                  <button 
-                    onClick={() => setView("payout_edit")} 
-                    className="w-1/2 mt-6 p-4 rounded-full font-semibold text-[14px] bg-[#0033FF] text-white border hover:bg-shadow-xs transition"
-                  >
-                    Change Payout Percentages
-                  </button>
+                  {isAdmin && (
+                    <button
+                      onClick={() => setView("payout_edit")}
+                      className="w-1/2 mt-6 p-4 rounded-full font-semibold text-[14px] bg-[#0033FF] text-white border hover:bg-shadow-xs transition"
+                    >
+                      Change Payout Percentages
+                    </button>
+                  )}
                 </div>
               )
             ) : (
@@ -743,10 +768,19 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
                           />
                           <span className="flex-grow text-[14px] font-medium">{member?.full_name}</span>
                           <div className="flex items-center bg-gray-50 rounded-lg px-3 py-1 border">
-                            <input 
-                              type="number" 
-                              value={input.percentage}
-                              onChange={(e) => handlePercentageChange(input.user_id, parseInt(e.target.value) || 0)}
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              pattern="[0-9]*"
+                              value={input.percentage === 0 ? "" : String(input.percentage)}
+                              onChange={(e) => {
+                                const digits = e.target.value.replace(/\D/g, "").replace(/^0+(?=\d)/, "");
+                                handlePercentageChange(
+                                  input.user_id,
+                                  digits === "" ? 0 : Math.min(100, parseInt(digits, 10))
+                                );
+                              }}
+                              placeholder="0"
                               className="w-12 bg-transparent text-right font-semibold outline-none"
                             />
                             <span className="text-gray-400 font-semibold">%</span>

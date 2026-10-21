@@ -9,18 +9,17 @@ import BrandAvatar from "@/components/(brand)/BrandAvatar";
 import {
   type ChallengeItem,
   type ChallengeLeaderboardEntry,
+  submittedCount,
   useGetBrandChallenge,
-  useGetChallengeLeaderboard,
+  useGetBrandChallengeLeaderboard,
 } from "@/hooks/useChallenges";
 import { formatCompactNaira } from "@/lib/formatMoney";
 
 const PAGE_SIZE = 5;
 
 type ChallengeDetail = ChallengeItem & {
-  total_engagement?: number;
   total_engagements?: number;
   engagement_count?: number;
-  weekly_submission_growth?: number;
   weekly_engagement_growth?: number;
 };
 
@@ -28,7 +27,6 @@ type LeaderboardRow = ChallengeLeaderboardEntry & {
   full_name?: string;
   engagement_count?: number;
   engagements?: number;
-  platforms?: string[];
 };
 
 const platformIcons: Record<string, string> = {
@@ -60,12 +58,12 @@ function formatDate(dateString?: string) {
 
 function Sparkline({ color = "#12B76A" }: { color?: string }) {
   return (
-    <svg viewBox="0 0 112 42" className="h-10 w-28" aria-hidden>
+    <svg viewBox="0 0 140 48" className="h-12 w-32 shrink-0" aria-hidden>
       <path
-        d="M2 34c14-13 23-17 34-13 13 5 18 4 25-10 8-15 26-9 49-5"
+        d="M2 36c16-14 26-18 38-14 14 5 20 4 28-12 9-16 28-10 54-4"
         fill="none"
         stroke={color}
-        strokeWidth="1.7"
+        strokeWidth="2"
         strokeLinecap="round"
       />
     </svg>
@@ -86,11 +84,11 @@ function MetricCard({
   className: string;
 }) {
   return (
-    <div className={`rounded-[18px] p-5 ${className}`}>
-      <p className="text-[16px] font-semibold text-[#1E1F24]">{title}</p>
-      <div className="mt-2 flex items-end justify-between gap-3">
+    <div className={`rounded-[20px] px-6 py-5 ${className}`}>
+      <p className="text-[16px] font-medium text-[#1E1F24]">{title}</p>
+      <div className="mt-3 flex items-end justify-between gap-3">
         <div>
-          <p className="text-[32px] font-semibold leading-none tracking-[-0.03em] text-[#1E1F24]">
+          <p className="text-[36px] font-semibold leading-none tracking-[-0.04em] text-[#1E1F24]">
             {value}
           </p>
           {growth !== undefined && (
@@ -111,6 +109,26 @@ function MetricCard({
   );
 }
 
+function entryPlatforms(entry: LeaderboardRow) {
+  if (entry.platforms?.length) return entry.platforms;
+  if (entry.selected_platform) return [entry.selected_platform];
+  return [];
+}
+
+function rankTrend(entry: LeaderboardRow): "up" | "down" | "same" {
+  const direction = (entry.rank_direction ?? "").toLowerCase();
+  if (direction === "up") return "up";
+  if (direction === "down") return "down";
+  if (
+    entry.previous_rank != null &&
+    entry.rank != null &&
+    entry.previous_rank !== entry.rank
+  ) {
+    return entry.previous_rank > entry.rank ? "up" : "down";
+  }
+  return "same";
+}
+
 export default function BrandChallengePerformancePage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
@@ -121,19 +139,26 @@ export default function BrandChallengePerformancePage() {
 
   const { data: challenge, isLoading: isLoadingChallenge } =
     useGetBrandChallenge(challengeId);
-  const { data: leaderboard, isLoading: isLoadingLeaderboard } =
-    useGetChallengeLeaderboard(challengeId);
+  const {
+    data: leaderboard,
+    isLoading: isLoadingLeaderboard,
+    isError: isLeaderboardError,
+  } = useGetBrandChallengeLeaderboard(challengeId);
 
   const detail = challenge as ChallengeDetail | undefined;
-  const rows = (leaderboard?.entries ?? []) as LeaderboardRow[];
+  const rows = useMemo(
+    () => (leaderboard?.entries ?? []) as LeaderboardRow[],
+    [leaderboard?.entries]
+  );
   const query = search.trim().toLowerCase();
   const filteredRows = useMemo(
     () =>
       rows.filter((entry) => {
         if (!query) return true;
-        const platforms = entry.platforms?.join(" ") ?? "";
+        const platforms = entryPlatforms(entry).join(" ");
         const score = entry.final_score ?? entry.challenge_score ?? "";
-        return `${entry.rank} ${entry.username} ${entry.full_name ?? ""} ${platforms} ${score}`
+        const name = entry.display_name || entry.full_name || entry.username || "";
+        return `${entry.rank} ${name} ${platforms} ${score}`
           .toLowerCase()
           .includes(query);
       }),
@@ -183,7 +208,13 @@ export default function BrandChallengePerformancePage() {
       : 0;
   const leaderboardEngagement = rows.reduce(
     (sum, entry) =>
-      sum + Number(entry.engagement_count ?? entry.engagements ?? 0),
+      sum +
+      Number(
+        entry.total_engagement ??
+          entry.engagement_count ??
+          entry.engagements ??
+          0
+      ),
     0
   );
   const totalEngagement =
@@ -191,31 +222,31 @@ export default function BrandChallengePerformancePage() {
     detail.total_engagements ??
     detail.engagement_count ??
     leaderboardEngagement;
+  const totalSubmissions = submittedCount(detail);
   const isCompleted = ["completed", "closed"].includes(
     (detail.status ?? "").toLowerCase()
   );
 
   return (
-    <div className="mx-auto w-full max-w-[1180px] pb-8">
+    <div className="mx-auto w-full max-w-[1120px] pb-10">
       <button
         type="button"
         onClick={() => router.back()}
-        className="inline-flex items-center gap-2 text-[16px] font-semibold text-[#1E1F24]"
+        className="inline-flex items-center gap-2 text-[15px] font-medium text-[#1E1F24]"
       >
-        <FiArrowLeft className="text-[#747682]" /> Back
+        <FiArrowLeft className="text-[#8B8D98]" size={18} />
+        Back
       </button>
 
       <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-[28px] font-semibold tracking-[-0.025em] text-[#1E1F24]">
+          <h1 className="text-[30px] font-semibold tracking-[-0.03em] text-[#1E1F24] md:text-[32px]">
             {detail.title}
           </h1>
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-[13px] text-[#62636C]">
+          <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-[#8B8D98]">
             <span
-              className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
-                isCompleted
-                  ? "bg-[#F2F4F7] text-[#62636C]"
-                  : "bg-[#ECFEF4] text-[#1E874B]"
+              className={`text-[12px] font-medium ${
+                isCompleted ? "text-[#62636C]" : "text-[#12B76A]"
               }`}
             >
               {isCompleted ? "Completed Challenge" : "Verified Challenge"}
@@ -234,34 +265,32 @@ export default function BrandChallengePerformancePage() {
         </div>
         <Link
           href={`/brand/submissions?challenge_id=${challengeId}`}
-          className="shrink-0 rounded-full border border-[#8B8D98] px-6 py-3 text-[14px] font-semibold text-[#1E1F24] transition hover:bg-[#F9FAFB]"
+          className="inline-flex h-12 shrink-0 items-center rounded-full border border-[#8B8D98] px-6 text-[14px] font-medium text-[#1E1F24] transition hover:bg-[#F9FAFB]"
         >
           View All Posts
         </Link>
       </div>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-3">
+      <div className="mt-7 grid gap-4 md:grid-cols-3">
         <MetricCard
           title="Total Submissions"
-          value={(detail.participant_count ?? 0).toLocaleString()}
-          growth={
-            isCompleted ? undefined : detail.weekly_submission_growth
-          }
+          value={totalSubmissions.toLocaleString()}
+          growth={isCompleted ? undefined : detail.submissions_this_week}
           subtitle={isCompleted ? "All ranked" : undefined}
-          className={isCompleted ? "bg-[#F8F8FA]" : "bg-[#E8FBE9]"}
+          className={isCompleted ? "bg-[#F8F8FA]" : "bg-[#E7F8E9]"}
         />
         <MetricCard
           title="Total Engagement"
           value={totalEngagement.toLocaleString()}
           growth={detail.weekly_engagement_growth}
-          className={isCompleted ? "bg-[#F8F8FA]" : "bg-[#FDECFB]"}
+          className={isCompleted ? "bg-[#F8F8FA]" : "bg-[#F8EAF8]"}
         />
         <div
-          className={`rounded-[18px] p-5 ${
-            isCompleted ? "bg-[#F8F8FA]" : "bg-[#E8F5FF]"
+          className={`rounded-[20px] px-6 py-5 ${
+            isCompleted ? "bg-[#F8F8FA]" : "bg-[#E8F3FF]"
           }`}
         >
-          <p className="text-[16px] font-semibold text-[#1E1F24]">
+          <p className="text-[16px] font-medium text-[#1E1F24]">
             Challenge Progress
           </p>
           {isCompleted ? (
@@ -269,33 +298,35 @@ export default function BrandChallengePerformancePage() {
               <span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-[#1769E0] text-[16px] font-semibold text-[#1769E0]">
                 ✓
               </span>
-              <p className="text-[10px] leading-relaxed text-[#62636C]">
+              <p className="text-[11px] leading-relaxed text-[#8B8D98]">
                 Start Date
                 <br />
-                {formatDate(detail.start_date)}
+                <span className="text-[#62636C]">{formatDate(detail.start_date)}</span>
               </p>
-              <p className="text-right text-[10px] leading-relaxed text-[#62636C]">
+              <p className="text-right text-[11px] leading-relaxed text-[#8B8D98]">
                 End Date
                 <br />
-                {formatDate(detail.end_date)}
+                <span className="text-[#62636C]">{formatDate(detail.end_date)}</span>
               </p>
             </div>
           ) : (
-            <div className="mt-3 flex items-end justify-between gap-4">
-              <p className="text-[32px] font-semibold leading-none text-[#1E1F24]">
+            <div className="mt-4 flex items-end justify-between gap-4">
+              <p className="text-[36px] font-semibold leading-none tracking-[-0.04em] text-[#1E1F24]">
                 {daysLeft}
-                <span className="ml-1 text-[15px] font-medium">Days Left</span>
+                <span className="ml-2 text-[16px] font-medium tracking-normal">
+                  Days Left
+                </span>
               </p>
-              <p className="text-right text-[10px] leading-relaxed text-[#62636C]">
+              <p className="pb-1 text-right text-[11px] leading-relaxed text-[#8B8D98]">
                 End Date
                 <br />
-                {formatDate(detail.end_date)}
+                <span className="text-[#62636C]">{formatDate(detail.end_date)}</span>
               </p>
             </div>
           )}
-          <div className="mt-5 h-2.5 overflow-hidden rounded-full bg-[#CDE9FA]">
+          <div className="mt-6 h-2 overflow-hidden rounded-full bg-[#CDE4FF]">
             <div
-              className="h-full rounded-full bg-[#70A8FF]"
+              className="h-full rounded-full bg-[#6BA4FF]"
               style={{ width: `${isCompleted ? 100 : progress}%` }}
             />
           </div>
@@ -303,8 +334,10 @@ export default function BrandChallengePerformancePage() {
       </div>
 
       {!isCompleted && showNotice && (
-        <div className="mt-8 flex items-start gap-3 rounded-2xl border border-[#E4E7EC] bg-[#FCFCFD] px-5 py-4">
-          <FiInfo className="mt-0.5 shrink-0 text-[#8B8D98]" size={20} />
+        <div className="mt-7 flex items-start gap-3 rounded-2xl border border-[#E4E7EC] bg-white px-5 py-4">
+          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[#C0C3CE] text-[#8B8D98]">
+            <FiInfo size={12} />
+          </span>
           <p className="flex-1 text-[14px] leading-relaxed text-[#62636C]">
             Winners of the challenge will be automatically selected within a
             week after the Challenge end date, according to the leaderboard
@@ -314,22 +347,22 @@ export default function BrandChallengePerformancePage() {
             type="button"
             onClick={() => setShowNotice(false)}
             aria-label="Dismiss"
-            className="text-[#747682]"
+            className="text-[#8B8D98]"
           >
-            <FiX size={19} />
+            <FiX size={18} />
           </button>
         </div>
       )}
 
-      <section className="mt-10">
+      <section className="mt-9">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-[22px] font-semibold tracking-[-0.02em] text-[#1E1F24]">
             Challenge Leaderboard
           </h2>
-          <div className="relative w-full sm:w-[370px]">
+          <div className="relative w-full sm:w-[360px]">
             <FiSearch
               className="absolute top-1/2 left-4 -translate-y-1/2 text-[#8B8D98]"
-              size={17}
+              size={16}
             />
             <input
               value={search}
@@ -338,14 +371,14 @@ export default function BrandChallengePerformancePage() {
                 setPage(1);
               }}
               placeholder="Search rank, creator, platform or score"
-              className="w-full rounded-full border border-[#E4E7EC] py-2.5 pr-4 pl-11 text-[13px] outline-none placeholder:text-[#8B8D98] focus:border-[#0033FF]"
+              className="h-11 w-full rounded-full border border-[#E4E7EC] bg-white pr-4 pl-11 text-[13px] text-[#1E1F24] outline-none placeholder:text-[#8B8D98] focus:border-[#0033FF]"
             />
           </div>
         </div>
 
         <div className="mt-5 overflow-x-auto">
-          <div className="min-w-[700px]">
-            <div className="grid grid-cols-[64px_minmax(220px,1fr)_140px_140px_80px] gap-4 border-b border-[#E4E7EC] px-1 pb-4 text-[14px] font-medium text-[#62636C]">
+          <div className="min-w-[720px]">
+            <div className="grid grid-cols-[72px_minmax(220px,1.4fr)_140px_140px_90px] gap-4 border-b border-[#E4E7EC] px-1 pb-4 text-[14px] font-medium text-[#8B8D98]">
               <span>Rank</span>
               <span>Username</span>
               <span>Engagements</span>
@@ -357,40 +390,61 @@ export default function BrandChallengePerformancePage() {
               <p className="py-12 text-center text-[13px] text-[#747682]">
                 Loading leaderboard...
               </p>
+            ) : isLeaderboardError ? (
+              <p className="py-12 text-center text-[13px] text-[#D12B1F]">
+                Couldn’t load this leaderboard. Refresh and try again.
+              </p>
             ) : visibleRows.length === 0 ? (
               <p className="py-12 text-center text-[13px] text-[#747682]">
-                No leaderboard entries yet.
+                {totalSubmissions > 0
+                  ? `${totalSubmissions} submission${
+                      totalSubmissions === 1 ? " is" : "s are"
+                    } in. Ranked creators appear here after scoring finishes.`
+                  : "No leaderboard entries yet."}
               </p>
             ) : (
               visibleRows.map((entry, index) => {
-                const platforms = entry.platforms ?? [];
-                const score =
-                  entry.final_score ?? entry.challenge_score ?? 0;
+                const platforms = entryPlatforms(entry);
+                const score = entry.final_score ?? entry.challenge_score ?? 0;
+                const name =
+                  entry.display_name ||
+                  entry.full_name ||
+                  entry.username ||
+                  "Creator";
+                const trend = rankTrend(entry);
                 return (
                   <div
-                    key={entry.user_id}
-                    className="grid min-h-[76px] grid-cols-[64px_minmax(220px,1fr)_140px_140px_80px] items-center gap-4 border-b border-[#EEF0F4] px-1"
+                    key={
+                      entry.submission_id ||
+                      entry.entrant_id ||
+                      entry.user_id ||
+                      `${entry.rank}-${index}`
+                    }
+                    className="grid min-h-[80px] grid-cols-[72px_minmax(220px,1.4fr)_140px_140px_90px] items-center gap-4 border-b border-[#EEF0F4] px-1"
                   >
                     <span className="text-[14px] font-medium text-[#62636C]">
                       #{entry.rank || (page - 1) * PAGE_SIZE + index + 1}
                     </span>
                     <div className="flex min-w-0 items-center gap-3">
                       <BrandAvatar
-                        name={entry.full_name || entry.username}
+                        name={name}
                         src={entry.profile_picture_url}
                         className="h-10 w-10 border-2 border-[#83B5FF]"
                         letterClassName="text-xs"
                       />
                       <span className="truncate text-[14px] font-medium text-[#62636C]">
-                        {entry.full_name || entry.username || "Creator"}
+                        {name}
                       </span>
                     </div>
                     <span className="text-[14px] text-[#62636C]">
                       {Number(
-                        entry.engagement_count ?? entry.engagements ?? 0
+                        entry.total_engagement ??
+                          entry.engagement_count ??
+                          entry.engagements ??
+                          0
                       ).toLocaleString()}
                     </span>
-                    <span className="flex items-center gap-3">
+                    <span className="flex items-center gap-2.5">
                       {platforms.map((platform) => {
                         const key = platform.toLowerCase();
                         const src = platformIcons[key];
@@ -398,18 +452,18 @@ export default function BrandChallengePerformancePage() {
                           <Image
                             key={key}
                             src={src}
-                            width={20}
-                            height={20}
+                            width={22}
+                            height={22}
                             alt={platform}
-                            className="h-5 w-5 object-contain"
+                            className="h-[22px] w-[22px] object-contain"
                           />
                         ) : null;
                       })}
                     </span>
                     <span className="flex items-center justify-end gap-2 text-[15px] font-semibold text-[#1E1F24]">
-                      {entry.rank_direction === "up" ? (
+                      {trend === "up" ? (
                         <span className="text-[#12B76A]">↑</span>
-                      ) : entry.rank_direction === "down" ? (
+                      ) : trend === "down" ? (
                         <span className="text-[#F04438]">↓</span>
                       ) : (
                         <span className="h-2.5 w-2.5 rounded-full bg-[#D0D5DD]" />
@@ -423,16 +477,16 @@ export default function BrandChallengePerformancePage() {
           </div>
         </div>
 
-        <div className="mt-6 flex items-center justify-between">
+        <div className="mt-7 flex items-center justify-between">
           <button
             type="button"
             onClick={() => setPage((current) => Math.max(1, current - 1))}
             disabled={page === 1}
-            className="inline-flex items-center gap-2 rounded-full border border-[#8B8D98] px-5 py-2.5 text-[14px] text-[#62636C] disabled:opacity-40"
+            className="inline-flex h-11 items-center gap-2 rounded-full border border-[#8B8D98] px-5 text-[14px] font-medium text-[#62636C] disabled:opacity-40"
           >
             Back <FiArrowLeft />
           </button>
-          <div className="flex items-center gap-3 text-[14px] text-[#62636C]">
+          <div className="flex items-center gap-3 text-[14px] text-[#8B8D98]">
             <span className="rounded-lg bg-[#F9FAFB] px-3 py-2 font-medium text-[#1E1F24]">
               {page}
             </span>
@@ -449,7 +503,7 @@ export default function BrandChallengePerformancePage() {
               setPage((current) => Math.min(totalPages, current + 1))
             }
             disabled={page === totalPages}
-            className="inline-flex items-center gap-2 rounded-full border border-[#8B8D98] px-5 py-2.5 text-[14px] text-[#62636C] disabled:opacity-40"
+            className="inline-flex h-11 items-center gap-2 rounded-full border border-[#8B8D98] px-5 text-[14px] font-medium text-[#62636C] disabled:opacity-40"
           >
             Next <FiArrowRight />
           </button>

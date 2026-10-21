@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-const LINKS = [
+const CREATOR_LINKS = [
   { href: "/terms", label: "Terms of Service" },
   { href: "/privacy", label: "Privacy Policy" },
   { href: "/creator-terms", label: "Creator Terms" },
@@ -9,11 +9,26 @@ const LINKS = [
   { href: "/intellectual-property", label: "Copyright" },
 ];
 
-export default function DashboardSidebarFooter() {
+const BRAND_LINKS = [
+  { href: "/terms", label: "Terms of Service" },
+  { href: "/privacy", label: "Privacy Policy" },
+  { href: "/brand-terms", label: "Brand Terms" },
+  { href: "/cookies", label: "Cookie Policy" },
+  { href: "/community-guidelines", label: "Community Guidelines" },
+  { href: "/intellectual-property", label: "Copyright" },
+];
+
+export default function DashboardSidebarFooter({
+  variant = "creator",
+}: {
+  variant?: "creator" | "brand";
+}) {
+  const links = variant === "brand" ? BRAND_LINKS : CREATOR_LINKS;
+
   return (
     <div className="pt-2">
       <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5">
-        {LINKS.map((link) => (
+        {links.map((link) => (
           <Link
             key={link.href}
             href={link.href}

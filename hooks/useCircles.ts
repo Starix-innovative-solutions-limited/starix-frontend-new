@@ -1,6 +1,8 @@
+import { useMemo } from "react";
 import { useQuery, useMutation, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import axios from "axios";
+import { useGetMe } from "@/hooks/useAuth";
 
 export interface RecommendedChallenge {
   challenge_id: string;
@@ -35,23 +37,39 @@ export const useGetCircles = (page: number = 1) => {
   });
 };
 
+export interface CreatedCircle {
+  id: string;
+  circle_id?: string;
+  name: string;
+  join_code?: string | null;
+  privacy?: string;
+  created_by_user_id?: string;
+}
+
 export const useCreateCircle = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: any) => {
-      const { data } = await api.post("/circles", payload);
+    mutationFn: async (payload: {
+      name: string;
+      description?: string;
+      privacy: "public" | "private";
+      niches?: string[];
+      profile_picture_url?: string;
+      banner_url?: string;
+    }) => {
+      const { data } = await api.post<CreatedCircle>("/circles", payload);
       return data;
     },
     onSuccess: () => {
-      // Temporarily disable this to stop the 500 error loop
-      // while you work with your backend dev
-      // queryClient.invalidateQueries({ queryKey: ["circles"] });
-      console.log("Circle created! Refresh manually for now.");
+      queryClient.invalidateQueries({ queryKey: ["circles"] });
+      queryClient.invalidateQueries({ queryKey: ["myCircles"] });
+      queryClient.invalidateQueries({ queryKey: ["open-circles"] });
     },
   });
 };
 
 export interface CircleRecord {
+  id?: string;
   circle_id: string;
   name: string;
   description?: string | null;
@@ -59,14 +77,21 @@ export interface CircleRecord {
   niches?: string[];
   join_code?: string | null;
   admin_id?: string | null;
+  created_by_user_id?: string | null;
 }
 
 export const useGetCircle = (circleId: string) => {
   return useQuery<CircleRecord>({
     queryKey: ["circle", circleId],
     queryFn: async () => {
-      const { data } = await api.get<CircleRecord>(`/circles/${circleId}`);
-      return data;
+      const { data } = await api.get<CircleRecord & { id?: string }>(
+        `/circles/${circleId}`
+      );
+      return {
+        ...data,
+        circle_id: data.circle_id ?? data.id ?? circleId,
+        admin_id: data.admin_id ?? data.created_by_user_id ?? null,
+      };
     },
     enabled: !!circleId,
   });
@@ -128,29 +153,136 @@ export const useGetMyCircles = (page: number = 1, pageSize: number = 6) => {
   });
 };
 
-export const useGetOpenCircles = () => {
-  return useQuery<MyCircle[]>({
-    queryKey: ["open-circles"],
+interface OpenCircleEntry {
+  circle_id: string;
+  name: string;
+  profile_picture_url: string | null;
+  global_rank: number | null;
+  member_count: number;
+}
+
+interface MyJoinRequestEntry {
+  request_id: string;
+  circle_name: string;
+  circle_profile_picture_url: string | null;
+  member_count: number;
+  global_rank: number | null;
+  requested_at: string;
+}
+
+export type CircleMembership = "member" | "requested" | "none";
+
+export interface DiscoverableCircle {
+  circle_id: string;
+  name: string;
+  profile_picture_url: string | null;
+  global_rank: number | null;
+  member_count: number;
+  membership: CircleMembership;
+}
+
+const MY_JOIN_REQUESTS_KEY = ["circles", "join-requests", "mine"] as const;
+const CIRCLE_NOTIFICATIONS_KEY = ["circle-notifications"] as const;
+
+/**
+ * Every circle a creator can see: circles they created or belong to
+ * (GET /circles) plus other creators' public circles with space
+ * (GET /circles/open, which excludes the caller's own circles).
+ */
+export const useGetOpenCircles = (pageSize = 50) => {
+  const myCircles = useQuery<MyCircle[]>({
+    queryKey: ["open-circles", "mine", pageSize],
     queryFn: async () => {
-      const { data } = await api.get<MyCirclesResponse>("/circles");
+      const { data } = await api.get<MyCirclesResponse>("/circles", {
+        params: { page: 1, page_size: pageSize },
+      });
       return data?.items ?? [];
     },
   });
+
+  const openCircles = useQuery<OpenCircleEntry[]>({
+    queryKey: ["open-circles", "public", pageSize],
+    queryFn: async () => {
+      const { data } = await api.get<{ items: OpenCircleEntry[] }>("/circles/open", {
+        params: { page: 1, page_size: pageSize },
+      });
+      return data?.items ?? [];
+    },
+  });
+
+  const myRequests = useQuery<MyJoinRequestEntry[]>({
+    queryKey: MY_JOIN_REQUESTS_KEY,
+    queryFn: async () => {
+      const { data } = await api.get<MyJoinRequestEntry[]>("/circles/join-requests");
+      return Array.isArray(data) ? data : [];
+    },
+  });
+
+  const data = useMemo<DiscoverableCircle[]>(() => {
+    // Pending-request entries carry no circle_id, so match on name + picture.
+    const pending = new Set(
+      (myRequests.data ?? []).map(
+        (request) => `${request.circle_name}|${request.circle_profile_picture_url ?? ""}`
+      )
+    );
+
+    const merged = new Map<string, DiscoverableCircle>();
+
+    for (const circle of openCircles.data ?? []) {
+      merged.set(circle.circle_id, {
+        circle_id: circle.circle_id,
+        name: circle.name,
+        profile_picture_url: circle.profile_picture_url,
+        global_rank: circle.global_rank,
+        member_count: circle.member_count ?? 0,
+        membership: pending.has(`${circle.name}|${circle.profile_picture_url ?? ""}`)
+          ? "requested"
+          : "none",
+      });
+    }
+
+    for (const circle of myCircles.data ?? []) {
+      merged.set(circle.circle_id, {
+        circle_id: circle.circle_id,
+        name: circle.name,
+        profile_picture_url: circle.profile_picture_url,
+        global_rank: circle.global_rank ?? null,
+        member_count: circle.members?.length ?? 0,
+        membership: "member",
+      });
+    }
+
+    return Array.from(merged.values()).sort(
+      (a, b) => (a.global_rank ?? Infinity) - (b.global_rank ?? Infinity)
+    );
+  }, [myCircles.data, openCircles.data, myRequests.data]);
+
+  return {
+    data,
+    isLoading: myCircles.isLoading || openCircles.isLoading,
+  };
 };
 
 export const useRequestToJoin = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
-    // Use backticks here:
     mutationFn: async (circleId: string) => {
       const { data } = await api.post(`/circles/${circleId}/join-requests`);
       return data;
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: MY_JOIN_REQUESTS_KEY });
+      queryClient.invalidateQueries({ queryKey: ["open-circles"] });
     },
   });
 };
 
 export interface CircleJoinRequest {
   id: string;
+  circle_id?: string;
   user_id: string;
+  status?: string;
   created_at: string;
 }
 
@@ -179,8 +311,9 @@ export const useCancelJoinRequest = () => {
       return data;
     },
     onSuccess: () => {
-      // Invalidate queries to refresh the UI state
       queryClient.invalidateQueries({ queryKey: ["my-pending-requests"] });
+      queryClient.invalidateQueries({ queryKey: MY_JOIN_REQUESTS_KEY });
+      queryClient.invalidateQueries({ queryKey: CIRCLE_NOTIFICATIONS_KEY });
     },
   });
 };
@@ -207,34 +340,49 @@ export const useGetMyRequests = () => {
   });
 };
 
-export const useApproveJoinRequest = (circleId: string) => {
+type JoinRequestAction = string | { requestId: string; circleId: string };
+
+function resolveJoinRequestAction(action: JoinRequestAction, fallbackCircleId?: string) {
+  if (typeof action === "string") {
+    return { requestId: action, circleId: fallbackCircleId };
+  }
+  return action;
+}
+
+export const useApproveJoinRequest = (circleId?: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (requestId: string) => {
-      const { data } = await api.post(`/circles/${circleId}/join-requests/${requestId}/approve`);
+    mutationFn: async (action: JoinRequestAction) => {
+      const { requestId, circleId: id } = resolveJoinRequestAction(action, circleId);
+      if (!id) throw new Error("circleId is required");
+      const { data } = await api.post(`/circles/${id}/join-requests/${requestId}/approve`);
       return data;
     },
-    onSuccess: () => {
-      // Invalidate both the requests list and the members list
-      queryClient.invalidateQueries({ queryKey: ["circle-requests", circleId] });
-      queryClient.invalidateQueries({ queryKey: ["circle-members", circleId] });
+    onSuccess: (_data, action) => {
+      const { circleId: id } = resolveJoinRequestAction(action, circleId);
+      queryClient.invalidateQueries({ queryKey: ["circle-requests", id] });
+      queryClient.invalidateQueries({ queryKey: ["circle-members", id] });
+      queryClient.invalidateQueries({ queryKey: ["circle-profile", id] });
+      queryClient.invalidateQueries({ queryKey: CIRCLE_NOTIFICATIONS_KEY });
     },
   });
 };
 
-export const useRejectJoinRequest = (circleId: string) => {
+export const useRejectJoinRequest = (circleId?: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (requestId: string) => {
-      // POST /circles/{circle_id}/join-requests/{request_id}/reject
-      const { data } = await api.post(`/circles/${circleId}/join-requests/${requestId}/reject`);
+    mutationFn: async (action: JoinRequestAction) => {
+      const { requestId, circleId: id } = resolveJoinRequestAction(action, circleId);
+      if (!id) throw new Error("circleId is required");
+      const { data } = await api.post(`/circles/${id}/join-requests/${requestId}/reject`);
       return data;
     },
-    onSuccess: () => {
-      // Refresh the list to remove the rejected item
-      queryClient.invalidateQueries({ queryKey: ["circle-requests", circleId] });
+    onSuccess: (_data, action) => {
+      const { circleId: id } = resolveJoinRequestAction(action, circleId);
+      queryClient.invalidateQueries({ queryKey: ["circle-requests", id] });
+      queryClient.invalidateQueries({ queryKey: CIRCLE_NOTIFICATIONS_KEY });
     },
   });
 };
@@ -283,6 +431,7 @@ export interface CircleProfile {
     full_name?: string;
     profile_picture_url: string | null;
     role?: string;
+    joined_at?: string;
   }[];
   connected_platforms?: (string | { platform: string })[];
   join_code?: string | null;
@@ -441,13 +590,23 @@ export const useGetCircleMembers = (circle_id: string) => {
 
 
 
-export const useSendInvites = (circleId: string) => {
+export const useSendInvites = (circleId?: string) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (invites: { email: string; role: "member" | "admin" }[]) => {
+      if (!circleId) throw new Error("circleId is required");
+      const acceptUrl =
+        typeof window !== "undefined" ? `${window.location.origin}/accept` : undefined;
       const { data } = await api.post(`/circles/${circleId}/invitations`, {
         invites,
+        ...(acceptUrl ? { accept_url: acceptUrl } : {}),
       });
       return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["circle-invitations", circleId] });
+      queryClient.invalidateQueries({ queryKey: ["circles"] });
+      queryClient.invalidateQueries({ queryKey: CIRCLE_NOTIFICATIONS_KEY });
     },
   });
 };
@@ -491,11 +650,12 @@ export const useRevokeInvitation = (circleId: string) => {
 
 export interface MyInvitation {
   invitation_id: string;
-  circle_id: string;
+  circle_id?: string;
   circle_name: string;
   circle_profile_picture_url: string | null;
   member_count: number;
   global_rank: number;
+  invited_at?: string;
 }
 
 export const useGetMyInvitations = () => {
@@ -519,26 +679,264 @@ export interface AcceptInvitationResponse {
 
 
 export const useAcceptInvitation = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (invitationId: string) => {
-      // Backend expects 'token', so we pass the ID as 'token'
-      const { data } = await api.post("/circles/invitations/accept", { 
-        token: invitationId 
+      const { data } = await api.post("/circles/invitations/accept", {
+        token: invitationId,
       });
       return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-invitations"] });
+      queryClient.invalidateQueries({ queryKey: ["circles"] });
+      queryClient.invalidateQueries({ queryKey: ["myCircles"] });
+      queryClient.invalidateQueries({ queryKey: CIRCLE_NOTIFICATIONS_KEY });
     },
   });
 };
 
 export const useDeclineInvitation = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (invitationId: string) => {
-      // Backend expects 'token', so we pass the ID as 'token'
-      const { data } = await api.post("/circles/invitations/decline", { 
-        token: invitationId 
+      const { data } = await api.post("/circles/invitations/decline", {
+        token: invitationId,
       });
       return data;
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-invitations"] });
+      queryClient.invalidateQueries({ queryKey: CIRCLE_NOTIFICATIONS_KEY });
+    },
+  });
+};
+
+const JOIN_ACTIVITY_WINDOW_MS = 1000 * 60 * 60 * 24 * 30;
+const MAX_CIRCLES_FOR_ACTIVITY = 12;
+
+export type CircleNotificationKind =
+  | "invitation"
+  | "join_request"
+  | "member_joined"
+  | "my_join_request"
+  | "payout_approval"
+  | "payout_pending"
+  | "active_challenge";
+
+export interface CircleNotification {
+  id: string;
+  kind: CircleNotificationKind;
+  title: string;
+  body: string;
+  at: string;
+  imageUrl: string | null;
+  href?: string;
+  circleId?: string;
+  invitationId?: string;
+  requestId?: string;
+  sticky: boolean;
+}
+
+async function safeGet<T>(url: string, params?: Record<string, string | number>): Promise<T | null> {
+  try {
+    const { data } = await api.get<T>(url, { params });
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function asList<T>(data: T[] | { items?: T[] } | null | undefined): T[] {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  return data.items ?? [];
+}
+
+export const useGetCircleNotifications = (currentUserId?: string | null) => {
+  return useQuery<CircleNotification[]>({
+    queryKey: [...CIRCLE_NOTIFICATIONS_KEY, currentUserId ?? "anon"],
+    queryFn: async () => {
+      const [circlesPage, invitations, myRequests] = await Promise.all([
+        safeGet<MyCirclesResponse>("/circles", { page: 1, page_size: 50 }),
+        safeGet<MyInvitation[]>("/circles/invitations"),
+        safeGet<MyJoinRequestEntry[] | { items?: MyJoinRequestEntry[] }>("/circles/join-requests"),
+      ]);
+
+      const circles = circlesPage?.items ?? [];
+      const notifications: CircleNotification[] = [];
+      const now = Date.now();
+
+      for (const invite of asList(invitations)) {
+        notifications.push({
+          id: `invitation:${invite.invitation_id}`,
+          kind: "invitation",
+          title: "Circle invitation",
+          body: `You were invited to join ${invite.circle_name}.`,
+          at: invite.invited_at || new Date().toISOString(),
+          imageUrl: invite.circle_profile_picture_url,
+          invitationId: invite.invitation_id,
+          circleId: invite.circle_id,
+          href: invite.circle_id
+            ? `/creator-circles/${invite.circle_id}/circle-profile`
+            : undefined,
+          sticky: true,
+        });
+      }
+
+      for (const request of asList(myRequests)) {
+        notifications.push({
+          id: `my-request:${request.request_id}`,
+          kind: "my_join_request",
+          title: "Join request pending",
+          body: `Your request to join ${request.circle_name} is still waiting for an admin.`,
+          at: request.requested_at,
+          imageUrl: request.circle_profile_picture_url,
+          requestId: request.request_id,
+          sticky: true,
+        });
+      }
+
+      const scopedCircles = circles.slice(0, MAX_CIRCLES_FOR_ACTIVITY);
+
+      const perCircle = await Promise.all(
+        scopedCircles.map(async (circle) => {
+          const isAdmin = circle.role === "admin";
+          const [joinRequests, profile, payouts, challenges] = await Promise.all([
+            isAdmin
+              ? safeGet<CircleJoinRequest[] | { items?: CircleJoinRequest[] }>(
+                  `/circles/${circle.circle_id}/join-requests`
+                )
+              : Promise.resolve(null),
+            isAdmin
+              ? safeGet<CircleProfile>(`/circles/${circle.circle_id}/profile`)
+              : Promise.resolve(null),
+            safeGet<CirclePayoutSettingsResponse>(
+              `/circles/${circle.circle_id}/payout-settings`
+            ),
+            safeGet<CircleChallengesPage>(`/circles/${circle.circle_id}/challenges`, {
+              filter: "active",
+              page: 1,
+              page_size: 5,
+            }),
+          ]);
+
+          return { circle, isAdmin, joinRequests, profile, payouts, challenges };
+        })
+      );
+
+      for (const { circle, isAdmin, joinRequests, profile, payouts, challenges } of perCircle) {
+        const circleHref = `/creator-circles/${circle.circle_id}/circle-profile`;
+
+        if (isAdmin) {
+          for (const request of asList(joinRequests)) {
+            if (request.status && request.status !== "pending") continue;
+            notifications.push({
+              id: `join-request:${request.id}`,
+              kind: "join_request",
+              title: "New join request",
+              body: `Someone requested to join ${circle.name}.`,
+              at: request.created_at || new Date().toISOString(),
+              imageUrl: circle.profile_picture_url,
+              href: circleHref,
+              circleId: circle.circle_id,
+              requestId: request.id,
+              sticky: true,
+            });
+          }
+
+          for (const member of profile?.members ?? []) {
+            if (!member.joined_at) continue;
+            if (currentUserId && member.user_id === currentUserId) continue;
+            const joinedAt = new Date(member.joined_at).getTime();
+            if (Number.isNaN(joinedAt) || now - joinedAt > JOIN_ACTIVITY_WINDOW_MS) continue;
+            const who = member.full_name || member.username || "A creator";
+            notifications.push({
+              id: `member-joined:${circle.circle_id}:${member.user_id}:${member.joined_at}`,
+              kind: "member_joined",
+              title: "New circle member",
+              body: `${who} joined ${circle.name}.`,
+              at: member.joined_at,
+              imageUrl: member.profile_picture_url || circle.profile_picture_url,
+              href: circleHref,
+              circleId: circle.circle_id,
+              sticky: false,
+            });
+          }
+        }
+
+        if (payouts) {
+          const myShare = currentUserId
+            ? payouts.shares.find((share) => share.user_id === currentUserId)
+            : undefined;
+          const myPending =
+            myShare &&
+            (myShare.approval_status === "pending" || myShare.approved === false);
+
+          if (myPending) {
+            notifications.push({
+              id: `payout-approval:${circle.circle_id}:${currentUserId}`,
+              kind: "payout_approval",
+              title: "Payout split needs you",
+              body: `Approve your payout share for ${circle.name}.`,
+              at: "",
+              imageUrl: circle.profile_picture_url,
+              href: circleHref,
+              circleId: circle.circle_id,
+              sticky: true,
+            });
+          } else if (
+            isAdmin &&
+            payouts.shares.length > 0 &&
+            payouts.fully_approved !== true &&
+            payouts.fully_approved !== "confirmed"
+          ) {
+            notifications.push({
+              id: `payout-pending:${circle.circle_id}`,
+              kind: "payout_pending",
+              title: "Payout split pending",
+              body: `Members still need to confirm payout shares in ${circle.name}.`,
+              at: "",
+              imageUrl: circle.profile_picture_url,
+              href: circleHref,
+              circleId: circle.circle_id,
+              sticky: false,
+            });
+          }
+        }
+
+        const challenge = challenges?.items?.[0];
+        if (challenge) {
+          notifications.push({
+            id: `challenge:${circle.circle_id}:${challenge.challenge_id}`,
+            kind: "active_challenge",
+            title: "Active circle challenge",
+            body: `${circle.name} is in “${challenge.title}” with ${challenge.brand_name}.`,
+            at: "",
+            imageUrl: challenge.brand_logo_url || circle.profile_picture_url,
+            href: circleHref,
+            circleId: circle.circle_id,
+            sticky: false,
+          });
+        }
+      }
+
+      const rank = (item: CircleNotification) => {
+        if (item.kind === "join_request" || item.kind === "invitation") return 0;
+        if (item.sticky) return 1;
+        if (item.at) return 2;
+        return 3;
+      };
+
+      return notifications.sort((a, b) => {
+        const rankDiff = rank(a) - rank(b);
+        if (rankDiff !== 0) return rankDiff;
+        return new Date(b.at || 0).getTime() - new Date(a.at || 0).getTime();
+      });
+    },
+    staleTime: 30_000,
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -553,17 +951,7 @@ export interface CurrentUser {
 }
 
 export const useGetCurrentUser = () => {
-  return useQuery<CurrentUser | null>({
-    queryKey: ["current-user"],
-    queryFn: () => {
-      const storedUser = localStorage.getItem("user");
-      return storedUser ? (JSON.parse(storedUser) as CurrentUser) : null;
-    },
-    initialData: () => {
-      const storedUser = localStorage.getItem("user");
-      return storedUser ? (JSON.parse(storedUser) as CurrentUser) : null;
-    },
-  });
+  return useGetMe();
 };
 
 export const useGetLeaderboard = (circleId?: string | null, page: number = 0, options: any = {}) => {
@@ -631,7 +1019,7 @@ export interface CirclePayoutShare {
 export interface CirclePayoutSettingsResponse {
   shares: CirclePayoutShare[];
   total_percentage: number;
-  fully_approved: boolean;
+  fully_approved: boolean | "pending" | "confirmed";
 }
 
 export const useGetCirclePayouts = (circleId: string) => {

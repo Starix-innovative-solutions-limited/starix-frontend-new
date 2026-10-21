@@ -17,6 +17,7 @@ const CTASection = () => {
     path === "/terms" ||
     path === "/cookies" ||
     path === "/creator-terms" ||
+    path === "/brand-terms" ||
     path === "/community-guidelines" ||
     path === "/intellectual-property"
   )
