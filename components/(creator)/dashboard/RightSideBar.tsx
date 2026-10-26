@@ -12,8 +12,14 @@ import WithdrawModal from "./WithdrawModal";
 import JoinRequestModal from "./JoinRequestModal";
 import CircleMembershipButton from "./CircleMembershipButton";
 import ShareScoreModal from "./ShareScoreModal";
+import ConnectSocialsModal from "./ConnectSocialsModal";
 import { useGetMe } from "@/hooks/useAuth";
-import { useGetMyStarixScore, useGetGlobalLeaderboard } from "@/hooks/useProfile";
+import {
+  useGetMyStarixScore,
+  useGetGlobalLeaderboard,
+  useGetCreatorProfile,
+  type StarixScoreResponse,
+} from "@/hooks/useProfile";
 import { useGetWithdrawalAccount, useGetEarningsSummary } from "@/hooks/useWallet";
 import {
   useGetOpenCircles,
@@ -32,8 +38,13 @@ import {
 } from "@/hooks/useChallenges";
 import BrandAvatar from "@/components/(brand)/BrandAvatar";
 import DashboardSidebarFooter from "@/components/dashboard/DashboardSidebarFooter";
+import { DashboardSearchInput } from "@/components/dashboard/DashboardSearchProvider";
 import { formatCompactNaira } from "@/lib/formatMoney";
 import { FaCircle } from "react-icons/fa6";
+import {
+  creatorProfileHref,
+  profileUsernameFromPath,
+} from "@/lib/creatorProfilePath";
 
 function formatViewCount(count?: number) {
   const value = count ?? 0;
@@ -46,6 +57,26 @@ function formatViewCount(count?: number) {
   return `${value} view${value === 1 ? "" : "s"}`;
 }
 
+function ScoreCalculatingMark() {
+  return (
+    <span className="relative flex h-7 w-7 shrink-0 items-center justify-center" aria-hidden>
+      <span className="absolute inset-0 animate-spin">
+        {Array.from({ length: 8 }).map((_, index) => (
+          <span
+            key={index}
+            className="absolute top-1/2 left-1/2 h-[9px] w-[2.5px] rounded-full bg-[#5B8CFF]"
+            style={{
+              transform: `translate(-50%, -110%) rotate(${index * 45}deg)`,
+              transformOrigin: "center 14px",
+              opacity: 0.35 + (index % 8) * 0.08,
+            }}
+          />
+        ))}
+      </span>
+    </span>
+  );
+}
+
 function challengePrizeLabel(challenge: ChallengeItem) {
   return formatCompactNaira(
     challenge.prize_pool_display ||
@@ -53,6 +84,127 @@ function challengePrizeLabel(challenge: ChallengeItem) {
         ? challenge.prize_pool / 100
         : 0),
     challenge.currency_symbol || "₦"
+  );
+}
+
+type SidebarLeaderboardRow = {
+  id: number;
+  name: string;
+  score: number;
+  trend: string;
+  avatar: string | null;
+  isUser: boolean;
+  username?: string | null;
+};
+
+function SidebarGlobalLeaderboard({
+  rows,
+  currentUsername,
+  pathname,
+}: {
+  rows: SidebarLeaderboardRow[];
+  currentUsername: string | null;
+  pathname: string;
+}) {
+  return (
+    <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
+      <div className="flex items-center justify-between px-6 py-5">
+        <h4 className="font-semibold text-[#1E1F24] text-[16px] ">Global Leaderboard</h4>
+        <HiArrowRight className="text-[#1E1F24]" size={20} />
+      </div>
+      <div className="pb-2 border-t border-[#EFF0F3]">
+        {rows.map((user, idx) => {
+          const href = creatorProfileHref(user.username, currentUsername);
+          const isCurrentPage =
+            !!href &&
+            (href === pathname ||
+              (href === "/profile" &&
+                (pathname === "/profile" ||
+                  pathname.toLowerCase() ===
+                    `/profile/${(currentUsername ?? "").toLowerCase()}`)));
+          const className = `flex items-center justify-between py-4 px-6 border-t border-[#EFF0F3] first:border-t-0 ${
+            user.isUser ? "bg-[#F5FBFF]" : ""
+          } ${href && !isCurrentPage ? "hover:bg-[#F8FAFF]" : ""}`;
+          const content = (
+            <>
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="text-[14px] font-semibold text-[#62636C] w-8">
+                  {user.id === 0 ? "—" : `#${user.id}`}
+                </span>
+                <div
+                  className={`
+                          relative w-8 h-8 rounded-full overflow-hidden p-[2px] shrink-0
+                          ${
+                            user.isUser
+                              ? "bg-gradient-to-r from-[#FD6C1D] to-[#73A4FF] border-[2px] border-transparent"
+                              : "border-[#73A4FF] border-[2px]"
+                          }
+                        `}
+                >
+                  <div className="w-full h-full rounded-full overflow-hidden bg-white">
+                    {user.avatar ? (
+                      <Image
+                        src={user.avatar}
+                        fill
+                        alt={user.name}
+                        sizes="32px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div
+                        className="h-full w-full bg-[#F5F6F8]"
+                        aria-label="No profile picture"
+                      />
+                    )}
+                  </div>
+                </div>
+                <span
+                  className={`text-[14px] font-semibold truncate ${
+                    user.isUser ? "text-[#1E1F24]" : "text-[#62636C]"
+                  }`}
+                >
+                  {user.name}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                {user.trend === "up" ? (
+                  <span className="text-green-500 text-[14px] font-semibold">↑</span>
+                ) : user.trend === "down" ? (
+                  <span className="text-red-500 text-[14px] font-semibold">↓</span>
+                ) : (
+                  <span className="text-gray-300 text-[14px] font-semibold">
+                    <FaCircle />
+                  </span>
+                )}
+                <span className="text-[14px] font-semibold text-[#1E1F24]">
+                  {user.score}
+                </span>
+                <Image
+                  src="/contact star.webp"
+                  width={16}
+                  height={16}
+                  alt="points"
+                />
+              </div>
+            </>
+          );
+
+          if (href && !isCurrentPage) {
+            return (
+              <Link key={`${user.id}-${user.username ?? idx}`} href={href} className={className}>
+                {content}
+              </Link>
+            );
+          }
+
+          return (
+            <div key={`${user.id}-${user.username ?? idx}`} className={className}>
+              {content}
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -110,8 +262,22 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
   const { data: userProfile } = useGetMe();
 
   const currentUsername = (userProfile as any)?.username ?? null;
-
-  
+  const viewedProfileUsername = profileUsernameFromPath(pathname);
+  const isPublicProfilePage = Boolean(
+    viewedProfileUsername &&
+      currentUsername &&
+      viewedProfileUsername.toLowerCase() !== currentUsername.toLowerCase()
+  );
+  const isPersonalProfilePage =
+    pathname === "/profile" ||
+    Boolean(
+      viewedProfileUsername &&
+        currentUsername &&
+        viewedProfileUsername.toLowerCase() === currentUsername.toLowerCase()
+    );
+  const leaderboardUsername = isPublicProfilePage
+    ? viewedProfileUsername
+    : currentUsername;
 
   const { data: openCircles } = useGetOpenCircles();
   const sidebarCircles = openCircles.slice(0, 5);
@@ -119,8 +285,13 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
   const [isJoinRequestModalOpen, setIsJoinRequestModalOpen] = useState(false);
   const [selectedCircle, setSelectedCircle] = useState<DiscoverableCircle | null>(null);
 
-  const { data: scoreData } = useGetMyStarixScore();
-  const { data: leaderboardData } = useGetGlobalLeaderboard(currentUsername);
+  const { data: scoreData } = useGetMyStarixScore() as {
+    data: StarixScoreResponse | null | undefined;
+  };
+  const { data: creatorProfile } = useGetCreatorProfile(currentUsername ?? "", {
+    enabled: Boolean(currentUsername),
+  });
+  const { data: leaderboardData } = useGetGlobalLeaderboard(leaderboardUsername);
   const { data: activeAccount, isLoading: isLoadingAccount } = useGetWithdrawalAccount();
 
   const [earningsPeriod, setEarningsPeriod] = useState<"this_month" | "all_time">("this_month");
@@ -198,6 +369,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
 
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   const [isShareScoreOpen, setIsShareScoreOpen] = useState(false);
+  const [isConnectSocialsOpen, setIsConnectSocialsOpen] = useState(false);
 
   const shareDisplayName =
     [userProfile?.first_name, userProfile?.last_name]
@@ -213,55 +385,95 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
   };
 
   const activeStarixScore = scoreData?.starix_score ?? 0;
+  const connectedPlatforms =
+    creatorProfile?.connected_platforms ??
+    userProfile?.connected_platforms ??
+    [];
+  const hasConnectedSocials =
+    connectedPlatforms.length > 0 ||
+    (scoreData?.connected_platforms_count ?? 0) > 0;
+  const hasCalculatedScore = Boolean(scoreData?.last_calculated_at);
+  const scoreCardState: "unavailable" | "calculating" | "ready" =
+    !hasConnectedSocials
+      ? "unavailable"
+      : hasCalculatedScore
+        ? "ready"
+        : "calculating";
 
   const renderedLeaderboard = React.useMemo(() => {
-    const currentUser = {
+    const viewerFallbackName = isPublicProfilePage
+      ? viewedProfileUsername || "Creator"
+      : "You";
+    const currentUser: SidebarLeaderboardRow = {
       id: 0,
-      name: "You",
-      score: activeStarixScore,
+      name: viewerFallbackName,
+      score: isPublicProfilePage ? 0 : activeStarixScore,
       trend: "neutral",
-      avatar: (userProfile as any)?.profile_picture_url?.trim() || null,
+      avatar: isPublicProfilePage
+        ? null
+        : (userProfile as any)?.profile_picture_url?.trim() || null,
       isUser: true,
+      username: isPublicProfilePage ? viewedProfileUsername : currentUsername,
     };
 
     if (!leaderboardData?.entries) {
       return [
-        { id: 1, name: "—", score: 0, trend: "neutral", avatar: null,   isUser: false },
-        { id: 2, name: "—", score: 0, trend: "neutral", avatar: null,   isUser: false },
-        { id: 3, name: "—", score: 0, trend: "neutral", avatar: null,   isUser: false },
+        { id: 1, name: "—", score: 0, trend: "neutral", avatar: null, isUser: false, username: null },
+        { id: 2, name: "—", score: 0, trend: "neutral", avatar: null, isUser: false, username: null },
+        { id: 3, name: "—", score: 0, trend: "neutral", avatar: null, isUser: false, username: null },
         currentUser,
       ];
     }
 
-    const list = leaderboardData.entries.map((entry: any) => ({
-      id:     entry.rank,
-      name:   entry.full_name || entry.username || "Creator",
-      score:  entry.starix_score,
-      trend:
-      entry.rank_direction === "same" || entry.rank_direction === "stable"
-        ? "neutral"
-        : entry.rank_direction,
-      avatar: entry.profile_picture_url?.trim() || null,
-      isUser: entry.user_id === leaderboardData.viewer_entry?.user_id,
-    }));
+    const list: SidebarLeaderboardRow[] = leaderboardData.entries.map((entry: any) => {
+      const isViewer = entry.user_id === leaderboardData.viewer_entry?.user_id;
+      return {
+        id: entry.rank,
+        name:
+          isViewer && !isPublicProfilePage
+            ? "You"
+            : entry.full_name || entry.username || "Creator",
+        score: entry.starix_score,
+        trend:
+          entry.rank_direction === "same" || entry.rank_direction === "stable"
+            ? "neutral"
+            : entry.rank_direction,
+        avatar: entry.profile_picture_url?.trim() || null,
+        isUser: isViewer,
+        username: entry.username ?? null,
+      };
+    });
 
-    const userInList = list.some((item: any) => item.isUser);
+    const userInList = list.some((item) => item.isUser);
     if (!userInList) {
       const viewer = leaderboardData.viewer_entry;
       list.push({
-        id:     viewer?.rank ?? 0,
-        name:   currentUser.name,
-        score:  viewer?.starix_score ?? activeStarixScore,
-        trend:  viewer
-          ? viewer.rank_direction === "stable" ? "neutral" : viewer.rank_direction
+        id: viewer?.rank ?? 0,
+        name:
+          isPublicProfilePage
+            ? viewer?.full_name || viewer?.username || viewerFallbackName
+            : "You",
+        score: viewer?.starix_score ?? currentUser.score,
+        trend: viewer
+          ? viewer.rank_direction === "stable"
+            ? "neutral"
+            : viewer.rank_direction
           : "neutral",
-        avatar: currentUser.avatar,
+        avatar: viewer?.profile_picture_url?.trim() || currentUser.avatar,
         isUser: true,
+        username: viewer?.username ?? currentUser.username,
       });
     }
 
     return list;
-  }, [leaderboardData, activeStarixScore, userProfile, currentUsername]);
+  }, [
+    leaderboardData,
+    activeStarixScore,
+    userProfile,
+    currentUsername,
+    isPublicProfilePage,
+    viewedProfileUsername,
+  ]);
 
   const challengeLeaderboardRows = React.useMemo(() => {
     const entries = challengeLeaderboard?.entries ?? [];
@@ -349,10 +561,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
           <Image src="/close.webp" alt="Toggle Sidebar" width={40} height={40} className="object-contain" />
         </button>
         {!collapsed ? (
-          <div className="relative flex-1">
-            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]" size={18} />
-            <input type="text" placeholder="Search Starix" className="w-full bg-[#F8FAFC] border-none rounded-full py-3 pl-12 pr-4 text-sm focus:ring-2 focus:ring-blue-100 outline-none placeholder:text-[#9CA3AF]" />
-          </div>
+          <DashboardSearchInput />
         ) : (
           <button onClick={setCollapsed} className="p-3 rounded-full bg-[#F8FAFC] text-[#9CA3AF] hover:text-[#0047FF] transition-all duration-300 -translate-y-[150%]">
             <FiSearch size={20} />
@@ -988,6 +1197,62 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
             </div>
           </div>
 
+        ) : isPublicProfilePage ? (
+          <div className="space-y-6">
+            <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
+              <div className="flex items-center justify-between px-5 py-4 border-b mb-4 border-[#EFF0F3]">
+                <h4 className="font-semibold text-[#1E1F24] text-[16px]">Trending Challenges</h4>
+                <Link href="/challenges/trending">
+                  <HiArrowRight className="text-[#1E1F24] hover:text-blue-600 transition-colors" size={20} />
+                </Link>
+              </div>
+              <div className="px-5 pb-6 space-y-6">
+                {isLoadingSidebarTrending ? (
+                  <p className="py-4 text-center text-[12px] text-[#747682]">Loading...</p>
+                ) : sidebarTrending.length === 0 ? (
+                  <p className="py-4 text-center text-[12px] text-[#747682]">
+                    No trending challenges yet.
+                  </p>
+                ) : (
+                  sidebarTrending.map((c) => (
+                    <Link
+                      key={c.id}
+                      href={`/dashboard/challenge/${c.id}`}
+                      className="block space-y-1 hover:opacity-80 transition-opacity"
+                    >
+                      <h5 className="text-[13px] font-semibold text-[#62636C] leading-snug line-clamp-2">
+                        {c.title}
+                      </h5>
+                      <div className="flex items-center">
+                        <div className="relative w-6 h-6 rounded-full border-2 border-white overflow-hidden mr-1.5 shrink-0 bg-gray-100">
+                          <Image
+                            src={c.brand_profile_picture_url || "/dash-logo.webp"}
+                            fill
+                            alt={c.brand_name || "Brand"}
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex items-center gap-1 text-[12px] text-[#747682] font-medium min-w-0">
+                          <span className="shrink-0">{formatViewCount(c.viewer_count)}</span>
+                          <span className="text-[#D9D9D9]">•</span>
+                          <span className="truncate">{c.brand_name || "Brand"}</span>
+                          {(c.is_funded || c.is_published) && (
+                            <GoCheckCircleFill className="text-green-500 text-[11px] shrink-0" />
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <SidebarGlobalLeaderboard
+              rows={renderedLeaderboard}
+              currentUsername={currentUsername}
+              pathname={pathname}
+            />
+          </div>
         ) : (
           /* ── Default: Dashboard global view ── */
           <div className="space-y-6">
@@ -1003,71 +1268,137 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                   <Image src="/dashlogo.webp" fill alt="Star Icon" className="object-contain" />
                 </div>
               </div>
-              <div className="w-full h-[12px] bg-[#D4EBFF] rounded-full mt-6 overflow-hidden">
-                <div className="h-full bg-[#4082FF] rounded-full transition-all duration-500 ease-out" style={{ width: `${Math.min(Math.max(activeStarixScore, 0), 100)}%` }} />
-              </div>
-              <div className="flex justify-between items-center mt-6">
-                <div className="text-[40px] font-medium text-[#1E1F24] leading-none tracking-tight">
-                  {activeStarixScore}<span className="text-[20px] text-[#747682] font-medium ml-0.5">/100</span>
+
+              {scoreCardState === "unavailable" ? (
+                <div className="mt-5 flex items-center justify-between gap-4 border-t border-[#DCEBFF] pt-5">
+                  <p className="text-[13px] leading-snug text-[#8B8D98]">
+                    Connect your Socials
+                    <br />
+                    to get your Score
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setIsConnectSocialsOpen(true)}
+                    className="shrink-0 rounded-full border border-[#8B8D98] bg-white px-5 py-2.5 text-[13px] font-medium text-[#1E1F24] transition-colors hover:bg-gray-50"
+                  >
+                    Connect Socials
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setIsShareScoreOpen(true)}
-                  className="border border-[#8B8D98] text-[#1E1F24] px-5 py-2.5 rounded-full text-[12px] font-medium hover:bg-gray-50 transition-colors cursor-pointer"
-                >
-                  Share Score
-                </button>
-              </div>
+              ) : scoreCardState === "calculating" ? (
+                <div className="mt-5 flex items-center justify-between gap-3 border-t border-[#DCEBFF] pt-5">
+                  <div className="flex items-center gap-2.5 text-[#5B8CFF]">
+                    <ScoreCalculatingMark />
+                    <p className="text-[13px] leading-snug font-medium">
+                      Calculating
+                      <br />
+                      Starix Score...
+                    </p>
+                  </div>
+                  <p className="max-w-[150px] text-right text-[12px] leading-snug text-[#8B8D98]">
+                    Your score will appear here once it&apos;s ready
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="w-full h-[12px] bg-[#D4EBFF] rounded-full mt-6 overflow-hidden">
+                    <div className="h-full bg-[#4082FF] rounded-full transition-all duration-500 ease-out" style={{ width: `${Math.min(Math.max(activeStarixScore, 0), 100)}%` }} />
+                  </div>
+                  <div className="flex justify-between items-center mt-6">
+                    <div className="text-[40px] font-medium text-[#1E1F24] leading-none tracking-tight">
+                      {activeStarixScore}<span className="text-[20px] text-[#747682] font-medium ml-0.5">/100</span>
+                    </div>
+                    {isPersonalProfilePage ? (
+                      <Link
+                        href="/analytics"
+                        className="border border-[#8B8D98] text-[#1E1F24] px-5 py-2.5 rounded-full text-[12px] font-medium hover:bg-gray-50 transition-colors"
+                      >
+                        Improve Score
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setIsShareScoreOpen(true)}
+                        className="border border-[#8B8D98] text-[#1E1F24] px-5 py-2.5 rounded-full text-[12px] font-medium hover:bg-gray-50 transition-colors cursor-pointer"
+                      >
+                        Share Score
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
 
-            <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
-              <div className="flex items-center justify-between px-6 py-5">
-                <h4 className="font-semibold text-[#1E1F24] text-[16px] ">Global Leaderboard</h4>
-                <HiArrowRight className="text-[#1E1F24]" size={20} />
-              </div>
-              <div className="pb-2 border-t border-[#EFF0F3]">
-                {renderedLeaderboard.map((user: any, idx: number) => (
-                  <div key={idx} className={`flex items-center justify-between py-4 px-6 border-t border-[#EFF0F3] first:border-t-0 ${user.isUser ? "bg-[#F5FBFF]" : ""}`}>
-                    <div className="flex items-center gap-3">
-                      <span className="text-[14px] font-semibold text-[#62636C] w-8">{user.id === 0 ? "—" : `#${user.id}`}</span>
-                      <div 
-                        className={`
-                          relative w-8 h-8 rounded-full overflow-hidden p-[2px]
-                          ${user.isUser 
-                            ? "bg-gradient-to-r from-[#FD6C1D] to-[#73A4FF] border-[2px] border-transparent" 
-                            : "border-[#73A4FF] border-[2px]"}
-                        `}
-                        
+            {isPersonalProfilePage && (
+              <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
+                <div className="flex items-center justify-between px-5 py-4">
+                  <h4 className="font-semibold text-[#1E1F24] text-[16px]">
+                    Recommended Challenges
+                  </h4>
+                  <Link href="/challenges/recommended" className="flex items-center">
+                    <HiArrowRight
+                      className="text-[#1E1F24] cursor-pointer hover:text-blue-600 transition-colors"
+                      size={20}
+                    />
+                  </Link>
+                </div>
+                <div className="px-2 pb-2 space-y-1">
+                  {isLoadingSidebarRecommended ? (
+                    <p className="px-3 py-6 text-center text-[12px] text-[#747682]">
+                      Loading...
+                    </p>
+                  ) : sidebarRecommended.length === 0 ? (
+                    <p className="px-3 py-6 text-center text-[12px] text-[#747682]">
+                      No recommended challenges yet.
+                    </p>
+                  ) : (
+                    sidebarRecommended.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between gap-2 p-3 hover:bg-gray-50 rounded-2xl transition-all"
                       >
-                        {/* The inner container masks the background, leaving a 4px visible border */}
-                        <div className="w-full h-full rounded-full overflow-hidden bg-white">
-                          {user.avatar ? (
-                            <Image
-                              src={user.avatar}
-                              fill
-                              alt={user.name}
-                              sizes="32px"
-                              className="object-cover"
-                            />
-                          ) : (
-                            <div className="h-full w-full bg-[#F5F6F8]" aria-label="No profile picture" />
-                          )}
+                        <div className="flex items-center gap-2 min-w-0">
+                          <BrandAvatar
+                            name={item.brand_name}
+                            src={item.brand_profile_picture_url}
+                            className="h-10 w-10 shrink-0"
+                            letterClassName="text-sm"
+                          />
+                          <div className="min-w-0">
+                            <h5 className="text-[13px] font-semibold text-[#62636C] truncate max-w-[140px]">
+                              {item.title}
+                            </h5>
+                            <div className="flex items-center gap-1 mt-0.5 text-[12px] text-[#747682]">
+                              <span className="truncate max-w-[72px]">
+                                {item.brand_name || "Brand"}
+                              </span>
+                              {(item.is_funded || item.is_published) && (
+                                <GoCheckCircleFill className="text-green-500 text-[10px] shrink-0" />
+                              )}
+                              <span className="text-[#D9D9D9]">•</span>
+                              <span className="shrink-0">
+                                {challengePrizeLabel(item)} prize pool
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        
+                        <Link
+                          href={`/dashboard/challenge/${item.id}`}
+                          className="px-4 py-2 border border-[#E5E7EB] rounded-full text-[12px] font-semibold text-[#1E1F24] hover:bg-white transition-all shrink-0"
+                        >
+                          Submit
+                        </Link>
                       </div>
-                      <span className={`text-[14px] font-semibold ${user.isUser ? "text-[#1E1F24]" : "text-[#62636C]"}`}>{user.name}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      {user.trend === "up" ? <span className="text-green-500 text-[14px] font-semibold">↑</span>
-                       : user.trend === "down" ? <span className="text-red-500 text-[14px] font-semibold">↓</span>
-                       : <span className="text-gray-300 text-[14px] font-semibold"><FaCircle /></span>}
-                      <span className="text-[14px] font-semibold text-[#1E1F24]">{user.score}</span>
-                      <Image src="/contact star.webp" width={16} height={16} alt="points" />
-                    </div>
-                  </div>
-                ))}
+                    ))
+                  )}
+                </div>
               </div>
-            </div>
+            )}
+
+            <SidebarGlobalLeaderboard
+              rows={renderedLeaderboard}
+              currentUsername={currentUsername}
+              pathname={pathname}
+            />
           </div>
         )}
 
@@ -1075,6 +1406,11 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
       </div>
 
       {/* MODAL INJECTIONS */}
+      <ConnectSocialsModal
+        isOpen={isConnectSocialsOpen}
+        onClose={() => setIsConnectSocialsOpen(false)}
+        username={currentUsername ?? undefined}
+      />
       <ShareScoreModal
         isOpen={isShareScoreOpen}
         onClose={() => setIsShareScoreOpen(false)}

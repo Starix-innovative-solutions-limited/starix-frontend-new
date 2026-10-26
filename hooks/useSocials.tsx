@@ -65,6 +65,7 @@ export const useDisconnectSocialConnection = () => {
       } else {
         queryClient.invalidateQueries({ queryKey: ["creatorProfile"] });
         queryClient.invalidateQueries({ queryKey: ["me"] });
+        queryClient.invalidateQueries({ queryKey: ["starix-score"] });
       }
     },
   });

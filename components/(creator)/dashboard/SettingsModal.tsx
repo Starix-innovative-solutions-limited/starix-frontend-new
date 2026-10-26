@@ -1,13 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
+import Link from "next/link";
+import { creatorProfileHref } from "@/lib/creatorProfilePath";
 import { GoX, GoArrowLeft, GoCopy, GoSearch, GoInfo } from "react-icons/go";
 import { CircleMember } from "@/utils/type";
 import { api } from "@/lib/api";
 import { useGetCircle, useUpdateCircle, useRotateJoinCode, useApproveJoinRequest, useRejectJoinRequest, 
   useGetCurrentUser, useClearJoinCode, useUpdateMemberRole, useGetCircleMembers, useRemoveMember, 
   useGetPendingInvitations, useRevokeInvitation, useGetCircleJoinRequests, useGetCirclePayouts, useApprovePayout, useUpdateCirclePayouts } from "@/hooks/useCircles";
-  
+import { useGetCategories } from "@/hooks/useCategories";
 
-const suggestedNiches = ["Fashion", "Design & Arts", "IT & Communication", "Food & Drink"];
+const MAX_CIRCLE_NICHES = 3;
 
 // Maps the circle's `privacy` value to the read-only copy shown in the main view
 const PRIVACY_DESCRIPTIONS: Record<string, string> = {
@@ -26,6 +28,7 @@ type CircleMemberWithPossibleIds = {
   id?: string;
   user_id?: string;
   full_name?: string;
+  username?: string;
   profile_picture_url?: string | null;
   role?: string;
 };
@@ -44,6 +47,7 @@ interface SettingsModalProps {
 const SettingsModal = ({ isOpen, onClose, circleId }: SettingsModalProps) => {
   // ── Live circle data
   const { data: circle, isLoading: isCircleLoading } = useGetCircle(circleId);
+  const { data: categories = [], isLoading: isCategoriesLoading } = useGetCategories();
   const { data: payoutData, isLoading: isPayoutLoading } = useGetCirclePayouts(circleId);
   const approvePayoutMutation = useApprovePayout(circleId);
   const [payoutInputs, setPayoutInputs] = useState<{user_id: string, percentage: number}[]>([]);
@@ -318,10 +322,39 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
 
   const addNiche = (niche: string) => {
     const trimmed = niche.trim();
-    if (trimmed && !selectedNiches.includes(trimmed)) setSelectedNiches([...selectedNiches, trimmed]);
+    if (!trimmed) return;
+    const alreadySelected = selectedNiches.some(
+      (item) => item.toLowerCase() === trimmed.toLowerCase()
+    );
+    if (alreadySelected || selectedNiches.length >= MAX_CIRCLE_NICHES) {
+      setInputValue("");
+      setIsDropdownOpen(false);
+      return;
+    }
+    setSelectedNiches([...selectedNiches, trimmed]);
     setInputValue("");
     setIsDropdownOpen(false);
   };
+
+  const nicheSuggestions = categories
+    .map((category) => category.name)
+    .filter((name) => {
+      const query = inputValue.trim().toLowerCase();
+      const matchesQuery = !query || name.toLowerCase().includes(query);
+      const alreadySelected = selectedNiches.some(
+        (item) => item.toLowerCase() === name.toLowerCase()
+      );
+      return matchesQuery && !alreadySelected;
+    });
+  const canAddCustomNiche =
+    Boolean(inputValue.trim()) &&
+    !selectedNiches.some(
+      (item) => item.toLowerCase() === inputValue.trim().toLowerCase()
+    ) &&
+    !categories.some(
+      (category) =>
+        category.name.toLowerCase() === inputValue.trim().toLowerCase()
+    );
 
   // ── PATCH /circles/:id — General settings save
   const handleSaveGeneral = () => {
@@ -408,9 +441,13 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
                 <div className="border-t border-gray-50 pt-4">
                   <label className="text-[12px] font-semibold text-[#1E1F24] block mb-2">Niches</label>
                   <div className="flex flex-wrap gap-2">
-                    {selectedNiches.map((n, index) => (
-                      <span key={n} className="text-[12px] text-[#3379A5] bg-[#F5FBFF] px-2 py-1 rounded-md">{n}</span>
-                    ))}
+                    {selectedNiches.length ? (
+                      selectedNiches.map((n) => (
+                        <span key={n} className="text-[12px] text-[#3379A5] bg-[#F5FBFF] px-2 py-1 rounded-md">{n}</span>
+                      ))
+                    ) : (
+                      <p className="text-[14px] text-[#62636C]">No niches yet</p>
+                    )}
                   </div>
                 </div>
                 <div className="border-t border-gray-50 pt-4">
@@ -482,22 +519,78 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
                     />
                 </div>
                 <div className="relative" ref={dropdownRef}>
-                    <label className="text-[14px] font-semibold mb-2 block">Select 3 Niches for your Circles</label>
+                    <label className="text-[14px] font-semibold mb-2 block">Select up to 3 niches</label>
+                    <p className="mb-3 text-[12px] text-[#80828D]">
+                      Search and add the categories that describe this circle.
+                    </p>
                     <div className="relative mb-3">
                         <GoSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <input type="text" value={inputValue} onFocus={() => setIsDropdownOpen(true)} onChange={(e) => setInputValue(e.target.value)} className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl outline-none" />
+                        <input
+                          type="text"
+                          value={inputValue}
+                          onFocus={() => setIsDropdownOpen(true)}
+                          onChange={(e) => {
+                            setInputValue(e.target.value);
+                            setIsDropdownOpen(true);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key !== "Enter") return;
+                            e.preventDefault();
+                            if (nicheSuggestions[0]) addNiche(nicheSuggestions[0]);
+                            else if (canAddCustomNiche) addNiche(inputValue);
+                          }}
+                          disabled={selectedNiches.length >= MAX_CIRCLE_NICHES}
+                          placeholder={
+                            selectedNiches.length >= MAX_CIRCLE_NICHES
+                              ? "Maximum of 3 niches selected"
+                              : "Search or add a niche"
+                          }
+                          className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl outline-none disabled:bg-gray-50"
+                        />
                     </div>
-                    {isDropdownOpen && (
-                        <div className="absolute z-20 w-full bg-[#F9FAFB] border border-gray-100 rounded-2xl shadow-sm overflow-hidden mt-[-8px]">
-                        {suggestedNiches.map((n) => (
-                            <button key={n} onClick={() => addNiche(n)} className="w-full text-left px-6 py-4 text-[14px] hover:bg-white">{n}</button>
-                        ))}
+                    {isDropdownOpen && selectedNiches.length < MAX_CIRCLE_NICHES && (
+                        <div className="absolute z-20 w-full bg-[#F9FAFB] border border-gray-100 rounded-2xl shadow-sm overflow-hidden mt-[-8px] max-h-56 overflow-y-auto">
+                        {isCategoriesLoading ? (
+                          <p className="px-6 py-4 text-[14px] text-[#80828D]">Loading niches...</p>
+                        ) : (
+                          <>
+                            {nicheSuggestions.map((n) => (
+                              <button
+                                key={n}
+                                type="button"
+                                onClick={() => addNiche(n)}
+                                className="w-full text-left px-6 py-4 text-[14px] hover:bg-white"
+                              >
+                                {n}
+                              </button>
+                            ))}
+                            {canAddCustomNiche && (
+                              <button
+                                type="button"
+                                onClick={() => addNiche(inputValue)}
+                                className="w-full text-left px-6 py-4 text-[14px] text-[#0033FF] hover:bg-white"
+                              >
+                                Add “{inputValue.trim()}”
+                              </button>
+                            )}
+                            {!nicheSuggestions.length && !canAddCustomNiche && (
+                              <p className="px-6 py-4 text-[14px] text-[#80828D]">No matching niches</p>
+                            )}
+                          </>
+                        )}
                         </div>
                     )}
                     <div className="flex flex-wrap gap-2 mt-3">
                         {selectedNiches.map(n => (
                         <span key={n} className="flex items-center gap-2 text-[13px] text-[#3379A5] bg-[#F5FBFF] px-4 py-2 rounded-full border border-[#D1E9FF]">
-                            {n} <button onClick={() => setSelectedNiches(selectedNiches.filter(x => x !== n))}><GoX /></button>
+                            {n}{" "}
+                            <button
+                              type="button"
+                              onClick={() => setSelectedNiches(selectedNiches.filter(x => x !== n))}
+                              aria-label={`Remove ${n}`}
+                            >
+                              <GoX />
+                            </button>
                         </span>
                         ))}
                     </div>
@@ -540,9 +633,12 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
                     </h4>
                     
                     <div className="space-y-4">
-                      {validMembers.map((member, index) => (
-                        
-                        <div key={`member-${member.user_id || 'no-id'}-${index}`} className="flex items-center justify-between bg-gray-50/50 p-3 rounded-2xl border border-gray-100">
+                      {validMembers.map((member, index) => {
+                        const profileHref = creatorProfileHref(
+                          member.username,
+                          currentUser?.username
+                        );
+                        const identity = (
                           <div className="flex items-center gap-3">
                             <img
                               src={member.profile_picture_url || "https://i.pravatar.cc/150"}
@@ -554,6 +650,16 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
                               {member.full_name ?? "Unknown member"}
                             </span>
                           </div>
+                        );
+                        return (
+                        <div key={`member-${member.user_id || 'no-id'}-${index}`} className="flex items-center justify-between bg-gray-50/50 p-3 rounded-2xl border border-gray-100">
+                          {profileHref ? (
+                            <Link href={profileHref} onClick={onClose} className="min-w-0">
+                              {identity}
+                            </Link>
+                          ) : (
+                            identity
+                          )}
 
                           <div className="flex items-center gap-3">
                             <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full uppercase ${
@@ -574,7 +680,8 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
                             )}
                           </div>
                         </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
 

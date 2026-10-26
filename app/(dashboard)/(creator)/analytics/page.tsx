@@ -18,6 +18,7 @@ import {
 } from "recharts";
 import { ArrowRight, ArrowUp, ArrowDown, Bell, Plus, Minus, Search } from "lucide-react";
 import { useGetMe } from "@/hooks/useAuth";
+import { useDashboardSearch } from "@/components/dashboard/DashboardSearchProvider";
 import {
   useEarnings,
   useRank,
@@ -114,6 +115,7 @@ const AnalyticsPage = () => {
   const [activePlatform, setActivePlatform] = useState<PlatformKey>("All");
 
   const { data: user } = useGetMe();
+  const { query, setQuery, placeholder, onSubmit } = useDashboardSearch();
   const { data: earnings, isLoading: earningsLoading } = useEarnings();
   const { data: rank, isLoading: rankLoading } = useRank();
   const { data: challenges } = useChallenges();
@@ -221,7 +223,15 @@ const AnalyticsPage = () => {
             />
             <input
               type="search"
-              placeholder="Search Starix"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  onSubmit();
+                }
+              }}
+              placeholder={placeholder}
               className="h-12 w-full rounded-full border border-[#EBEBED] bg-white pl-[45px] pr-5 text-[14px] text-[#1E1F24] shadow-[0_2px_6px_rgba(16,24,40,0.04)] outline-none placeholder:text-[#5E5E60] focus:border-[#0033FF]"
             />
           </label>

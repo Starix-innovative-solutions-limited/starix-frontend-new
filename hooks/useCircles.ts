@@ -106,6 +106,7 @@ export interface MyCircle {
   role: "admin" | "manager" | "member";
   members: {
     user_id: string;
+    username?: string;
     profile_picture_url: string | null;
   }[];
 }

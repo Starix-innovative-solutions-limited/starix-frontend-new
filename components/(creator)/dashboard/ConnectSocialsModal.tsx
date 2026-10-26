@@ -118,6 +118,10 @@ const ConnectSocialsModal = ({
             ? ["circle-socials", circleId]
             : ["creatorProfile", username],
         });
+        if (!circleId) {
+          queryClient.invalidateQueries({ queryKey: ["starix-score"] });
+          queryClient.invalidateQueries({ queryKey: ["me"] });
+        }
       } else {
         setErrorMessage(result.message);
         toast.error(result.message);

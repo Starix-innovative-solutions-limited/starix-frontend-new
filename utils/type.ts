@@ -269,6 +269,7 @@ export interface BankDetails {
 export interface CircleMember {
   user_id: string;
   full_name: string;
+  username?: string;
   profile_picture_url: string;
   role: string;
   avatar?: string; // Add this if needed for the payout view

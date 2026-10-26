@@ -8,6 +8,8 @@ import { HiArrowLeft, HiArrowRight } from "react-icons/hi2";
 import WithdrawModal from "@/components/(creator)/dashboard/WithdrawModal"; 
 import WalletSettingsModal from "@/components/(creator)/dashboard/WalletSettingsModal"; 
 import { useGetWalletBalances, useGetWalletEarnings } from "@/hooks/useWallet";
+import { useDashboardSearch } from "@/components/dashboard/DashboardSearchProvider";
+import { matchesDashboardQuery } from "@/lib/dashboardSearch";
 
 const WalletPage = () => {
   const [activeTab, setActiveTab] = useState("Earnings");
@@ -26,13 +28,22 @@ const WalletPage = () => {
   const withdrawals: any[] = [];
 
   // Map backend earnings response array seamlessly 
+  const { query } = useDashboardSearch();
+
   const currentData = useMemo(() => {
-    if (activeTab === "Earnings") {
-      return earningsData?.items || [];
-    }
-  
-    return withdrawals;
-  }, [activeTab, earningsData]);
+    const items =
+      activeTab === "Earnings" ? earningsData?.items || [] : withdrawals;
+    return items.filter((item: any) =>
+      matchesDashboardQuery(
+        query,
+        item?.challenge_title,
+        item?.title,
+        item?.brand_name,
+        item?.status,
+        item?.amount
+      )
+    );
+  }, [activeTab, earningsData, query]);
 
   // Handle pagination limits safely from metadata
   const totalPages = earningsData?.total_pages || 1;

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { HiOutlineBars3 } from "react-icons/hi2";
 import BrandSideBar from "@/components/(brand)/dashboard/BrandSideBar";
 import RightSideBar from "@/components/(brand)/dashboard/RightSideBar";
+import { DashboardSearchBoundary } from "@/components/dashboard/DashboardSearchProvider";
 
 const workSans = Work_Sans({
   subsets: ["latin"],
@@ -37,6 +38,7 @@ const BrandDashboardLayout = ({ children }: { children: React.ReactNode }) => {
   }, [pathname, isChallengeDetailView]);
 
   return (
+    <DashboardSearchBoundary>
     <main
       className={`${workSans.variable} h-screen overflow-hidden bg-[#fff] font-sans`}
     >
@@ -85,6 +87,7 @@ const BrandDashboardLayout = ({ children }: { children: React.ReactNode }) => {
         />
       </div>
     </main>
+    </DashboardSearchBoundary>
   );
 };
 

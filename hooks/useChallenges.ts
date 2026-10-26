@@ -406,6 +406,27 @@ export function useBrandChallengeDetails(
  * active challenges surface even when personalisation ranks them low.
  * There is no public GET /challenges collection.
  */
+function unwrapChallengeList(payload: unknown): ChallengesResponse {
+  const root =
+    payload && typeof payload === "object"
+      ? (payload as Record<string, unknown>)
+      : {};
+  const nested =
+    root.challenges || root.items
+      ? root
+      : root.data && typeof root.data === "object"
+        ? (root.data as Record<string, unknown>)
+        : root;
+  const challenges = (nested.challenges ??
+    nested.items ??
+    []) as ChallengeItem[];
+  const totalValue = nested.total;
+  const total =
+    typeof totalValue === "number" ? totalValue : challenges.length;
+
+  return { challenges, total };
+}
+
 export function useGetChallenges(
   params?: GetChallengesParams,
   options?: { enabled?: boolean }
@@ -417,18 +438,21 @@ export function useGetChallenges(
       const offset = params?.offset ?? params?.skip ?? 0;
 
       const [recommended, trending] = await Promise.all([
-        api.get<ChallengesResponse>("/challenges/recommended", {
+        api.get("/challenges/recommended", {
           params: { limit, offset },
         }),
-        api.get<ChallengesResponse>("/challenges/trending", {
+        api.get("/challenges/trending", {
           params: { limit, offset },
         }),
       ]);
 
+      const recommendedList = unwrapChallengeList(recommended.data);
+      const trendingList = unwrapChallengeList(trending.data);
+
       const byId = new Map<string, ChallengeItem>();
       for (const item of [
-        ...(recommended.data?.challenges ?? []),
-        ...(trending.data?.challenges ?? []),
+        ...recommendedList.challenges,
+        ...trendingList.challenges,
       ]) {
         if (item?.id && !byId.has(item.id)) byId.set(item.id, item);
       }
@@ -437,8 +461,8 @@ export function useGetChallenges(
       return {
         challenges,
         total: Math.max(
-          recommended.data?.total ?? 0,
-          trending.data?.total ?? 0,
+          recommendedList.total,
+          trendingList.total,
           challenges.length
         ),
       };
@@ -726,7 +750,7 @@ export const useGetRecommendedChallenges = (
       const { data } = await api.get("/challenges/recommended", {
         params: { limit, offset },
       });
-      return data;
+      return unwrapChallengeList(data);
     },
   });
 };
@@ -741,7 +765,7 @@ export const useGetTrendingChallenges = (
       const { data } = await api.get("/challenges/trending", {
         params: { limit, offset },
       });
-      return data;
+      return unwrapChallengeList(data);
     },
   });
 };

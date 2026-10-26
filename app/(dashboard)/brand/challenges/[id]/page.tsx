@@ -14,6 +14,7 @@ import {
   useGetBrandChallengeLeaderboard,
 } from "@/hooks/useChallenges";
 import { formatCompactNaira } from "@/lib/formatMoney";
+import { useDashboardSearch } from "@/components/dashboard/DashboardSearchProvider";
 
 const PAGE_SIZE = 5;
 
@@ -133,7 +134,7 @@ export default function BrandChallengePerformancePage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const challengeId = params.id;
-  const [search, setSearch] = useState("");
+  const { query: search, setQuery: setSearch, placeholder } = useDashboardSearch();
   const [page, setPage] = useState(1);
   const [showNotice, setShowNotice] = useState(true);
 
@@ -370,7 +371,7 @@ export default function BrandChallengePerformancePage() {
                 setSearch(event.target.value);
                 setPage(1);
               }}
-              placeholder="Search rank, creator, platform or score"
+              placeholder={placeholder}
               className="h-11 w-full rounded-full border border-[#E4E7EC] bg-white pr-4 pl-11 text-[13px] text-[#1E1F24] outline-none placeholder:text-[#8B8D98] focus:border-[#0033FF]"
             />
           </div>

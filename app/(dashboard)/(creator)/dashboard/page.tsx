@@ -16,9 +16,20 @@ import {
   useGetJoinedActiveChallenges,
 } from "@/hooks/useChallenges";
 import { getChallengePreviewImages } from "@/lib/challengeMedia";
+import {
+  formatChallengeClosesIn,
+  formatChallengeTimeLeft,
+  formatCompactCount,
+  getChallengeApplicationCount,
+  getChallengeEndDate,
+  getChallengeViewCount,
+} from "@/lib/challengeStats";
+import { useDashboardSearch } from "@/components/dashboard/DashboardSearchProvider";
+import { matchesDashboardQuery } from "@/lib/dashboardSearch";
 
 const Page = () => {
   const { data: user } = useGetMe();
+  const { query } = useDashboardSearch();
 
   const { data: openChallengesData } = useGetChallenges({
     limit: 12,
@@ -38,21 +49,14 @@ const Page = () => {
     return hours < 24 ? `${hours}h ago` : `${Math.floor(hours / 24)}d ago`;
   };
 
-  const formatDeadline = (endDate?: string) => {
-    if (!endDate) return "Open";
-    const ms = new Date(endDate).getTime() - Date.now();
-    if (Number.isNaN(ms) || ms <= 0) return "Closed";
-    const hours = Math.floor(ms / (1000 * 60 * 60));
-    if (hours < 24) return `${Math.max(hours, 1)}h`;
-    return `${Math.floor(hours / 24)}d`;
-  };
-
   const recommendedChallenges = React.useMemo(() => {
     const challenges = openChallengesData?.challenges ?? [];
     if (challenges.length === 0) return [];
 
     return challenges.map((challenge) => {
       const thumbnails = getChallengePreviewImages(challenge, 4);
+      const endDate = getChallengeEndDate(challenge);
+      const timeLeft = formatChallengeTimeLeft(endDate);
 
       return {
         id: challenge.id,
@@ -69,17 +73,32 @@ const Page = () => {
               : 0),
           challenge.currency_symbol || "₦"
         ),
-        deadline: formatDeadline(challenge.end_date),
+        closesIn: formatChallengeClosesIn(endDate),
+        timeLeft,
         title: challenge.title,
         desc:
           challenge.description ||
           "Join this challenge and earn from your content.",
-        views: challenge.viewer_count ?? 0,
-        participants: challenge.participant_count ?? 0,
+        views: getChallengeViewCount(challenge),
+        applications: getChallengeApplicationCount(challenge),
         thumbnails,
       };
     });
   }, [openChallengesData]);
+
+  const visibleRecommended = React.useMemo(
+    () =>
+      recommendedChallenges.filter((challenge) =>
+        matchesDashboardQuery(
+          query,
+          challenge.title,
+          challenge.brand,
+          challenge.desc,
+          ...(challenge.niche ?? [])
+        )
+      ),
+    [query, recommendedChallenges]
+  );
 
   const getStatusColorStyle = (status: string) => {
     switch (status?.toLowerCase()) {
@@ -125,6 +144,14 @@ const Page = () => {
       color: getStatusColorStyle(item.status),
     }));
   }, [joinedData]);
+
+  const visibleActive = React.useMemo(
+    () =>
+      activeChallenges.filter((active) =>
+        matchesDashboardQuery(query, active.title, active.brand, active.status)
+      ),
+    [activeChallenges, query]
+  );
 
   const activeCount =
     joinedData?.total_items ?? activeChallenges.length;
@@ -190,7 +217,7 @@ const Page = () => {
         </div>
           
         <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory w-full min-w-0">
-          {recommendedChallenges.length === 0 ? (
+          {visibleRecommended.length === 0 ? (
             <div className="w-full rounded-[24px] border border-dashed border-[#E0E1E6] px-6 py-10 text-center">
               <p className="text-[14px] font-medium text-[#1E1F24]">
                 No open challenges yet
@@ -200,7 +227,7 @@ const Page = () => {
               </p>
             </div>
           ) : (
-            recommendedChallenges.map((challenge) => (
+            visibleRecommended.map((challenge) => (
             <Link 
               href={`/dashboard/challenge/${challenge.id}`}
               key={challenge.id} 
@@ -255,7 +282,9 @@ const Page = () => {
                 <div className="flex items-center gap-1.5 mb-3 text-[10px] font-semibold overflow-x-auto no-scrollbar whitespace-nowrap">
                   <span className="text-[#1E1F24]">{challenge.prize} prize pool</span>
                   <span className="text-[#E5E7EB]">|</span>
-                  <span className="text-[#D12B1F]">Closes in {challenge.deadline}</span>
+                  <span className="text-[#D12B1F]">
+                    {challenge.closesIn ?? "Open"}
+                  </span>
                   <span className="text-[#E5E7EB] hidden sm:inline">|</span>
                   <span className="text-[#1E874B] bg-[#ECFEF4] px-1.5 py-0.5 rounded-md text-[9px] hidden sm:inline">Verified</span>
                 </div>
@@ -279,15 +308,15 @@ const Page = () => {
                   <div className="flex gap-3 text-[11px] font-semibold">
                     <span className="flex items-center gap-1">
                       <FiBarChart2 size={13} />
-                      {challenge.views.toLocaleString()}
+                      {formatCompactCount(challenge.views)}
                     </span>
                     <span className="flex items-center gap-1">
                       <FiMail size={13} />
-                      {challenge.participants.toLocaleString()}
+                      {formatCompactCount(challenge.applications)}
                     </span>
                     <span className="flex items-center gap-1">
                       <FiClock size={13} />
-                      {challenge.deadline}
+                      {challenge.timeLeft ?? "—"}
                     </span>
                   </div>
                   <div className="flex gap-2.5">
@@ -316,7 +345,7 @@ const Page = () => {
             <div className="w-full py-6 text-center text-xs text-gray-400 font-medium">
               Syncing active campaigns...
             </div>
-          ) : activeChallenges.length === 0 ? (
+          ) : visibleActive.length === 0 ? (
             <div className="rounded-[24px] border border-dashed border-[#E0E1E6] px-6 py-10 text-center">
               <p className="text-[14px] font-medium text-[#1E1F24]">
                 No active challenges yet
@@ -326,7 +355,7 @@ const Page = () => {
               </p>
             </div>
           ) : (
-            activeChallenges.map((active) => (
+            visibleActive.map((active) => (
               <Link
                 key={active.id}
                 href={`/dashboard/challenge/${active.id}`}

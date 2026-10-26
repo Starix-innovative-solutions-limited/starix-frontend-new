@@ -70,17 +70,17 @@ export interface StarixScoreResponse {
   confidence: number;
   connected_platforms_count: number;
   recent_submissions_count: number;
-  last_calculated_at: string;
+  last_calculated_at?: string | null;
 }
 
 
 // Updated Frontend Hook to match a dynamic backend adjustment
 export const useGetMyStarixScore = () => {
-  return useQuery({
+  return useQuery<StarixScoreResponse | null>({
     queryKey: ["starix-score", "me"],
     queryFn: async () => {
       try {
-        const { data } = await api.get("/starix-score/me");
+        const { data } = await api.get<StarixScoreResponse>("/starix-score/me");
         return data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -89,8 +89,9 @@ export const useGetMyStarixScore = () => {
         throw error;
       }
     },
-    // Only fetch if the user is authenticated (assuming you have a way to check auth)
     enabled: !!useAuthStore.getState().token,
+    refetchInterval: (query) =>
+      query.state.data?.last_calculated_at ? false : 12_000,
   });
 };
 
@@ -140,6 +141,7 @@ export const useGetGlobalLeaderboard = (username: string | undefined) => {
 export type UpdateCreatorProfilePayload = {
   profile_picture_url?: string | null;
   banner_url?: string | null;
+  bio?: string | null;
   starix_score_visibility?: "public" | "private";
   niches?: string[];
 };
@@ -153,10 +155,45 @@ export function useUpdateCreatorProfile() {
 
   return useMutation({
     mutationFn: async (payload: UpdateCreatorProfilePayload) => {
-      const { data } = await api.patch("/auth/me", payload);
-      return data;
+      const settingsBody: Omit<UpdateCreatorProfilePayload, "bio"> = {};
+      if ("profile_picture_url" in payload) {
+        settingsBody.profile_picture_url = payload.profile_picture_url;
+      }
+      if ("banner_url" in payload) {
+        settingsBody.banner_url = payload.banner_url;
+      }
+      if ("starix_score_visibility" in payload) {
+        settingsBody.starix_score_visibility = payload.starix_score_visibility;
+      }
+      if ("niches" in payload) {
+        settingsBody.niches = payload.niches;
+      }
+
+      let updated: UserProfile | null = null;
+
+      if (Object.keys(settingsBody).length > 0) {
+        const { data } = await api.patch<UserProfile>("/auth/me", settingsBody);
+        updated = data;
+      }
+
+      // PATCH /auth/me does not accept bio. The documented write path is
+      // PUT /creators/onboarding/profile, which updates bio without regressing onboarding.
+      if ("bio" in payload) {
+        await api.put("/creators/onboarding/profile", { bio: payload.bio ?? null });
+        updated = {
+          ...(updated ?? {}),
+          bio: payload.bio ?? null,
+        } as UserProfile;
+      }
+
+      if (!updated) {
+        const { data } = await api.get<UserProfile>("/auth/me");
+        updated = data;
+      }
+
+      return updated;
     },
-    onSuccess: (updatedData: any) => {
+    onSuccess: (updatedData: UserProfile) => {
       queryClient.invalidateQueries({ queryKey: ["authMe"] });
       queryClient.invalidateQueries({ queryKey: ["me"] });
       queryClient.invalidateQueries({ queryKey: ["creatorProfile"] });
@@ -164,6 +201,23 @@ export function useUpdateCreatorProfile() {
 
       queryClient.setQueryData(["authMe"], updatedData);
       queryClient.setQueryData(["me"], updatedData);
+
+      if (updatedData?.username) {
+        queryClient.setQueryData(
+          ["creatorProfile", updatedData.username],
+          (current: CreatorProfile | undefined) =>
+            current
+              ? {
+                  ...current,
+                  bio: updatedData.bio ?? current.bio,
+                  niches: updatedData.niches ?? current.niches,
+                  profile_picture_url:
+                    updatedData.profile_picture_url ?? current.profile_picture_url,
+                  banner_url: updatedData.banner_url ?? current.banner_url,
+                }
+              : current
+        );
+      }
 
       if (updatedData) setProfile(updatedData);
     },
@@ -286,6 +340,7 @@ export interface CreatorCircle {
   name: string;
   members: {
     user_id: string;
+    username?: string;
     profile_picture_url: string | null;
   }[];
   member_count: number;

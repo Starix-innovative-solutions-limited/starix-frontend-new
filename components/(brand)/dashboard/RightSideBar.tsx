@@ -12,6 +12,7 @@ import CreateChallenge from "@/components/(brand)/challenge/CreateChallenge";
 import BrandProfileRightSidebar from "./BrandProfileRightSidebar";
 import BrandChallengeDetailRightSidebar from "./BrandChallengeDetailRightSidebar";
 import DashboardSidebarFooter from "@/components/dashboard/DashboardSidebarFooter";
+import { DashboardSearchInput } from "@/components/dashboard/DashboardSearchProvider";
 import { useGetBrandChallenges } from "@/hooks/useChallenges";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -90,17 +91,7 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
         </button>
 
         {!collapsed ? (
-          <div className="relative flex-1">
-            <FiSearch
-              className="absolute top-1/2 left-4 -translate-y-1/2 text-[#9CA3AF]"
-              size={18}
-            />
-            <input
-              type="text"
-              placeholder="Search Starix"
-              className="w-full rounded-full border-none bg-[#F8FAFC] py-3 pr-4 pl-12 text-sm outline-none placeholder:text-[#9CA3AF] focus:ring-2 focus:ring-blue-100"
-            />
-          </div>
+          <DashboardSearchInput />
         ) : (
           <button
             type="button"

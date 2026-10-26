@@ -8,6 +8,8 @@ import { FiArrowUpRight } from "react-icons/fi";
 import BrandAvatar from "@/components/(brand)/BrandAvatar";
 import Loader from "@/components/Loader";
 import { useGetBrandChallengeSubmissions } from "@/hooks/useChallenges";
+import { useDashboardSearch } from "@/components/dashboard/DashboardSearchProvider";
+import { matchesDashboardQuery } from "@/lib/dashboardSearch";
 
 const platformIcons: Record<string, string> = {
   youtube: "/yt.webp",
@@ -33,6 +35,21 @@ function SubmissionsContent() {
   const challengeId = searchParams.get("challenge_id");
   const { rows, challenges, isLoading, isError, pendingCount, totalSubmitted } =
     useGetBrandChallengeSubmissions(challengeId);
+  const { query } = useDashboardSearch();
+  const visibleRows = useMemo(
+    () =>
+      rows.filter((entry) =>
+        matchesDashboardQuery(
+          query,
+          entry.display_name,
+          entry.username,
+          entry.challenge_title,
+          entry.selected_platform,
+          ...(entry.platforms ?? [])
+        )
+      ),
+    [query, rows]
+  );
 
   const title = useMemo(() => {
     if (!challengeId) return "Submissions";
@@ -78,10 +95,12 @@ function SubmissionsContent() {
             Refresh the page or open this challenge again.
           </p>
         </div>
-      ) : rows.length === 0 ? (
+      ) : visibleRows.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-[#E4E7EC] bg-white py-20 text-center">
           <p className="text-[16px] font-medium text-[#101828]">
-            {totalSubmitted > 0
+            {query.trim()
+              ? `No matches for “${query.trim()}”`
+              : totalSubmitted > 0
               ? "Submissions are still being scored"
               : "No submissions yet"}
           </p>
@@ -102,7 +121,7 @@ function SubmissionsContent() {
             <span>Engagement</span>
             <span className="text-right">Score</span>
           </div>
-          {rows.map((entry, index) => {
+          {visibleRows.map((entry, index) => {
             const name =
               entry.display_name || entry.username || "Creator";
             const platforms =

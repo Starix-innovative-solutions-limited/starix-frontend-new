@@ -26,6 +26,7 @@ import Loader from "@/components/Loader";
 import { variants } from "@/constant";
 import { getChallengePreviewImages } from "@/lib/challengeMedia";
 import { formatCompactNaira } from "@/lib/formatMoney";
+import { useDashboardSearch } from "@/components/dashboard/DashboardSearchProvider";
 
 const TABS = [
   { id: "active", label: "Active" },
@@ -143,7 +144,7 @@ export default function Page() {
   const [hasMounted, setHasMounted] = useState(false);
   const [localDraft, setLocalDraft] = useState<LocalDraftSummary | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>("active");
-  const [search, setSearch] = useState("");
+  const { query: search, setQuery: setSearch, placeholder } = useDashboardSearch();
 
   useEffect(() => {
     setHasMounted(true);
@@ -417,7 +418,7 @@ export default function Page() {
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search your Challenges"
+            placeholder={placeholder}
             className="w-full rounded-full border border-[#E4E7EC] bg-white py-3 pr-4 pl-10 text-[14px] text-[#101828] outline-none placeholder:text-[#98A2B3] focus:border-[#0033FF] focus:ring-2 focus:ring-[#0033FF]/10"
           />
         </div>

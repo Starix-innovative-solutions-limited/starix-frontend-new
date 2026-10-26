@@ -9,6 +9,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { useGetTrendingChallenges } from "@/hooks/useChallenges";
 import { formatCompactNaira } from "@/lib/formatMoney";
+import {
+  formatChallengeTimeLeft,
+  formatCompactCount,
+  getChallengeApplicationCount,
+  getChallengeEndDate,
+  getChallengeViewCount,
+} from "@/lib/challengeStats";
+import { useDashboardSearch } from "@/components/dashboard/DashboardSearchProvider";
+import { matchesDashboardQuery } from "@/lib/dashboardSearch";
 
 type TrendingCard = {
   id: string | number;
@@ -28,6 +37,7 @@ type TrendingCard = {
 
 const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean }) => {
   const { data: apiResponse, isLoading } = useGetTrendingChallenges(50, 0);
+  const { query, setQuery, placeholder } = useDashboardSearch();
 
   const formatTimeAgo = (dateString: string) => {
     if (!dateString) return "Just now";
@@ -62,7 +72,7 @@ const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: b
               : 0),
           challenge.currency_symbol || "₦"
         ),
-        deadline: "Open",
+        deadline: formatChallengeTimeLeft(getChallengeEndDate(challenge)) ?? "Open",
         verified: challenge.is_funded ?? challenge.is_published ?? true,
         title: challenge.title,
         desc: challenge.description,
@@ -70,13 +80,25 @@ const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: b
           mediaUrls.length > 0
             ? mediaUrls.slice(0, 4)
             : ["/left1.webp", "/right1.webp"],
-        views: challenge.viewer_count
-          ? `${(challenge.viewer_count / 1000).toFixed(1)}k`
-          : "0",
-        mail: challenge.participant_count?.toString() || "0",
+        views: formatCompactCount(getChallengeViewCount(challenge)),
+        mail: formatCompactCount(getChallengeApplicationCount(challenge)),
       };
     });
   }, [apiResponse]);
+
+  const visibleCards = React.useMemo(
+    () =>
+      cards.filter((card) =>
+        matchesDashboardQuery(
+          query,
+          card.title,
+          card.brand,
+          card.desc,
+          ...(card.niche ?? [])
+        )
+      ),
+    [cards, query]
+  );
 
   return (
     <div className="min-h-screen bg-white py-2 font-['Geist']">
@@ -106,7 +128,9 @@ const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: b
               <FiSearch className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-[#62636C] text-sm md:text-lg" />
               <input 
                 type="text" 
-                placeholder="Search Trending Challenges"
+                placeholder={placeholder}
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
                 className="w-full pl-8 md:pl-12 pr-4 py-2 md:py-2.5 bg-[#F9F9FB] border border-[#EFF0F3] rounded-full text-[11px] md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
@@ -125,7 +149,7 @@ const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: b
               <p className="col-span-full py-16 text-center text-[14px] text-[#62636C]">
                 Loading challenges...
               </p>
-            ) : cards.length === 0 ? (
+            ) : visibleCards.length === 0 ? (
               <div className="col-span-full rounded-[24px] border border-dashed border-[#E0E1E6] px-6 py-16 text-center">
                 <p className="text-[14px] font-medium text-[#1E1F24]">
                   No trending challenges yet
@@ -135,7 +159,7 @@ const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: b
                 </p>
               </div>
             ) : (
-              cards.map((card) => (
+              visibleCards.map((card) => (
               <Link
               key={card.id}
               href={`/dashboard/challenge/${card.id}`}
@@ -171,7 +195,11 @@ const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: b
                 <div className="flex items-center gap-2 mb-2 ">
                   <span className="text-[#1E1F24] font-semibold text-[12px]">{card.prize} prize pool</span>
                   <span className="text-[#E5E7EB]">|</span>
-                  <span className="text-[#D12B1F] font-medium text-[10px]">Closes in {card.deadline}</span>
+                  <span className="text-[#D12B1F] font-medium text-[10px]">
+                    {card.deadline === "Closed" || card.deadline === "Open"
+                      ? card.deadline
+                      : `Closes in ${card.deadline}`}
+                  </span>
                   {card.verified && (
                     <>
                       <span className="text-[#E5E7EB]">|</span>

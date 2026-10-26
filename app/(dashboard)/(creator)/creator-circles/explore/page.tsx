@@ -8,12 +8,14 @@ import { FiSearch, FiArrowLeft } from "react-icons/fi";
 import { useGetOpenCircles, type DiscoverableCircle } from "@/hooks/useCircles";
 import JoinRequestModal from "@/components/(creator)/dashboard/JoinRequestModal";
 import CircleMembershipButton from "@/components/(creator)/dashboard/CircleMembershipButton";
+import { useDashboardSearch } from "@/components/dashboard/DashboardSearchProvider";
 
 export default function ExploreCircles() {
   const router = useRouter();
   const { data: circles, isLoading } = useGetOpenCircles();
 
-  const [searchQuery, setSearchQuery] = useState("");
+  const { query: searchQuery, setQuery: setSearchQuery, placeholder } =
+    useDashboardSearch();
   const [isJoinRequestModalOpen, setIsJoinRequestModalOpen] = useState(false);
   const [selectedCircle, setSelectedCircle] = useState<DiscoverableCircle | null>(null);
 
@@ -54,7 +56,7 @@ export default function ExploreCircles() {
           <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]" size={20} />
           <input
             type="text"
-            placeholder="Search Circles"
+            placeholder={placeholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-[#F8FAFC] border-none rounded-full py-4 pl-12 pr-6 text-sm focus:ring focus:ring-[#62636C] outline-none placeholder:text-[#9CA3AF]"

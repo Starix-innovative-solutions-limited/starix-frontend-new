@@ -15,6 +15,7 @@ import {
 } from "@/hooks/useChallenges";
 import Loader from "@/components/Loader";
 import { formatCompactNaira } from "@/lib/formatMoney";
+import { useDashboardSearch } from "@/components/dashboard/DashboardSearchProvider";
 
 type ChallengesTab = "Active" | "Completed" | "Saved";
 
@@ -93,7 +94,8 @@ function buildPageItems(current: number, total: number) {
 
 const ChallengesPage = () => {
   const [activeTab, setActiveTab] = useState<ChallengesTab>("Active");
-  const [searchQuery, setSearchQuery] = useState("");
+  const { query: searchQuery, setQuery: setSearchQuery, placeholder } =
+    useDashboardSearch();
   const [page, setPage] = useState(1);
 
   const {
@@ -235,7 +237,7 @@ const ChallengesPage = () => {
             <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#667085] text-base" />
             <input
               type="text"
-              placeholder="Search Starix"
+              placeholder={placeholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#D0D5DD] rounded-full text-[13px] text-[#101828] placeholder:text-[#667085] focus:outline-none focus:ring-2 focus:ring-blue-500/15"

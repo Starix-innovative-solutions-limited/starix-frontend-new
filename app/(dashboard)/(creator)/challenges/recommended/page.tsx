@@ -11,6 +11,15 @@ import ChallengeMediaGrid from "@/components/(creator)/challenge/ChallengeMediaG
 import { useGetRecommendedChallenges, useGetTrendingChallenges } from "@/hooks/useChallenges";
 import { getChallengePreviewImages } from "@/lib/challengeMedia";
 import { formatCompactNaira } from "@/lib/formatMoney";
+import {
+  formatChallengeTimeLeft,
+  formatCompactCount,
+  getChallengeApplicationCount,
+  getChallengeEndDate,
+  getChallengeViewCount,
+} from "@/lib/challengeStats";
+import { useDashboardSearch } from "@/components/dashboard/DashboardSearchProvider";
+import { matchesDashboardQuery } from "@/lib/dashboardSearch";
 
 type RecommendedCard = {
   id: string | number;
@@ -29,6 +38,7 @@ type RecommendedCard = {
 };
 
 const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean }) => {
+  const { query, setQuery, placeholder } = useDashboardSearch();
   const { data: recommendedData, isLoading: recommendedLoading } =
     useGetRecommendedChallenges(50, 0);
   const { data: trendingData, isLoading: trendingLoading } =
@@ -70,20 +80,32 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
               : 0),
           challenge.currency_symbol || "₦"
         ),
-        deadline: "Open",
+        deadline: formatChallengeTimeLeft(getChallengeEndDate(challenge)) ?? "Open",
         verified: challenge.is_funded ?? challenge.is_published ?? true,
         title: challenge.title,
         desc: challenge.description,
         images,
-        views: challenge.viewer_count
-          ? `${(challenge.viewer_count / 1000).toFixed(1)}k`
-          : "0",
-        mail: challenge.participant_count?.toString() || "0",
+        views: formatCompactCount(getChallengeViewCount(challenge)),
+        mail: formatCompactCount(getChallengeApplicationCount(challenge)),
       };
     });
   }, [recommendedData, trendingData]);
 
   const isLoading = recommendedLoading || trendingLoading;
+
+  const visibleCards = React.useMemo(
+    () =>
+      cards.filter((card) =>
+        matchesDashboardQuery(
+          query,
+          card.title,
+          card.brand,
+          card.desc,
+          ...(card.niche ?? [])
+        )
+      ),
+    [cards, query]
+  );
 
   return (
     <div className="min-h-screen bg-white font-['Geist'] py-2">
@@ -113,7 +135,9 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
               <FiSearch className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-[#62636C] text-sm md:text-lg" />
               <input 
                 type="text" 
-                placeholder="Search Trending Challenges"
+                placeholder={placeholder}
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
                 className="w-full pl-8 md:pl-12 pr-4 py-2 md:py-2.5 bg-[#F9F9FB] border border-[#EFF0F3] rounded-full text-[11px] md:text-sm focus:outline-none focus:ring focus:ring-[#8B8D98]"
               />
             </div>
@@ -132,7 +156,7 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
               <p className="col-span-full py-16 text-center text-[14px] text-[#62636C]">
                 Loading challenges...
               </p>
-            ) : cards.length === 0 ? (
+            ) : visibleCards.length === 0 ? (
               <div className="col-span-full rounded-[24px] border border-dashed border-[#E0E1E6] px-6 py-16 text-center">
                 <p className="text-[14px] font-medium text-[#1E1F24]">
                   No open challenges yet
@@ -142,7 +166,7 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
                 </p>
               </div>
             ) : (
-              cards.map((card) => (
+              visibleCards.map((card) => (
               <Link
               key={card.id}
               href={`/dashboard/challenge/${card.id}`}
@@ -181,7 +205,11 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
                 <div className="flex items-center gap-2 mb-2 font-semibold">
                   <span className="text-[#1E1F24] text-[12px] whitespace-nowrap">{card.prize} prize pool</span>
                   <span className="text-[#E5E7EB]">|</span>
-                  <span className="text-[#D12B1F] text-[10px] whitespace-nowrap">Closes in {card.deadline}</span>
+                  <span className="text-[#D12B1F] text-[10px] whitespace-nowrap">
+                    {card.deadline === "Closed" || card.deadline === "Open"
+                      ? card.deadline
+                      : `Closes in ${card.deadline}`}
+                  </span>
                   {card.verified && (
                     <>
                       <span className="text-[#E5E7EB]">|</span>
@@ -208,8 +236,8 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
                 {/* Metrics row */}
                 <div className="flex items-center justify-between text-[#62636C] pt-2 border-t border-gray-50 mt-auto">
                   <div className="flex gap-3 md:gap-5 text-[10px] md:text-[12px] font-medium">
-                    <span className="flex items-center gap-1"><FiBarChart2 size={14}/> {card.views || "2.1k"}</span>
-                    <span className="flex items-center gap-1"><FiMail size={14}/> {card.mail || "87"}</span>
+                    <span className="flex items-center gap-1"><FiBarChart2 size={14}/> {card.views}</span>
+                    <span className="flex items-center gap-1"><FiMail size={14}/> {card.mail}</span>
                     <span className="flex items-center gap-1"><FiClock size={14}/> {card.deadline}</span>
                   </div>
                   <div className="flex gap-3">

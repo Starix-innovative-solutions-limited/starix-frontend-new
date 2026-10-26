@@ -5,6 +5,7 @@ import { Work_Sans } from "next/font/google";
 import { usePathname } from "next/navigation"; 
 import { SideBar } from "@/components/(creator)/dashboard";
 import RightSideBar from "@/components/(creator)/dashboard/RightSideBar";
+import { DashboardSearchBoundary } from "@/components/dashboard/DashboardSearchProvider";
 
 const workSans = Work_Sans({
   subsets: ["latin"],
@@ -28,10 +29,11 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
   /* Updated to isolate BOTH the circle-profile view and the standard user profile view 
     for zero-padding flush alignment against layout borders.
   */
-  const isFlushProfileView = 
-    pathname?.includes('/creator-circles/') && pathname?.endsWith('/circle-profile') || 
-    pathname === '/profile' || 
-    pathname?.endsWith('/profile');
+  const isFlushProfileView =
+    (pathname?.includes("/creator-circles/") &&
+      pathname?.endsWith("/circle-profile")) ||
+    pathname === "/profile" ||
+    pathname?.startsWith("/profile/");
 
   // Handle route-specific behavior when path changes
   useEffect(() => {
@@ -114,6 +116,7 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
   }, []);
 
   return (
+    <DashboardSearchBoundary>
     <main className={`${workSans.variable} bg-[#fff] h-screen font-sans overflow-hidden`}>
       <div className="flex h-full overflow-hidden">
         <SideBar
@@ -140,6 +143,7 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
         />
       </div>
     </main>
+    </DashboardSearchBoundary>
   );
 };
 

@@ -16,6 +16,14 @@ import {
 } from "@/hooks/useChallenges";
 import { parseApiError } from "@/lib/apiError";
 import { formatCompactNaira } from "@/lib/formatMoney";
+import {
+  formatChallengeClosesIn,
+  formatChallengeTimeLeft,
+  formatCompactCount,
+  getChallengeApplicationCount,
+  getChallengeEndDate,
+  getChallengeViewCount,
+} from "@/lib/challengeStats";
 import Loader from "@/components/Loader";
 
 function formatTimeAgo(dateString?: string) {
@@ -29,13 +37,7 @@ function formatTimeAgo(dateString?: string) {
 }
 
 function formatClosesIn(endDate?: string) {
-  if (!endDate) return null;
-  const ms = new Date(endDate).getTime() - Date.now();
-  if (Number.isNaN(ms)) return null;
-  if (ms <= 0) return "Closed";
-  const hours = Math.floor(ms / (1000 * 60 * 60));
-  if (hours < 24) return `Closes in ${Math.max(hours, 1)}h`;
-  return `Closes in ${Math.floor(hours / 24)}d`;
+  return formatChallengeClosesIn(endDate);
 }
 
 function isVideoUrl(url: string, mediaType?: string) {
@@ -167,7 +169,7 @@ const ChallengeDetailPage = () => {
     return items;
   }, [challenge]);
 
-  const closesIn = formatClosesIn(challenge?.end_date);
+  const closesIn = formatClosesIn(getChallengeEndDate(challenge) ?? undefined);
   const prizeLabel = formatCompactNaira(
     challenge?.prize_pool_display ||
       (typeof challenge?.prize_pool === "number"
@@ -518,14 +520,14 @@ const ChallengeDetailPage = () => {
       <footer className="mt-8 flex items-center justify-between border-t border-[#F3F4F6] pt-8 text-[#62636C]">
         <div className="flex gap-6 text-[10px] font-medium">
           <span className="flex items-center gap-1.5">
-            <FiBarChart2 size={18} /> {challenge.viewer_count ?? 0}
+            <FiBarChart2 size={18} /> {formatCompactCount(getChallengeViewCount(challenge))}
           </span>
           <span className="flex items-center gap-1.5">
-            <FiMail size={18} /> {challenge.participant_count ?? 0}
+            <FiMail size={18} /> {formatCompactCount(getChallengeApplicationCount(challenge))}
           </span>
-          {closesIn ? (
+          {formatChallengeTimeLeft(getChallengeEndDate(challenge)) ? (
             <span className="flex items-center gap-1.5">
-              <FiClock size={18} /> {closesIn.replace("Closes in ", "")}
+              <FiClock size={18} /> {formatChallengeTimeLeft(getChallengeEndDate(challenge))}
             </span>
           ) : null}
         </div>

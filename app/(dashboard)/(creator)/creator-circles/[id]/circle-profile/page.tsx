@@ -25,6 +25,8 @@ import SettingsModal from "@/components/(creator)/dashboard/SettingsModal";
 import InviteMemberModal from "@/components/(creator)/dashboard/InviteMemberModal";
 import { hasSocialOAuthCallback } from "@/lib/socialOAuth";
 import { formatCompactNaira } from "@/lib/formatMoney";
+import { useDashboardSearch } from "@/components/dashboard/DashboardSearchProvider";
+import { creatorProfileHref } from "@/lib/creatorProfilePath";
 
 const PLATFORM_ICON_MAP: Record<string, { icon: string; label: string }> = {
   youtube: { icon: "/yt.svg", label: "YouTube" },
@@ -46,12 +48,14 @@ const CircleProfilePage = () => {
   const { data: profile, isLoading } = useGetCircleProfile(id);
   const { data: currentUser } = useGetCurrentUser();
   const currentUserId = currentUser?.id;
+  const currentUsername = currentUser?.username;
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isPhotosModalOpen, setIsPhotosModalOpen] = useState(false);
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const { query: searchQuery, setQuery: setSearchQuery, placeholder } =
+    useDashboardSearch();
   const [activeTab, setActiveTab] = useState<CircleChallengeFilter>("active");
   const [page, setPage] = useState(1);
 
@@ -239,22 +243,31 @@ const CircleProfilePage = () => {
           <div className="relative mt-3 inline-flex">
             <div className="group relative">
               <div className="flex cursor-pointer items-center -space-x-2">
-                {visibleMembers.map((member) => (
-                  <div
-                    key={member.user_id}
-                    className="relative h-7 w-7 overflow-hidden rounded-full border-2 border-white bg-[#F5F6F8]"
-                  >
-                    {member.profile_picture_url ? (
-                      <img
-                        src={member.profile_picture_url}
-                        alt={member.username ?? "Member"}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="h-full w-full bg-[#E5E7EB]" />
-                    )}
-                  </div>
-                ))}
+                {visibleMembers.map((member) => {
+                  const href = creatorProfileHref(member.username, currentUsername);
+                  const avatar = (
+                    <div className="relative h-7 w-7 overflow-hidden rounded-full border-2 border-white bg-[#F5F6F8]">
+                      {member.profile_picture_url ? (
+                        <img
+                          src={member.profile_picture_url}
+                          alt={member.username ?? "Member"}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-full w-full bg-[#E5E7EB]" />
+                      )}
+                    </div>
+                  );
+                  return href ? (
+                    <Link key={member.user_id} href={href} className="relative">
+                      {avatar}
+                    </Link>
+                  ) : (
+                    <div key={member.user_id} className="relative">
+                      {avatar}
+                    </div>
+                  );
+                })}
                 {extraMembers > 0 && (
                   <div className="relative z-10 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-[#C9E9FF] text-[10px] font-semibold text-[#050E81]">
                     +{extraMembers}
@@ -266,30 +279,41 @@ const CircleProfilePage = () => {
                 <p className="mb-2 px-2 text-[12px] font-semibold text-gray-400">
                   Circle Members
                 </p>
-                {members.map((member) => (
-                  <div
-                    key={member.user_id}
-                    className="flex items-center gap-2 rounded-lg p-2 hover:bg-gray-50"
-                  >
-                    <div className="h-6 w-6 overflow-hidden rounded-full bg-gray-200">
-                      {member.profile_picture_url && (
-                        <img
-                          src={member.profile_picture_url}
-                          alt=""
-                          className="h-full w-full object-cover"
-                        />
-                      )}
+                {members.map((member) => {
+                  const href = creatorProfileHref(member.username, currentUsername);
+                  const rowClassName =
+                    "flex items-center gap-2 rounded-lg p-2 hover:bg-gray-50";
+                  const row = (
+                    <>
+                      <div className="h-6 w-6 overflow-hidden rounded-full bg-gray-200">
+                        {member.profile_picture_url && (
+                          <img
+                            src={member.profile_picture_url}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        )}
+                      </div>
+                      <div className="text-[12px]">
+                        <p className="font-medium">
+                          {member.username ?? member.full_name ?? "Member"}
+                        </p>
+                        <p className="text-[10px] capitalize text-gray-500">
+                          {member.role}
+                        </p>
+                      </div>
+                    </>
+                  );
+                  return href ? (
+                    <Link key={member.user_id} href={href} className={rowClassName}>
+                      {row}
+                    </Link>
+                  ) : (
+                    <div key={member.user_id} className={rowClassName}>
+                      {row}
                     </div>
-                    <div className="text-[12px]">
-                      <p className="font-medium">
-                        {member.username ?? member.full_name ?? "Member"}
-                      </p>
-                      <p className="text-[10px] capitalize text-gray-500">
-                        {member.role}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -418,7 +442,7 @@ const CircleProfilePage = () => {
               <input
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search Challenges"
+                placeholder={placeholder}
                 className="h-[44px] w-full rounded-full border border-[#E5E7EB] bg-white pl-12 pr-5 text-[13px] font-medium text-[#1E1F24] outline-none placeholder:text-[#747682]"
               />
             </div>

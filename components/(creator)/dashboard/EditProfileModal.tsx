@@ -14,6 +14,7 @@ interface EditProfileModalProps {
   currentProfile: {
     profileImage: string;
     bannerImage: string;
+    bio: string;
     scoreVisibility: string;
     niches: string[];
   };
@@ -28,6 +29,7 @@ const EditProfileModal = ({ isOpen, onClose, currentProfile, onSave }: EditProfi
 const [tempBannerImg, setTempBannerImg] = useState<string | null>(currentProfile.bannerImage);
 const [tempVisibility, setTempVisibility] = useState(currentProfile.scoreVisibility);
 const [tempNiches, setTempNiches] = useState<string[]>(currentProfile.niches);
+const [tempBio, setTempBio] = useState(currentProfile.bio);
 const [removeProfileImage, setRemoveProfileImage] = useState(false);
 const [removeBannerImage, setRemoveBannerImage] = useState(false);
 const { data: categories = [], isLoading: categoriesLoading } =
@@ -45,6 +47,7 @@ useEffect(() => {
     setTempBannerImg(currentProfile.bannerImage);
     setTempVisibility(currentProfile.scoreVisibility);
     setTempNiches(currentProfile.niches);
+    setTempBio(currentProfile.bio);
     setRemoveProfileImage(false);
     setRemoveBannerImage(false);
     profileFileRef.current = null;
@@ -56,6 +59,7 @@ useEffect(() => {
   currentProfile.bannerImage,
   currentProfile.scoreVisibility,
   currentProfile.niches,
+  currentProfile.bio,
 ]);
 
 if (!isOpen) return null;
@@ -66,6 +70,7 @@ if (!isOpen) return null;
   const isDirty = 
     tempProfileImg !== currentProfile.profileImage ||
     tempBannerImg !== currentProfile.bannerImage ||
+    tempBio.trim() !== (currentProfile.bio ?? "").trim() ||
     tempVisibility !== currentProfile.scoreVisibility ||
     tempNiches.length !== currentProfile.niches.length ||
     tempNiches.some((niche) => !currentProfile.niches.includes(niche));
@@ -92,6 +97,7 @@ if (!isOpen) return null;
       starix_score_visibility:
         tempVisibility === "anyone" ? "public" : "private",
       niches: tempNiches,
+      bio: tempBio.trim() ? tempBio.trim().slice(0, 500) : null,
     };
   
     if (removeProfileImage) {
@@ -262,6 +268,20 @@ if (!isOpen) return null;
                 <span className="text-[11px] text-gray-400 mt-0.5">PNG or IMG (Max Size: 20MB)</span>
               </div>
             )}
+          </div>
+
+          <div>
+            <label className="block text-[14px] font-semibold text-[#1E1F24] mb-2">
+              Bio
+            </label>
+            <textarea
+              rows={4}
+              maxLength={500}
+              value={tempBio}
+              onChange={(event) => setTempBio(event.target.value)}
+              placeholder="Tell brands and creators a bit about you"
+              className="w-full resize-none rounded-xl border border-gray-200 p-4 text-[14px] text-[#1E1F24] outline-none placeholder:text-[#8B8D98] focus:border-blue-500"
+            />
           </div>
 
           <div>

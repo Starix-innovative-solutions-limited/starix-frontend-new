@@ -13,6 +13,7 @@ import { CircleMembersAvatar } from "@/components/(creator)/dashboard/CircleMemb
 import NotificationDropdown from "@/components/(creator)/dashboard/NotificationDropdown";
 import Link from "next/link";
 import { useGetMe } from "@/hooks/useAuth";
+import { useDashboardSearch } from "@/components/dashboard/DashboardSearchProvider";
 
 const CreatorCircles = () => {
   const [page, setPage] = useState(1);
@@ -21,7 +22,8 @@ const CreatorCircles = () => {
   const profileImage = user?.profile_picture_url?.trim() || null;
   const userInitial = (user?.first_name || user?.username || "").charAt(0).toUpperCase();
   
-  const [searchQuery, setSearchQuery] = useState("");
+  const { query: searchQuery, setQuery: setSearchQuery, placeholder } =
+    useDashboardSearch();
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isRequestsModalOpen, setIsRequestsModalOpen] = useState(false);
@@ -113,7 +115,7 @@ const CreatorCircles = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search your Circles"
+            placeholder={placeholder}
             className="w-full bg-white border border-[#E5E7EB] rounded-full py-3.5 pl-12 pr-12 text-sm outline-none"
           />
         </div>

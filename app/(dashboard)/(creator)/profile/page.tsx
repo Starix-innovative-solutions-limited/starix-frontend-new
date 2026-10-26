@@ -7,6 +7,8 @@ import ConnectSocialsModal from "@/components/(creator)/dashboard/ConnectSocials
 import ViewPortfolioModal from "@/components/(creator)/dashboard/ViewPortfolioModal";
 import { FiSearch } from "react-icons/fi";
 import { useGetMe } from "@/hooks/useAuth";
+import Link from "next/link";
+import { creatorProfileHref } from "@/lib/creatorProfilePath";
 import { GoArrowLeft, GoArrowRight } from "react-icons/go";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -20,6 +22,9 @@ import {
 } from "@/hooks/useProfile";
 import { useGetMyCircle, type MyCircle } from "@/hooks/useCircles";
 import { hasSocialOAuthCallback } from "@/lib/socialOAuth";
+import { useDashboardSearch } from "@/components/dashboard/DashboardSearchProvider";
+import { parseApiError } from "@/lib/apiError";
+import toast from "react-hot-toast";
 import {
   PolarAngleAxis,
   RadialBar,
@@ -37,25 +42,37 @@ const UserProfilePage = () => {
   const router = useRouter();
   const params = useParams();
   const [hasMounted, setHasMounted] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const { query: searchQuery, setQuery: setSearchQuery, placeholder } =
+    useDashboardSearch();
   const [page, setPage] = useState(1);
 
   useEffect(() => {
     setHasMounted(true);
   }, []);
 
-  const routeUsernameOrId =
-  typeof params?.username === "string"
-    ? params.username
-    : typeof params?.id === "string"
-      ? params.id
-      : null;
+  const rawRouteHandle =
+    typeof params?.username === "string"
+      ? params.username
+      : typeof params?.id === "string"
+        ? params.id
+        : null;
+  let routeUsernameOrId = rawRouteHandle;
+  if (rawRouteHandle) {
+    try {
+      routeUsernameOrId = decodeURIComponent(rawRouteHandle);
+    } catch {
+      routeUsernameOrId = rawRouteHandle;
+    }
+  }
 
 const { data: authUser, isLoading: isAuthLoading } = useGetMe();
 
+const normalizedRouteHandle = routeUsernameOrId?.replace(/^@/, "").trim().toLowerCase() ?? "";
+const normalizedAuthHandle = authUser?.username?.replace(/^@/, "").trim().toLowerCase() ?? "";
+
 const isOwnProfile =
   !routeUsernameOrId ||
-  routeUsernameOrId === authUser?.username ||
+  (normalizedAuthHandle !== "" && normalizedRouteHandle === normalizedAuthHandle) ||
   routeUsernameOrId === authUser?.id;
 
 const viewedUsername = isOwnProfile
@@ -191,6 +208,9 @@ const isProfileLoading =
         }
 
         setIsModalOpen(false);
+      },
+      onError: (error) => {
+        toast.error(parseApiError(error, "Could not save profile").message);
       },
     });
   };
@@ -446,7 +466,7 @@ const ConnectedPlatformIcons = ({
                   setSearchQuery(event.target.value);
                   setPage(1);
                 }}
-                placeholder="Search your Circles"
+                placeholder={placeholder}
                 className="h-[44px] w-full rounded-full border border-[#E5E7EB] bg-white pl-12 pr-5 text-[13px] font-medium text-[#1E1F24] outline-none placeholder:text-[#747682]"
               />
             </div>
@@ -463,6 +483,7 @@ const ConnectedPlatformIcons = ({
                   key={circle.circle_id}
                   circle={circle}
                   roleClassName={getRoleBadgeStyles(circle.role)}
+                  currentUsername={authUser?.username}
                 />
               ))
             ) : (
@@ -505,6 +526,7 @@ const ConnectedPlatformIcons = ({
           currentProfile={{
             profileImage: profileImage ?? "",
             bannerImage: bannerImage ?? "",
+            bio: profile?.bio ?? "",
             scoreVisibility,
             niches,
           }}
@@ -643,9 +665,11 @@ const StatCard = ({
 const CircleRow = ({
   circle,
   roleClassName,
+  currentUsername,
 }: {
   circle: Circle;
   roleClassName: string;
+  currentUsername?: string | null;
 }) => {
   const members = circle.members ?? [];
   const visibleMembers = members.slice(0, 3);
@@ -684,25 +708,37 @@ const CircleRow = ({
 
       <div className="flex shrink-0 items-center gap-4">
         <div className="hidden items-center -space-x-2 sm:flex">
-          {visibleMembers.map((member, index) => (
-            <div
-              key={member.user_id || index}
-              className="relative h-7 w-7 overflow-hidden rounded-full border-2 border-white bg-gray-100"
-            >
-              {member.profile_picture_url?.trim() ? (
-                <img
-                  src={member.profile_picture_url}
-                  alt="Circle member"
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <div
-                  className="h-full w-full bg-[#F5F6F8]"
-                  aria-label="No member profile picture"
-                />
-              )}
-            </div>
-          ))}
+          {visibleMembers.map((member, index) => {
+            const href = creatorProfileHref(
+              "username" in member ? member.username : null,
+              currentUsername
+            );
+            const avatar = (
+              <div className="relative h-7 w-7 overflow-hidden rounded-full border-2 border-white bg-gray-100">
+                {member.profile_picture_url?.trim() ? (
+                  <img
+                    src={member.profile_picture_url}
+                    alt="Circle member"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div
+                    className="h-full w-full bg-[#F5F6F8]"
+                    aria-label="No member profile picture"
+                  />
+                )}
+              </div>
+            );
+            return href ? (
+              <Link key={member.user_id || index} href={href} className="relative">
+                {avatar}
+              </Link>
+            ) : (
+              <div key={member.user_id || index} className="relative">
+                {avatar}
+              </div>
+            );
+          })}
 
           {extraMembers > 0 && (
             <div className="relative z-10 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-[#C9E9FF] text-[10px] font-semibold text-[#050E81]">

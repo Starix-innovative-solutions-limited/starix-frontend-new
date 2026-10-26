@@ -5,6 +5,8 @@ import Image from "next/image";
 import { useRouter, useParams } from "next/navigation";
 import { GoSearch, GoArrowLeft, GoArrowRight, GoPlus, GoX } from "react-icons/go";
 import { useGetCircleEarnings, useGetEarningDetail } from "@/hooks/useCircles";
+import { useDashboardSearch } from "@/components/dashboard/DashboardSearchProvider";
+import { matchesDashboardQuery } from "@/lib/dashboardSearch";
 
 const EarningsHistory = () => {
   const router = useRouter();
@@ -14,7 +16,10 @@ const EarningsHistory = () => {
   const { data: earnings, isLoading } = useGetCircleEarnings(id);
   const { data: detail } = useGetEarningDetail(id, selectedId || "");
 
-  const earningItems = earnings?.items ?? [];
+  const { query, setQuery, placeholder } = useDashboardSearch();
+  const earningItems = (earnings?.items ?? []).filter((item: any) =>
+    matchesDashboardQuery(query, item.title, item.brand_name, item.challenge_title)
+  );
 
   // Safe calculation for total earnings (defaults to 0 if data is missing)
   const totalEarnings = earnings?.items?.reduce((acc: number, cur: any) => acc + (cur.gross_prize || 0), 0) || 0;
@@ -97,7 +102,9 @@ const EarningsHistory = () => {
             <GoSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
             <input 
               type="text" 
-              placeholder="Search Challenges"
+              placeholder={placeholder}
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
               className="w-full pl-14 pr-6 py-3.5 border border-[#EFF0F3] rounded-full text-[12px] outline-none focus:ring-2 focus:ring-blue-50"
             />
           </div>
