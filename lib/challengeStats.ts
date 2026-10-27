@@ -65,6 +65,19 @@ export function getChallengeApplicationCount(challenge: ChallengeLike) {
   );
 }
 
+export function getChallengeCategoryName(
+  challenge: ChallengeLike,
+  categories?: Array<{ id: string; name: string }>
+) {
+  const item = asRecord(challenge);
+  const categoryId = firstString(item.category_id);
+  if (categoryId && categories?.length) {
+    const match = categories.find((category) => category.id === categoryId);
+    if (match?.name?.trim()) return match.name.trim();
+  }
+  return firstString(item.category_name, item.category);
+}
+
 export function getChallengeEndDate(challenge: ChallengeLike) {
   const item = asRecord(challenge);
   return firstString(

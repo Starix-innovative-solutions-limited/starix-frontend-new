@@ -16,6 +16,10 @@ import {
 import Loader from "@/components/Loader";
 import { formatCompactNaira } from "@/lib/formatMoney";
 import { useDashboardSearch } from "@/components/dashboard/DashboardSearchProvider";
+import FilterModal, {
+  EMPTY_CHALLENGE_FILTERS,
+  type ChallengeFilterValues,
+} from "@/components/(creator)/dashboard/creator/FilterModal";
 
 type ChallengesTab = "Active" | "Completed" | "Saved";
 
@@ -97,6 +101,10 @@ const ChallengesPage = () => {
   const { query: searchQuery, setQuery: setSearchQuery, placeholder } =
     useDashboardSearch();
   const [page, setPage] = useState(1);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<ChallengeFilterValues>(
+    EMPTY_CHALLENGE_FILTERS
+  );
 
   const {
     data: activeData,
@@ -180,13 +188,52 @@ const ChallengesPage = () => {
 
   const filteredChallenges = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-    if (!query) return normalizedChallenges;
-    return normalizedChallenges.filter(
-      (challenge) =>
-        challenge.title?.toLowerCase().includes(query) ||
-        challenge.brand_name?.toLowerCase().includes(query)
-    );
-  }, [normalizedChallenges, searchQuery]);
+    const brand = filters.selectedBrand.trim().toLowerCase();
+    const status = filters.selectedStatus.trim().toLowerCase();
+
+    return normalizedChallenges.filter((challenge) => {
+      if (
+        query &&
+        !challenge.title?.toLowerCase().includes(query) &&
+        !challenge.brand_name?.toLowerCase().includes(query)
+      ) {
+        return false;
+      }
+      if (brand && challenge.brand_name?.toLowerCase() !== brand) return false;
+      if (status && challenge.status?.toLowerCase() !== status) return false;
+      return true;
+    });
+  }, [
+    filters.selectedBrand,
+    filters.selectedStatus,
+    normalizedChallenges,
+    searchQuery,
+  ]);
+
+  const availableBrands = useMemo(
+    () =>
+      [
+        ...new Set(
+          normalizedChallenges
+            .map((challenge) => challenge.brand_name?.trim())
+            .filter((name): name is string => Boolean(name))
+        ),
+      ].sort((a, b) => a.localeCompare(b)),
+    [normalizedChallenges]
+  );
+
+  const availableStatuses = useMemo(() => {
+    if (activeTab === "Saved") return [];
+    const seen = new Map<string, string>();
+    for (const challenge of normalizedChallenges) {
+      if (!challenge.status || seen.has(challenge.status)) continue;
+      seen.set(challenge.status, challenge.statusLabel);
+    }
+    return Array.from(seen, ([value, label]) => ({ value, label }));
+  }, [activeTab, normalizedChallenges]);
+
+  const activeFilterCount =
+    (filters.selectedBrand ? 1 : 0) + (filters.selectedStatus ? 1 : 0);
 
   const totalPages = Math.max(
     1,
@@ -202,6 +249,8 @@ const ChallengesPage = () => {
     setActiveTab(tab);
     setPage(1);
     setSearchQuery("");
+    setFilters(EMPTY_CHALLENGE_FILTERS);
+    setIsFilterOpen(false);
   };
 
   return (
@@ -225,13 +274,35 @@ const ChallengesPage = () => {
         </div>
 
         <div className="flex items-center gap-2 md:gap-3 shrink-0">
-          <button
-            type="button"
-            className="flex items-center gap-2 px-4 py-2.5 border border-[#D0D5DD] rounded-full text-[13px] font-medium text-[#344054] hover:bg-gray-50 transition-all cursor-pointer"
-          >
-            <FilterIcon className="text-base" />
-            <span className="hidden sm:inline">Filter</span>
-          </button>
+          <div className="relative shrink-0">
+            <button
+              type="button"
+              onClick={() => setIsFilterOpen((open) => !open)}
+              className={`flex items-center gap-2 px-4 py-2.5 border rounded-full text-[13px] font-medium transition-all cursor-pointer ${
+                activeFilterCount > 0 || isFilterOpen
+                  ? "border-[#0033FF] bg-[#EEF3FF] text-[#0033FF]"
+                  : "border-[#D0D5DD] text-[#344054] hover:bg-gray-50"
+              }`}
+            >
+              <FilterIcon className="text-base" />
+              <span className="hidden sm:inline">Filter</span>
+              {activeFilterCount > 0 ? (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#0033FF] px-1.5 text-[10px] font-semibold text-white">
+                  {activeFilterCount}
+                </span>
+              ) : null}
+            </button>
+            <FilterModal
+              isOpen={isFilterOpen}
+              onClose={() => setIsFilterOpen(false)}
+              values={filters}
+              onChange={setFilters}
+              showDeadline={false}
+              showCategory={false}
+              availableBrands={availableBrands}
+              availableStatuses={availableStatuses}
+            />
+          </div>
 
           <div className="relative w-[160px] sm:w-[220px] md:w-[280px]">
             <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#667085] text-base" />
@@ -308,21 +379,24 @@ const ChallengesPage = () => {
                   No {activeTab} Challenges
                 </h3>
                 <p className="text-[#667085] text-[13px] max-w-sm leading-relaxed">
-                  {searchQuery
-                    ? `No matches for “${searchQuery}”. Try a different search.`
+                  {searchQuery || activeFilterCount > 0
+                    ? "No matches for that search or filter. Try a different brand, status, or search."
                     : activeTab === "Active"
                       ? "Join a challenge and submit an entry to see it here."
                       : activeTab === "Completed"
                         ? "Completed challenges will show up here once judging finishes."
                         : "Save a challenge to keep it here for later."}
                 </p>
-                {searchQuery ? (
+                {searchQuery || activeFilterCount > 0 ? (
                   <button
                     type="button"
-                    onClick={() => setSearchQuery("")}
+                    onClick={() => {
+                      setSearchQuery("");
+                      setFilters(EMPTY_CHALLENGE_FILTERS);
+                    }}
                     className="mt-5 px-5 py-2.5 bg-[#0033FF] hover:bg-blue-700 text-white font-semibold text-[13px] rounded-full transition cursor-pointer"
                   >
-                    Clear Search
+                    Clear filters
                   </button>
                 ) : null}
               </motion.div>

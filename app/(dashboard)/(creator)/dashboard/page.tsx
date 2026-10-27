@@ -15,12 +15,14 @@ import {
   useGetChallenges,
   useGetJoinedActiveChallenges,
 } from "@/hooks/useChallenges";
+import { useGetCategories } from "@/hooks/useCategories";
 import { getChallengePreviewImages } from "@/lib/challengeMedia";
 import {
   formatChallengeClosesIn,
   formatChallengeTimeLeft,
   formatCompactCount,
   getChallengeApplicationCount,
+  getChallengeCategoryName,
   getChallengeEndDate,
   getChallengeViewCount,
 } from "@/lib/challengeStats";
@@ -30,6 +32,7 @@ import { matchesDashboardQuery } from "@/lib/dashboardSearch";
 const Page = () => {
   const { data: user } = useGetMe();
   const { query } = useDashboardSearch();
+  const { data: categories = [] } = useGetCategories();
 
   const { data: openChallengesData } = useGetChallenges({
     limit: 12,
@@ -63,9 +66,10 @@ const Page = () => {
         brand: challenge.brand_name || "Brand",
         logoUrl: challenge.brand_profile_picture_url,
         time: formatTimeAgo(challenge.created_at),
-        niche: challenge.category_name
-          ? [challenge.category_name]
-          : ["Challenge"],
+        niche: (() => {
+          const category = getChallengeCategoryName(challenge, categories);
+          return category ? [category] : [];
+        })(),
         prize: formatCompactNaira(
           challenge.prize_pool_display ||
             (typeof challenge.prize_pool === "number"
@@ -84,7 +88,7 @@ const Page = () => {
         thumbnails,
       };
     });
-  }, [openChallengesData]);
+  }, [categories, openChallengesData]);
 
   const visibleRecommended = React.useMemo(
     () =>

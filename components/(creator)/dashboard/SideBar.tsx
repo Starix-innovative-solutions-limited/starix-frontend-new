@@ -158,18 +158,9 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
             </ul>
           </nav>
 
-          {/* PROMO CARD / COLLAPSED ICON */}
-          <div className="mt-8 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]">
-            {collapsed ? (
-              <div className="flex flex-col items-center justify-center py-28 group cursor-pointer">
-                <img src="/bluplay.webp" className="w-16 h-16" alt="" />
-              </div>
-            ) : (
-              <div className={`
-                bg-[#F9F9FB] border border-[#EFF0F3] rounded-[32px] p-2 text-center shadow-sm
-                transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] origin-top
-                opacity-100 scale-100 h-auto
-              `}>
+          {!collapsed && (
+            <div className="mt-8 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]">
+              <div className="bg-[#F9F9FB] border border-[#EFF0F3] rounded-[32px] p-2 text-center shadow-sm origin-top">
                 <div className="w-full h-[140px] mt-2 flex items-center justify-center ">
                   <img src="/dash-group.webp" alt="Challenges" className="object-contain w-full h-full mt-11 scale-145" />
                 </div>
@@ -181,8 +172,8 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
                   Submit Entries
                 </button>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* LOGOUT */}

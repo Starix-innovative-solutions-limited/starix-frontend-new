@@ -1,111 +1,306 @@
 "use client";
 
-import React, { useState } from "react";
-import { X, ChevronUp, ChevronDown } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { FiSearch, FiX } from "react-icons/fi";
+import { useGetCategories } from "@/hooks/useCategories";
+
+export const DEADLINE_OPTIONS = [
+  { label: "Any", days: null },
+  { label: "24h", days: 1 },
+  { label: "7d", days: 7 },
+  { label: "14d", days: 14 },
+  { label: "30d", days: 30 },
+] as const;
+
+export type ChallengeFilterValues = {
+  selectedCategory: string;
+  selectedBrand: string;
+  selectedStatus: string;
+  deadline: string;
+  deadlineDays: number | null;
+};
+
+export const EMPTY_CHALLENGE_FILTERS: ChallengeFilterValues = {
+  selectedCategory: "",
+  selectedBrand: "",
+  selectedStatus: "",
+  deadline: "Any",
+  deadlineDays: null,
+};
 
 interface FilterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (values: { selectedCategory: string; deadline: string }) => void;
+  values?: ChallengeFilterValues;
+  initialValues?: ChallengeFilterValues;
+  onChange?: (values: ChallengeFilterValues) => void;
+  onSave?: (values: ChallengeFilterValues) => void;
+  availableCategories?: string[];
+  availableBrands?: string[];
+  availableStatuses?: Array<{ value: string; label: string }>;
+  showDeadline?: boolean;
+  showCategory?: boolean;
 }
 
-const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose, onSave }) => {
-  const [categoryOpen, setCategoryOpen] = useState(true); // Open by default as per image
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [deadline, setDeadline] = useState("10 days");
+function withDeadlineLabel(values: ChallengeFilterValues): ChallengeFilterValues {
+  return {
+    ...values,
+    deadline:
+      DEADLINE_OPTIONS.find((option) => option.days === values.deadlineDays)
+        ?.label ?? "Any",
+  };
+}
 
-  const categories = ["Fashion", "Technology", "Lifestyle & Entertainment"];
+function Chip({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-full px-2.5 py-1 text-[11px] font-medium capitalize transition ${
+        active
+          ? "bg-[#0033FF] text-white"
+          : "bg-[#F5F6F8] text-[#62636C] hover:bg-[#EEF3FF] hover:text-[#0033FF]"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
+const FilterModal: React.FC<FilterModalProps> = ({
+  isOpen,
+  onClose,
+  values,
+  initialValues,
+  onChange,
+  onSave,
+  availableCategories,
+  availableBrands = [],
+  availableStatuses = [],
+  showDeadline = true,
+  showCategory = true,
+}) => {
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const { data: allCategories = [] } = useGetCategories();
+  const [categoryQuery, setCategoryQuery] = useState("");
+
+  const current = values ?? initialValues ?? EMPTY_CHALLENGE_FILTERS;
+
+  const categoryNames = useMemo(() => {
+    const source =
+      availableCategories && availableCategories.length > 0
+        ? availableCategories
+        : allCategories.map((category) => category.name);
+
+    return [...new Set(source.map((name) => name.trim()).filter(Boolean))].sort(
+      (a, b) => a.localeCompare(b)
+    );
+  }, [allCategories, availableCategories]);
+
+  const visibleCategories = useMemo(() => {
+    const needle = categoryQuery.trim().toLowerCase();
+    if (!needle) return categoryNames;
+    return categoryNames.filter((name) => name.toLowerCase().includes(needle));
+  }, [categoryNames, categoryQuery]);
+
+  const apply = (next: Partial<ChallengeFilterValues>) => {
+    const payload = withDeadlineLabel({ ...current, ...next });
+    onChange?.(payload);
+    onSave?.(payload);
+  };
+
+  useEffect(() => {
+    if (!isOpen) {
+      setCategoryQuery("");
+      return;
+    }
+
+    const onPointerDown = (event: MouseEvent) => {
+      if (!panelRef.current?.contains(event.target as Node)) onClose();
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isOpen, onClose]);
+
+  const hasFilters =
+    Boolean(current.selectedCategory) ||
+    Boolean(current.selectedBrand) ||
+    Boolean(current.selectedStatus) ||
+    current.deadlineDays != null;
 
   return (
     <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Overlay for mobile/closing */}
-          <div 
-            className="fixed inset-0 bg-black/8 z-40 md:bg-transparent" 
-            onClick={onClose} 
-          />
-
-          <motion.div
-            initial={{ opacity: 0, y: 100, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 100, scale: 0.9 }}
-            className="fixed bottom-6 right-6 z-50 w-full max-w-[400px] min-h-[200px] bg-white rounded-[40px] shadow-xl border border-gray-100 overflow-hidden"
-          >
-            {/* Header */}
-            <div className="relative flex items-center justify-center p-8 border-b border-gray-50">
-              <h2 className="text-[22px] font-medium text-[#0A0A30]">Filters</h2>
+      {isOpen ? (
+        <motion.div
+          ref={panelRef}
+          initial={{ opacity: 0, y: 6, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 6, scale: 0.98 }}
+          transition={{ duration: 0.14 }}
+          className="absolute right-0 top-[calc(100%+8px)] z-50 w-[280px] rounded-2xl border border-[#EFF0F3] bg-white p-3 shadow-[0_12px_32px_rgba(16,24,40,0.12)]"
+        >
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-[13px] font-semibold text-[#1E1F24]">Filter</p>
+            <div className="flex items-center gap-2">
+              {hasFilters ? (
+                <button
+                  type="button"
+                  onClick={() => apply(EMPTY_CHALLENGE_FILTERS)}
+                  className="text-[11px] font-medium text-[#0033FF] hover:underline"
+                >
+                  Clear
+                </button>
+              ) : null}
               <button
+                type="button"
                 onClick={onClose}
-                className="absolute right-8 p-2 bg-[#F9FAFB] rounded-full text-gray-500 hover:bg-gray-100 transition-all"
+                className="flex h-6 w-6 items-center justify-center rounded-full text-[#8B8D98] hover:bg-[#F5F6F8] hover:text-[#1E1F24]"
+                aria-label="Close filters"
               >
-                <X className="w-5 h-5" />
+                <FiX size={14} />
               </button>
             </div>
+          </div>
 
-            <div className="p-8 space-y-8">
-              {/* Category Section */}
-              <div className="space-y-4">
-                <label className="text-[17px] text-[#0A0A30] font-medium block">Category</label>
-                
-                {/* Select Box */}
-                <div 
-                  onClick={() => setCategoryOpen(!categoryOpen)}
-                  className={`flex items-center justify-between h-[72px] px-6 rounded-[24px] border-2 cursor-pointer transition-all ${
-                    categoryOpen ? 'border-[#0A0A30]' : 'border-gray-200'
-                  }`}
-                >
-                  <span className="text-gray-500">Select Category</span>
-                  {categoryOpen ? <ChevronUp className="w-6 h-6" /> : <ChevronDown className="w-6 h-6" />}
+          {showDeadline ? (
+            <>
+              <p className="mb-1.5 text-[11px] font-medium text-[#8B8D98]">
+                Ends within
+              </p>
+              <div className="mb-3 flex flex-wrap gap-1.5">
+                {DEADLINE_OPTIONS.map((option) => (
+                  <Chip
+                    key={option.label}
+                    label={option.label}
+                    active={current.deadlineDays === option.days}
+                    onClick={() => apply({ deadlineDays: option.days })}
+                  />
+                ))}
+              </div>
+            </>
+          ) : null}
+
+          {showCategory ? (
+            <>
+              <p className="mb-1.5 text-[11px] font-medium text-[#8B8D98]">
+                Category
+              </p>
+              {categoryNames.length > 8 ? (
+                <div className="relative mb-2">
+                  <FiSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#8B8D98]" size={12} />
+                  <input
+                    value={categoryQuery}
+                    onChange={(event) => setCategoryQuery(event.target.value)}
+                    placeholder="Search"
+                    className="h-8 w-full rounded-full border border-[#EFF0F3] bg-[#F9F9FB] pl-7 pr-3 text-[11px] text-[#1E1F24] outline-none placeholder:text-[#8B8D98]"
+                  />
                 </div>
-
-                {/* Dropdown List */}
-                {categoryOpen && (
-                  <div className="rounded-[24px] border-2 border-[#0A0A30] p-6 space-y-4">
-                    {categories.map((cat) => (
-                      <button
-                        key={cat}
-                        onClick={() => setSelectedCategory(cat)}
-                        className={`block w-full text-left text-[16px] transition-colors ${
-                          selectedCategory === cat ? 'text-[#0A0A30] font-semibold' : 'text-gray-400'
-                        }`}
-                      >
-                        {cat}
-                      </button>
-                    ))}
-                  </div>
-                )}
+              ) : null}
+              <div className="mb-3 flex max-h-36 flex-wrap gap-1.5 overflow-y-auto">
+                <Chip
+                  label="All"
+                  active={!current.selectedCategory}
+                  onClick={() => apply({ selectedCategory: "" })}
+                />
+                {visibleCategories.map((category) => {
+                  const active =
+                    current.selectedCategory.toLowerCase() ===
+                    category.toLowerCase();
+                  return (
+                    <Chip
+                      key={category}
+                      label={category}
+                      active={active}
+                      onClick={() =>
+                        apply({ selectedCategory: active ? "" : category })
+                      }
+                    />
+                  );
+                })}
+                {visibleCategories.length === 0 ? (
+                  <p className="px-1 py-1 text-[11px] text-[#8B8D98]">
+                    No matching categories
+                  </p>
+                ) : null}
               </div>
+            </>
+          ) : null}
 
-              {/* Deadline Section */}
-              <div className="space-y-4">
-                <label className="text-[17px] text-[#0A0A30] font-medium block">Deadline</label>
-                <div className="flex items-center justify-between h-[72px] px-6 rounded-[24px] border border-gray-200 bg-white">
-                  <span className="text-gray-300">{deadline}</span>
-                  <ChevronDown className="w-6 h-6 text-gray-400" />
-                </div>
+          {availableStatuses.length > 0 ? (
+            <>
+              <p className="mb-1.5 text-[11px] font-medium text-[#8B8D98]">
+                Status
+              </p>
+              <div className="mb-3 flex flex-wrap gap-1.5">
+                <Chip
+                  label="All"
+                  active={!current.selectedStatus}
+                  onClick={() => apply({ selectedStatus: "" })}
+                />
+                {availableStatuses.map((status) => {
+                  const active = current.selectedStatus === status.value;
+                  return (
+                    <Chip
+                      key={status.value}
+                      label={status.label}
+                      active={active}
+                      onClick={() =>
+                        apply({ selectedStatus: active ? "" : status.value })
+                      }
+                    />
+                  );
+                })}
               </div>
+            </>
+          ) : null}
 
-              {/* Action Buttons */}
-              <div className="flex gap-4 pt-4">
-                <button
-                  onClick={onClose}
-                  className="flex-1 h-[64px] rounded-full border border-[#0A0A30] text-[#0A0A30] font-medium text-lg hover:bg-gray-50 transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => onSave({ selectedCategory, deadline })}
-                  className="flex-1 h-[64px] rounded-full bg-[#000033] text-white font-medium text-lg hover:bg-[#000055] transition-all shadow-lg"
-                >
-                  Save
-                </button>
+          {availableBrands.length > 0 ? (
+            <>
+              <p className="mb-1.5 text-[11px] font-medium text-[#8B8D98]">
+                Brand
+              </p>
+              <div className="flex max-h-28 flex-wrap gap-1.5 overflow-y-auto">
+                <Chip
+                  label="All"
+                  active={!current.selectedBrand}
+                  onClick={() => apply({ selectedBrand: "" })}
+                />
+                {availableBrands.map((brand) => {
+                  const active =
+                    current.selectedBrand.toLowerCase() === brand.toLowerCase();
+                  return (
+                    <Chip
+                      key={brand}
+                      label={brand}
+                      active={active}
+                      onClick={() =>
+                        apply({ selectedBrand: active ? "" : brand })
+                      }
+                    />
+                  );
+                })}
               </div>
-            </div>
-          </motion.div>
-        </>
-      )}
+            </>
+          ) : null}
+        </motion.div>
+      ) : null}
     </AnimatePresence>
   );
 };

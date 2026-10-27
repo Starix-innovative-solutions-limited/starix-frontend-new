@@ -9,17 +9,24 @@ import Link from "next/link";
 import BrandAvatar from "@/components/(brand)/BrandAvatar";
 import ChallengeMediaGrid from "@/components/(creator)/challenge/ChallengeMediaGrid";
 import { useGetRecommendedChallenges, useGetTrendingChallenges } from "@/hooks/useChallenges";
+import { useGetCategories } from "@/hooks/useCategories";
 import { getChallengePreviewImages } from "@/lib/challengeMedia";
 import { formatCompactNaira } from "@/lib/formatMoney";
 import {
   formatChallengeTimeLeft,
   formatCompactCount,
   getChallengeApplicationCount,
+  getChallengeCategoryName,
   getChallengeEndDate,
   getChallengeViewCount,
+  parseChallengeTimestamp,
 } from "@/lib/challengeStats";
 import { useDashboardSearch } from "@/components/dashboard/DashboardSearchProvider";
 import { matchesDashboardQuery } from "@/lib/dashboardSearch";
+import FilterModal, {
+  EMPTY_CHALLENGE_FILTERS,
+  type ChallengeFilterValues,
+} from "@/components/(creator)/dashboard/creator/FilterModal";
 
 type RecommendedCard = {
   id: string | number;
@@ -29,6 +36,7 @@ type RecommendedCard = {
   niche: string[];
   prize: string;
   deadline: string;
+  endAt: number | null;
   verified: boolean;
   images: string[];
   title?: string;
@@ -39,10 +47,15 @@ type RecommendedCard = {
 
 const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean }) => {
   const { query, setQuery, placeholder } = useDashboardSearch();
+  const [isFilterOpen, setIsFilterOpen] = React.useState(false);
+  const [filters, setFilters] = React.useState<ChallengeFilterValues>(
+    EMPTY_CHALLENGE_FILTERS
+  );
   const { data: recommendedData, isLoading: recommendedLoading } =
     useGetRecommendedChallenges(50, 0);
   const { data: trendingData, isLoading: trendingLoading } =
     useGetTrendingChallenges(50, 0);
+  const { data: categories = [] } = useGetCategories();
 
   const formatTimeAgo = (dateString: string) => {
     if (!dateString) return "Just now";
@@ -70,9 +83,10 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
         brand: challenge.brand_name || "Brand",
         logoUrl: challenge.brand_profile_picture_url,
         time: formatTimeAgo(challenge.created_at),
-        niche: challenge.category_name
-          ? [challenge.category_name]
-          : ["Challenge"],
+        niche: (() => {
+          const category = getChallengeCategoryName(challenge, categories);
+          return category ? [category] : [];
+        })(),
         prize: formatCompactNaira(
           challenge.prize_pool_display ||
             (typeof challenge.prize_pool === "number"
@@ -81,6 +95,7 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
           challenge.currency_symbol || "₦"
         ),
         deadline: formatChallengeTimeLeft(getChallengeEndDate(challenge)) ?? "Open",
+        endAt: parseChallengeTimestamp(getChallengeEndDate(challenge)),
         verified: challenge.is_funded ?? challenge.is_published ?? true,
         title: challenge.title,
         desc: challenge.description,
@@ -89,22 +104,55 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
         mail: formatCompactCount(getChallengeApplicationCount(challenge)),
       };
     });
-  }, [recommendedData, trendingData]);
+  }, [categories, recommendedData, trendingData]);
 
   const isLoading = recommendedLoading || trendingLoading;
 
-  const visibleCards = React.useMemo(
-    () =>
-      cards.filter((card) =>
-        matchesDashboardQuery(
+  const visibleCards = React.useMemo(() => {
+    const now = Date.now();
+    const selectedCategory = filters.selectedCategory.trim().toLowerCase();
+    const deadlineMs =
+      filters.deadlineDays == null
+        ? null
+        : filters.deadlineDays * 24 * 60 * 60 * 1000;
+
+    return cards.filter((card) => {
+      if (
+        !matchesDashboardQuery(
           query,
           card.title,
           card.brand,
           card.desc,
           ...(card.niche ?? [])
         )
+      ) {
+        return false;
+      }
+
+      if (
+        selectedCategory &&
+        !card.niche.some((niche) => niche.toLowerCase() === selectedCategory)
+      ) {
+        return false;
+      }
+
+      if (deadlineMs != null) {
+        if (!card.endAt || card.endAt <= now) return false;
+        if (card.endAt - now > deadlineMs) return false;
+      }
+
+      return true;
+    });
+  }, [cards, filters.deadlineDays, filters.selectedCategory, query]);
+
+  const activeFilterCount =
+    (filters.selectedCategory ? 1 : 0) + (filters.deadlineDays != null ? 1 : 0);
+  const availableCategories = React.useMemo(
+    () =>
+      [...new Set(cards.flatMap((card) => card.niche).filter(Boolean))].sort(
+        (a, b) => a.localeCompare(b)
       ),
-    [cards, query]
+    [cards]
   );
 
   return (
@@ -126,10 +174,32 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
           </div>
 
           <div className="flex items-center gap-2 md:gap-3 flex-1 justify-end">
-            <button className="flex items-center gap-2 px-3 py-2 md:px-5 md:py-2.5 border border-[#8B8D98] rounded-full text-[11px] md:text-sm font-medium text-[#374151] hover:bg-gray-50 transition-all flex-shrink-0 cursor-pointer">
-              <FiSliders className="text-sm md:text-lg" />
-              <span className=" xs:inline">Filter</span>
-            </button>
+            <div className="relative shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsFilterOpen((open) => !open)}
+                className={`flex items-center gap-2 px-3 py-2 md:px-5 md:py-2.5 border rounded-full text-[11px] md:text-sm font-medium transition-all cursor-pointer ${
+                  activeFilterCount > 0 || isFilterOpen
+                    ? "border-[#0033FF] bg-[#EEF3FF] text-[#0033FF]"
+                    : "border-[#8B8D98] text-[#374151] hover:bg-gray-50"
+                }`}
+              >
+                <FiSliders className="text-sm md:text-lg" />
+                <span className=" xs:inline">Filter</span>
+                {activeFilterCount > 0 ? (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#0033FF] px-1.5 text-[10px] font-semibold text-white">
+                    {activeFilterCount}
+                  </span>
+                ) : null}
+              </button>
+              <FilterModal
+                isOpen={isFilterOpen}
+                onClose={() => setIsFilterOpen(false)}
+                values={filters}
+                onChange={setFilters}
+                availableCategories={availableCategories}
+              />
+            </div>
             
             <div className="relative w-full max-w-xs xs:max-w-[180px] md:max-w-sm transition-all duration-300">
               <FiSearch className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-[#62636C] text-sm md:text-lg" />
@@ -159,10 +229,14 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
             ) : visibleCards.length === 0 ? (
               <div className="col-span-full rounded-[24px] border border-dashed border-[#E0E1E6] px-6 py-16 text-center">
                 <p className="text-[14px] font-medium text-[#1E1F24]">
-                  No open challenges yet
+                  {query || activeFilterCount > 0
+                    ? "No challenges match your filters"
+                    : "No open challenges yet"}
                 </p>
                 <p className="mt-1 text-[12px] text-[#62636C]">
-                  Funded brand challenges will appear here once they are active.
+                  {query || activeFilterCount > 0
+                    ? "Try a different category, deadline, or search."
+                    : "Funded brand challenges will appear here once they are active."}
                 </p>
               </div>
             ) : (

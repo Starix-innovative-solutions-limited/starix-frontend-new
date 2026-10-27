@@ -29,6 +29,7 @@ import {
 } from "@/hooks/useChallenges";
 import { useUploadMedia } from "@/hooks/useMedia";
 import { useGetCategories } from "@/hooks/useCategories";
+import { useGetBrandProfile } from "@/hooks/useProfile";
 
 const TOTAL_STEPS = 5;
 const MAX_MEDIA = 6;
@@ -208,6 +209,7 @@ type FormState = {
   start_date: string;
   end_date: string;
   platforms: string[];
+  category: string;
   content_type: string;
   hashtags: string;
   mentions: string;
@@ -227,6 +229,7 @@ const initialForm: FormState = {
   start_date: "",
   end_date: "",
   platforms: ["TikTok"],
+  category: "",
   content_type: "short_form_video",
   hashtags: "",
   mentions: "",
@@ -298,6 +301,7 @@ function formFromDraft(draft: ChallengeItem): FormState {
     end_date: isoDateInput(draft.end_date),
     platforms:
       draft.platforms?.map(displayPlatform) ?? ["TikTok"],
+    category: draft.category_name?.trim() || "",
     hashtags: draft.required_hashtags?.join(" ") ?? "",
     mentions: draft.required_mentions?.join(" ") ?? "",
     posting_rules: draft.posting_rules ?? "",
@@ -738,6 +742,7 @@ export default function CreateChallenge({
   const fundChallenge = useFundChallenge();
   const uploadMedia = useUploadMedia();
   const { data: categories = [] } = useGetCategories();
+  const { data: brandProfile } = useGetBrandProfile();
 
   const recoveredDraft = useMemo(
     () => (draft ? null : readLocalDraft()),
@@ -793,6 +798,13 @@ export default function CreateChallenge({
 
   const mediaInputRef = useRef<HTMLInputElement>(null);
   const docInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (form.category.trim()) return;
+    const brandNiche = brandProfile?.niches?.find((niche) => niche?.trim());
+    if (!brandNiche) return;
+    setForm((prev) => (prev.category.trim() ? prev : { ...prev, category: brandNiche.trim() }));
+  }, [brandProfile, form.category]);
 
   useEffect(() => {
     if (draft || typeof window === "undefined") return;
@@ -885,6 +897,9 @@ export default function CreateChallenge({
       if (!form.objective) {
         errors.objective = "Select a campaign objective";
       }
+      if (form.category.trim().length < 2) {
+        errors.category = "Select a category for this challenge";
+      }
     }
 
     // Step 2 — Submission requirements
@@ -964,6 +979,7 @@ export default function CreateChallenge({
     const canSaveToServer =
       form.title.trim().length >= 3 &&
       form.description.trim().length >= 10 &&
+      form.category.trim().length >= 2 &&
       Boolean(form.start_date) &&
       Boolean(form.end_date) &&
       form.start_date >= today &&
@@ -1210,11 +1226,7 @@ export default function CreateChallenge({
       // sales: "conversions",
     };
 
-    const category =
-      draft?.category_name ||
-      categories[0]?.name ||
-      form.content_type.replace(/_/g, " ") ||
-      "lifestyle";
+    const category = form.category.trim();
 
     const briefUrl =
       doc.status === "success" ? doc.url : form.documents[0] || undefined;
@@ -1248,6 +1260,11 @@ export default function CreateChallenge({
 
   async function handlePublish(isDraft: boolean) {
     if (!isDraft && !validateStep(4)) return;
+    if (form.category.trim().length < 2) {
+      toast.error("Select a category for this challenge");
+      setStep(1);
+      return;
+    }
 
     const uploadedMedia = mediaItems.filter((m) => m.url);
     if (!isDraft && uploadedMedia.length === 0) {
@@ -1413,6 +1430,34 @@ export default function CreateChallenge({
                 rows={4}
                 className={`${inputClass} resize-none`}
               />
+            </Field>
+
+            <Field label="Category" error={fieldErrors.category}>
+              <div className="flex flex-wrap gap-2">
+                {categories.length === 0 ? (
+                  <p className="text-[13px] text-[#667085]">Loading categories...</p>
+                ) : (
+                  categories.map((category) => {
+                    const active =
+                      form.category.trim().toLowerCase() ===
+                      category.name.trim().toLowerCase();
+                    return (
+                      <button
+                        key={category.id}
+                        type="button"
+                        onClick={() => update("category", category.name)}
+                        className={`rounded-full border px-3 py-2 text-[12px] font-medium capitalize transition ${
+                          active
+                            ? "border-[#0033FF] bg-[#EEF3FF] text-[#0033FF]"
+                            : "border-[#D0D5DD] bg-white text-[#667085] hover:border-[#8FA8FF]"
+                        }`}
+                      >
+                        {category.name}
+                      </button>
+                    );
+                  })
+                )}
+              </div>
             </Field>
 
             <Field label="Campaign Objective" error={fieldErrors.objective}>
@@ -1847,6 +1892,10 @@ export default function CreateChallenge({
               </h3>
               <div className="divide-y divide-[#EEF0F4] border-y border-[#EEF0F4]">
                 <ReviewRow label="Title" value={form.title || "—"} />
+                <ReviewRow
+                  label="Category"
+                  value={form.category || "—"}
+                />
                 <ReviewRow
                   label="Duration"
                   value={formatChallengeDuration(

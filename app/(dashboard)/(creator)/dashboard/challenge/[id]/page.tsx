@@ -14,6 +14,7 @@ import {
   useGetChallengeById,
   useToggleChallengeSave,
 } from "@/hooks/useChallenges";
+import { useGetCategories } from "@/hooks/useCategories";
 import { parseApiError } from "@/lib/apiError";
 import { formatCompactNaira } from "@/lib/formatMoney";
 import {
@@ -21,6 +22,7 @@ import {
   formatChallengeTimeLeft,
   formatCompactCount,
   getChallengeApplicationCount,
+  getChallengeCategoryName,
   getChallengeEndDate,
   getChallengeViewCount,
 } from "@/lib/challengeStats";
@@ -94,7 +96,9 @@ const ChallengeDetailPage = () => {
     isFetching,
     refetch,
   } = useGetChallengeById(challengeId);
+  const { data: categories = [] } = useGetCategories();
   const saveMutation = useToggleChallengeSave(challengeId);
+  const categoryName = getChallengeCategoryName(challenge, categories);
 
   const isPartial = Boolean(challenge?._partial);
   const parsedError = parseApiError(error, "Unable to load this challenge.");
@@ -332,9 +336,9 @@ const ChallengeDetailPage = () => {
             </span>
           </div>
           <div className="mt-1 flex flex-wrap gap-1">
-            {challenge.category_name ? (
+            {categoryName ? (
               <span className="rounded-full bg-[#F5FBFF] px-2 py-0.5 text-[10px] font-semibold text-[#3379A5]">
-                {challenge.category_name}
+                {categoryName}
               </span>
             ) : null}
             {(challenge.platforms ?? []).map((platform: string) => (
