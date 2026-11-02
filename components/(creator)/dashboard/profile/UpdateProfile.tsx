@@ -5,7 +5,7 @@ import React, { useState, ChangeEvent, useEffect } from "react";
 import { FaPen } from "react-icons/fa";
 import CustomInput from "@/components/CustomInput";
 import { useUpdateCreatorProfile } from "@/hooks/useProfile";
-import toast from "react-hot-toast";
+import { useDashboardNotice } from "@/store/useDashboardNoticeStore";
 import Loader from "@/components/Loader";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useModal } from "@/hooks/useModal";
@@ -13,6 +13,7 @@ import { useModal } from "@/hooks/useModal";
 const UpdateProfile: React.FC = () => {
     const { profile } = useAuthStore();
     const { close } = useModal(); // 💡 Grab the close function
+    const notice = useDashboardNotice();
     const { mutateAsync: updateProfile, isPending } = useUpdateCreatorProfile();
 
     // Local state for image preview and the actual File object
@@ -65,21 +66,16 @@ const UpdateProfile: React.FC = () => {
   // 2. DEBUG: Log exactly what we are sending
   console.log("SENDING TO BACKEND:", payload);
 
-  await toast.promise(
-    updateProfile(payload), // Try sending as a plain object first
-    {
-      loading: "Saving...",
-      success: (res) => {
-        close();
-        return "Profile updated! ✅";
-      },
-      error: (err: any) => {
-        // 💡 This will print the EXACT validation error in your console
-        console.error("VALIDATION ERROR:", err.response?.data?.detail);
-        return `Error: ${err.response?.data?.detail?.[0]?.msg || "Check console"}`;
-      },
-    }
-  );
+  try {
+    await updateProfile(payload);
+    close();
+    notice.success("Profile updated");
+  } catch (err: any) {
+    console.error("VALIDATION ERROR:", err.response?.data?.detail);
+    notice.error(
+      err.response?.data?.detail?.[0]?.msg || "Could not update profile"
+    );
+  }
 };
 
     /* ===================== Options (Static) ===================== */

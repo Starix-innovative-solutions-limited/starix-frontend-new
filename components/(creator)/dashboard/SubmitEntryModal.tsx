@@ -5,7 +5,7 @@ import { IoClose } from "react-icons/io5";
 import { FaInstagram, FaYoutube, FaTiktok } from "react-icons/fa";
 import { FaXTwitter, FaCheck } from "react-icons/fa6";
 import type { IconType } from "react-icons";
-import toast from "react-hot-toast";
+import { useDashboardNotice } from "@/store/useDashboardNoticeStore";
 import SubmitSuccessModal from "./SubmitSuccessModal";
 import { useSubmitChallengeEntry } from "@/hooks/useChallenges";
 
@@ -14,7 +14,9 @@ type PlatformKey = "instagram" | "x" | "youtube" | "tiktok" | "youtube_shorts";
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSubmitted?: () => void;
   challengeId: string;
+  circleId?: string | null;
   platforms?: string[] | null;
   requirements?: string[];
 }
@@ -92,10 +94,13 @@ function getApiErrorMessage(error: unknown, fallback: string) {
 const SubmitEntryModal = ({
   isOpen,
   onClose,
+  onSubmitted,
   challengeId,
+  circleId,
   platforms,
   requirements = [],
 }: ModalProps) => {
+  const notice = useDashboardNotice();
   const submitEntry = useSubmitChallengeEntry();
   const [checkedItems, setCheckedItems] = useState<boolean[]>([]);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -191,14 +196,16 @@ const SubmitEntryModal = ({
           links: requiredPlatforms.map((platform) => ({
             content_url: links[platform].trim(),
           })),
+          ...(circleId ? { circle_id: circleId } : {}),
         },
       });
       setSuccessMessage(
         data?.message || "Your entry has been successfully submitted."
       );
+      onSubmitted?.();
       setShowSuccess(true);
     } catch (error) {
-      toast.error(
+      notice.error(
         getApiErrorMessage(
           error,
           "Could not submit your entry. Please try again."

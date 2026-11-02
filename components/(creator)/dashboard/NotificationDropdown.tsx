@@ -4,7 +4,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { FiBell } from "react-icons/fi";
-import toast from "react-hot-toast";
+import { useDashboardNotice } from "@/store/useDashboardNoticeStore";
 import {
   CircleNotification,
   useAcceptInvitation,
@@ -51,6 +51,7 @@ const NotificationDropdown = () => {
   const [seenIds, setSeenIds] = useState<Set<string>>(new Set());
   const [hasMounted, setHasMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const notice = useDashboardNotice();
   const { data: user } = useGetMe();
   const { data: notifications = [], isLoading } = useGetCircleNotifications(user?.id);
   const acceptMutation = useAcceptInvitation();
@@ -94,36 +95,36 @@ const NotificationDropdown = () => {
   const handleAccept = async (invitationId: string) => {
     try {
       await acceptMutation.mutateAsync(invitationId);
-      toast.success("Invitation accepted");
+      notice.success("Invitation accepted");
     } catch {
-      toast.error("Could not accept this invitation");
+      notice.error("Could not accept this invitation");
     }
   };
 
   const handleDecline = async (invitationId: string) => {
     try {
       await declineMutation.mutateAsync(invitationId);
-      toast.success("Invitation declined");
+      notice.success("Invitation declined");
     } catch {
-      toast.error("Could not decline this invitation");
+      notice.error("Could not decline this invitation");
     }
   };
 
   const handleApprove = async (circleId: string, requestId: string) => {
     try {
       await approveMutation.mutateAsync({ circleId, requestId });
-      toast.success("Join request approved");
+      notice.success("Join request approved");
     } catch {
-      toast.error("Could not approve this request");
+      notice.error("Could not approve this request");
     }
   };
 
   const handleReject = async (circleId: string, requestId: string) => {
     try {
       await rejectMutation.mutateAsync({ circleId, requestId });
-      toast.success("Join request rejected");
+      notice.success("Join request rejected");
     } catch {
-      toast.error("Could not reject this request");
+      notice.error("Could not reject this request");
     }
   };
 

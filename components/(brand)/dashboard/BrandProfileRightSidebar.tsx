@@ -30,14 +30,16 @@ const eligibilityLabels: Record<string, string> = {
 };
 
 const objectiveLabels: Record<string, string> = {
-  engagement: "Engagement",
-  quality_engagement: "Engagement",
-  awareness: "Awareness",
-  visibility: "Awareness",
-  ugc: "User Generated Content",
-  balanced: "User Generated Content",
-  virality: "Product Launch",
-  conversions: "Sales",
+  engagement: "Audience Engagement & Community Building",
+  quality_engagement: "Audience Engagement & Community Building",
+  audience_response: "Audience Engagement & Community Building",
+  awareness: "Brand Awareness",
+  visibility: "Brand Awareness",
+  ugc: "User-Generated Content (UGC) Sourcing",
+  balanced: "User-Generated Content (UGC) Sourcing",
+  virality: "Product Consideration & Education",
+  conversions: "Direct Sales & Conversions",
+  sales: "Direct Sales & Conversions",
 };
 
 function formatHashtags(
@@ -83,6 +85,7 @@ export default function BrandProfileRightSidebar({
   const { data: leaderboard, isLoading: isLeaderboardLoading } =
     useGetBrandChallengeLeaderboard(challenge?.id, {
       enabled: Boolean(challenge?.id),
+      refetchInterval: 10_000,
     });
 
   if (isChallengesLoading) {

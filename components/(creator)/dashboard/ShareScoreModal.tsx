@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FiX } from "react-icons/fi";
-import { toast } from "react-hot-toast";
+import { useDashboardNotice } from "@/store/useDashboardNoticeStore";
 import { toBlob, toJpeg, toPng } from "html-to-image";
 import { useGetMe } from "@/hooks/useAuth";
 import { useGetCreatorProfile } from "@/hooks/useProfile";
@@ -407,6 +407,7 @@ export default function ShareScoreModal({
   displayName,
   avatarUrl,
 }: ShareScoreModalProps) {
+  const notice = useDashboardNotice();
   const cardRef = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState<"download" | SharePlatform | null>(null);
   const [avatarFailed, setAvatarFailed] = useState(false);
@@ -537,9 +538,9 @@ export default function ShareScoreModal({
       const blob = await captureCard();
       const extension = blob.type.includes("jpeg") ? "jpg" : "png";
       downloadBlob(blob, `starix-score.${extension}`);
-      toast.success("High-quality score card saved");
+      notice.success("High-quality score card saved");
     } catch {
-      toast.error("Couldn’t download your score card");
+      notice.error("Couldn’t download your score card");
     } finally {
       setBusy(null);
     }
@@ -570,13 +571,13 @@ export default function ShareScoreModal({
       } catch {
         // Clipboard can fail in some browsers; still open the platform.
       }
-      toast.success(
+      notice.success(
         `Image saved and caption copied. Open ${PLATFORM_LABEL[platform]} to share.`
       );
       window.open(PLATFORM_URL[platform], "_blank", "noopener,noreferrer");
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
-      toast.error(`Couldn’t share to ${PLATFORM_LABEL[platform]}`);
+      notice.error(`Couldn’t share to ${PLATFORM_LABEL[platform]}`);
     } finally {
       setBusy(null);
     }

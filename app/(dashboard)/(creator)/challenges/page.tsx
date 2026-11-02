@@ -37,6 +37,8 @@ function formatStatusLabel(status?: string) {
     ranked: "Ranked",
     winner: "Winner",
     finalist: "Finalist",
+    completed: "Completed",
+    closed: "Closed",
   };
   if (labels[status]) return labels[status];
   return status

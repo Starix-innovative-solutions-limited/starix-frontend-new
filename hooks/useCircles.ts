@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { useQuery, useMutation, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import axios from "axios";
 import { useGetMe } from "@/hooks/useAuth";
 
 export interface RecommendedChallenge {
@@ -475,13 +474,51 @@ export const useGetCircleChallenges = (
   return useQuery<CircleChallengesPage>({
     queryKey: ["circle-challenges", circleId, filter, page, pageSize],
     queryFn: async () => {
-      const { data } = await api.get<CircleChallengesPage>(
+      const { data } = await api.get(
         `/circles/${circleId}/challenges`,
         { params: { filter, page, page_size: pageSize } }
       );
-      return data;
+      const root =
+        data && typeof data === "object"
+          ? ((data as { items?: unknown; data?: unknown }).items
+              ? data
+              : ((data as { data?: unknown }).data ?? data))
+          : {};
+      const record = root as Record<string, unknown>;
+      const rawItems = (record.items ??
+        record.challenges ??
+        []) as CircleChallengeEntry[];
+      const items = rawItems.map((item) => ({
+        ...item,
+        challenge_id: item.challenge_id || (item as { id?: string }).id || "",
+        title: item.title || "Untitled challenge",
+        brand_name: item.brand_name || "",
+        brand_logo_url: item.brand_logo_url ?? null,
+        prize_pool: Number(item.prize_pool) || 0,
+        status: item.status || "submitted",
+      }));
+      const totalItems =
+        typeof record.total_items === "number"
+          ? record.total_items
+          : typeof record.total === "number"
+            ? record.total
+            : items.length;
+      return {
+        items: items.filter((item) => item.challenge_id),
+        page: typeof record.page === "number" ? record.page : page,
+        page_size:
+          typeof record.page_size === "number" ? record.page_size : pageSize,
+        total_items: totalItems,
+        total_pages:
+          typeof record.total_pages === "number"
+            ? record.total_pages
+            : Math.max(1, Math.ceil(totalItems / pageSize) || 1),
+        prev_url: (record.prev_url as string | null) ?? null,
+        next_url: (record.next_url as string | null) ?? null,
+      };
     },
     enabled: (options?.enabled ?? true) && !!circleId,
+    refetchOnMount: "always",
   });
 };
 
@@ -1062,12 +1099,62 @@ export const useApprovePayout = (circleId: string) => {
   });
 };
 
+export interface CircleEarningEntry {
+  challenge_id: string;
+  challenge_title: string;
+  brand_logo_url: string | null;
+  credited_at: string | null;
+  paid_out_members: number;
+  gross_prize: number;
+  credit_status: "pending" | "successful" | string;
+}
+
+export interface CircleEarningsPage {
+  items: CircleEarningEntry[];
+  page: number;
+  page_size: number;
+  total_items: number;
+  total_pages: number;
+  prev_url: string | null;
+  next_url: string | null;
+}
+
 export const useGetCircleEarnings = (circleId: string, page = 1) => {
-  return useQuery<MyCirclesResponse>({
-    queryKey: ['circleEarnings', circleId, page],
+  return useQuery<CircleEarningsPage>({
+    queryKey: ["circleEarnings", circleId, page],
     queryFn: async () => {
-      const { data } = await api.get<MyCirclesResponse>(`/circles/${circleId}/earnings?page=${page}&page_size=50`);
-      return data;
+      const { data } = await api.get(
+        `/circles/${circleId}/earnings`,
+        { params: { page, page_size: 50 } }
+      );
+      const root =
+        data && typeof data === "object" && "items" in data
+          ? data
+          : ((data as { data?: unknown })?.data ?? data);
+      const record = (root ?? {}) as Record<string, unknown>;
+      const items = ((record.items ?? []) as CircleEarningEntry[]).map(
+        (item) => ({
+          ...item,
+          challenge_id: item.challenge_id,
+          challenge_title:
+            item.challenge_title ||
+            (item as { title?: string }).title ||
+            "Challenge",
+          gross_prize:
+            Number(item.gross_prize) ||
+            Number((item as { gross_prize_minor?: number }).gross_prize_minor) ||
+            0,
+        })
+      );
+      return {
+        items,
+        page: Number(record.page) || page,
+        page_size: Number(record.page_size) || 50,
+        total_items: Number(record.total_items) || items.length,
+        total_pages: Number(record.total_pages) || 1,
+        prev_url: (record.prev_url as string | null) ?? null,
+        next_url: (record.next_url as string | null) ?? null,
+      };
     },
     enabled: !!circleId,
   });
@@ -1079,30 +1166,29 @@ export interface CircleMonthlyEarnings {
   delta_percentage: number;
 }
 
-export const useGetCircleMonthlyEarnings = (circleId: string) => {
+export const useGetCircleMonthlyEarnings = (
+  circleId: string,
+  enabled = true
+) => {
   return useQuery<CircleMonthlyEarnings>({
     queryKey: ["circle-monthly-earnings", circleId],
     queryFn: async () => {
-      const { data } = await api.get<CircleMonthlyEarnings>(
+      const { data } = await api.get(
         `/circles/${circleId}/earnings/monthly`
       );
-      return data;
+      const root =
+        data && typeof data === "object" && "current_month_earnings" in data
+          ? data
+          : ((data as { data?: unknown })?.data ?? data);
+      const record = (root ?? {}) as Record<string, unknown>;
+      return {
+        current_month_earnings: Number(record.current_month_earnings) || 0,
+        direction: String(record.direction || "flat"),
+        delta_percentage: Number(record.delta_percentage) || 0,
+      };
     },
-    enabled: !!circleId,
+    enabled: !!circleId && enabled,
   });
-};
-
-// Define the fetcher function
-const fetchEarningDetail = async (circleId: string, challengeId: string) => {
-  if (!circleId || !challengeId) {
-    throw new Error("circleId and challengeId are required");
-  }
-
-  const { data } = await axios.get(
-    `/circles/${encodeURIComponent(circleId)}/earnings/${encodeURIComponent(challengeId)}`
-  );
-
-  return data;
 };
 
 export interface EarningPayoutSplit {
@@ -1130,21 +1216,49 @@ export const useGetEarningDetail = (
   return useQuery<EarningDetailResponse>({
     queryKey: ["earning-detail", circleId, challengeId],
     queryFn: async () => {
-      const { data } = await api.get<EarningDetailResponse>(
+      const { data } = await api.get(
         `/circles/${circleId}/earnings/${challengeId}`
       );
-      return data;
+      const root =
+        data && typeof data === "object" && ("title" in data || "payout_splits" in data)
+          ? data
+          : ((data as { data?: unknown })?.data ?? data);
+      const record = (root ?? {}) as Record<string, unknown>;
+      return {
+        brand_logo_url: (record.brand_logo_url as string | null) ?? null,
+        title: String(record.title || record.challenge_title || "Challenge"),
+        paid_out_members: Number(record.paid_out_members) || 0,
+        credited_at: (record.credited_at as string | null) ?? null,
+        gross_prize: Number(record.gross_prize) || 0,
+        credit_status: String(record.credit_status || "pending"),
+        payout_splits: (record.payout_splits as EarningPayoutSplit[]) ?? [],
+      };
     },
     ...options,
   });
 };
 
 export const useGetRecommendedChallenges = (circleId: string, options?: any) => {
-  return useQuery<RecommendedChallengesResponse>({ // <--- Pass the type here
+  return useQuery<RecommendedChallengesResponse>({
     queryKey: ["recommendedChallenges", circleId],
     queryFn: async () => {
-      const { data } = await axios.get(`/circles/${circleId}/recommended-challenges?page=1&page_size=3`);
-      return data;
+      const { data } = await api.get(
+        `/circles/${circleId}/recommended-challenges`,
+        { params: { page: 1, page_size: 3 } }
+      );
+      const root =
+        data && typeof data === "object" && "items" in data
+          ? data
+          : ((data as { data?: unknown })?.data ?? data);
+      const record = (root ?? {}) as Record<string, unknown>;
+      const items = (record.items ?? []) as RecommendedChallenge[];
+      return {
+        items,
+        page: Number(record.page) || 1,
+        page_size: Number(record.page_size) || 3,
+        total_items: Number(record.total_items) || items.length,
+        total_pages: Number(record.total_pages) || 1,
+      };
     },
     ...options,
   });

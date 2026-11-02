@@ -1,14 +1,14 @@
 "use client";
 
-import React from "react";
-import Image from "next/image";
+import React, { useState } from "react";
 import Link from "next/link";
-import { FiSearch } from "react-icons/fi";
 import { HiArrowRight } from "react-icons/hi2";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useModal } from "@/hooks/useModal";
 import CreateChallenge from "@/components/(brand)/challenge/CreateChallenge";
+import BrandNotificationDropdown from "./BrandNotificationDropdown";
 import BrandProfileRightSidebar from "./BrandProfileRightSidebar";
 import BrandChallengeDetailRightSidebar from "./BrandChallengeDetailRightSidebar";
 import DashboardSidebarFooter from "@/components/dashboard/DashboardSidebarFooter";
@@ -28,10 +28,32 @@ const RECENT_ACTIVITY = [
   { title: "Creator shortlisted for review", time: "3h ago" },
 ];
 
-const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
+const RightSideBar = ({ className, collapsed }: any) => {
   const pathname = usePathname();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const [hovered, setHovered] = useState(false);
+  const expanded = collapsed === undefined ? true : hovered;
   const { profile } = useAuthStore();
   const { open } = useModal();
+
+  const openCreate = () => {
+    open(
+      <CreateChallenge
+        onLocalDraftSaved={() => {
+          queryClient.invalidateQueries({ queryKey: ["brands", "challenges"] });
+          router.push("/brand/challenges?tab=drafts");
+        }}
+        onCreated={(challenge) => {
+          queryClient.invalidateQueries({ queryKey: ["brands", "challenges"] });
+          if (String(challenge.status ?? "draft").toLowerCase() === "draft") {
+            router.push("/brand/challenges?tab=drafts");
+          }
+        }}
+      />,
+      { bare: true }
+    );
+  };
   const isDashboard = pathname === "/brand";
   const needsActiveChallengeData = isDashboard || pathname?.startsWith("/brand/profile");
 
@@ -59,53 +81,38 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
 
   return (
     <aside
+      onMouseEnter={() => {
+        if (collapsed !== undefined) setHovered(true);
+      }}
+      onMouseLeave={() => {
+        if (collapsed !== undefined) setHovered(false);
+      }}
       className={`
         fixed md:static top-0 right-0 z-50
         h-screen bg-white border-l border-gray-100 flex flex-col
         transition-all duration-300 ease-in-out
-        ${collapsed ? "w-[88px]" : "w-[416px]"}
+        ${expanded ? "w-[416px]" : "w-[88px]"}
         ${className}
       `}
     >
       <div
         className={`flex items-center gap-4 px-6 pt-6 pb-6 ${
-          collapsed ? "flex-col justify-start" : "justify-between"
+          expanded ? "justify-between" : "flex-col justify-start"
         }`}
       >
-        <button
-          type="button"
-          onClick={setCollapsed}
-          className={`shrink-0 transition-all duration-300 active:scale-95 ${
-            collapsed
-              ? "pointer-events-none translate-x-[-10px] opacity-0"
-              : "opacity-100"
-          }`}
-        >
-          <Image
-            src="/close.webp"
-            alt="Toggle Sidebar"
-            width={40}
-            height={40}
-            className="object-contain"
-          />
-        </button>
-
-        {!collapsed ? (
-          <DashboardSearchInput />
+        {expanded ? (
+          <>
+            <DashboardSearchInput />
+            <BrandNotificationDropdown />
+          </>
         ) : (
-          <button
-            type="button"
-            onClick={setCollapsed}
-            className="-translate-y-[150%] rounded-full bg-[#F8FAFC] p-3 text-[#9CA3AF] transition-all duration-300 hover:text-[#0047FF]"
-          >
-            <FiSearch size={20} />
-          </button>
+          <BrandNotificationDropdown compact />
         )}
       </div>
 
       <div
         className={`no-scrollbar flex-1 space-y-6 overflow-y-auto p-6 ${
-          collapsed ? "hidden" : "block"
+          expanded ? "block" : "hidden"
         }`}
       >
         {challengeDetailId ? (
@@ -125,7 +132,7 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
 
             <button
               type="button"
-              onClick={() => open(<CreateChallenge />, { bare: true })}
+              onClick={openCreate}
               className="w-full rounded-full bg-[#0033FF] py-3.5 text-[14px] font-semibold text-white shadow-lg shadow-blue-100 transition hover:bg-blue-700 active:scale-[0.98]"
             >
               Create Challenge

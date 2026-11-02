@@ -18,7 +18,6 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useGetMe } from "@/hooks/useAuth";
 import {
   ChallengeItem,
-  ChallengeStatus,
   useBrandChallengeDetails,
   useGetBrandChallenges,
 } from "@/hooks/useChallenges";
@@ -86,8 +85,34 @@ function formatClosesIn(endDate?: string) {
   return `Closes in ${days}d`;
 }
 
-function normalizeStatus(status?: string): TabId | "other" {
-  const value = (status ?? "").toLowerCase();
+const COMPLETED_STATUSES = new Set([
+  "completed",
+  "closed",
+  "ended",
+  "expired",
+  "archived",
+  "complete",
+  "cancelled",
+  "canceled",
+]);
+
+function isPastEndDate(endDate?: string | null) {
+  if (!endDate) return false;
+  const end = new Date(endDate).getTime();
+  return !Number.isNaN(end) && end <= Date.now();
+}
+
+function tabFromChallenge(challenge: {
+  status?: string | null;
+  is_funded?: boolean;
+  is_published?: boolean;
+  end_date?: string | null;
+}): TabId {
+  const value = String(challenge.status ?? "").toLowerCase().trim();
+  if (value === "draft") return "drafts";
+  if (COMPLETED_STATUSES.has(value) || isPastEndDate(challenge.end_date)) {
+    return "completed";
+  }
   if (
     value === "active" ||
     value === "published" ||
@@ -96,21 +121,34 @@ function normalizeStatus(status?: string): TabId | "other" {
   ) {
     return "active";
   }
-  if (value === "draft") return "drafts";
-  if (value === "completed" || value === "closed") return "completed";
-  return "other";
+  if (challenge.is_published || challenge.is_funded) return "active";
+  return "drafts";
+}
+
+function mergeChallengeLists(...lists: Array<ChallengeItem[] | undefined>) {
+  const byId = new Map<string, ChallengeItem>();
+  for (const list of lists) {
+    for (const item of list ?? []) {
+      if (!item?.id) continue;
+      const existing = byId.get(item.id);
+      byId.set(item.id, existing ? { ...existing, ...item } : item);
+    }
+  }
+  return Array.from(byId.values());
 }
 
 function mapChallengeToCard(
   challenge: ChallengeItem
-): BrandChallengeCardData & { status: TabId | "other" } {
+): BrandChallengeCardData & { status: TabId } {
   const images = getChallengePreviewImages(challenge, 4);
+  const tab = tabFromChallenge(challenge);
 
   return {
     id: challenge.id,
     title: challenge.title,
     visibility: "Public",
-    closesIn: formatClosesIn(challenge.end_date),
+    closesIn:
+      tab === "completed" ? "Completed" : formatClosesIn(challenge.end_date),
     // Brand dashboard cards always show Verified (list summaries omit is_funded).
     verified: true,
     postedAgo: formatPostedAgo(challenge.created_at),
@@ -124,16 +162,8 @@ function mapChallengeToCard(
     ),
     submissions: challenge.participant_count ?? 0,
     images,
-    status: normalizeStatus(challenge.status),
+    status: tab,
   };
-}
-
-function tabToApiStatus(tab: TabId): ChallengeStatus | undefined {
-  // "active" includes published/publishing — fetch all and filter client-side.
-  if (tab === "active") return undefined;
-  if (tab === "drafts") return "draft";
-  if (tab === "completed") return "completed";
-  return undefined;
 }
 
 export default function Page() {
@@ -195,11 +225,13 @@ export default function Page() {
     if (!success && !failed) return;
 
     if (success) {
+      setActiveTab("active");
       open(
         <ChallengeCreatedModal challengeId={challengeId} />,
         { bare: true }
       );
     } else {
+      setActiveTab("drafts");
       toast.error("Payment was not completed. Challenge remains a draft.");
     }
 
@@ -218,10 +250,38 @@ export default function Page() {
     window.history.replaceState({}, "", url.pathname + url.search);
   }, [open, queryClient]);
 
-  const { data, isLoading, isError, error } = useGetBrandChallenges(
+  const {
+    data: allChallengesData,
+    isLoading,
+    isError,
+    error,
+  } = useGetBrandChallenges(
     {
-      status: tabToApiStatus(activeTab),
-      limit: 50,
+      limit: 100,
+      offset: 0,
+    },
+    { enabled: canFetchBrandChallenges }
+  );
+  const { data: completedChallengesData } = useGetBrandChallenges(
+    {
+      status: "completed",
+      limit: 100,
+      offset: 0,
+    },
+    { enabled: canFetchBrandChallenges }
+  );
+  const { data: closedChallengesData } = useGetBrandChallenges(
+    {
+      status: "closed",
+      limit: 100,
+      offset: 0,
+    },
+    { enabled: canFetchBrandChallenges }
+  );
+  const { data: draftChallengesData } = useGetBrandChallenges(
+    {
+      status: "draft",
+      limit: 100,
       offset: 0,
     },
     { enabled: canFetchBrandChallenges }
@@ -236,18 +296,33 @@ export default function Page() {
       ? apiDetail
       : "This account is not a verified brand.";
 
-  const challengeIds = useMemo(
-    () => (data?.challenges ?? []).map((c) => c.id),
-    [data?.challenges]
+  const listedChallenges = useMemo(
+    () =>
+      mergeChallengeLists(
+        allChallengesData?.challenges,
+        draftChallengesData?.challenges,
+        completedChallengesData?.challenges,
+        closedChallengesData?.challenges
+      ),
+    [
+      allChallengesData?.challenges,
+      draftChallengesData?.challenges,
+      completedChallengesData?.challenges,
+      closedChallengesData?.challenges,
+    ]
   );
 
-  const { byId: detailsById, isLoading: detailsLoading } =
-    useBrandChallengeDetails(challengeIds, {
-      enabled: challengeIds.length > 0,
-    });
+  const challengeIds = useMemo(
+    () => listedChallenges.map((c) => c.id),
+    [listedChallenges]
+  );
+
+  const { byId: detailsById } = useBrandChallengeDetails(challengeIds, {
+    enabled: challengeIds.length > 0,
+  });
 
   const challenges = useMemo(() => {
-    const items = (data?.challenges ?? []).map((summary) => {
+    const items = listedChallenges.map((summary) => {
       const detail = detailsById[summary.id];
       const merged: ChallengeItem = detail
         ? {
@@ -257,6 +332,8 @@ export default function Page() {
             is_funded: detail.is_funded ?? summary.is_funded,
             is_published: detail.is_published ?? summary.is_published,
             banner_url: detail.banner_url ?? summary.banner_url,
+            status: detail.status ?? summary.status,
+            end_date: detail.end_date ?? summary.end_date,
           }
         : summary;
       return mapChallengeToCard(merged);
@@ -269,7 +346,7 @@ export default function Page() {
         !query || c.title.toLowerCase().includes(query);
       return matchesTab && matchesSearch;
     });
-  }, [data?.challenges, detailsById, activeTab, search]);
+  }, [listedChallenges, detailsById, activeTab, search]);
 
   const selectTab = (tab: TabId) => {
     setActiveTab(tab);
@@ -291,10 +368,14 @@ export default function Page() {
         onCreated={(challenge) => {
           setLocalDraft(null);
           selectTab(
-            challenge.status?.toLowerCase() === "draft" ? "drafts" : "active"
+            tabFromChallenge({
+              status: challenge.status ?? "draft",
+              is_funded: false,
+              is_published: false,
+            })
           );
           setSearch("");
-          void queryClient.refetchQueries({
+          void queryClient.invalidateQueries({
             queryKey: ["brands", "challenges"],
           });
         }}
@@ -316,7 +397,7 @@ export default function Page() {
           setLocalDraft(null);
           selectTab("drafts");
           setSearch("");
-          void queryClient.refetchQueries({
+          void queryClient.invalidateQueries({
             queryKey: ["brands", "challenges"],
           });
         }}
@@ -338,7 +419,7 @@ export default function Page() {
         onCreated={() => {
           selectTab("drafts");
           setSearch("");
-          void queryClient.refetchQueries({
+          void queryClient.invalidateQueries({
             queryKey: ["brands", "challenges"],
           });
         }}
@@ -455,9 +536,7 @@ export default function Page() {
           </div>
         ) : null}
 
-        {(!hasMounted ||
-          meLoading ||
-          (canFetchBrandChallenges && (isLoading || detailsLoading))) && (
+        {(!hasMounted || meLoading || (canFetchBrandChallenges && isLoading)) && (
           <div className="flex flex-col items-center justify-center gap-3 py-20">
             <Loader />
             <p className="text-[13px] font-medium text-[#62636C]">
@@ -488,16 +567,23 @@ export default function Page() {
 
         {canFetchBrandChallenges &&
         !isLoading &&
-        !detailsLoading &&
         !isError &&
         challenges.length === 0 &&
         !showLocalDraft ? (
           <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-[#E4E7EC] bg-white py-20 text-center">
             <p className="text-[16px] font-medium text-[#101828]">
-              No challenges found
+              {activeTab === "completed"
+                ? "No completed challenges yet"
+                : activeTab === "drafts"
+                  ? "No drafts yet"
+                  : "No challenges found"}
             </p>
             <p className="mt-1 text-[14px] text-[#62636C]">
-              Try another tab or create a new challenge
+              {activeTab === "completed"
+                ? "Closed challenges move here from Active when they end."
+                : activeTab === "drafts"
+                  ? "Saved drafts appear here until you fund and publish them."
+                  : "Try another tab or create a new challenge"}
             </p>
             <button
               type="button"
@@ -512,7 +598,6 @@ export default function Page() {
         {showLocalDraft ||
         (canFetchBrandChallenges &&
           !isLoading &&
-          !detailsLoading &&
           !isError &&
           challenges.length > 0) ? (
           <motion.div

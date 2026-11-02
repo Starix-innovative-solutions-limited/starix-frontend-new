@@ -22,6 +22,13 @@ import {
   clearSocialOAuthCallback,
   readSocialOAuthCallback,
 } from "@/lib/socialOAuth";
+import {
+  BIO_MAX_CHARS,
+  BIO_MAX_WORDS,
+  clampBio,
+  countBioWords,
+  normalizeBio,
+} from "@/lib/bio";
 
 const FALLBACK_CATEGORIES = [
   "beauty",
@@ -179,7 +186,7 @@ const OnboardingPage = () => {
       }
 
       const username = form.username.trim().toLowerCase();
-      const bio = form.bio.trim();
+      const bio = normalizeBio(form.bio);
       const payload: {
         profile_picture_url?: string | null;
         username?: string;
@@ -385,12 +392,16 @@ const OnboardingPage = () => {
               </label>
               <textarea
                 value={form.bio}
+                maxLength={BIO_MAX_CHARS}
                 onChange={(e) =>
-                  setForm((prev) => ({ ...prev, bio: e.target.value }))
+                  setForm((prev) => ({ ...prev, bio: clampBio(e.target.value) }))
                 }
                 placeholder="Tell brands a little about yourself and the content you create."
-                className="h-[116px] w-full resize-none rounded-xl border border-[#E5E7EB] bg-white px-4 py-4 text-sm text-[#444] outline-none transition focus:border-black"
+                className="h-[116px] w-full resize-none whitespace-pre-wrap rounded-xl border border-[#E5E7EB] bg-white px-4 py-4 text-sm text-[#444] outline-none transition focus:border-black"
               />
+              <p className="mt-1.5 text-right text-[11px] text-[#8B8D98]">
+                {countBioWords(form.bio)}/{BIO_MAX_WORDS} words
+              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-3 pt-4">

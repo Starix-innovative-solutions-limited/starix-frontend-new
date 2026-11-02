@@ -5,7 +5,7 @@
 import React, { useState, useRef, ChangeEvent, useEffect } from "react";
 import { FiX, FiUploadCloud, FiPlus, FiChevronDown, FiCopy, FiCheck, FiRefreshCcw, FiTrash2, FiAlertCircle, FiCheckCircle } from "react-icons/fi";
 import Image from "next/image";
-import toast from "react-hot-toast";
+import { useDashboardNotice } from "@/store/useDashboardNoticeStore";
 import { useCreateCircle, useSendInvites } from "@/hooks/useCircles";
 import { useUploadMedia } from "@/hooks/useMedia";
 
@@ -38,6 +38,7 @@ function memberOrdinal(position: number) {
 
 
 const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) => {
+  const notice = useDashboardNotice();
   const [step, setStep] = useState<ModalStep>(initialStep);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
@@ -162,7 +163,7 @@ const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) =
         }))
       );
       setInviteSuccess(true);
-      toast.success("Invitations sent");
+      notice.success("Invitations sent");
     } catch (err: unknown) {
       const detail =
         (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||

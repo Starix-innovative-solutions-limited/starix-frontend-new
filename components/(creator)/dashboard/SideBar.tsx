@@ -4,7 +4,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { LuPanelLeftClose } from "react-icons/lu";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { sessionAuth } from "@/utils/sessionAuth";
@@ -19,11 +18,13 @@ const NAV_ITEMS = [
   { label: "Profile", icon: "/user.webp", href: "/profile" },
 ];
 
-const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) => {
+const SideBar = ({ className, onClose, isOpen, collapsed }: any) => {
   const router = useRouter();
   const pathname = usePathname();
-  const [active, setActive] = useState("Home");
+  const [hovered, setHovered] = useState(false);
   const { clearAuth } = useAuthStore() as any; // Destructure the clear action from your store
+  const isDesktopRail = collapsed !== undefined;
+  const expanded = isDesktopRail ? hovered : true;
 
   const handleLogout = () => {
     // 1. Clear tokens from browser memory/session utils safely
@@ -53,12 +54,18 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
       )}
 
       <aside
+        onMouseEnter={() => {
+          if (isDesktopRail) setHovered(true);
+        }}
+        onMouseLeave={() => {
+          if (isDesktopRail) setHovered(false);
+        }}
         className={`
           fixed md:static top-0 left-0 z-50
           h-screen bg-white border-r border-gray-100 flex flex-col
           /* Butter-smooth width transition */
           transition-[width] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
-          ${collapsed ? "w-[88px]" : "w-[240px]"}
+          ${expanded ? "w-[240px]" : "w-[88px]"}
           transform
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
           md:translate-x-0
@@ -67,47 +74,29 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
       >
         {/* TOP SECTION - LOGO LOGIC */}
         <div className="flex items-center h-24 px-6 shrink-0 relative overflow-hidden">
-          <div className="flex items-center justify-between w-full">
-            
-            {/* LOGO CONTAINER */}
-            <div className="relative flex items-center h-10 w-full group">
-              {/* CANDY LOGO (Shown when collapsed - opens sidebar on click) */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (collapsed) setCollapsed(false); // Explicitly open
-                }}
+          <div className="flex items-center w-full">
+            <div className="relative flex items-center h-10 w-full">
+              <div
                 className={`
                   absolute right-2 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
-                  ${collapsed 
-                    ? "opacity-100 scale-100 translate-x-[6px] rotate-0 pointer-events-auto" 
-                    : "opacity-0 scale-75 -translate-x-4 rotate-[-45deg] pointer-events-none"}
-                  w-10 h-10 relative shrink-0
+                  ${expanded
+                    ? "opacity-0 scale-75 -translate-x-4 rotate-[-45deg] pointer-events-none"
+                    : "opacity-100 scale-100 translate-x-[6px] rotate-0"}
+                  relative w-10 h-10
                 `}
               >
                 <Image src="/icon-logs.webp" alt="Starix Icon" fill className="object-contain" />
-              </button>
+              </div>
 
-              {/* FULL STARIX LOGO (Shown when opened) */}
               <div className={`
                 absolute left-0 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
-                ${!collapsed 
-                  ? "opacity-100 translate-x-0 blur-0" 
+                ${expanded
+                  ? "opacity-100 translate-x-0 blur-0"
                   : "opacity-0 translate-x-4 blur-sm pointer-events-none"}
               `}>
                 <Image src="/dash-logo.webp" alt="Starix" width={100} height={32} priority className="object-contain" />
               </div>
             </div>
-
-            {/* CLOSE BUTTON (Closes sidebar on click) */}
-            {!collapsed && (
-              <button
-                onClick={() => setCollapsed(true)} // Explicitly close
-                className="p-2 rounded-xl hover:bg-gray-50 text-gray-400 hover:text-[#0047FF] transition-all duration-300 shrink-0"
-              >
-                <LuPanelLeftClose size={32} />
-              </button>
-            )}
           </div>
         </div>
 
@@ -125,7 +114,7 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
                       className={`
                         flex items-center px-4 py-3.5 rounded-full transition-all duration-300
                         ${isActive ? "bg-[#EAF1FF] text-[#0047FF]" : "text-[#6B7280] hover:bg-gray-50"}
-                        ${collapsed ? "justify-center" : "gap-3"}
+                        ${expanded ? "gap-3" : "justify-center"}
                       `}
                     >
                       <div className="relative w-5 h-5 shrink-0">
@@ -140,7 +129,7 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
 
                       <span className={`
                         text-[16px] whitespace-nowrap overflow-hidden transition-all duration-300
-                        ${collapsed ? "w-0 opacity-0 invisible ml-0" : "w-auto opacity-100 visible ml-0"}
+                        ${expanded ? "w-auto opacity-100 visible ml-0" : "w-0 opacity-0 invisible ml-0"}
                         ${isActive ? "font-semibold" : "font-medium"}
                       `}>
                         {item.label}
@@ -158,7 +147,7 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
             </ul>
           </nav>
 
-          {!collapsed && (
+          {expanded && (
             <div className="mt-8 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]">
               <div className="bg-[#F9F9FB] border border-[#EFF0F3] rounded-[32px] p-2 text-center shadow-sm origin-top">
                 <div className="w-full h-[140px] mt-2 flex items-center justify-center ">
@@ -181,7 +170,7 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
           <button 
             onClick={handleLogout}
             className={`flex items-center transition-all duration-300 w-full hover:bg-red-50/40 rounded-full py-2.5 cursor-pointer ${
-              collapsed ? "justify-center" : "px-5 gap-4"
+              expanded ? "px-5 gap-4" : "justify-center"
             }`}
           >
             <div className="relative w-6 h-6 shrink-0">
@@ -191,7 +180,7 @@ const SideBar = ({ className, onClose, isOpen, collapsed, setCollapsed }: any) =
             </div>
             <span className={`
               text-[#D12B1F] font-semibold text-[16px] whitespace-nowrap overflow-hidden transition-all duration-300
-              ${collapsed ? "w-0 opacity-0 invisible ml-0" : "w-auto opacity-100 visible ml-0"}
+              ${expanded ? "w-auto opacity-100 visible ml-0" : "w-0 opacity-0 invisible ml-0"}
             `}>
               Log out
             </span>

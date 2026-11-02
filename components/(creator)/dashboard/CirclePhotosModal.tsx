@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import toast from "react-hot-toast";
+import { useDashboardNotice } from "@/store/useDashboardNoticeStore";
 import { FiCamera, FiRefreshCw, FiTrash2, FiX } from "react-icons/fi";
 import { useUpdateCircle } from "@/hooks/useCircles";
 import { useUploadMedia } from "@/hooks/useMedia";
@@ -38,6 +38,7 @@ export default function CirclePhotosModal({
   profilePictureUrl,
   coverUrl,
 }: CirclePhotosModalProps) {
+  const notice = useDashboardNotice();
   const uploadMedia = useUploadMedia();
   const updateCircle = useUpdateCircle(circleId);
   const profileInputRef = useRef<HTMLInputElement>(null);
@@ -74,11 +75,11 @@ export default function CirclePhotosModal({
   ) => {
     if (!file) return;
     if (!["image/jpeg", "image/png", "image/jpg"].includes(file.type)) {
-      toast.error("Use a PNG or JPEG image.");
+      notice.error("Use a PNG or JPEG image.");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be 5MB or smaller.");
+      notice.error("Image must be 5MB or smaller.");
       return;
     }
     const preview = URL.createObjectURL(file);
@@ -122,10 +123,10 @@ export default function CirclePhotosModal({
       if (Object.keys(payload).length) {
         await updateCircle.mutateAsync(payload);
       }
-      toast.success("Circle photos updated.");
+      notice.success("Circle photos updated.");
       onClose();
     } catch (error) {
-      toast.error(
+      notice.error(
         parseApiError(error, "Couldn't save photos. Try again.").message
       );
     } finally {

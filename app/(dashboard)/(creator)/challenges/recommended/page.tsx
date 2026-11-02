@@ -2,6 +2,7 @@
 "use client";
 
 import React from "react";
+import { useSearchParams } from "next/navigation";
 import { FiSearch, FiSliders, FiBarChart2, FiMail, FiClock, FiBookmark, FiShare2 } from "react-icons/fi";
 import { MdVerified } from "react-icons/md";
 import { HiArrowRight, HiArrowLeft } from "react-icons/hi2";
@@ -46,6 +47,8 @@ type RecommendedCard = {
 };
 
 const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean }) => {
+  const searchParams = useSearchParams();
+  const circleId = searchParams.get("circle");
   const { query, setQuery, placeholder } = useDashboardSearch();
   const [isFilterOpen, setIsFilterOpen] = React.useState(false);
   const [filters, setFilters] = React.useState<ChallengeFilterValues>(
@@ -243,7 +246,11 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
               visibleCards.map((card) => (
               <Link
               key={card.id}
-              href={`/dashboard/challenge/${card.id}`}
+              href={
+                circleId
+                  ? `/dashboard/challenge/${card.id}?circle=${circleId}`
+                  : `/dashboard/challenge/${card.id}`
+              }
               className="bg-white border border-[#E0E1E6] rounded-[24px] md:rounded-[32px] p-4 md:p-4 shadow-xs transition-all group flex flex-col h-full cursor-pointer"
             >
                 {/* Card Top Info */}

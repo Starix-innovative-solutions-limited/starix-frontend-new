@@ -4,7 +4,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { HiArrowRight } from "react-icons/hi2";
-import { FiSearch, FiChevronDown, FiInfo } from "react-icons/fi";
+import { FiMenu, FiChevronDown, FiInfo } from "react-icons/fi";
 import { GoCheckCircleFill, GoPlus } from "react-icons/go";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -25,6 +25,7 @@ import {
   useGetOpenCircles,
   useGetLeaderboard,
   useGetEarningDetail,
+  useGetCircleMonthlyEarnings,
   useGetRecommendedChallenges,
   type DiscoverableCircle,
 } from "@/hooks/useCircles";
@@ -213,23 +214,25 @@ function SidebarGlobalLeaderboard({
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-function extractEarningRouteParams(pathname: string) {
+function extractCircleRouteParams(pathname: string) {
   const segments = pathname.split("/").filter(Boolean);
-
-  const isCircleEarningsPage =
+  const isCircleProfile =
     segments[0] === "creator-circles" &&
-    !!segments[1] &&
-    segments[2] === "circle-profile" &&
-    segments[3] === "earnings";
-
-  const circleId = isCircleEarningsPage ? segments[1] : null;
+    UUID_RE.test(segments[1] || "") &&
+    segments[2] === "circle-profile";
+  const isCircleEarningsPage = isCircleProfile && segments[3] === "earnings";
   const challengeId = isCircleEarningsPage ? segments[4] ?? null : null;
 
   return {
+    isCircleProfile,
     isCircleEarningsPage,
-    circleId: circleId && UUID_RE.test(circleId) ? circleId : null,
+    circleId: isCircleProfile ? segments[1] : null,
     challengeId: challengeId && UUID_RE.test(challengeId) ? challengeId : null,
   };
+}
+
+function isSuccessfulCredit(status?: string) {
+  return status?.toLowerCase() === "successful";
 }
 
 type CircleLeaderboardEntry = {
@@ -246,18 +249,24 @@ type CircleLeaderboardData = {
   my_circle?: CircleLeaderboardEntry;
 };
 
-const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
+const RightSideBar = ({ className, collapsed }: any) => {
   const pathname = usePathname();
+  const [hovered, setHovered] = useState(false);
+  const expanded = collapsed === undefined ? true : hovered;
   const { isCircleEarningsPage, circleId, challengeId } = React.useMemo(
-    () => extractEarningRouteParams(pathname),
+    () => extractCircleRouteParams(pathname),
     [pathname]
   );
   const { data: selectedDetail } = useGetEarningDetail(
     circleId ?? "",
     challengeId ?? "",
     {
-      enabled: !!circleId && !!challengeId,
+      enabled: isCircleEarningsPage && !!circleId && !!challengeId,
     }
+  );
+  const { data: monthlyEarnings } = useGetCircleMonthlyEarnings(
+    circleId ?? "",
+    isCircleEarningsPage && !challengeId
   );
   const { data: userProfile } = useGetMe();
 
@@ -318,7 +327,7 @@ const RightSideBar = ({ className, collapsed, setCollapsed }: any) => {
   );
   const { data: challengeLeaderboard } = useGetChallengeLeaderboard(
     challengeIdFromPath ?? undefined,
-    { enabled: Boolean(challengeIdFromPath) }
+    { enabled: Boolean(challengeIdFromPath), refetchInterval: 10_000 }
   );
  
 
@@ -544,36 +553,40 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
     
   return (
     <aside
+      onMouseEnter={() => {
+        if (collapsed !== undefined) setHovered(true);
+      }}
+      onMouseLeave={() => {
+        if (collapsed !== undefined) setHovered(false);
+      }}
       className={`
         fixed md:static top-0 right-0 z-50
         h-screen bg-white border-l border-gray-100 flex flex-col
         transition-all duration-300 ease-in-out
-        ${collapsed ? "w-[88px]" : "w-[416px]"}
+        ${expanded ? "w-[416px]" : "w-[88px]"}
         ${className}
       `}
     >
       {/* TOP SECTION */}
-      <div className={`flex items-center pt-6 pb-6 px-6 gap-4 ${collapsed ? "flex-col justify-start" : "justify-between"}`}>
-        <button
-          onClick={setCollapsed}
-          className={`shrink-0 transition-all duration-300 active:scale-95 ${collapsed ? "opacity-0 pointer-events-none translate-x-[-10px]" : "opacity-100"}`}
-        >
-          <Image src="/close.webp" alt="Toggle Sidebar" width={40} height={40} className="object-contain" />
-        </button>
-        {!collapsed ? (
+      <div
+        className={`flex items-center pt-6 pb-6 px-6 gap-4 ${
+          expanded ? "justify-between" : "flex-col justify-start"
+        }`}
+      >
+        {expanded ? (
           <DashboardSearchInput />
         ) : (
-          <button onClick={setCollapsed} className="p-3 rounded-full bg-[#F8FAFC] text-[#9CA3AF] hover:text-[#0047FF] transition-all duration-300 -translate-y-[150%]">
-            <FiSearch size={20} />
-          </button>
+          <div className="p-3 rounded-full bg-[#F8FAFC] text-[#9CA3AF]">
+            <FiMenu size={20} />
+          </div>
         )}
       </div>
 
       {/* CONTENT AREA */}
-      <div className={`flex-1 overflow-y-auto p-6 space-y-6 no-scrollbar ${collapsed ? "hidden" : "block"}`}>
+      <div className={`flex-1 overflow-y-auto p-6 space-y-6 no-scrollbar ${expanded ? "block" : "hidden"}`}>
 
         {isCircleEarningsPage ? (
-        /* ── Earning Insight (Transaction Detail) ── */
+        challengeId ? (
         <div className="space-y-8 ">
           <div className="p-2">
             <h3 className="text-[20px] font-semibold text-[#1E1F24] mb-4">Transaction Detail</h3>
@@ -590,7 +603,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                     className="rounded-full object-cover"
                   />
                 ) : (
-                  <div className="h-full w-full bg-[#F5F6F8]" aria-label="No brand logo" />
+                  <div className="h-14 w-14 rounded-full bg-[#F5F6F8]" aria-label="No brand logo" />
                 )}
                 <div className="absolute bottom-0 right-0 bg-[#0CC963] rounded-full p-1 border-2 border-white leading-none flex items-center justify-center">
                   <GoPlus className="text-white text-[10px] rotate-45" />
@@ -614,11 +627,14 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                 + ₦{((selectedDetail?.gross_prize ?? 0) / 100).toLocaleString()}
               </span>
               <span className={`px-3 py-1 rounded-full text-[10px] font-medium ${
-                selectedDetail?.credit_status === 'Successful' 
+                isSuccessfulCredit(selectedDetail?.credit_status)
                   ? 'bg-[#03FC6C1A] text-[#27AE60]' 
                   : 'bg-[#FFF8DB] text-[#665201]'
               }`}>
-                {selectedDetail?.credit_status || "Pending"}
+                {selectedDetail?.credit_status
+                  ? selectedDetail.credit_status.charAt(0).toUpperCase() +
+                    selectedDetail.credit_status.slice(1)
+                  : "Pending"}
               </span>
             </div>
           </div>
@@ -629,7 +645,8 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
           <div className="p-2">
             <h4 className="text-[16px] font-semibold text-[#1E1F24] mb-8">Payout Autosplitting on this Challenge</h4>
             <div className="space-y-6">
-              {selectedDetail?.payout_splits?.map((member: any, idx: number) => (
+              {selectedDetail?.payout_splits?.length ? (
+                selectedDetail.payout_splits.map((member: any, idx: number) => (
                 <div key={idx} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="relative w-10 h-10 rounded-full overflow-hidden border border-gray-100">
@@ -648,10 +665,47 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                   </div>
                   <span className="text-[14px] font-semibold text-[#62636C]">{member.split_percentage}%</span>
                 </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-[13px] text-[#747682]">
+                  Select an earning to load payout splits.
+                </p>
+              )}
             </div>
           </div>
         </div>
+        ) : (
+        <div className="space-y-6">
+          <div className="p-2">
+            <h3 className="text-[20px] font-semibold text-[#1E1F24] mb-4">
+              Circle Earnings
+            </h3>
+            <p className="text-[13px] text-[#747682] mb-4">
+              This month
+            </p>
+            <div className="flex items-baseline gap-1 mb-3">
+              <span className="text-[28px] font-semibold tracking-tight text-[#1E1F24]">
+                ₦{((monthlyEarnings?.current_month_earnings ?? 0) / 100).toLocaleString()}
+              </span>
+            </div>
+            <div
+              className={`flex items-center gap-1 text-[12px] font-medium ${
+                monthlyEarnings?.direction === "down"
+                  ? "text-[#B42318]"
+                  : monthlyEarnings?.direction === "flat"
+                    ? "text-[#747682]"
+                    : "text-[#1E874B]"
+              }`}
+            >
+              {monthlyEarnings?.direction === "down" ? "↓" : monthlyEarnings?.direction === "flat" ? "→" : "↑"}{" "}
+              {Math.abs(monthlyEarnings?.delta_percentage ?? 0)}% vs last month
+            </div>
+            <p className="mt-6 text-[13px] text-[#747682]">
+              Open an earning from the list to see payout splits for that challenge.
+            </p>
+          </div>
+        </div>
+        )
 
         ) : isCreatorProfileView ? (
           /* ── Circle Profile sidebar ─────────────────────────────────────────
@@ -683,9 +737,12 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
                           </div>
                         </div>
                       </div>
-                      <button className="px-2 py-2 bg-white border border-[#E5E7EB] rounded-full text-[12px] font-medium text-[#1E1F24] hover:bg-gray-50 transition-all">
+                      <Link
+                        href={`/dashboard/challenge/${item.challenge_id}?circle=${circleId}`}
+                        className="px-2 py-2 bg-white border border-[#E5E7EB] rounded-full text-[12px] font-medium text-[#1E1F24] hover:bg-gray-50 transition-all"
+                      >
                         Submit
-                      </button>
+                      </Link>
                     </div>
                   ))
                 ) : (

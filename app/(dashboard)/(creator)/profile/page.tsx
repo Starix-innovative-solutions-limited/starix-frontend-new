@@ -24,7 +24,7 @@ import { useGetMyCircle, type MyCircle } from "@/hooks/useCircles";
 import { hasSocialOAuthCallback } from "@/lib/socialOAuth";
 import { useDashboardSearch } from "@/components/dashboard/DashboardSearchProvider";
 import { parseApiError } from "@/lib/apiError";
-import toast from "react-hot-toast";
+import { useDashboardNotice } from "@/store/useDashboardNoticeStore";
 import {
   PolarAngleAxis,
   RadialBar,
@@ -128,6 +128,7 @@ const isCirclesLoading = isOwnProfile
   : isCreatorCirclesLoading;
 
   const updateProfileMutation = useUpdateCreatorProfile();
+  const notice = useDashboardNotice();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSocialsOpen, setIsSocialsOpen] = useState(false);
@@ -210,7 +211,7 @@ const isProfileLoading =
         setIsModalOpen(false);
       },
       onError: (error) => {
-        toast.error(parseApiError(error, "Could not save profile").message);
+        notice.error(parseApiError(error, "Could not save profile").message);
       },
     });
   };
@@ -414,10 +415,11 @@ const ConnectedPlatformIcons = ({
             )}
           </div>
 
-          <p className="mt-8 max-w-[920px] text-[16px] leading-[1.65] text-[#62636C]">
-            {profile?.bio ||
-              ""}
-          </p>
+          {profile?.bio ? (
+            <p className="mt-2 max-w-[650px] whitespace-pre-wrap break-words text-[16px] leading-[1.6] text-[#62636C]">
+              {profile.bio}
+            </p>
+          ) : null}
         </section>
 
         <section className="mt-8 grid grid-cols-1 gap-3 md:grid-cols-3">

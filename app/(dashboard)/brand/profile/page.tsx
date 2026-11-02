@@ -197,9 +197,12 @@ export default function Page() {
               <p className="mt-2 text-[36px] font-semibold leading-none tracking-[-0.03em] text-[#1E1F24]">
                 {formatMetric(totalEngagement)}
               </p>
-              <span className="mt-4 inline-flex items-center gap-2 text-[14px] text-[#62636C]">
+              <Link
+                href="/brand"
+                className="mt-4 inline-flex items-center gap-2 text-[14px] text-[#62636C] hover:text-[#0033FF]"
+              >
                 View Analytics <span aria-hidden>→</span>
-              </span>
+              </Link>
             </div>
 
             <div className="rounded-[18px] bg-[#E8FBE9] p-5">

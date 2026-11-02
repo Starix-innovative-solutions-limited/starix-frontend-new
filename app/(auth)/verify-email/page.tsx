@@ -7,8 +7,9 @@ import { motion } from "framer-motion";
 import { variants } from "@/constant";
 import { useVerifyEmailOtp, useGenerateOtp } from "@/hooks/useAuth"; // Added useGenerateOtp
 import { sessionAuth } from "@/utils/sessionAuth";
-import toast from "react-hot-toast";
 import Image from "next/image";
+import { getAuthErrorMessage } from "@/lib/authErrors";
+import AuthFormMessage from "@/components/auth/AuthFormMessage";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
@@ -16,6 +17,7 @@ const VerifyEmailContent = () => {
   const [otp, setOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [otpError, setOtpError] = useState("");
+  const [otpSuccess, setOtpSuccess] = useState("");
   const [timeLeft, setTimeLeft] = useState(60);
   const [canResend, setCanResend] = useState(false);
   
@@ -43,30 +45,16 @@ const VerifyEmailContent = () => {
 
   const handleResend = async () => {
     if (!canResend || isRequestingOtp) return;
+    setOtpError("");
+    setOtpSuccess("");
 
     try {
       const data = await requestOtp();
       setTimeLeft(60);
       setCanResend(false);
-      toast.success(data?.message || "Code resent successfully!");
-    } catch (err: any) {
-      const status = err?.response?.status;
-      const detail = err?.response?.data?.detail;
-
-      if (status === 429) {
-        toast.error(
-          typeof detail === "string"
-            ? detail
-            : "Too many OTP requests. Try again later."
-        );
-        return;
-      }
-
-      toast.error(
-        typeof detail === "string"
-          ? detail
-          : "Could not resend code. Please try again."
-      );
+      setOtpSuccess(data?.message || "We sent you a new code.");
+    } catch (err: unknown) {
+      setOtpError(getAuthErrorMessage(err, "generic"));
     }
   };
 
@@ -78,45 +66,17 @@ const VerifyEmailContent = () => {
     const currentRole = role || pendingSignup?.role || "creator";
 
     setOtpError("");
+    setOtpSuccess("");
     setIsLoading(true);
 
     try {
-      const data = await toast.promise(verifyEmail({ code: codeToVerify }), {
-        loading: "Verifying account...",
-        success: (res) => res?.message || "Account verified!",
-        error: (err: any) => {
-          const status = err?.response?.status;
-          const detail = err?.response?.data?.detail;
-
-          if (status === 429) {
-            return typeof detail === "string"
-              ? detail
-              : "Maximum attempts exceeded. Request a new code.";
-          }
-          if (status === 400) {
-            return typeof detail === "string"
-              ? detail
-              : "OTP is invalid or expired";
-          }
-          if (Array.isArray(detail)) return detail[0]?.msg || "Validation error";
-          if (typeof detail === "string") return detail;
-          return "Invalid code, please try again";
-        },
-      });
-
+      await verifyEmail({ code: codeToVerify });
       sessionAuth.clear();
       const redirectPath =
         currentRole === "brand" ? "/brand-onboarding" : "/onboarding";
       router.push(redirectPath);
-      return data;
-    } catch (err: any) {
-      const detail = err?.response?.data?.detail;
-      const message = Array.isArray(detail)
-        ? detail[0]?.msg
-        : typeof detail === "string"
-          ? detail
-          : "Invalid code, please try again";
-      setOtpError(message);
+    } catch (err: unknown) {
+      setOtpError(getAuthErrorMessage(err, "generic"));
     } finally {
       setIsLoading(false);
     }
@@ -166,11 +126,7 @@ const VerifyEmailContent = () => {
         />
 
         {isLoading && <Loader2 className="h-5 w-5 animate-spin text-[#0033FF]" />}
-        {otpError && (
-          <p className="text-[15px] font-semibold text-[#D12B1F]">
-            {otpError}
-          </p>
-        )}
+        <AuthFormMessage error={otpError} success={otpSuccess} />
 
         <div className="flex flex-col gap-1 text-sm">
            <span className="text-[#667085]">Didn’t get a Code?</span>

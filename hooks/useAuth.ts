@@ -52,9 +52,6 @@ export function useLogin() {
       });
     },
 
-    onError: (err: any) => {
-      console.error("LOGIN ERROR:", err.response?.data || err.message);
-    },
   });
 }
 

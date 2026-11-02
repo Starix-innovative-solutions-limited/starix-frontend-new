@@ -144,7 +144,11 @@ export default function BrandChallengePerformancePage() {
     data: leaderboard,
     isLoading: isLoadingLeaderboard,
     isError: isLeaderboardError,
-  } = useGetBrandChallengeLeaderboard(challengeId);
+  } = useGetBrandChallengeLeaderboard(challengeId, {
+    limit: 100,
+    offset: 0,
+    refetchInterval: 10_000,
+  });
 
   const detail = challenge as ChallengeDetail | undefined;
   const rows = useMemo(
@@ -229,7 +233,7 @@ export default function BrandChallengePerformancePage() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-[1120px] pb-10">
+    <div className="mx-auto w-full max-w-[1220px] pb-10">
       <button
         type="button"
         onClick={() => router.back()}
@@ -357,9 +361,16 @@ export default function BrandChallengePerformancePage() {
 
       <section className="mt-9">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-[22px] font-semibold tracking-[-0.02em] text-[#1E1F24]">
-            Challenge Leaderboard
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-[22px] font-semibold tracking-[-0.02em] text-[#1E1F24]">
+              Challenge Leaderboard
+            </h2>
+            {leaderboard?.is_tentative ? (
+              <span className="rounded-full bg-[#EEF4FF] px-2.5 py-1 text-[11px] font-semibold text-[#3538CD]">
+                Live
+              </span>
+            ) : null}
+          </div>
           <div className="relative w-full sm:w-[360px]">
             <FiSearch
               className="absolute top-1/2 left-4 -translate-y-1/2 text-[#8B8D98]"
@@ -398,15 +409,15 @@ export default function BrandChallengePerformancePage() {
             ) : visibleRows.length === 0 ? (
               <p className="py-12 text-center text-[13px] text-[#747682]">
                 {totalSubmissions > 0
-                  ? `${totalSubmissions} submission${
-                      totalSubmissions === 1 ? " is" : "s are"
-                    } in. Ranked creators appear here after scoring finishes.`
-                  : "No leaderboard entries yet."}
+                  ? "Joined creators will appear here as soon as their entries are received."
+                  : "No creators have joined this challenge yet."}
               </p>
             ) : (
               visibleRows.map((entry, index) => {
                 const platforms = entryPlatforms(entry);
-                const score = entry.final_score ?? entry.challenge_score ?? 0;
+                const score = entry.final_score ?? entry.challenge_score;
+                const scorePending =
+                  score == null || entry.refresh_pending;
                 const name =
                   entry.display_name ||
                   entry.full_name ||
@@ -469,7 +480,7 @@ export default function BrandChallengePerformancePage() {
                       ) : (
                         <span className="h-2.5 w-2.5 rounded-full bg-[#D0D5DD]" />
                       )}
-                      {Math.round(Number(score) || 0)}
+                      {scorePending ? "—" : Math.round(Number(score) || 0)}
                     </span>
                   </div>
                 );

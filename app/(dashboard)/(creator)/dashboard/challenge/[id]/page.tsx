@@ -6,14 +6,18 @@ import Image from "next/image";
 import { HiArrowLeft } from "react-icons/hi2";
 import { MdVerified } from "react-icons/md";
 import { FiBarChart2, FiMail, FiClock, FiFileText, FiDownload } from "react-icons/fi";
-import { useParams, useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import SubmitEntryModal from "@/components/(creator)/dashboard/SubmitEntryModal";
 import {
   getPartialChallengeMissingFields,
+  hasJoinedChallengeFlags,
   useGetChallengeById,
+  useGetJoinedActiveChallenges,
+  useGetJoinedCompletedChallenges,
   useToggleChallengeSave,
 } from "@/hooks/useChallenges";
+import { useGetCircleChallenges } from "@/hooks/useCircles";
+import { useDashboardNotice } from "@/store/useDashboardNoticeStore";
 import { useGetCategories } from "@/hooks/useCategories";
 import { parseApiError } from "@/lib/apiError";
 import { formatCompactNaira } from "@/lib/formatMoney";
@@ -85,9 +89,12 @@ async function downloadFile(url: string, filename: string) {
 const ChallengeDetailPage = () => {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [submittedLocally, setSubmittedLocally] = useState(false);
 
   const challengeId = params?.id as string;
+  const circleId = searchParams.get("circle");
   const {
     data: challenge,
     isLoading,
@@ -96,8 +103,51 @@ const ChallengeDetailPage = () => {
     isFetching,
     refetch,
   } = useGetChallengeById(challengeId);
+  const { data: joinedActive } = useGetJoinedActiveChallenges(1, 100, {
+    enabled: Boolean(challengeId),
+  });
+  const { data: joinedCompleted } = useGetJoinedCompletedChallenges(1, 100, {
+    enabled: Boolean(challengeId),
+  });
+  const { data: circleActive } = useGetCircleChallenges(
+    circleId ?? "",
+    "active",
+    1,
+    50,
+    { enabled: Boolean(circleId) }
+  );
+  const { data: circleCompleted } = useGetCircleChallenges(
+    circleId ?? "",
+    "completed",
+    1,
+    50,
+    { enabled: Boolean(circleId) }
+  );
   const { data: categories = [] } = useGetCategories();
   const saveMutation = useToggleChallengeSave(challengeId);
+  const notice = useDashboardNotice();
+  const isSaved = Boolean(challenge?.is_saved);
+  const isJoined = useMemo(() => {
+    if (submittedLocally || hasJoinedChallengeFlags(challenge)) return true;
+    const creatorJoined = [
+      ...(joinedActive?.items ?? []),
+      ...(joinedCompleted?.items ?? []),
+    ].some((item) => item.challenge_id === challengeId);
+    if (creatorJoined) return true;
+    if (!circleId) return false;
+    return [...(circleActive?.items ?? []), ...(circleCompleted?.items ?? [])].some(
+      (item) => item.challenge_id === challengeId
+    );
+  }, [
+    submittedLocally,
+    challenge,
+    circleId,
+    challengeId,
+    circleActive?.items,
+    circleCompleted?.items,
+    joinedActive?.items,
+    joinedCompleted?.items,
+  ]);
   const categoryName = getChallengeCategoryName(challenge, categories);
 
   const isPartial = Boolean(challenge?._partial);
@@ -208,13 +258,10 @@ const ChallengeDetailPage = () => {
             Couldn’t load this challenge
           </p>
           <p className="mx-auto mt-2 max-w-md text-[13px] leading-relaxed text-[#667085]">
-            {detailErrorMessage}
+            {detailErrorStatus && detailErrorStatus >= 500
+              ? "This challenge couldn’t be loaded right now. Please try again in a moment."
+              : detailErrorMessage}
           </p>
-          {detailErrorStatus ? (
-            <p className="mt-2 text-[12px] text-[#98A2B3]">
-              Error code: {detailErrorStatus}
-            </p>
-          ) : null}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <button
               type="button"
@@ -260,8 +307,9 @@ const ChallengeDetailPage = () => {
                 Showing limited challenge details
               </p>
               <p className="mt-1 text-[12px] leading-relaxed text-[#93370D]">
-                {detailErrorMessage}
-                {detailErrorStatus ? ` (${detailErrorStatus})` : ""}
+                {detailErrorStatus && detailErrorStatus >= 500
+                  ? "Some fields are unavailable until the server recovers."
+                  : detailErrorMessage}
               </p>
               {missingPartialFields.length > 0 ? (
                 <p className="mt-2 text-[12px] leading-relaxed text-[#93370D]">
@@ -281,35 +329,46 @@ const ChallengeDetailPage = () => {
           ) : null}
         </div>
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          {!isJoined ? (
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  const result = await saveMutation.mutateAsync();
+                  notice.success(
+                    result.is_saved
+                      ? "Challenge saved"
+                      : "Challenge removed from saved"
+                  );
+                } catch {
+                  notice.error("Couldn’t update saved challenges");
+                }
+              }}
+              disabled={saveMutation.isPending || !challengeId}
+              className="whitespace-nowrap rounded-full border border-[#E5E7EB] px-3 py-2.5 text-[13px] font-semibold text-[#1E1F24] transition-all hover:bg-gray-50 sm:px-6 sm:text-[14px] disabled:opacity-60"
+            >
+              {saveMutation.isPending
+                ? isSaved
+                  ? "Removing..."
+                  : "Saving..."
+                : isSaved
+                  ? "Saved"
+                  : "Save Challenge"}
+            </button>
+          ) : null}
           <button
             type="button"
-            onClick={async () => {
-              try {
-                const result = await saveMutation.mutateAsync();
-                toast.success(
-                  result.is_saved ? "Challenge saved" : "Challenge removed from saved"
-                );
-              } catch {
-                toast.error("Couldn’t update saved challenges");
-              }
+            onClick={() => {
+              if (!isJoined) setIsModalOpen(true);
             }}
-            disabled={saveMutation.isPending || !challengeId}
-            className="whitespace-nowrap rounded-full border border-[#E5E7EB] px-3 py-2.5 text-[13px] font-semibold text-[#1E1F24] transition-all hover:bg-gray-50 sm:px-6 sm:text-[14px] disabled:opacity-60"
+            disabled={isJoined}
+            className={`whitespace-nowrap rounded-full px-3 py-2.5 text-[13px] font-semibold sm:px-6 sm:text-[14px] ${
+              isJoined
+                ? "cursor-not-allowed bg-[#F2F4F7] text-[#667085]"
+                : "bg-[#0047FF] text-white shadow-md transition-all hover:bg-blue-700"
+            }`}
           >
-            {saveMutation.isPending
-              ? challenge.is_saved
-                ? "Removing..."
-                : "Saving..."
-              : challenge.is_saved
-                ? "Saved"
-                : "Save Challenge"}
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(true)}
-            className="whitespace-nowrap rounded-full bg-[#0047FF] px-3 py-2.5 text-[13px] font-semibold text-white shadow-md transition-all hover:bg-blue-700 sm:px-6 sm:text-[14px]"
-          >
-            Submit Entry
+            {isJoined ? "Joined" : "Submit Entry"}
           </button>
         </div>
       </div>
@@ -451,7 +510,7 @@ const ChallengeDetailPage = () => {
                         try {
                           await downloadFile(url, filename);
                         } catch {
-                          toast.error("Couldn’t download this file");
+                          notice.error("Couldn’t download this file");
                         }
                       }}
                       className="absolute right-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-semibold text-[#1E1F24] shadow-sm transition hover:bg-white opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-focus-within:opacity-100"
@@ -483,7 +542,7 @@ const ChallengeDetailPage = () => {
                 try {
                   await downloadFile(url, filename);
                 } catch {
-                  toast.error("Couldn’t download the brief");
+                  notice.error("Couldn’t download the brief");
                 }
               }}
               className="mt-4 inline-flex items-center gap-2 rounded-full border border-[#E4E7EC] bg-white px-4 py-2.5 text-[13px] font-semibold text-[#1E1F24] transition hover:bg-gray-50"
@@ -546,7 +605,9 @@ const ChallengeDetailPage = () => {
       <SubmitEntryModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        onSubmitted={() => setSubmittedLocally(true)}
         challengeId={challenge.id}
+        circleId={circleId}
         platforms={challenge.platforms}
         requirements={requirements}
       />

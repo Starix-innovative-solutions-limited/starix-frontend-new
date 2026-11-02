@@ -55,9 +55,9 @@ export function parseApiError(
     message = err.message.trim();
   }
 
-  if (status === 500 && message === "Internal Server Error") {
+  if (status !== null && status >= 500) {
     message =
-      "The server couldn’t load full challenge details right now. Some information may be missing until this is fixed.";
+      "This challenge couldn’t be loaded right now. Please try again in a moment.";
   }
 
   return {

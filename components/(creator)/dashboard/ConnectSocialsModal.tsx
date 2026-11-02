@@ -19,7 +19,7 @@ import {
   clearSocialOAuthCallback,
   readSocialOAuthCallback,
 } from "@/lib/socialOAuth";
-import toast from "react-hot-toast";
+import { useDashboardNotice } from "@/store/useDashboardNoticeStore";
 
 interface ConnectSocialsModalProps {
   isOpen: boolean;
@@ -47,6 +47,7 @@ const ConnectSocialsModal = ({
   const pathname = usePathname();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const notice = useDashboardNotice();
   const connectSocialMutation = useInitiateSocialConnection();
   const disconnectSocialMutation = useDisconnectSocialConnection();
   const { data: creatorProfile } = useGetCreatorProfile(username ?? "", {
@@ -124,7 +125,7 @@ const ConnectSocialsModal = ({
         }
       } else {
         setErrorMessage(result.message);
-        toast.error(result.message);
+        notice.error(result.message);
       }
     }
 
@@ -216,7 +217,7 @@ const ConnectSocialsModal = ({
       const platformName =
         socialPlatforms.find((item) => item.id === disconnectPlatform)?.name ??
         disconnectPlatform;
-      toast.success(`${platformName} disconnected`);
+      notice.success(`${platformName} disconnected`);
       setDisconnectPlatform(null);
     } catch (err: any) {
       setErrorMessage(

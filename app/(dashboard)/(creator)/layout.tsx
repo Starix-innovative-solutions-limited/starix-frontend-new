@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { SideBar } from "@/components/(creator)/dashboard";
 import RightSideBar from "@/components/(creator)/dashboard/RightSideBar";
 import { DashboardSearchBoundary } from "@/components/dashboard/DashboardSearchProvider";
+import DashboardNotice from "@/components/(creator)/dashboard/DashboardNotice";
 
 const workSans = Work_Sans({
   subsets: ["latin"],
@@ -118,6 +119,7 @@ const CreatorDashboardLayout = ({ children }: { children: React.ReactNode }) => 
   return (
     <DashboardSearchBoundary>
     <main className={`${workSans.variable} bg-[#fff] h-screen font-sans overflow-hidden`}>
+      <DashboardNotice />
       <div className="flex h-full overflow-hidden">
         <SideBar
           collapsed={leftCollapsed}

@@ -24,11 +24,16 @@ type ChallengeDetail = ChallengeItem & {
 };
 
 const objectiveLabels: Record<string, string> = {
-  quality_engagement: "Engagement",
-  visibility: "Awareness",
-  balanced: "User Generated Content",
-  virality: "Product Launch",
-  conversions: "Sales",
+  engagement: "Audience Engagement & Community Building",
+  quality_engagement: "Audience Engagement & Community Building",
+  audience_response: "Audience Engagement & Community Building",
+  awareness: "Brand Awareness",
+  visibility: "Brand Awareness",
+  ugc: "User-Generated Content (UGC) Sourcing",
+  balanced: "User-Generated Content (UGC) Sourcing",
+  virality: "Product Consideration & Education",
+  conversions: "Direct Sales & Conversions",
+  sales: "Direct Sales & Conversions",
 };
 
 const eligibilityLabels: Record<string, string> = {

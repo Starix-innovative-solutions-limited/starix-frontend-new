@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import CustomInput from "@/components/CustomInput";
 import { useCreatorPayment, usePaymentBanks } from "@/hooks/usePayment";
-import toast from "react-hot-toast";
+import { useDashboardNotice } from "@/store/useDashboardNoticeStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useModal } from "@/hooks/useModal";
 
@@ -18,6 +18,7 @@ const EditPaymentDetails = () => {
 
   const { fetchProfile } = useAuthStore();
   const { close } = useModal();
+  const notice = useDashboardNotice();
 
   const { mutateAsync: addCreatorPayment, isPending } = useCreatorPayment();
   const { data: banks } = usePaymentBanks();
@@ -30,19 +31,18 @@ const EditPaymentDetails = () => {
       return;
     }
 
-    await toast.promise(addCreatorPayment(form), {
-      loading: "Adding Payment Details...",
-      success: () => {
-        setForm(initialForm);
-        fetchProfile();
-        close();
-        return "Payment added successfully ✅";
-      },
-      error: (err: any) => {
-        console.log("Payment Edit Error:", err);
-        return `Payment update failed: ${err.response?.data?.detail}`;
-      },
-    });
+    try {
+      await addCreatorPayment(form);
+      setForm(initialForm);
+      fetchProfile();
+      close();
+      notice.success("Payment added successfully");
+    } catch (err: any) {
+      console.log("Payment Edit Error:", err);
+      notice.error(
+        `Payment update failed: ${err.response?.data?.detail || "Please try again."}`
+      );
+    }
   };
 
   return (

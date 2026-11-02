@@ -5,12 +5,14 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { FiArrowRight, FiCheckCircle, FiLoader } from "react-icons/fi";
 import { useJoinWaitlist, useWaitlistTotal } from "@/hooks/useAuth";
-import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { getAuthErrorMessage } from "@/lib/authErrors";
+import AuthFormMessage from "@/components/auth/AuthFormMessage";
 
 const ComingSoonPage = () => {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [formError, setFormError] = useState("");
   const queryClient = useQueryClient();
   const { data: waitlistStats } = useWaitlistTotal();
   const waitlistTotal = waitlistStats?.waitlist_total ?? "0";
@@ -19,26 +21,19 @@ const ComingSoonPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError("");
 
-    await toast.promise(
-      mutateAsync({ email }),
-      {
-        loading: "Reserving your spot...",
-        success: (data: any) => {
-          setSubmitted(true);
-          if (data?.data?.waitlist_total) {
-            queryClient.setQueryData(["waitlist", "total"], {
-              waitlist_total: data.data.waitlist_total,
-            });
-          }
-          return data?.data?.message || "Welcome to the inner circle!";
-        },
-        error: (err: any) => {
-          const detail = err?.response?.data?.detail;
-          return typeof detail === "string" ? detail : "Failed to join. Please try again.";
-        },
+    try {
+      const data = await mutateAsync({ email });
+      setSubmitted(true);
+      if (data?.data?.waitlist_total) {
+        queryClient.setQueryData(["waitlist", "total"], {
+          waitlist_total: data.data.waitlist_total,
+        });
       }
-    );
+    } catch (err: unknown) {
+      setFormError(getAuthErrorMessage(err, "generic"));
+    }
   };
 
   return (
@@ -86,6 +81,7 @@ const ComingSoonPage = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full h-[64px] rounded-[20px] border border-[#E5E7EB] bg-[#F9FAFB] px-6 text-center text-[16px] outline-none focus:border-[#0033FF] focus:ring-4 focus:ring-blue-50 transition-all placeholder:text-gray-400 disabled:opacity-60"
                   />
+                  <AuthFormMessage error={formError} />
                   <button
                     type="submit"
                     disabled={isPending}

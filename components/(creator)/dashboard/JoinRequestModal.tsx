@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import toast from "react-hot-toast";
+import { useDashboardNotice } from "@/store/useDashboardNoticeStore";
 import { useRequestToJoin } from "@/hooks/useCircles";
 
 interface JoinRequestModalProps {
@@ -15,6 +15,7 @@ interface JoinRequestModalProps {
 }
 
 const JoinRequestModal = ({ isOpen, onClose, circleId, circleName, circleLogo }: JoinRequestModalProps) => {
+  const notice = useDashboardNotice();
   const { mutate: sendRequest, isPending } = useRequestToJoin();
 
   if (!isOpen) return null;
@@ -22,7 +23,7 @@ const JoinRequestModal = ({ isOpen, onClose, circleId, circleName, circleLogo }:
   const handleSend = () => {
   sendRequest(circleId, {
     onSuccess: (data) => {
-      toast.success(`Request sent to join ${data?.circle_name ?? circleName}`);
+      notice.success(`Request sent to join ${data?.circle_name ?? circleName}`);
       onClose();
     },
     onError: (error: any) => {
@@ -36,7 +37,7 @@ const JoinRequestModal = ({ isOpen, onClose, circleId, circleName, circleLogo }:
         message = "This circle is private or inactive and does not accept join requests.";
       }
 
-      toast.error(message);
+      notice.error(message);
       onClose();
     }
   });

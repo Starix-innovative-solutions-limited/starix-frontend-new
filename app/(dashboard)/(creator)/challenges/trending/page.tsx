@@ -7,6 +7,7 @@ import { MdVerified } from "react-icons/md";
 import { HiArrowRight, HiArrowLeft } from "react-icons/hi2";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useGetTrendingChallenges } from "@/hooks/useChallenges";
 import { useGetCategories } from "@/hooks/useCategories";
 import { formatCompactNaira } from "@/lib/formatMoney";
@@ -44,6 +45,8 @@ type TrendingCard = {
 };
 
 const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean }) => {
+  const searchParams = useSearchParams();
+  const circleId = searchParams.get("circle");
   const { data: apiResponse, isLoading } = useGetTrendingChallenges(50, 0);
   const { data: categories = [] } = useGetCategories();
   const { query, setQuery, placeholder } = useDashboardSearch();
@@ -236,7 +239,11 @@ const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: b
               visibleCards.map((card) => (
               <Link
               key={card.id}
-              href={`/dashboard/challenge/${card.id}`}
+              href={
+                circleId
+                  ? `/dashboard/challenge/${card.id}?circle=${circleId}`
+                  : `/dashboard/challenge/${card.id}`
+              }
               className="bg-white border border-[#E0E1E6] rounded-[24px] md:rounded-[32px] p-4 md:p-4 shadow-xs transition-all group flex flex-col h-full cursor-pointer"
             >
                 {/* Card Top Info */}

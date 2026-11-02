@@ -6,6 +6,13 @@ import {
   type UpdateCreatorProfilePayload,
 } from "@/hooks/useProfile";
 import { useGetCategories } from "@/hooks/useCategories";
+import {
+  BIO_MAX_CHARS,
+  BIO_MAX_WORDS,
+  clampBio,
+  countBioWords,
+  normalizeBio,
+} from "@/lib/bio";
 import Image from "next/image";
 
 interface EditProfileModalProps {
@@ -97,7 +104,7 @@ if (!isOpen) return null;
       starix_score_visibility:
         tempVisibility === "anyone" ? "public" : "private",
       niches: tempNiches,
-      bio: tempBio.trim() ? tempBio.trim().slice(0, 500) : null,
+      bio: normalizeBio(tempBio),
     };
   
     if (removeProfileImage) {
@@ -275,13 +282,19 @@ if (!isOpen) return null;
               Bio
             </label>
             <textarea
-              rows={4}
-              maxLength={500}
+              rows={5}
+              maxLength={BIO_MAX_CHARS}
               value={tempBio}
-              onChange={(event) => setTempBio(event.target.value)}
+              onChange={(event) => setTempBio(clampBio(event.target.value))}
               placeholder="Tell brands and creators a bit about you"
-              className="w-full resize-none rounded-xl border border-gray-200 p-4 text-[14px] text-[#1E1F24] outline-none placeholder:text-[#8B8D98] focus:border-blue-500"
+              className="w-full resize-none whitespace-pre-wrap rounded-xl border border-gray-200 p-4 text-[14px] text-[#1E1F24] outline-none placeholder:text-[#8B8D98] focus:border-blue-500"
             />
+            <div className="mt-1.5 flex items-center justify-between text-[11px] text-[#8B8D98]">
+              <span>Line breaks are kept on your profile.</span>
+              <span>
+                {countBioWords(tempBio)}/{BIO_MAX_WORDS} words
+              </span>
+            </div>
           </div>
 
           <div>

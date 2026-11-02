@@ -9,12 +9,13 @@ import CustomInput from "@/components/CustomInput";
 import { variants } from "@/constant";
 import Loader from "@/components/Loader";
 import { useLogin } from "@/hooks/useAuth";
-import toast from "react-hot-toast";
 import { useRouter, useSearchParams } from "next/navigation";
 import { startGoogleAuth } from "@/lib/auth";
 import Image from "next/image";
 import Link from "next/link";
 import { getSignupHref } from "@/lib/waitlist";
+import { getAuthErrorMessage } from "@/lib/authErrors";
+import AuthFormMessage from "@/components/auth/AuthFormMessage";
 
 const Page = () => {
   const searchParams = useSearchParams();
@@ -23,54 +24,34 @@ const Page = () => {
   const router = useRouter();
   const { mutateAsync: login, isPending: isLoading } = useLogin();
   const [form, setForm] = useState({ email: emailFromQuery, password: "" });
+  const [formError, setFormError] = useState("");
+  const resetSuccess = searchParams.get("reset") === "1";
 
   const handleGoogleLogin = async () => {
+    setFormError("");
     try {
       const selectedRole = role === "brand" ? "brand" : "creator";
       await startGoogleAuth(selectedRole, "login");
     } catch (err: any) {
       console.error("GOOGLE LOGIN ERROR:", err.response?.data || err.message);
-      toast.error("Unable to connect to Google Login.");
+      setFormError("Unable to connect to Google. Please try again.");
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError("");
 
     const email = form.email.trim().toLowerCase();
     const password = form.password;
 
     if (!email || !password) {
-      return toast.error("Fields cannot be empty");
+      setFormError("Enter your email and password.");
+      return;
     }
 
     try {
-      const res = await toast.promise(
-        login({ email, password }),
-        {
-          loading: "Signing in...",
-          success: "Signed in successfully",
-          error: (err: any) => {
-            const status = err?.response?.status;
-            const detail = err?.response?.data?.detail;
-
-            if (status === 429) {
-              return "Too many attempts. Try again later.";
-            }
-            if (status === 401) {
-              if (typeof detail === "string" && detail.toLowerCase().includes("deactivat")) {
-                return "Account is deactivated";
-              }
-              return typeof detail === "string"
-                ? detail
-                : "Invalid email or password";
-            }
-            if (Array.isArray(detail)) return detail[0]?.msg || "Validation error";
-            if (typeof detail === "string") return detail;
-            return "Login failed. Please try again.";
-          },
-        }
-      );
+      const res = await login({ email, password });
 
       const userType = res.user?.user_type;
 
@@ -89,6 +70,7 @@ const Page = () => {
       );
     } catch (err) {
       console.error(err);
+      setFormError(getAuthErrorMessage(err, "login"));
     }
   };
 
@@ -147,6 +129,14 @@ const Page = () => {
           </motion.div>
 
           <motion.div variants={variants?.itemVariants} className="flex flex-col gap-4">
+            <AuthFormMessage
+              error={formError}
+              success={
+                !formError && resetSuccess
+                  ? "Your password was updated. You can log in now."
+                  : null
+              }
+            />
             <motion.button
               type="submit"
               disabled={isLoading}

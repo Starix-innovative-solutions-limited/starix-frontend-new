@@ -85,11 +85,13 @@ const CircleProfilePage = () => {
   }, [circle?.connected_platforms]);
 
   const niches = circle?.niches ?? [];
-  const activeChallengeCount = circle?.active_challenge_count ?? 0;
+  const activeChallengeCount =
+    activeTab === "active" && challengesData
+      ? challengesData.total_items
+      : circle?.active_challenge_count ?? 0;
   const challengeTotal =
-    activeTab === "active"
-      ? activeChallengeCount
-      : challengesData?.total_items ?? 0;
+    challengesData?.total_items ??
+    (activeTab === "active" ? activeChallengeCount : 0);
   const totalPages = Math.max(1, challengesData?.total_pages ?? 1);
 
   const visibleChallenges = useMemo(() => {
@@ -495,7 +497,9 @@ const CircleProfilePage = () => {
               </p>
               {!searchQuery && (
                 <button
-                  onClick={() => router.push("/challenges/recommended")}
+                  onClick={() =>
+                    router.push(`/challenges/recommended?circle=${id}`)
+                  }
                   className="rounded-full bg-[#0033FF] px-6 py-3 font-semibold text-[#FAFAFA]"
                 >
                   Find Challenges
@@ -505,7 +509,11 @@ const CircleProfilePage = () => {
           ) : (
             <div className="divide-y divide-[#EFF0F3] border-y border-[#EFF0F3]">
               {visibleChallenges.map((item) => (
-                <ChallengeRow key={item.challenge_id} item={item} />
+                <ChallengeRow
+                  key={item.challenge_id}
+                  circleId={id}
+                  item={item}
+                />
               ))}
             </div>
           )}
@@ -581,6 +589,7 @@ function formatStatusLabel(status?: string) {
   const labels: Record<string, string> = {
     awaiting_review: "Awaiting Review",
     under_review: "Under Review",
+    submitted: "Submitted",
     in_progress: "In Progress",
     approved: "Approved",
     not_qualified: "Not Qualified",
@@ -612,8 +621,10 @@ function getStatusStyle(status?: string) {
 }
 
 const ChallengeRow = ({
+  circleId,
   item,
 }: {
+  circleId: string;
   item: {
     challenge_id: string;
     title: string;
@@ -628,7 +639,7 @@ const ChallengeRow = ({
   return (
     <div className="flex items-center justify-between gap-4 py-4">
       <Link
-        href={`/dashboard/challenge/${item.challenge_id}`}
+        href={`/dashboard/challenge/${item.challenge_id}?circle=${circleId}`}
         className="flex min-w-0 flex-1 items-center gap-4"
       >
         <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-[#EAECF0] bg-[#F2F4F7]">

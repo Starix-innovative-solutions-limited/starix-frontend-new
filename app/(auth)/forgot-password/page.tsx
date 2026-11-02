@@ -8,15 +8,18 @@ import { motion } from "framer-motion";
 import { variants } from "@/constant";
 // 💡 Import useForgotPassword instead of useGenerateOtp
 import { useRequestPasswordReset, useConfirmPasswordReset } from "@/hooks/useAuth";
-import { toast } from "react-hot-toast";
 import OtpInput from "@/components/auth/OtpInput";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { getAuthErrorMessage } from "@/lib/authErrors";
+import AuthFormMessage from "@/components/auth/AuthFormMessage";
 
 const PasswordResetPage = () => {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [formError, setFormError] = useState("");
+  const [formSuccess, setFormSuccess] = useState("");
 
   const router = useRouter();
 
@@ -25,48 +28,47 @@ const PasswordResetPage = () => {
 
   const handleSendOtp = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!email) return toast.error("Please enter your email");
+    setFormError("");
+    setFormSuccess("");
+    if (!email) {
+      setFormError("Please enter your email.");
+      return;
+    }
 
-    await toast.promise(
-      requestReset(email.trim()), // 💡 Hits /auth/password-reset/request
-      {
-        loading: "Sending reset code...",
-        success: "Reset code sent to your email! ✅",
-        error: (err: any) => err.response?.data?.detail || "Failed to send reset code",
-      }
-    );
+    try {
+      await requestReset(email.trim());
+      setFormSuccess("We sent a reset code to your email.");
+    } catch (err: unknown) {
+      setFormError(getAuthErrorMessage(err, "generic"));
+    }
   };
 
   const handleReset = async (e?: React.FormEvent) => {
-  e?.preventDefault();
+    e?.preventDefault();
+    setFormError("");
+    setFormSuccess("");
 
-  if (otp.length < 6) return toast.error("Enter the 6-digit code");
-  if (password.length < 8) return toast.error("Password must be at least 8 characters");
-
-  await toast.promise(
-    confirmReset({
-      email: email.trim().toLowerCase(),
-      code: otp, // 💡 TRY CHANGING THIS TO 'otp_code' IF 'code' FAILS
-      new_password: password
-    } as any),
-    {
-      loading: "Updating password...",
-      success: () => {
-        router.push('/login');
-        return "Password reset successful! ✅";
-      },
-      error: (err: any) => {
-        // 1. Log the full error to your console so you can see the fix
-        console.error("BACKEND VALIDATION ERROR:", err.response?.data);
-
-        // 2. Safely extract a string for the toast to prevent the crash
-        const detail = err.response?.data?.detail;
-        if (Array.isArray(detail)) return detail[0].msg;
-        return detail || "Reset failed. Check your code.";
-      },
+    if (otp.length < 6) {
+      setFormError("Enter the 6-digit code.");
+      return;
     }
-  );
-};
+    if (password.length < 8) {
+      setFormError("Password must be at least 8 characters.");
+      return;
+    }
+
+    try {
+      await confirmReset({
+        email: email.trim().toLowerCase(),
+        code: otp,
+        new_password: password,
+      } as any);
+      router.push("/login?reset=1");
+    } catch (err: unknown) {
+      console.error("BACKEND VALIDATION ERROR:", (err as any)?.response?.data);
+      setFormError(getAuthErrorMessage(err, "generic"));
+    }
+  };
 
 
   return (
@@ -134,6 +136,8 @@ const PasswordResetPage = () => {
             />
           </motion.div>
         )}
+
+        <AuthFormMessage error={formError} success={formSuccess} />
 
         <motion.button
           type="submit"

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { HiOutlineBars3 } from "react-icons/hi2";
 import BrandSideBar from "@/components/(brand)/dashboard/BrandSideBar";
 import RightSideBar from "@/components/(brand)/dashboard/RightSideBar";
+import BrandNotificationDropdown from "@/components/(brand)/dashboard/BrandNotificationDropdown";
 import { DashboardSearchBoundary } from "@/components/dashboard/DashboardSearchProvider";
 
 const workSans = Work_Sans({
@@ -18,24 +19,17 @@ const BrandDashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
 
-  // Expanded by default to match brand sidebar design
-  const [leftCollapsed, setLeftCollapsed] = useState(false);
-  const isDashboardView = pathname === "/brand";
-  const isProfileView = pathname?.startsWith("/brand/profile");
-  const isChallengeDetailView =
-    /^\/brand\/challenges\/[^/]+/.test(pathname ?? "");
-  const canOpenRightSidebar =
-    isDashboardView || isProfileView || isChallengeDetailView;
-  const [rightCollapsed, setRightCollapsed] = useState(!isChallengeDetailView);
+  const [leftCollapsed, setLeftCollapsed] = useState(true);
+  const [rightCollapsed, setRightCollapsed] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isFlushProfileView = pathname === "/brand/profile";
 
-  // Close mobile drawer on navigation; keep desktop expand/collapse preference
   useEffect(() => {
     setMobileOpen(false);
-    setRightCollapsed(!isChallengeDetailView);
-  }, [pathname, isChallengeDetailView]);
+    setLeftCollapsed(true);
+    setRightCollapsed(true);
+  }, [pathname]);
 
   return (
     <DashboardSearchBoundary>
@@ -64,6 +58,9 @@ const BrandDashboardLayout = ({ children }: { children: React.ReactNode }) => {
             </button>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/dash-logo.webp" alt="starix" className="h-7 w-auto" />
+            <div className="ml-auto">
+              <BrandNotificationDropdown compact />
+            </div>
           </div>
 
           <div
@@ -78,11 +75,6 @@ const BrandDashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
         <RightSideBar
           collapsed={rightCollapsed}
-          setCollapsed={() => {
-            if (canOpenRightSidebar) {
-              setRightCollapsed((value) => !value);
-            }
-          }}
           className="max-lg:hidden max-h-screen flex-shrink-0 transition-all duration-300"
         />
       </div>

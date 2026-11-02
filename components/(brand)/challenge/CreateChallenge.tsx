@@ -147,11 +147,177 @@ function IconUgc({ className }: { className?: string }) {
   );
 }
 
+function IconConsideration({ className }: { className?: string }) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      className={className}
+      aria-hidden
+    >
+      <path
+        d="M4.5 13.25V6.4L8 3.5l3.5 2.9v6.85"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M6.4 13.25V9.1h3.2v4.15"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function IconLeads({ className }: { className?: string }) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      className={className}
+      aria-hidden
+    >
+      <circle cx="6.2" cy="5.4" r="2.15" stroke="currentColor" strokeWidth="1.4" />
+      <path
+        d="M2.6 12.6c.35-2 1.7-3.15 3.6-3.15s3.25 1.15 3.6 3.15"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+      <path
+        d="M11.4 5.2v3.4M9.7 6.9h3.4"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function IconSales({ className }: { className?: string }) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      className={className}
+      aria-hidden
+    >
+      <path
+        d="M3.2 5.2h9.6l-.7 6.3a1.4 1.4 0 0 1-1.4 1.25H5.3A1.4 1.4 0 0 1 3.9 11.5L3.2 5.2Z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M5.4 5.2V4.1A2.6 2.6 0 0 1 8 1.5 2.6 2.6 0 0 1 10.6 4.1v1.1"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function IconEvents({ className }: { className?: string }) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      className={className}
+      aria-hidden
+    >
+      <rect
+        x="2.25"
+        y="3.5"
+        width="11.5"
+        height="10.25"
+        rx="1.5"
+        stroke="currentColor"
+        strokeWidth="1.4"
+      />
+      <path
+        d="M2.25 6.5h11.5M5.2 2.4v2.2M10.8 2.4v2.2"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 const OBJECTIVES = [
-  { id: "engagement", label: "Engagement", Icon: IconEngagement },
-  { id: "awareness", label: "Awareness", Icon: IconAwareness },
-  { id: "ugc", label: "User Generated Content", Icon: IconUgc },
+  {
+    id: "awareness",
+    label: "Brand Awareness",
+    hint: "Reach, impressions, views",
+    Icon: IconAwareness,
+    scoring: "awareness",
+  },
+  {
+    id: "engagement",
+    label: "Audience Engagement & Community Building",
+    hint: "Comments, shares, saves, engagement rate",
+    Icon: IconEngagement,
+    scoring: "audience_response",
+  },
+  {
+    id: "consideration",
+    label: "Product Consideration & Education",
+    hint: "Product-related views, saves, link clicks",
+    Icon: IconConsideration,
+    scoring: "virality",
+  },
+  {
+    id: "leads",
+    label: "Lead Generation",
+    hint: "Valid leads, sign-ups, enquiries",
+    Icon: IconLeads,
+    scoring: "audience_response",
+  },
+  {
+    id: "sales",
+    label: "Direct Sales & Conversions",
+    hint: "Purchases, conversion rate, revenue",
+    Icon: IconSales,
+    scoring: "virality",
+  },
+  {
+    id: "events",
+    label: "Event Attendance or Registration",
+    hint: "Registrations, attendance",
+    Icon: IconEvents,
+    scoring: "audience_response",
+  },
+  {
+    id: "ugc",
+    label: "User-Generated Content (UGC) Sourcing",
+    hint: "Usable submissions, content quality, usage-rights",
+    Icon: IconUgc,
+    scoring: "balanced",
+  },
 ] as const;
+
+type ObjectiveId = (typeof OBJECTIVES)[number]["id"];
+
+function scoringFromObjectives(selected: string[]): string {
+  const set = new Set(selected);
+  if (set.has("sales") || set.has("consideration")) return "virality";
+  if (set.has("engagement") || set.has("leads") || set.has("events")) {
+    return "audience_response";
+  }
+  if (set.has("awareness")) return "awareness";
+  return "balanced";
+}
 
 const SUBMITTER_OPTIONS = [
   { id: "anyone", label: "Anyone. Both Creators and Creator Circles." },
@@ -204,11 +370,11 @@ type PrizeRow = { id: string; amount: string };
 type FormState = {
   title: string;
   description: string;
-  objective: string;
   submitter_type: (typeof SUBMITTER_OPTIONS)[number]["id"];
   start_date: string;
   end_date: string;
   platforms: string[];
+  objectives: ObjectiveId[];
   category: string;
   content_type: string;
   hashtags: string;
@@ -224,11 +390,11 @@ type FormState = {
 const initialForm: FormState = {
   title: "",
   description: "",
-  objective: "",
   submitter_type: "anyone",
   start_date: "",
   end_date: "",
   platforms: ["TikTok"],
+  objectives: [],
   category: "",
   content_type: "short_form_video",
   hashtags: "",
@@ -267,12 +433,33 @@ function isoDateInput(value?: string) {
   return date.toISOString().slice(0, 10);
 }
 
-function draftObjective(value?: string | null) {
-  if (value === "quality_engagement" || value === "audience_response") {
-    return "engagement";
+function draftObjectives(value?: string | null): ObjectiveId[] {
+  const v = (value ?? "").toLowerCase().trim();
+  if (v === "quality_engagement" || v === "audience_response" || v === "engagement") {
+    return ["engagement"];
   }
-  if (value === "visibility" || value === "awareness") return "awareness";
-  return value ? "ugc" : "";
+  if (v === "visibility" || v === "awareness") return ["awareness"];
+  if (v === "virality") return ["consideration"];
+  if (v === "conversions" || v === "sales") return ["sales"];
+  if (v === "balanced" || v === "ugc") return ["ugc"];
+  return [];
+}
+
+function isObjectiveId(value: string): value is ObjectiveId {
+  return OBJECTIVES.some((objective) => objective.id === value);
+}
+
+function normalizeObjectives(form: {
+  objectives?: string[];
+  objective?: string;
+}): ObjectiveId[] {
+  if (Array.isArray(form.objectives) && form.objectives.length > 0) {
+    return form.objectives.filter(isObjectiveId);
+  }
+  if (form.objective && isObjectiveId(form.objective)) {
+    return [form.objective];
+  }
+  return draftObjectives(form.objective);
 }
 
 function displayPlatform(value: string) {
@@ -295,7 +482,7 @@ function formFromDraft(draft: ChallengeItem): FormState {
     ...initialForm,
     title: draft.title ?? "",
     description: draft.description ?? "",
-    objective: draftObjective(draft.campaign_objective),
+    objectives: draftObjectives(draft.campaign_objective),
     submitter_type: draft.submission_eligibility ?? "anyone",
     start_date: isoDateInput(draft.start_date),
     end_date: isoDateInput(draft.end_date),
@@ -318,10 +505,25 @@ function readLocalDraft(): LocalChallengeDraft | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = window.localStorage.getItem(LOCAL_DRAFT_KEY);
-    return raw ? (JSON.parse(raw) as LocalChallengeDraft) : null;
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<LocalChallengeDraft>;
+    const mergedForm = { ...initialForm, ...(parsed.form ?? {}) };
+    return {
+      step: parsed.step ?? 1,
+      form: {
+        ...mergedForm,
+        objectives: normalizeObjectives(mergedForm),
+      },
+      media: parsed.media ?? [],
+      document: parsed.document,
+    };
   } catch {
     return null;
   }
+}
+
+function fieldText(value?: string | null) {
+  return (value ?? "").trim();
 }
 
 function parseAmount(value: string) {
@@ -752,11 +954,12 @@ export default function CreateChallenge({
   const [step, setStep] = useState(
     draft ? 1 : Math.min(recoveredDraft?.step ?? 1, TOTAL_STEPS)
   );
-  const [form, setForm] = useState<FormState>(() =>
-    draft
-      ? formFromDraft(draft)
-      : recoveredDraft?.form ?? initialForm
-  );
+  const [form, setForm] = useState<FormState>(() => {
+    if (draft) return formFromDraft(draft);
+    const recovered = recoveredDraft?.form ?? {};
+    const merged = { ...initialForm, ...recovered };
+    return { ...merged, objectives: normalizeObjectives(merged) };
+  });
   const [mediaItems, setMediaItems] = useState<MediaItem[]>(() => {
     if (draft?.media?.length) {
       return draft.media.map((media, index) => ({
@@ -800,10 +1003,14 @@ export default function CreateChallenge({
   const docInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (form.category.trim()) return;
+    if (fieldText(form.category)) return;
     const brandNiche = brandProfile?.niches?.find((niche) => niche?.trim());
     if (!brandNiche) return;
-    setForm((prev) => (prev.category.trim() ? prev : { ...prev, category: brandNiche.trim() }));
+    setForm((prev) =>
+      fieldText(prev.category)
+        ? prev
+        : { ...prev, category: brandNiche.trim() }
+    );
   }, [brandProfile, form.category]);
 
   useEffect(() => {
@@ -875,6 +1082,20 @@ export default function CreateChallenge({
     }));
   };
 
+  const toggleObjective = (id: ObjectiveId) => {
+    setForm((prev) => ({
+      ...prev,
+      objectives: prev.objectives.includes(id)
+        ? prev.objectives.filter((item) => item !== id)
+        : [...prev.objectives, id],
+    }));
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+      delete next.objective;
+      return next;
+    });
+  };
+
   const validateStep = (current: number) => {
     const errors: Record<string, string> = {};
 
@@ -894,10 +1115,10 @@ export default function CreateChallenge({
       if (form.description.trim().length < 10) {
         errors.description = "Description must be at least 10 characters";
       }
-      if (!form.objective) {
-        errors.objective = "Select a campaign objective";
+      if (form.objectives.length === 0) {
+        errors.objective = "Select at least one campaign objective";
       }
-      if (form.category.trim().length < 2) {
+      if (fieldText(form.category).length < 2) {
         errors.category = "Select a category for this challenge";
       }
     }
@@ -979,7 +1200,7 @@ export default function CreateChallenge({
     const canSaveToServer =
       form.title.trim().length >= 3 &&
       form.description.trim().length >= 10 &&
-      form.category.trim().length >= 2 &&
+      fieldText(form.category).length >= 2 &&
       Boolean(form.start_date) &&
       Boolean(form.end_date) &&
       form.start_date >= today &&
@@ -1218,15 +1439,7 @@ export default function CreateChallenge({
       .map((p) => p.toLowerCase())
       .map((p) => (p === "youtube" ? "youtube" : p));
 
-    const objectiveMap: Record<string, string> = {
-      engagement: "audience_response",
-      awareness: "awareness",
-      ugc: "balanced",
-      // product_launch: "virality",
-      // sales: "conversions",
-    };
-
-    const category = form.category.trim();
+    const category = fieldText(form.category);
 
     const briefUrl =
       doc.status === "success" ? doc.url : form.documents[0] || undefined;
@@ -1254,13 +1467,13 @@ export default function CreateChallenge({
       posting_rules: form.posting_rules.trim() || undefined,
       brief_document_url: briefUrl,
       sample_media: sample_media.length ? sample_media : undefined,
-      objective: objectiveMap[form.objective] || "balanced",
+      objective: scoringFromObjectives(form.objectives),
     };
   };
 
   async function handlePublish(isDraft: boolean) {
     if (!isDraft && !validateStep(4)) return;
-    if (form.category.trim().length < 2) {
+    if (fieldText(form.category).length < 2) {
       toast.error("Select a category for this challenge");
       setStep(1);
       return;
@@ -1439,8 +1652,8 @@ export default function CreateChallenge({
                 ) : (
                   categories.map((category) => {
                     const active =
-                      form.category.trim().toLowerCase() ===
-                      category.name.trim().toLowerCase();
+                      fieldText(form.category).toLowerCase() ===
+                      fieldText(category.name).toLowerCase();
                     return (
                       <button
                         key={category.id}
@@ -1460,23 +1673,40 @@ export default function CreateChallenge({
               </div>
             </Field>
 
-            <Field label="Campaign Objective" error={fieldErrors.objective}>
-              <div className="flex flex-wrap gap-2.5">
-                {OBJECTIVES.map(({ id, label, Icon }) => {
-                  const active = form.objective === id;
+            <Field
+              label="Campaign Objectives"
+              error={fieldErrors.objective}
+            >
+              <p className="mb-2.5 text-[12px] text-[#667085]">
+                Select all that apply. Scoring uses one backend preset from your mix.
+              </p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {OBJECTIVES.map(({ id, label, hint, Icon }) => {
+                  const active = form.objectives.includes(id);
                   return (
                     <button
                       key={id}
                       type="button"
-                      onClick={() => update("objective", id)}
-                      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-[13px] font-medium transition ${
+                      onClick={() => toggleObjective(id)}
+                      className={`flex items-start gap-2.5 rounded-2xl border px-3.5 py-3 text-left transition ${
                         active
-                          ? "border-[#5B9EFF] bg-[#EAF3FF] text-[#3D8BFF]"
-                          : "border-[#B6D4FF] bg-white text-[#5B9EFF] hover:bg-[#F5F9FF]"
+                          ? "border-[#0033FF] bg-[#EEF3FF] text-[#0033FF]"
+                          : "border-[#D0D5DD] bg-white text-[#344054] hover:border-[#8FA8FF]"
                       }`}
                     >
-                      <Icon className="shrink-0" />
-                      {label}
+                      <Icon className="mt-0.5 shrink-0" />
+                      <span className="min-w-0">
+                        <span className="block text-[13px] font-medium leading-snug">
+                          {label}
+                        </span>
+                        <span
+                          className={`mt-0.5 block text-[11px] leading-snug ${
+                            active ? "text-[#5B8CFF]" : "text-[#667085]"
+                          }`}
+                        >
+                          {hint}
+                        </span>
+                      </span>
                     </button>
                   );
                 })}
@@ -1912,23 +2142,28 @@ export default function CreateChallenge({
                   }
                 />
                 <ReviewRow
-                  label="Objective"
+                  label="Objectives"
                   value={
-                    <span className="inline-flex items-center gap-1.5 font-semibold text-[#101828]">
-                      {(() => {
-                        const obj = OBJECTIVES.find(
-                          (o) => o.id === form.objective
-                        );
-                        if (!obj) return form.objective || "—";
-                        const Icon = obj.Icon;
-                        return (
-                          <>
-                            <Icon className="text-[#667085]" />
-                            {obj.label}
-                          </>
-                        );
-                      })()}
-                    </span>
+                    form.objectives.length === 0 ? (
+                      "—"
+                    ) : (
+                      <span className="flex flex-col items-end gap-1 font-semibold text-[#101828]">
+                        {form.objectives.map((id) => {
+                          const obj = OBJECTIVES.find((item) => item.id === id);
+                          if (!obj) return null;
+                          const Icon = obj.Icon;
+                          return (
+                            <span
+                              key={id}
+                              className="inline-flex items-center gap-1.5"
+                            >
+                              <Icon className="text-[#667085]" />
+                              {obj.label}
+                            </span>
+                          );
+                        })}
+                      </span>
+                    )
                   }
                 />
                 <ReviewRow

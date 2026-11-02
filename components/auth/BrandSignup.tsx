@@ -5,7 +5,6 @@ import React, { useState, useMemo } from "react";
 import CustomInput from "../CustomInput";
 import Loader from "../Loader";
 import { useBrandSignup } from "@/hooks/useAuth";
-import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,6 +14,7 @@ import { HiCheckCircle, HiXCircle } from "react-icons/hi2";
 import { BrandSignupPayload } from "@/utils/type";
 import { useGetCategories } from "@/hooks/useCategories";
 import { getAuthErrorMessage } from "@/lib/authErrors";
+import AuthFormMessage from "@/components/auth/AuthFormMessage";
 
 const initialForm = {
   email: "",
@@ -25,19 +25,21 @@ const initialForm = {
   industry: "",
 };
 
-const handleGoogleSignup = async () => {
-  try {
-    await startGoogleAuth("brand", "signup");
-  } catch (err: any) {
-    console.error("GOOGLE SIGNUP ERROR:", err.response?.data || err.message);
-    toast.error("Unable to connect to Google Signup.");
-  }
-};
-
 const BrandSignup = () => {
   const [form, setForm] = useState(initialForm);
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [formError, setFormError] = useState("");
   const router = useRouter();
+
+  const handleGoogleSignup = async () => {
+    setFormError("");
+    try {
+      await startGoogleAuth("brand", "signup");
+    } catch (err: any) {
+      console.error("GOOGLE SIGNUP ERROR:", err.response?.data || err.message);
+      setFormError("Unable to connect to Google. Please try again.");
+    }
+  };
 
   const { mutateAsync, isPending } = useBrandSignup();
   const { data: categories = [], isLoading: isCategoriesLoading } =
@@ -93,6 +95,7 @@ const BrandSignup = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setEmailError(null);
+    setFormError("");
 
     const payload: BrandSignupPayload = {
       brand_name: brandName,
@@ -103,17 +106,13 @@ const BrandSignup = () => {
     };
 
     try {
-      await toast.promise(mutateAsync(payload), {
-        loading: "Creating brand account...",
-        success: () => {
-          router.push(
-            `/verify-email?email=${encodeURIComponent(payload.email)}&role=brand`
-          );
-          return "Brand account created! Check your email for the OTP.";
-        },
-        error: (err: unknown) => getAuthErrorMessage(err, "brand-signup"),
-      });
+      await mutateAsync(payload);
+      router.push(
+        `/verify-email?email=${encodeURIComponent(payload.email)}&role=brand`
+      );
     } catch (err: unknown) {
+      const message = getAuthErrorMessage(err, "brand-signup");
+      setFormError(message);
       const status = (err as { response?: { status?: number } })?.response
         ?.status;
       if (status === 409) {
@@ -253,6 +252,8 @@ const BrandSignup = () => {
           )}
         </div>
 
+        <AuthFormMessage error={formError} />
+
         <button
           type="submit"
           disabled={isPending || !isFormComplete}
@@ -275,7 +276,7 @@ const BrandSignup = () => {
         </p>
         <p className="text-[16px] font-medium text-[#747682]">
           Already have an account?{" "}
-          <Link href="/login" className="ml-1 underline">
+          <Link href="/login?role=brand" className="ml-1 underline">
             Sign in
           </Link>
         </p>

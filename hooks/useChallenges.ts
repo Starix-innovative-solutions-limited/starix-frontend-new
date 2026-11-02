@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { useMemo } from "react";
 import { api } from "@/lib/api";
 import { parseApiError } from "@/lib/apiError";
 import {
@@ -65,6 +66,12 @@ export interface ChallengeItem {
   is_funded?: boolean;
   is_published: boolean;
   is_saved?: boolean;
+  is_joined?: boolean;
+  has_joined?: boolean;
+  has_submitted?: boolean;
+  already_submitted?: boolean;
+  submission_id?: string | null;
+  viewer_submission_id?: string | null;
   media?: ChallengeMedia[];
   submission_eligibility?: "anyone" | "creators" | "circles";
   required_hashtags?: string[] | null;
@@ -105,17 +112,91 @@ export type ChallengeDetailResult = ChallengeItem &
     prize_amounts_display?: string[] | null;
   };
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function normalizeChallengeId(value?: string | null) {
+  if (!value) return "";
+  try {
+    return decodeURIComponent(String(value)).trim();
+  } catch {
+    return String(value).trim();
+  }
+}
+
+function truthyFlag(value: unknown) {
+  return value === true || value === 1 || value === "1" || value === "true";
+}
+
+export function hasJoinedChallengeFlags(
+  challenge?: Pick<
+    ChallengeItem,
+    | "is_joined"
+    | "has_joined"
+    | "has_submitted"
+    | "already_submitted"
+    | "submission_id"
+    | "viewer_submission_id"
+  > | null
+) {
+  if (!challenge) return false;
+  return (
+    truthyFlag(challenge.is_joined) ||
+    truthyFlag(challenge.has_joined) ||
+    truthyFlag(challenge.has_submitted) ||
+    truthyFlag(challenge.already_submitted) ||
+    Boolean(challenge.submission_id) ||
+    Boolean(challenge.viewer_submission_id)
+  );
+}
+
+function rowToChallengeItem(raw: unknown): ChallengeItem | null {
+  const item = asRecord(raw);
+  const id = String(item.id ?? item.challenge_id ?? "").trim();
+  if (!id) return null;
+  const joined = hasJoinedChallengeFlags({
+    is_joined: item.is_joined as boolean | undefined,
+    has_joined: item.has_joined as boolean | undefined,
+    has_submitted: item.has_submitted as boolean | undefined,
+    already_submitted: item.already_submitted as boolean | undefined,
+    submission_id: (item.submission_id as string | null | undefined) ?? null,
+    viewer_submission_id:
+      (item.viewer_submission_id as string | null | undefined) ?? null,
+  });
+  return {
+    ...(item as unknown as ChallengeItem),
+    id,
+    title: String(item.title ?? "Untitled challenge"),
+    brand_name: String(item.brand_name ?? ""),
+    brand_profile_picture_url:
+      (item.brand_profile_picture_url as string | null | undefined) ??
+      (item.brand_logo_url as string | null | undefined) ??
+      null,
+    prize_pool_display: String(
+      item.prize_pool_display ?? item.prize_pool_formatted ?? ""
+    ),
+    is_published: Boolean(item.is_published ?? true),
+    is_joined: joined,
+    status: String(item.status ?? "active"),
+  };
+}
+
 function findChallengeInCache(
   queryClient: ReturnType<typeof useQueryClient>,
   id: string
 ): ChallengeItem | undefined {
-  const cachedLists = queryClient.getQueriesData<{
-    challenges?: ChallengeItem[];
-  }>({ queryKey: ["challenges"] });
+  const cachedLists = queryClient.getQueriesData({ queryKey: ["challenges"] });
 
   for (const [, payload] of cachedLists) {
-    const match = payload?.challenges?.find((c) => c.id === id);
-    if (match) return match;
+    const root = asRecord(payload);
+    const lists = [root.challenges, root.items, root.results];
+    for (const list of lists) {
+      if (!Array.isArray(list)) continue;
+      const match = list
+        .map(rowToChallengeItem)
+        .find((item) => item?.id === id);
+      if (match) return match;
+    }
   }
 
   return undefined;
@@ -124,23 +205,38 @@ function findChallengeInCache(
 async function fetchChallengeFromDiscoverFeeds(
   id: string
 ): Promise<ChallengeItem | null> {
-  const [recommended, trending] = await Promise.all([
-    api.get<ChallengesResponse>("/challenges/recommended", {
+  const [recommended, trending, joined] = await Promise.all([
+    api.get("/challenges/recommended", {
       params: { limit: 100, offset: 0 },
     }),
-    api.get<ChallengesResponse>("/challenges/trending", {
+    api.get("/challenges/trending", {
       params: { limit: 100, offset: 0 },
     }),
+    api.get("/challenges/joined", {
+      params: { limit: 100, offset: 0 },
+    }).catch(() => ({ data: null })),
   ]);
 
-  for (const item of [
-    ...(recommended.data?.challenges ?? []),
-    ...(trending.data?.challenges ?? []),
-  ]) {
-    if (item?.id === id) return item;
-  }
+  const cards = [
+    ...unwrapChallengeList(recommended.data).challenges,
+    ...unwrapChallengeList(trending.data).challenges,
+    ...unwrapChallengeList(joined.data).challenges,
+  ];
 
-  return null;
+  return cards.find((item) => item?.id === id) ?? null;
+}
+
+function unwrapChallengeDetail(payload: unknown): ChallengeDetailResult {
+  const root = asRecord(payload);
+  const nested =
+    typeof root.id === "string"
+      ? root
+      : asRecord(root.data);
+  const normalized = rowToChallengeItem(nested);
+  return {
+    ...(nested as unknown as ChallengeDetailResult),
+    ...(normalized ?? {}),
+  };
 }
 
 function buildPartialChallenge(
@@ -315,6 +411,27 @@ export function useFundChallenge() {
   });
 }
 
+function unwrapChallengeList(payload: unknown): ChallengesResponse {
+  const root =
+    payload && typeof payload === "object"
+      ? (payload as Record<string, unknown>)
+      : {};
+  const nested =
+    root.challenges || root.items
+      ? root
+      : root.data && typeof root.data === "object"
+        ? (root.data as Record<string, unknown>)
+        : root;
+  const challenges = (nested.challenges ??
+    nested.items ??
+    []) as ChallengeItem[];
+  const totalValue = nested.total;
+  const total =
+    typeof totalValue === "number" ? totalValue : challenges.length;
+
+  return { challenges, total };
+}
+
 /**
  * GET /brands/challenges — list the authenticated brand's challenges.
  * Note: summary items omit `media` / `is_funded` — use detail for those.
@@ -327,14 +444,14 @@ export function useGetBrandChallenges(
   return useQuery<ChallengesResponse>({
     queryKey: ["brands", "challenges", params],
     queryFn: async () => {
-      const { data } = await api.get<ChallengesResponse>("/brands/challenges", {
+      const { data } = await api.get("/brands/challenges", {
         params: {
           status: params?.status || undefined,
           limit: params?.limit ?? 50,
           offset: params?.offset ?? 0,
         },
       });
-      return data;
+      return unwrapChallengeList(data);
     },
     enabled: options?.enabled ?? true,
     refetchOnMount: "always",
@@ -406,27 +523,6 @@ export function useBrandChallengeDetails(
  * active challenges surface even when personalisation ranks them low.
  * There is no public GET /challenges collection.
  */
-function unwrapChallengeList(payload: unknown): ChallengesResponse {
-  const root =
-    payload && typeof payload === "object"
-      ? (payload as Record<string, unknown>)
-      : {};
-  const nested =
-    root.challenges || root.items
-      ? root
-      : root.data && typeof root.data === "object"
-        ? (root.data as Record<string, unknown>)
-        : root;
-  const challenges = (nested.challenges ??
-    nested.items ??
-    []) as ChallengeItem[];
-  const totalValue = nested.total;
-  const total =
-    typeof totalValue === "number" ? totalValue : challenges.length;
-
-  return { challenges, total };
-}
-
 export function useGetChallenges(
   params?: GetChallengesParams,
   options?: { enabled?: boolean }
@@ -501,6 +597,134 @@ export interface JoinedChallengesResponse {
   next_url: string | null;
 }
 
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object"
+    ? (value as Record<string, unknown>)
+    : {};
+}
+
+function normalizeJoinedRow(raw: unknown): JoinedChallengeItem | null {
+  const item = asRecord(raw);
+  const challengeId = String(item.challenge_id ?? item.id ?? "").trim();
+  if (!challengeId) return null;
+
+  return {
+    challenge_id: challengeId,
+    title: String(item.title ?? "Untitled challenge"),
+    brand_name: String(item.brand_name ?? ""),
+    brand_logo_url: String(
+      item.brand_logo_url ?? item.brand_profile_picture_url ?? ""
+    ),
+    prize_pool: Number(item.prize_pool) || 0,
+    prize_pool_formatted: String(
+      item.prize_pool_formatted ?? item.prize_pool_display ?? ""
+    ),
+    currency: String(item.currency ?? "NGN"),
+    status: String(item.status ?? "completed"),
+  };
+}
+
+function paginateJoinedItems(
+  items: JoinedChallengeItem[],
+  page: number,
+  page_size: number,
+  totalItems = items.length
+): JoinedChallengesResponse {
+  const total_pages = Math.max(1, Math.ceil(totalItems / page_size) || 1);
+  return {
+    items,
+    page,
+    page_size,
+    total_items: totalItems,
+    total_pages,
+    prev_url: page > 1 ? `?page=${page - 1}&page_size=${page_size}` : null,
+    next_url:
+      page < total_pages ? `?page=${page + 1}&page_size=${page_size}` : null,
+  };
+}
+
+function unwrapJoinedPage(
+  payload: unknown,
+  page: number,
+  page_size: number
+): JoinedChallengesResponse {
+  const root = asRecord(payload);
+  const nested =
+    Array.isArray(root.items) || Array.isArray(root.challenges)
+      ? root
+      : asRecord(root.data);
+
+  const rawItems = (nested.items ??
+    nested.challenges ??
+    nested.results ??
+    []) as unknown[];
+  const items = rawItems
+    .map(normalizeJoinedRow)
+    .filter((row): row is JoinedChallengeItem => Boolean(row));
+
+  const totalItems =
+    typeof nested.total_items === "number"
+      ? nested.total_items
+      : typeof nested.total === "number"
+        ? nested.total
+        : items.length;
+  const totalPages =
+    typeof nested.total_pages === "number"
+      ? nested.total_pages
+      : Math.max(1, Math.ceil(totalItems / page_size) || 1);
+
+  return {
+    items,
+    page: typeof nested.page === "number" ? nested.page : page,
+    page_size:
+      typeof nested.page_size === "number" ? nested.page_size : page_size,
+    total_items: totalItems,
+    total_pages: totalPages,
+    prev_url:
+      typeof nested.prev_url === "string" || nested.prev_url === null
+        ? (nested.prev_url as string | null)
+        : null,
+    next_url:
+      typeof nested.next_url === "string" || nested.next_url === null
+        ? (nested.next_url as string | null)
+        : null,
+  };
+}
+
+function isCompletedChallengeStatus(status?: string) {
+  const value = (status ?? "").toLowerCase();
+  return (
+    value === "completed" ||
+    value === "closed" ||
+    value === "not_qualified" ||
+    value === "ranked" ||
+    value === "winner" ||
+    value === "finalist"
+  );
+}
+
+async function fetchCompletedJoinedFallback(
+  page: number,
+  page_size: number
+): Promise<JoinedChallengesResponse> {
+  const { data } = await api.get("/challenges/joined", {
+    params: { limit: 100, offset: 0 },
+  });
+  const cards = unwrapChallengeList(data).challenges.filter((challenge) =>
+    isCompletedChallengeStatus(challenge.status)
+  );
+  const mapped = cards
+    .map(normalizeJoinedRow)
+    .filter((row): row is JoinedChallengeItem => Boolean(row));
+  const start = (page - 1) * page_size;
+  return paginateJoinedItems(
+    mapped.slice(start, start + page_size),
+    page,
+    page_size,
+    mapped.length
+  );
+}
+
 export function useGetJoinedActiveChallenges(
   page: number = 1,
   page_size: number = 8,
@@ -509,11 +733,11 @@ export function useGetJoinedActiveChallenges(
   return useQuery<JoinedChallengesResponse>({
     queryKey: ["challenges", "joined", "active", page, page_size],
     queryFn: async () => {
-      const response = await api.get<JoinedChallengesResponse>(
+      const response = await api.get(
         "/challenges/joined/active",
         { params: { page, page_size } }
       );
-      return response.data;
+      return unwrapJoinedPage(response.data, page, page_size);
     },
     enabled: options?.enabled ?? true,
   });
@@ -527,11 +751,19 @@ export function useGetJoinedCompletedChallenges(
   return useQuery<JoinedChallengesResponse>({
     queryKey: ["challenges", "joined", "completed", page, page_size],
     queryFn: async () => {
-      const response = await api.get<JoinedChallengesResponse>(
-        "/challenges/joined/completed",
-        { params: { page, page_size } }
-      );
-      return response.data;
+      try {
+        const response = await api.get("/challenges/joined/completed", {
+          params: { page, page_size },
+        });
+        const pageData = unwrapJoinedPage(response.data, page, page_size);
+        if (pageData.items.length > 0 || pageData.total_items > 0) {
+          return pageData;
+        }
+      } catch {
+        // Fall through to GET /challenges/joined and keep completed/closed rows.
+      }
+
+      return fetchCompletedJoinedFallback(page, page_size);
     },
     enabled: options?.enabled ?? true,
   });
@@ -542,6 +774,7 @@ export interface ChallengeLeaderboardEntry {
   user_id?: string | null;
   username?: string | null;
   display_name?: string | null;
+  full_name?: string | null;
   profile_picture_url?: string | null;
   challenge_score?: number | null;
   final_score?: number | null;
@@ -553,14 +786,97 @@ export interface ChallengeLeaderboardEntry {
   total_engagement?: number | null;
   submission_id?: string | null;
   entrant_id?: string | null;
+  entrant_type?: "creator" | "circle" | string;
+  circle_id?: string | null;
   content_url?: string | null;
   selected_platform?: string | null;
   engagement_captured_at?: string | null;
+  refresh_pending?: boolean;
+  cover_image_url?: string | null;
+  links?: Array<{ content_url: string; platform?: string | null }>;
 }
 
-function asLeaderboardEntries(value: unknown): ChallengeLeaderboardEntry[] {
-  if (Array.isArray(value)) return value as ChallengeLeaderboardEntry[];
-  return [];
+function asLeaderboardEntries(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
+}
+
+function optionalNumber(value: unknown): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function normalizeLeaderboardEntry(
+  raw: unknown,
+  index: number
+): ChallengeLeaderboardEntry {
+  const item = asRecord(raw);
+  const platforms = Array.isArray(item.platforms)
+    ? (item.platforms as string[])
+    : item.selected_platform
+      ? [String(item.selected_platform)]
+      : item.platform
+        ? [String(item.platform)]
+        : [];
+  const selectedScore = asRecord(item.selected_score);
+  const snapshot = asRecord(selectedScore.snapshot);
+  const evidence = asRecord(snapshot.evidence);
+  const rawLinks = Array.isArray(item.links) ? item.links : [];
+  const links = rawLinks
+    .map((link) => {
+      const record = asRecord(link);
+      const url = String(record.content_url ?? record.url ?? "").trim();
+      if (!url) return null;
+      return {
+        content_url: url,
+        platform: record.platform ? String(record.platform) : null,
+      };
+    })
+    .filter((link): link is { content_url: string; platform: string | null } =>
+      Boolean(link)
+    );
+
+  return {
+    ...(item as unknown as ChallengeLeaderboardEntry),
+    rank: Number(item.rank) || index + 1,
+    user_id: (item.user_id as string | null) ?? null,
+    username: (item.username as string | null) ?? null,
+    display_name:
+      (item.display_name as string | null) ??
+      (item.full_name as string | null) ??
+      (item.name as string | null) ??
+      (item.username as string | null) ??
+      null,
+    full_name: (item.full_name as string | null) ?? null,
+    profile_picture_url: (item.profile_picture_url as string | null) ?? null,
+    challenge_score: optionalNumber(item.challenge_score),
+    final_score: optionalNumber(item.final_score),
+    status: String(item.status ?? "submitted"),
+    placement: optionalNumber(item.placement),
+    previous_rank: optionalNumber(item.previous_rank),
+    rank_direction: (item.rank_direction as string | null) ?? "new",
+    platforms,
+    total_engagement: optionalNumber(
+      item.total_engagement ?? item.engagement_count ?? item.engagements
+    ),
+    submission_id: (item.submission_id as string | null) ?? null,
+    entrant_id: (item.entrant_id as string | null) ?? null,
+    entrant_type: (item.entrant_type as string | undefined) ?? "creator",
+    circle_id: (item.circle_id as string | null) ?? null,
+    content_url: (item.content_url as string | null) ?? null,
+    selected_platform: (item.selected_platform as string | null) ?? null,
+    refresh_pending: Boolean(item.refresh_pending),
+    engagement_captured_at:
+      (item.engagement_captured_at as string | null) ??
+      (snapshot.captured_at as string | null) ??
+      (evidence.captured_at as string | null) ??
+      null,
+    cover_image_url:
+      (evidence.cover_image_url as string | null) ??
+      (item.cover_image_url as string | null) ??
+      null,
+    links: links.length ? links : undefined,
+  };
 }
 
 export function normalizeBrandLeaderboard(
@@ -579,10 +895,12 @@ export function normalizeBrandLeaderboard(
     nested.entries ??
       nested.items ??
       nested.results ??
+      nested.leaderboard ??
+      nested.participants ??
       root.entries ??
       root.items ??
       (Array.isArray(payload) ? payload : [])
-  );
+  ).map(normalizeLeaderboardEntry);
 
   const total =
     Number(nested.total_entries ?? nested.total ?? root.total_entries ?? root.total) ||
@@ -591,7 +909,10 @@ export function normalizeBrandLeaderboard(
   return {
     ...(nested as unknown as ChallengeLeaderboardResponse),
     challenge_id: String(nested.challenge_id ?? root.challenge_id ?? ""),
-    is_tentative: Boolean(nested.is_tentative ?? root.is_tentative),
+    scoring_state: String(nested.scoring_state ?? root.scoring_state ?? "pending"),
+    is_tentative: Boolean(
+      nested.is_tentative ?? root.is_tentative ?? nested.scoring_state === "pending"
+    ),
     entries,
     total_entries: total,
     total,
@@ -601,6 +922,8 @@ export function normalizeBrandLeaderboard(
 export interface ChallengeLeaderboardResponse {
   challenge_id: string;
   is_tentative: boolean;
+  scoring_state?: string;
+  score_freezes_at?: string | null;
   entries: ChallengeLeaderboardEntry[];
   requester_rank?: number | null;
   total_entries: number;
@@ -612,24 +935,32 @@ export interface ChallengeLeaderboardResponse {
 /** GET /challenges/{challenge_id}/leaderboard — creator accounts only */
 export function useGetChallengeLeaderboard(
   challengeId?: string,
-  options?: { enabled?: boolean }
+  options?: { enabled?: boolean; refetchInterval?: number | false }
 ) {
   return useQuery<ChallengeLeaderboardResponse>({
     queryKey: ["challenges", "leaderboard", challengeId],
     queryFn: async () => {
-      const { data } = await api.get<ChallengeLeaderboardResponse>(
+      const { data } = await api.get(
         `/challenges/${challengeId}/leaderboard`
       );
-      return data;
+      return normalizeBrandLeaderboard(data);
     },
     enabled: (options?.enabled ?? true) && Boolean(challengeId),
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+    refetchInterval: options?.refetchInterval,
   });
 }
 
 /** GET /brands/challenges/{challenge_id}/leaderboard — brand owner only */
 export function useGetBrandChallengeLeaderboard(
   challengeId?: string,
-  options?: { enabled?: boolean; limit?: number; offset?: number }
+  options?: {
+    enabled?: boolean;
+    limit?: number;
+    offset?: number;
+    refetchInterval?: number | false;
+  }
 ) {
   const limit = options?.limit ?? 100;
   const offset = options?.offset ?? 0;
@@ -651,6 +982,9 @@ export function useGetBrandChallengeLeaderboard(
       return normalizeBrandLeaderboard(data);
     },
     enabled: (options?.enabled ?? true) && Boolean(challengeId),
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+    refetchInterval: options?.refetchInterval,
   });
 }
 
@@ -740,6 +1074,103 @@ export function useGetBrandChallengeSubmissions(challengeId?: string | null) {
   };
 }
 
+export type BrandNotification = {
+  id: string;
+  kind: "join" | "ended";
+  title: string;
+  body: string;
+  at: string;
+  href: string;
+  avatarUrl?: string | null;
+};
+
+const ENDED_STATUSES = new Set([
+  "completed",
+  "closed",
+  "ended",
+  "expired",
+  "archived",
+]);
+
+export function useGetBrandNotifications() {
+  const list = useGetBrandChallenges({ limit: 100, offset: 0 });
+  const challenges = list.data?.challenges ?? [];
+
+  const boards = useQueries({
+    queries: challenges.map((challenge) => ({
+      queryKey: ["brands", "challenges", "leaderboard", challenge.id, 100, 0],
+      queryFn: async () => {
+        const { data } = await api.get(
+          `/brands/challenges/${challenge.id}/leaderboard`,
+          { params: { limit: 100, offset: 0 } }
+        );
+        return normalizeBrandLeaderboard(data);
+      },
+      enabled: Boolean(challenge.id),
+      refetchInterval: 30_000,
+    })),
+  });
+
+  const notifications = useMemo(() => {
+    const items: BrandNotification[] = [];
+    const now = Date.now();
+
+    challenges.forEach((challenge, index) => {
+      const status = String(challenge.status ?? "").toLowerCase();
+      const end = challenge.end_date
+        ? new Date(challenge.end_date).getTime()
+        : NaN;
+      const ended =
+        ENDED_STATUSES.has(status) ||
+        (Number.isFinite(end) && end <= now);
+
+      if (ended) {
+        items.push({
+          id: `ended:${challenge.id}`,
+          kind: "ended",
+          title: "Challenge ended",
+          body: `${challenge.title} has come to an end.`,
+          at: challenge.end_date || challenge.updated_at,
+          href: `/brand/challenges/${challenge.id}`,
+        });
+      }
+
+      const entries = boards[index]?.data?.entries ?? [];
+      for (const entry of entries) {
+        const who =
+          entry.display_name ||
+          entry.full_name ||
+          entry.username ||
+          (entry.entrant_type === "circle" ? "A creator circle" : "A creator");
+        items.push({
+          id: `join:${challenge.id}:${entry.submission_id || entry.entrant_id || entry.user_id}`,
+          kind: "join",
+          title:
+            entry.entrant_type === "circle"
+              ? "Creator circle joined"
+              : "Creator joined",
+          body: `${who} joined ${challenge.title}.`,
+          at:
+            entry.engagement_captured_at ||
+            challenge.updated_at ||
+            challenge.created_at,
+          href: `/brand/challenges/${challenge.id}`,
+          avatarUrl: entry.profile_picture_url,
+        });
+      }
+    });
+
+    return items.sort(
+      (a, b) => new Date(b.at).getTime() - new Date(a.at).getTime()
+    ).slice(0, 40);
+  }, [boards, challenges]);
+
+  return {
+    notifications,
+    isLoading: list.isLoading || boards.some((board) => board.isLoading),
+  };
+}
+
 export const useGetRecommendedChallenges = (
   limit: number = 20,
   offset: number = 0
@@ -805,10 +1236,17 @@ export function useSubmitChallengeEntry() {
       );
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (_data, { challengeId }) => {
+      queryClient.setQueryData(
+        ["challenges", "detail", challengeId],
+        (current: ChallengeDetailResult | null | undefined) =>
+          current ? { ...current, is_joined: true, has_submitted: true } : current
+      );
       queryClient.invalidateQueries({ queryKey: ["challenges", "joined"] });
       queryClient.invalidateQueries({ queryKey: ["challenges", "discover"] });
       queryClient.invalidateQueries({ queryKey: ["challenges", "detail"] });
+      queryClient.invalidateQueries({ queryKey: ["circle-challenges"] });
+      queryClient.invalidateQueries({ queryKey: ["circle-profile"] });
     },
   });
 }
@@ -818,28 +1256,34 @@ export type ChallengeSaveResponse = {
   save_count: number;
 };
 
+function unwrapSaveStatus(payload: unknown): ChallengeSaveResponse {
+  const root = asRecord(payload);
+  const nested = asRecord(root.data);
+  const source = typeof root.is_saved === "boolean" ? root : nested;
+  return {
+    is_saved: Boolean(source.is_saved),
+    save_count: Number(source.save_count ?? 0),
+  };
+}
+
+export const useChallengeSaveStatus = (challengeId?: string) => {
+  return useQuery<ChallengeSaveResponse>({
+    queryKey: ["challenges", "save", challengeId],
+    queryFn: async () => {
+      const { data } = await api.get(`/challenges/${challengeId}/save`);
+      return unwrapSaveStatus(data);
+    },
+    enabled: Boolean(challengeId),
+  });
+};
+
 export const useToggleChallengeSave = (challengeId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async () => {
-      const { data } = await api.post<ChallengeSaveResponse>(
-        `/challenges/${challengeId}/save`,
-        undefined,
-        {
-          transformRequest: [
-            (_data, headers) => {
-              const requestHeaders = headers as
-                | { delete?: (name: string) => void }
-                | undefined;
-              requestHeaders?.delete?.("Content-Type");
-              requestHeaders?.delete?.("content-type");
-              return undefined;
-            },
-          ],
-        }
-      );
-      return data;
+      const { data } = await api.post(`/challenges/${challengeId}/save`);
+      return unwrapSaveStatus(data);
     },
     onSuccess: (data) => {
       queryClient.setQueryData<ChallengeDetailResult | null>(
@@ -853,7 +1297,12 @@ export const useToggleChallengeSave = (challengeId: string) => {
               }
             : current
       );
+      queryClient.setQueryData<ChallengeSaveResponse>(
+        ["challenges", "save", challengeId],
+        data
+      );
       queryClient.invalidateQueries({ queryKey: ["challenges", "saved"] });
+      queryClient.invalidateQueries({ queryKey: ["challenges", "discover"] });
     },
   });
 };
@@ -864,13 +1313,14 @@ export const useGetChallengeById = (id: string) => {
   return useQuery<ChallengeDetailResult | null>({
     queryKey: ["challenges", "detail", id],
     queryFn: async () => {
-      if (!id) return null;
+      const challengeId = normalizeChallengeId(id);
+      if (!challengeId) return null;
 
       try {
-        const { data } = await api.get<ChallengeDetailResult>(
-          `/challenges/${id}/detail`
+        const { data } = await api.get(
+          `/challenges/${challengeId}/detail`
         );
-        return data;
+        return unwrapChallengeDetail(data);
       } catch (error: unknown) {
         const parsed = parseApiError(
           error,
@@ -879,20 +1329,20 @@ export const useGetChallengeById = (id: string) => {
 
         if (process.env.NODE_ENV === "development") {
           console.warn("[useGetChallengeById] detail request failed", {
-            id,
+            id: challengeId,
             status: parsed.status,
             message: parsed.message,
           });
         }
 
-        const cached = findChallengeInCache(queryClient, id);
+        const cached = findChallengeInCache(queryClient, challengeId);
         if (cached) {
           return buildPartialChallenge(cached, parsed, "cache");
         }
 
         if (parsed.isServerError || parsed.isNotFound) {
           try {
-            const fromFeed = await fetchChallengeFromDiscoverFeeds(id);
+            const fromFeed = await fetchChallengeFromDiscoverFeeds(challengeId);
             if (fromFeed) {
               return buildPartialChallenge(fromFeed, parsed, "discover_feed");
             }
@@ -1005,7 +1455,24 @@ export const useGetSavedChallenges = (
       const { data } = await api.get("/challenges/saved", {
         params: { page, page_size },
       });
-      return data;
+      const pageData = unwrapJoinedPage(data, page, page_size);
+      return {
+        items: pageData.items.map((item) => ({
+          challenge_id: item.challenge_id,
+          title: item.title,
+          brand_name: item.brand_name,
+          brand_logo_url: item.brand_logo_url,
+          prize_pool: item.prize_pool,
+          prize_pool_formatted: item.prize_pool_formatted,
+          currency: item.currency,
+        })),
+        page: pageData.page,
+        page_size: pageData.page_size,
+        total_items: pageData.total_items,
+        total_pages: pageData.total_pages,
+        prev_url: pageData.prev_url,
+        next_url: pageData.next_url,
+      };
     },
     enabled: options?.enabled ?? true,
   });

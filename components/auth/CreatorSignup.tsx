@@ -7,7 +7,6 @@ import React, { useState, useMemo } from "react";
 import CustomInput from "../CustomInput"; 
 import Loader from "../Loader";
 import { useCreatorSignup } from "@/hooks/useAuth";
-import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc"; 
 import { HiCheckCircle, HiXCircle } from "react-icons/hi2";
@@ -17,6 +16,7 @@ import { startGoogleAuth } from "@/lib/auth";
 import { CreatorSignupPayload } from "@/utils/type";
 import { getAuthErrorMessage } from "@/lib/authErrors";
 import { getLoginHref } from "@/lib/waitlist";
+import AuthFormMessage from "@/components/auth/AuthFormMessage";
 
 const initialForm = {
   first_name: "",
@@ -26,20 +26,22 @@ const initialForm = {
   confirm_password: "",
 };
 
-const handleGoogleSignup = async () => {
-  try {
-    await startGoogleAuth("creator", "signup");
-  } catch (err: any) {
-    console.error("GOOGLE SIGNUP ERROR:", err.response?.data || err.message);
-    toast.error("Unable to connect to Google Signup.");
-  }
-};
-
 const CreatorSignup = () => {
   const router = useRouter();
   const [form, setForm] = useState(initialForm);
+  const [formError, setFormError] = useState("");
 
   const { mutateAsync, isPending } = useCreatorSignup();
+
+  const handleGoogleSignup = async () => {
+    setFormError("");
+    try {
+      await startGoogleAuth("creator", "signup");
+    } catch (err: any) {
+      console.error("GOOGLE SIGNUP ERROR:", err.response?.data || err.message);
+      setFormError("Unable to connect to Google. Please try again.");
+    }
+  };
 
   const passwordRequirements = useMemo(
     () => [
@@ -76,6 +78,7 @@ const CreatorSignup = () => {
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
+    setFormError("");
 
     const payload: CreatorSignupPayload = {
       first_name: firstName,
@@ -84,16 +87,14 @@ const CreatorSignup = () => {
       password: form.password,
     };
 
-    await toast.promise(mutateAsync(payload), {
-      loading: "Creating account...",
-      success: () => {
-        router.push(
-          `/verify-email?email=${encodeURIComponent(payload.email)}&role=creator`
-        );
-        return "Signup successful! Check your email for the OTP.";
-      },
-      error: (err: unknown) => getAuthErrorMessage(err, "creator-signup"),
-    });
+    try {
+      await mutateAsync(payload);
+      router.push(
+        `/verify-email?email=${encodeURIComponent(payload.email)}&role=creator`
+      );
+    } catch (err: unknown) {
+      setFormError(getAuthErrorMessage(err, "creator-signup"));
+    }
   };
 
   return (
@@ -201,6 +202,8 @@ const CreatorSignup = () => {
             </div>
           )}
         </div>
+
+        <AuthFormMessage error={formError} />
 
         {/* Action Button */}
         <button

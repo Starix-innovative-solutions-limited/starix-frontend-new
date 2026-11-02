@@ -5,6 +5,38 @@ type ApiErrorBody = {
   message?: string;
 };
 
+const LOGIN_CREDENTIALS_MESSAGE =
+  "Sorry, your password was incorrect. Please double-check your password.";
+
+function extractApiError(error: unknown): {
+  status?: number;
+  detail?: string | Array<{ msg?: string }>;
+  message?: string;
+} {
+  const err = error as AxiosError<ApiErrorBody | string>;
+  const status = err?.response?.status;
+  const data = err?.response?.data;
+
+  if (typeof data === "string") {
+    return { status, detail: data, message: data };
+  }
+
+  return {
+    status,
+    detail: data?.detail,
+    message: data?.message,
+  };
+}
+
+function isGenericServerError(value?: string) {
+  const text = (value ?? "").toLowerCase();
+  return (
+    text.includes("internal server error") ||
+    text.includes("unexpected error") ||
+    text === "error"
+  );
+}
+
 /**
  * Maps auth API failures to user-facing copy.
  * 409 = email already registered (unique across creator + brand).
@@ -13,9 +45,8 @@ export function getAuthErrorMessage(
   error: unknown,
   context: "brand-signup" | "creator-signup" | "login" | "generic" = "generic"
 ): string {
-  const err = error as AxiosError<ApiErrorBody>;
-  const status = err?.response?.status;
-  const detail = err?.response?.data?.detail;
+  const { status, detail, message } = extractApiError(error);
+  const detailText = typeof detail === "string" ? detail : "";
 
   if (status === 409) {
     if (context === "brand-signup") {
@@ -31,8 +62,26 @@ export function getAuthErrorMessage(
     return "Too many attempts. Please try again later.";
   }
 
+  if (context === "login") {
+    if (detailText.toLowerCase().includes("deactivat")) {
+      return "This account is deactivated.";
+    }
+    if (!status) {
+      return "Couldn't sign in. Check your connection and try again.";
+    }
+    // /auth/login currently 500s on bad credentials instead of 401.
+    if (
+      status === 400 ||
+      status === 401 ||
+      status === 403 ||
+      status === 422 ||
+      status === 500
+    ) {
+      return LOGIN_CREDENTIALS_MESSAGE;
+    }
+  }
+
   if (status === 401 || status === 403) {
-    if (context === "login") return "Incorrect email or password.";
     return "You don’t have permission to continue.";
   }
 
@@ -40,12 +89,11 @@ export function getAuthErrorMessage(
     return detail[0]?.msg || "Please check your inputs and try again.";
   }
 
-  if (typeof detail === "string" && detail.trim()) {
-    return detail;
+  if (detailText.trim() && !isGenericServerError(detailText)) {
+    return detailText;
   }
 
-  const message = err?.response?.data?.message;
-  if (typeof message === "string" && message.trim()) {
+  if (typeof message === "string" && message.trim() && !isGenericServerError(message)) {
     return message;
   }
 
@@ -59,5 +107,11 @@ export function getAuthErrorMessage(
 /** True when the error is an expected client/auth conflict (don’t treat as app crash). */
 export function isExpectedAuthConflict(error: unknown): boolean {
   const status = (error as AxiosError)?.response?.status;
-  return status === 409 || status === 422 || status === 429 || status === 400;
+  return (
+    status === 400 ||
+    status === 401 ||
+    status === 409 ||
+    status === 422 ||
+    status === 429
+  );
 }
