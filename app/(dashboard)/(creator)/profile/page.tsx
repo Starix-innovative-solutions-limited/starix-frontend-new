@@ -677,9 +677,14 @@ const CircleRow = ({
   const visibleMembers = members.slice(0, 3);
   const extraMembers = Math.max(0, members.length - visibleMembers.length);
 
+  const circleHref = `/creator-circles/${circle.circle_id}/circle-profile`;
+
   return (
     <div className="flex items-center justify-between py-4">
-      <div className="flex min-w-0 items-center gap-4">
+      <Link
+        href={circleHref}
+        className="flex min-w-0 flex-1 items-center gap-4 rounded-[12px] pr-4 transition hover:bg-[#F8FAFC]"
+      >
         <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-[14px] bg-[#F5F6F8]">
         {circle.profile_picture_url?.trim() ? (
           <Image
@@ -697,7 +702,7 @@ const CircleRow = ({
         </div>
 
         <div className="min-w-0">
-          <h4 className="truncate text-[17px] font-semibold tracking-[-0.02em] text-[#62636C]">
+          <h4 className="truncate text-[17px] font-semibold tracking-[-0.02em] text-[#1E1F24]">
             {circle.name}
           </h4>
           <p className="mt-0.5 text-[13px] font-medium text-[#747682]">
@@ -706,7 +711,7 @@ const CircleRow = ({
             Ranked {circle.global_rank ? `${circle.global_rank} Globally` : "250k Globally"}
           </p>
         </div>
-      </div>
+      </Link>
 
       <div className="flex shrink-0 items-center gap-4">
         <div className="hidden items-center -space-x-2 sm:flex">
