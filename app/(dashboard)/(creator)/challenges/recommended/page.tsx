@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import Loader from "@/components/Loader";
 import { FiSearch, FiSliders, FiBarChart2, FiMail, FiClock, FiBookmark, FiShare2 } from "react-icons/fi";
 import { MdVerified } from "react-icons/md";
 import { HiArrowRight, HiArrowLeft } from "react-icons/hi2";
@@ -350,4 +351,16 @@ const Recommended = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean 
   );
 };
 
-export default Recommended;
+export default function RecommendedPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[40vh] items-center justify-center">
+          <Loader />
+        </div>
+      }
+    >
+      <Recommended />
+    </Suspense>
+  );
+}

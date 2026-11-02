@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
+import Loader from "@/components/Loader";
 import { FiSearch, FiSliders, FiBarChart2, FiMail, FiClock, FiBookmark, FiShare2 } from "react-icons/fi";
 import { MdVerified } from "react-icons/md";
 import { HiArrowRight, HiArrowLeft } from "react-icons/hi2";
@@ -350,4 +351,16 @@ const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: b
   );
 };
 
-export default TrendingChallenges;
+export default function TrendingChallengesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[40vh] items-center justify-center">
+          <Loader />
+        </div>
+      }
+    >
+      <TrendingChallenges />
+    </Suspense>
+  );
+}

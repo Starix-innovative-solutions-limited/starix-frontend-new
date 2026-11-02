@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { Suspense, useMemo, useState } from "react";
+import Loader from "@/components/Loader";
 import Image from "next/image";
 import { HiArrowLeft } from "react-icons/hi2";
 import { MdVerified } from "react-icons/md";
@@ -30,7 +31,6 @@ import {
   getChallengeEndDate,
   getChallengeViewCount,
 } from "@/lib/challengeStats";
-import Loader from "@/components/Loader";
 
 function formatTimeAgo(dateString?: string) {
   if (!dateString) return "Just now";
@@ -615,4 +615,16 @@ const ChallengeDetailPage = () => {
   );
 };
 
-export default ChallengeDetailPage;
+export default function ChallengeDetailRoute() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[40vh] items-center justify-center">
+          <Loader />
+        </div>
+      }
+    >
+      <ChallengeDetailPage />
+    </Suspense>
+  );
+}
