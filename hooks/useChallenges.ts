@@ -81,7 +81,13 @@ export interface ChallengeItem {
   brief_document_url?: string | null;
   prize_amounts?: Array<number | string> | null;
   prize_amounts_display?: string[] | null;
+  category?: string | null;
+  categories?: Array<string | { id?: string; name?: string }> | null;
+  category_names?: string[] | null;
+  objective?: string | null;
+  objectives?: string[] | null;
   campaign_objective?: string | null;
+  campaign_objectives?: string[] | null;
   created_at: string;
   updated_at: string;
 }
@@ -257,6 +263,7 @@ export type CreateChallengePayload = {
   title: string;
   description: string;
   category: string;
+  categories?: string[];
   prize_pool: number | string;
   prize_amounts: Array<number | string>;
   start_date: string;
@@ -274,6 +281,7 @@ export type CreateChallengePayload = {
     original_filename?: string | null;
   }>;
   objective?: string;
+  objectives?: string[];
 };
 
 export type FundChallengeResponse = {
@@ -988,6 +996,101 @@ export function useGetBrandChallengeLeaderboard(
   });
 }
 
+export type BrandEngagementTrendPoint = {
+  label: string;
+  value: number;
+};
+
+function challengeEngagementTotal(challenge: ChallengeItem) {
+  const recorded = Number(challenge.total_engagement);
+  if (Number.isFinite(recorded) && recorded > 0) return recorded;
+  const views = Number(challenge.viewer_count) || 0;
+  const shares = Number(challenge.share_count) || 0;
+  const saves = Number(challenge.save_count) || 0;
+  const derived = views + shares + saves;
+  if (derived > 0) return derived;
+  return Number(challenge.participant_count) || 0;
+}
+
+/** Live monthly engagement from brand leaderboards (polls every 10s). */
+export function useBrandEngagementOverTime(challenges: ChallengeItem[]) {
+  const tracked = useMemo(
+    () => challenges.slice(0, 25),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [challenges.map((challenge) => challenge.id).join("|")]
+  );
+
+  const boards = useQueries({
+    queries: tracked.map((challenge) => ({
+      queryKey: [
+        "brands",
+        "challenges",
+        "leaderboard",
+        challenge.id,
+        100,
+        0,
+      ],
+      queryFn: async () => {
+        const { data } = await api.get(
+          `/brands/challenges/${challenge.id}/leaderboard`,
+          { params: { limit: 100, offset: 0 } }
+        );
+        return normalizeBrandLeaderboard(data);
+      },
+      enabled: Boolean(challenge.id),
+      refetchInterval: 10_000,
+      refetchOnWindowFocus: true,
+    })),
+  });
+
+  const points = useMemo<BrandEngagementTrendPoint[]>(() => {
+    const now = new Date();
+    const buckets = Array.from({ length: 7 }, (_, index) => {
+      const month = new Date(now.getFullYear(), now.getMonth() - (6 - index), 1);
+      return {
+        label: month.toLocaleString("en-US", { month: "short" }),
+        end: new Date(month.getFullYear(), month.getMonth() + 1, 0, 23, 59, 59, 999),
+        value: 0,
+      };
+    });
+
+    const add = (at: string | undefined | null, value: number) => {
+      if (!Number.isFinite(value) || value <= 0) return;
+      const time = at ? new Date(at).getTime() : Date.now();
+      const captured = Number.isFinite(time) ? time : Date.now();
+      for (const bucket of buckets) {
+        if (captured <= bucket.end.getTime()) bucket.value += value;
+      }
+    };
+
+    tracked.forEach((challenge, index) => {
+      const entries = boards[index]?.data?.entries ?? [];
+      if (entries.length > 0) {
+        for (const entry of entries) {
+          add(
+            entry.engagement_captured_at ??
+              challenge.updated_at ??
+              challenge.created_at,
+            Number(entry.total_engagement) || 0
+          );
+        }
+        return;
+      }
+      add(
+        challenge.updated_at ?? challenge.created_at,
+        challengeEngagementTotal(challenge)
+      );
+    });
+
+    return buckets.map(({ label, value }) => ({ label, value }));
+  }, [boards, tracked]);
+
+  return {
+    points,
+    isLoading: boards.some((board) => board.isLoading && !board.data),
+  };
+}
+
 export type BrandSubmissionRow = ChallengeLeaderboardEntry & {
   challenge_id: string;
   challenge_title: string;
@@ -1071,103 +1174,6 @@ export function useGetBrandChallengeSubmissions(challengeId?: string | null) {
       boards.some((query) => query.isError),
     pendingCount,
     totalSubmitted,
-  };
-}
-
-export type BrandNotification = {
-  id: string;
-  kind: "join" | "ended";
-  title: string;
-  body: string;
-  at: string;
-  href: string;
-  avatarUrl?: string | null;
-};
-
-const ENDED_STATUSES = new Set([
-  "completed",
-  "closed",
-  "ended",
-  "expired",
-  "archived",
-]);
-
-export function useGetBrandNotifications() {
-  const list = useGetBrandChallenges({ limit: 100, offset: 0 });
-  const challenges = list.data?.challenges ?? [];
-
-  const boards = useQueries({
-    queries: challenges.map((challenge) => ({
-      queryKey: ["brands", "challenges", "leaderboard", challenge.id, 100, 0],
-      queryFn: async () => {
-        const { data } = await api.get(
-          `/brands/challenges/${challenge.id}/leaderboard`,
-          { params: { limit: 100, offset: 0 } }
-        );
-        return normalizeBrandLeaderboard(data);
-      },
-      enabled: Boolean(challenge.id),
-      refetchInterval: 30_000,
-    })),
-  });
-
-  const notifications = useMemo(() => {
-    const items: BrandNotification[] = [];
-    const now = Date.now();
-
-    challenges.forEach((challenge, index) => {
-      const status = String(challenge.status ?? "").toLowerCase();
-      const end = challenge.end_date
-        ? new Date(challenge.end_date).getTime()
-        : NaN;
-      const ended =
-        ENDED_STATUSES.has(status) ||
-        (Number.isFinite(end) && end <= now);
-
-      if (ended) {
-        items.push({
-          id: `ended:${challenge.id}`,
-          kind: "ended",
-          title: "Challenge ended",
-          body: `${challenge.title} has come to an end.`,
-          at: challenge.end_date || challenge.updated_at,
-          href: `/brand/challenges/${challenge.id}`,
-        });
-      }
-
-      const entries = boards[index]?.data?.entries ?? [];
-      for (const entry of entries) {
-        const who =
-          entry.display_name ||
-          entry.full_name ||
-          entry.username ||
-          (entry.entrant_type === "circle" ? "A creator circle" : "A creator");
-        items.push({
-          id: `join:${challenge.id}:${entry.submission_id || entry.entrant_id || entry.user_id}`,
-          kind: "join",
-          title:
-            entry.entrant_type === "circle"
-              ? "Creator circle joined"
-              : "Creator joined",
-          body: `${who} joined ${challenge.title}.`,
-          at:
-            entry.engagement_captured_at ||
-            challenge.updated_at ||
-            challenge.created_at,
-          href: `/brand/challenges/${challenge.id}`,
-          avatarUrl: entry.profile_picture_url,
-        });
-      }
-    });
-
-    return items.sort(
-      (a, b) => new Date(b.at).getTime() - new Date(a.at).getTime()
-    ).slice(0, 40);
-  }, [boards, challenges]);
-
-  return {
-    notifications,
-    isLoading: list.isLoading || boards.some((board) => board.isLoading),
   };
 }
 

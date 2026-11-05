@@ -15,7 +15,11 @@ import {
 import { FiChevronDown } from "react-icons/fi";
 import Loader from "@/components/Loader";
 import { useGetBrandOverview } from "@/hooks/useProfile";
-import { type ChallengeItem, useGetBrandChallenges } from "@/hooks/useChallenges";
+import {
+  type ChallengeItem,
+  useBrandEngagementOverTime,
+  useGetBrandChallenges,
+} from "@/hooks/useChallenges";
 import { useGetMe } from "@/hooks/useAuth";
 import { useAuthStore } from "@/store/useAuthStore";
 
@@ -50,8 +54,6 @@ const METRIC_CONFIG: Record<
     cursorColor: "rgba(197, 184, 255, 0.2)",
   },
 };
-
-const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"] as const;
 
 function formatCompactCount(value: number) {
   if (!Number.isFinite(value)) return "0";
@@ -260,28 +262,14 @@ export default function Page() {
       }));
   }, [visibleChallenges, performanceMetric]);
 
-  const engagementTrend = useMemo(() => {
-    const year = new Date().getFullYear();
-    const points = MONTH_LABELS.map((label, index) => {
-      const monthEnd = new Date(year, index + 1, 0, 23, 59, 59, 999);
-
-      const value = visibleChallenges
-        .filter((challenge) => {
-          const created = new Date(challenge.created_at);
-          return (
-            Number.isFinite(created.getTime()) && created <= monthEnd
-          );
-        })
-        .reduce((sum, challenge) => sum + challengeEngagement(challenge), 0);
-
-      return { label, value };
-    });
-
-    return points;
-  }, [visibleChallenges]);
+  const { points: engagementTrend } = useBrandEngagementOverTime(
+    visibleChallenges
+  );
 
   const latestEngagement =
-    engagementTrend[engagementTrend.length - 1]?.value ?? totals.totalEngagement;
+    totals.totalEngagement ||
+    engagementTrend[engagementTrend.length - 1]?.value ||
+    0;
 
   const activeMetric = METRIC_CONFIG[performanceMetric];
   const isLoading = overviewLoading || challengesLoading;

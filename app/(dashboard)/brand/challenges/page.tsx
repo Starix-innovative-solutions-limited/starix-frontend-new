@@ -4,8 +4,11 @@ import { useEffect, useMemo, useState } from "react";
 import { FiSearch } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-hot-toast";
 import { useModal } from "@/hooks/useModal";
+import {
+  useDashboardNotice,
+  useDashboardNoticeStore,
+} from "@/store/useDashboardNoticeStore";
 import CreateChallenge, {
   LOCAL_DRAFT_KEY,
 } from "@/components/(brand)/challenge/CreateChallenge";
@@ -168,6 +171,7 @@ function mapChallengeToCard(
 
 export default function Page() {
   const { open } = useModal();
+  const notice = useDashboardNotice();
   const queryClient = useQueryClient();
   const { profile: storeProfile, userType } = useAuthStore();
   const { data: me, isLoading: meLoading } = useGetMe();
@@ -232,7 +236,9 @@ export default function Page() {
       );
     } else {
       setActiveTab("drafts");
-      toast.error("Payment was not completed. Challenge remains a draft.");
+      useDashboardNoticeStore
+        .getState()
+        .show("error", "Payment was not completed. Challenge remains a draft.");
     }
 
     queryClient.invalidateQueries({ queryKey: ["brands", "challenges"] });
@@ -409,7 +415,7 @@ export default function Page() {
   const handleOpenDraft = (challengeId: string) => {
     const draft = detailsById[challengeId];
     if (!draft) {
-      toast.error("This draft is still loading. Please try again.");
+      notice.error("This draft is still loading. Please try again.");
       return;
     }
 

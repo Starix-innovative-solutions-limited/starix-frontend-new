@@ -3,13 +3,59 @@
 import Link from "next/link";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useGetMe } from "@/hooks/useAuth";
-import { useGetBrandChallenges } from "@/hooks/useChallenges";
+import {
+  type ChallengeItem,
+  useGetBrandChallenges,
+} from "@/hooks/useChallenges";
 import BrandAvatar from "@/components/(brand)/BrandAvatar";
 import EditBrandProfileModal from "@/components/(brand)/profile/EditBrandProfileModal";
 import { useModal } from "@/hooks/useModal";
-import { useGetBrandProfile } from "@/hooks/useProfile";
+import { useGetBrandOverview, useGetBrandProfile } from "@/hooks/useProfile";
 
-const activeStatuses = new Set(["active", "published", "publishing", "judging"]);
+const COMPLETED_STATUSES = new Set([
+  "completed",
+  "closed",
+  "ended",
+  "expired",
+  "archived",
+  "complete",
+  "cancelled",
+  "canceled",
+]);
+
+function isPastEndDate(endDate?: string | null) {
+  if (!endDate) return false;
+  const end = new Date(endDate).getTime();
+  return !Number.isNaN(end) && end <= Date.now();
+}
+
+function isActiveChallenge(challenge: ChallengeItem) {
+  const status = String(challenge.status ?? "").toLowerCase().trim();
+  if (status === "draft") return false;
+  if (COMPLETED_STATUSES.has(status) || isPastEndDate(challenge.end_date)) {
+    return false;
+  }
+  if (
+    status === "active" ||
+    status === "published" ||
+    status === "publishing" ||
+    status === "judging"
+  ) {
+    return true;
+  }
+  return Boolean(challenge.is_published || challenge.is_funded);
+}
+
+function challengeEngagement(challenge: ChallengeItem) {
+  const recorded = Number(challenge.total_engagement);
+  if (Number.isFinite(recorded) && recorded > 0) return recorded;
+  const views = Number(challenge.viewer_count) || 0;
+  const shares = Number(challenge.share_count) || 0;
+  const saves = Number(challenge.save_count) || 0;
+  const derived = views + shares + saves;
+  if (derived > 0) return derived;
+  return Number(challenge.participant_count) || 0;
+}
 
 function formatMetric(value?: number | null) {
   if (value === undefined || value === null) return "—";
@@ -43,6 +89,7 @@ export default function Page() {
   const { profile: storedProfile } = useAuthStore();
   const { data: me } = useGetMe();
   const { data: editableProfile } = useGetBrandProfile();
+  const { data: overview } = useGetBrandOverview();
   const { data: challengeData } = useGetBrandChallenges({
     limit: 100,
     offset: 0,
@@ -70,11 +117,14 @@ export default function Page() {
   const brandName =
     editableProfile?.brand_name || profile?.brand_name || "Brand";
   const challenges = challengeData?.challenges ?? [];
-  const activeChallenges = challenges.filter((challenge) =>
-    activeStatuses.has((challenge.status ?? "").toLowerCase())
-  );
-  const totalChallenges = challengeData?.total ?? challenges.length;
-  const totalEngagement = profile?.lifetime_engagements;
+  const activeChallenges = challenges.filter(isActiveChallenge);
+  const totalChallenges =
+    overview?.total_published_challenges ??
+    challengeData?.total ??
+    challenges.length;
+  const totalEngagement =
+    overview?.total_engagement ??
+    challenges.reduce((sum, challenge) => sum + challengeEngagement(challenge), 0);
   const rank = profile?.global_rank ?? profile?.brand_rank ?? profile?.rank;
   const tags = Array.from(
     new Set(

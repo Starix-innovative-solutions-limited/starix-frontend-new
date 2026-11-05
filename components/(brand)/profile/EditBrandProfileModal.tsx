@@ -8,8 +8,8 @@ import {
   type DragEvent,
 } from "react";
 import { FiImage, FiRefreshCw, FiTrash2, FiX } from "react-icons/fi";
-import { toast } from "react-hot-toast";
 import BrandAvatar from "@/components/(brand)/BrandAvatar";
+import { useDashboardNotice } from "@/store/useDashboardNoticeStore";
 import { useModal } from "@/hooks/useModal";
 import {
   uploadUserMedia,
@@ -52,6 +52,7 @@ export default function EditBrandProfileModal({
   bannerUrl,
 }: EditBrandProfileModalProps) {
   const { close } = useModal();
+  const notice = useDashboardNotice();
   const updateProfile = useUpdateBrandProfile();
   const { data: categories = [], isLoading: categoriesLoading } =
     useGetCategories();
@@ -83,11 +84,11 @@ export default function EditBrandProfileModal({
 
   const validateFile = (file: File) => {
     if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-      toast.error("Upload a PNG or JPEG image");
+      notice.error("Upload a PNG or JPEG image");
       return false;
     }
     if (file.size > MAX_IMAGE_BYTES) {
-      toast.error("Image must be 20MB or smaller");
+      notice.error("Image must be 20MB or smaller");
       return false;
     }
     return true;
@@ -140,15 +141,15 @@ export default function EditBrandProfileModal({
     const nextWebsite = websiteValue.trim();
     const nextBio = bioValue.trim();
     if (!industryValue) {
-      toast.error("Select your brand industry");
+      notice.error("Select your brand industry");
       return;
     }
     if (!nextWebsite || !/^https?:\/\/\S+$/i.test(nextWebsite)) {
-      toast.error("Enter a valid website URL starting with http:// or https://");
+      notice.error("Enter a valid website URL starting with http:// or https://");
       return;
     }
     if (!nextBio) {
-      toast.error("Enter a brand description");
+      notice.error("Enter a brand description");
       return;
     }
 
@@ -179,10 +180,10 @@ export default function EditBrandProfileModal({
         niches: [industryValue],
       };
       await updateProfile.mutateAsync(payload);
-      toast.success("Profile updated");
+      notice.success("Profile updated");
       close();
     } catch (error) {
-      toast.error(errorMessage(error));
+      notice.error(errorMessage(error));
     }
   };
 

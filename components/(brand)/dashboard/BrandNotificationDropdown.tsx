@@ -1,30 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { FiBell } from "react-icons/fi";
 import {
-  useGetBrandNotifications,
-  type BrandNotification,
-} from "@/hooks/useChallenges";
+  notificationHref,
+  notificationKind,
+  useGetNotifications,
+  useMarkAllNotificationsRead,
+  useMarkNotificationRead,
+  type AccountNotification,
+} from "@/hooks/useNotifications";
 import BrandAvatar from "@/components/(brand)/BrandAvatar";
-
-const SEEN_KEY = "starix-brand-notifications-seen";
-
-function readSeenIds(): Set<string> {
-  if (typeof window === "undefined") return new Set();
-  try {
-    const raw = window.localStorage.getItem(SEEN_KEY);
-    const parsed = raw ? (JSON.parse(raw) as string[]) : [];
-    return new Set(Array.isArray(parsed) ? parsed : []);
-  } catch {
-    return new Set();
-  }
-}
-
-function writeSeenIds(ids: Set<string>) {
-  window.localStorage.setItem(SEEN_KEY, JSON.stringify(Array.from(ids)));
-}
 
 function relativeTime(iso: string) {
   const then = new Date(iso).getTime();
@@ -40,21 +27,34 @@ function relativeTime(iso: string) {
   return new Date(iso).toLocaleDateString();
 }
 
+function avatarFromData(item: AccountNotification) {
+  const data = item.data ?? {};
+  const keys = [
+    "profile_picture_url",
+    "avatar_url",
+    "image_url",
+    "creator_profile_picture_url",
+  ];
+  for (const key of keys) {
+    const value = data[key];
+    if (typeof value === "string" && value.trim()) return value;
+  }
+  return null;
+}
+
 export default function BrandNotificationDropdown({
   compact = false,
 }: {
   compact?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [seenIds, setSeenIds] = useState<Set<string>>(new Set());
-  const [hasMounted, setHasMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { notifications, isLoading } = useGetBrandNotifications();
+  const { data, isLoading } = useGetNotifications(1, 20);
+  const markOne = useMarkNotificationRead();
+  const markAll = useMarkAllNotificationsRead();
 
-  useEffect(() => {
-    setHasMounted(true);
-    setSeenIds(readSeenIds());
-  }, []);
+  const notifications = data?.items ?? [];
+  const unreadCount = data?.unread_count ?? 0;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -69,34 +69,18 @@ export default function BrandNotificationDropdown({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const unseenCount = useMemo(() => {
-    if (!hasMounted) return 0;
-    return notifications.filter((item) => !seenIds.has(item.id)).length;
-  }, [hasMounted, notifications, seenIds]);
-
-  const markSeen = (ids: string[]) => {
-    setSeenIds((prev) => {
-      const next = new Set(prev);
-      ids.forEach((id) => next.add(id));
-      writeSeenIds(next);
-      return next;
-    });
-  };
-
   return (
     <div className="relative shrink-0" ref={dropdownRef}>
       <button
         type="button"
         onClick={() => setIsOpen((open) => !open)}
         aria-label="Notifications"
-        className={`relative rounded-full bg-[#F9F9FB] p-3 transition-colors hover:bg-gray-50 ${
-          compact ? "" : ""
-        }`}
+        className="relative rounded-full bg-[#F9F9FB] p-3 transition-colors hover:bg-gray-50"
       >
         <FiBell size={compact ? 20 : 22} className="text-[#111827]" />
-        {unseenCount > 0 ? (
+        {unreadCount > 0 ? (
           <span className="absolute top-2 right-2 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#0033FF] px-1 text-[9px] font-semibold text-white">
-            {unseenCount > 9 ? "9+" : unseenCount}
+            {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         ) : null}
       </button>
@@ -105,11 +89,12 @@ export default function BrandNotificationDropdown({
         <div className="absolute right-0 z-50 mt-2 w-[360px] overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl">
           <div className="flex items-center justify-between border-b border-gray-50 p-4">
             <p className="text-sm font-semibold text-[#1E1F24]">Notifications</p>
-            {notifications.length > 0 ? (
+            {unreadCount > 0 ? (
               <button
                 type="button"
-                onClick={() => markSeen(notifications.map((item) => item.id))}
-                className="text-[11px] font-medium text-[#0033FF]"
+                onClick={() => markAll.mutate()}
+                disabled={markAll.isPending}
+                className="text-[11px] font-medium text-[#0033FF] disabled:opacity-50"
               >
                 Mark all read
               </button>
@@ -129,8 +114,9 @@ export default function BrandNotificationDropdown({
                 <NotificationRow
                   key={item.id}
                   item={item}
-                  unseen={hasMounted && !seenIds.has(item.id)}
-                  onSeen={() => markSeen([item.id])}
+                  onSeen={() => {
+                    if (!item.read_at) markOne.mutate(item.id);
+                  }}
                 />
               ))
             )}
@@ -143,39 +129,45 @@ export default function BrandNotificationDropdown({
 
 function NotificationRow({
   item,
-  unseen,
   onSeen,
 }: {
-  item: BrandNotification;
-  unseen: boolean;
+  item: AccountNotification;
   onSeen: () => void;
 }) {
+  const unread = !item.read_at;
+  const kind = notificationKind(item);
+  const href = notificationHref(item);
+
   return (
     <Link
-      href={item.href}
+      href={href}
       onClick={onSeen}
       className={`flex gap-3 border-b border-[#F5F6F8] px-4 py-3 last:border-b-0 hover:bg-[#F9FAFB] ${
-        unseen ? "bg-[#F5F8FF]" : "bg-white"
+        unread ? "bg-[#F5F8FF]" : "bg-white"
       }`}
     >
-      {item.kind === "join" ? (
+      {kind === "join" ? (
         <BrandAvatar
-          name={item.body}
-          src={item.avatarUrl}
+          name={item.message || item.title}
+          src={avatarFromData(item)}
           className="mt-0.5 h-9 w-9"
           letterClassName="text-[10px]"
         />
       ) : (
         <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-full bg-[#EEF4FF] text-[11px] font-semibold text-[#0033FF]">
-          End
+          {kind === "social" ? "So" : "In"}
         </div>
       )}
       <div className="min-w-0 flex-1">
         <p className="text-[13px] font-semibold text-[#1E1F24]">{item.title}</p>
-        <p className="mt-0.5 text-[12px] leading-snug text-[#62636C]">
-          {item.body}
+        {item.message ? (
+          <p className="mt-0.5 text-[12px] leading-snug text-[#62636C]">
+            {item.message}
+          </p>
+        ) : null}
+        <p className="mt-1 text-[11px] text-[#98A2B3]">
+          {relativeTime(item.created_at)}
         </p>
-        <p className="mt-1 text-[11px] text-[#98A2B3]">{relativeTime(item.at)}</p>
       </div>
     </Link>
   );

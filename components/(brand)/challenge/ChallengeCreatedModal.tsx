@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { FiX } from "react-icons/fi";
-import { toast } from "react-hot-toast";
 import { useModal } from "@/hooks/useModal";
+import { useDashboardNotice } from "@/store/useDashboardNoticeStore";
 
 type ChallengeCreatedModalProps = {
   challengeId?: string;
@@ -15,6 +15,7 @@ export default function ChallengeCreatedModal({
   shareUrl,
 }: ChallengeCreatedModalProps) {
   const { close } = useModal();
+  const notice = useDashboardNotice();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -49,9 +50,9 @@ export default function ChallengeCreatedModal({
 
     try {
       await navigator.clipboard.writeText(url);
-      toast.success("Challenge link copied");
+      notice.success("Challenge link copied");
     } catch {
-      toast.error("Couldn’t copy link");
+      notice.error("Couldn’t copy link");
     }
   };
 

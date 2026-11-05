@@ -139,11 +139,25 @@ export default function BrandProfileRightSidebar({
     platforms?: string[];
   };
   const entries = (leaderboard?.entries ?? []).slice(0, 3);
-  const savedObjective = data.campaign_objective ?? data.objective;
+  const savedObjectives = Array.from(
+    new Set(
+      [
+        ...(data.objectives ?? []),
+        ...(data.campaign_objectives ?? []),
+        data.campaign_objective,
+        data.objective,
+      ].filter((value): value is string => Boolean(value?.trim()))
+    )
+  );
   const objective =
-    objectiveLabels[savedObjective ?? ""] ||
-    savedObjective?.replaceAll("_", " ") ||
-    "—";
+    savedObjectives.length > 0
+      ? savedObjectives
+          .map(
+            (value) =>
+              objectiveLabels[value] || value.replaceAll("_", " ")
+          )
+          .join(" · ")
+      : "—";
   const hashtags = formatHashtags(data.hashtags, data.required_hashtags);
   const challengeHref = challenge.id
     ? `/brand/challenges/${encodeURIComponent(challenge.id)}`

@@ -14,6 +14,13 @@ import {
   useRejectJoinRequest,
 } from "@/hooks/useCircles";
 import { useGetMe } from "@/hooks/useAuth";
+import {
+  notificationHref,
+  useGetNotifications,
+  useMarkAllNotificationsRead,
+  useMarkNotificationRead,
+  type AccountNotification,
+} from "@/hooks/useNotifications";
 
 const SEEN_KEY = "starix-circle-notifications-seen";
 
@@ -54,6 +61,10 @@ const NotificationDropdown = () => {
   const notice = useDashboardNotice();
   const { data: user } = useGetMe();
   const { data: notifications = [], isLoading } = useGetCircleNotifications(user?.id);
+  const { data: accountNotifications, isLoading: isAccountLoading } =
+    useGetNotifications(1, 20);
+  const markAccountRead = useMarkNotificationRead();
+  const markAllAccountRead = useMarkAllNotificationsRead();
   const acceptMutation = useAcceptInvitation();
   const declineMutation = useDeclineInvitation();
   const approveMutation = useApproveJoinRequest();
@@ -74,10 +85,15 @@ const NotificationDropdown = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const accountItems = accountNotifications?.items ?? [];
+
   const unseenCount = useMemo(() => {
     if (!hasMounted) return 0;
-    return notifications.filter((item) => item.sticky || !seenIds.has(item.id)).length;
-  }, [hasMounted, notifications, seenIds]);
+    const circleUnseen = notifications.filter(
+      (item) => item.sticky || !seenIds.has(item.id)
+    ).length;
+    return circleUnseen + (accountNotifications?.unread_count ?? 0);
+  }, [accountNotifications?.unread_count, hasMounted, notifications, seenIds]);
 
   const markSeen = (ids: string[]) => {
     setSeenIds((prev) => {
@@ -90,6 +106,9 @@ const NotificationDropdown = () => {
 
   const handleMarkAllRead = () => {
     markSeen(notifications.map((item) => item.id));
+    if ((accountNotifications?.unread_count ?? 0) > 0) {
+      markAllAccountRead.mutate();
+    }
   };
 
   const handleAccept = async (invitationId: string) => {
@@ -154,7 +173,7 @@ const NotificationDropdown = () => {
         <div className="absolute right-0 mt-2 w-[360px] bg-white border border-gray-100 rounded-2xl shadow-xl z-50 overflow-hidden">
           <div className="p-4 border-b border-gray-50 flex items-center justify-between">
             <p className="font-semibold text-sm">Notifications</p>
-            {notifications.length > 0 && (
+            {(notifications.length > 0 || accountItems.length > 0) && (
               <button
                 type="button"
                 onClick={handleMarkAllRead}
@@ -165,24 +184,35 @@ const NotificationDropdown = () => {
             )}
           </div>
           <div className="max-h-[420px] overflow-y-auto">
-            {isLoading ? (
+            {isLoading || isAccountLoading ? (
               <div className="p-6 text-center text-xs text-gray-400">Loading notifications...</div>
-            ) : notifications.length === 0 ? (
+            ) : notifications.length === 0 && accountItems.length === 0 ? (
               <div className="p-6 text-center text-xs text-gray-400">No new notifications</div>
             ) : (
-              notifications.map((item) => (
-                <NotificationRow
-                  key={item.id}
-                  item={item}
-                  unseen={hasMounted && (item.sticky || !seenIds.has(item.id))}
-                  busy={isBusy}
-                  onSeen={() => markSeen([item.id])}
-                  onAccept={handleAccept}
-                  onDecline={handleDecline}
-                  onApprove={handleApprove}
-                  onReject={handleReject}
-                />
-              ))
+              <>
+                {accountItems.map((item) => (
+                  <AccountNotificationRow
+                    key={item.id}
+                    item={item}
+                    onSeen={() => {
+                      if (!item.read_at) markAccountRead.mutate(item.id);
+                    }}
+                  />
+                ))}
+                {notifications.map((item) => (
+                  <NotificationRow
+                    key={item.id}
+                    item={item}
+                    unseen={hasMounted && (item.sticky || !seenIds.has(item.id))}
+                    busy={isBusy}
+                    onSeen={() => markSeen([item.id])}
+                    onAccept={handleAccept}
+                    onDecline={handleDecline}
+                    onApprove={handleApprove}
+                    onReject={handleReject}
+                  />
+                ))}
+              </>
             )}
           </div>
         </div>
@@ -190,6 +220,40 @@ const NotificationDropdown = () => {
     </div>
   );
 };
+
+function AccountNotificationRow({
+  item,
+  onSeen,
+}: {
+  item: AccountNotification;
+  onSeen: () => void;
+}) {
+  const unread = !item.read_at;
+  return (
+    <Link
+      href={notificationHref(item)}
+      onClick={onSeen}
+      className={`block border-b border-gray-50 p-4 hover:bg-gray-50 ${
+        unread ? "bg-[#F5F8FF]" : ""
+      }`}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-xs font-semibold text-[#111827]">{item.title}</p>
+        {unread ? (
+          <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[#0033FF]" />
+        ) : null}
+      </div>
+      {item.message ? (
+        <p className="mt-0.5 text-[11px] leading-snug text-[#62636C]">
+          {item.message}
+        </p>
+      ) : null}
+      <p className="mt-1 text-[10px] text-gray-400">
+        {relativeTime(item.created_at)}
+      </p>
+    </Link>
+  );
+}
 
 function NotificationRow({
   item,

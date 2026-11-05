@@ -11,7 +11,9 @@ import {
 
 type ChallengeDetail = ChallengeItem & {
   objective?: string;
+  objectives?: string[];
   campaign_objective?: string;
+  campaign_objectives?: string[];
   hashtags?: string;
   required_hashtags?: string[];
   submission_eligibility?: string;
@@ -140,11 +142,25 @@ export default function BrandChallengeDetailRightSidebar({
     );
   }
 
-  const savedObjective = detail.campaign_objective ?? detail.objective;
+  const savedObjectives = Array.from(
+    new Set(
+      [
+        ...(detail.objectives ?? []),
+        ...(detail.campaign_objectives ?? []),
+        detail.campaign_objective,
+        detail.objective,
+      ].filter((value): value is string => Boolean(value?.trim()))
+    )
+  );
   const objective =
-    objectiveLabels[savedObjective ?? ""] ||
-    savedObjective?.replaceAll("_", " ") ||
-    "—";
+    savedObjectives.length > 0
+      ? savedObjectives
+          .map(
+            (value) =>
+              objectiveLabels[value] || value.replaceAll("_", " ")
+          )
+          .join(" · ")
+      : "—";
   const hashtags =
     detail.hashtags?.trim() ||
     detail.required_hashtags?.filter(Boolean).join(" ") ||

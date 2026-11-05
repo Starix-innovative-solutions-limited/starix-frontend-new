@@ -18,8 +18,8 @@ import {
   FiImage,
 } from "react-icons/fi";
 import { BsFileEarmarkPdf, BsFileEarmarkFill } from "react-icons/bs";
-import { toast } from "react-hot-toast";
 import { useModal } from "@/hooks/useModal";
+import { useDashboardNotice } from "@/store/useDashboardNoticeStore";
 import {
   useCreateChallenge,
   useFundChallenge,
@@ -319,6 +319,49 @@ function scoringFromObjectives(selected: string[]): string {
   return "balanced";
 }
 
+function objectiveValues(draft: {
+  objectives?: string[] | null;
+  campaign_objectives?: string[] | null;
+  objective?: string | null;
+  campaign_objective?: string | null;
+}): ObjectiveId[] {
+  const fromArrays = [
+    ...(draft.objectives ?? []),
+    ...(draft.campaign_objectives ?? []),
+  ]
+    .flatMap((value) =>
+      isObjectiveId(value) ? [value] : draftObjectives(value)
+    )
+    .filter(isObjectiveId);
+  if (fromArrays.length > 0) {
+    return Array.from(new Set(fromArrays));
+  }
+  return draftObjectives(draft.campaign_objective ?? draft.objective);
+}
+
+function categoryNamesFromDraft(draft: ChallengeItem): string[] {
+  const names: string[] = [];
+  const push = (value?: string | null) => {
+    const name = value?.trim();
+    if (name && !names.some((item) => item.toLowerCase() === name.toLowerCase())) {
+      names.push(name);
+    }
+  };
+
+  if (Array.isArray(draft.category_names)) {
+    draft.category_names.forEach((name) => push(name));
+  }
+  if (Array.isArray(draft.categories)) {
+    draft.categories.forEach((item) => {
+      if (typeof item === "string") push(item);
+      else push(item?.name);
+    });
+  }
+  push(draft.category_name);
+  push(typeof draft.category === "string" ? draft.category : null);
+  return names;
+}
+
 const SUBMITTER_OPTIONS = [
   { id: "anyone", label: "Anyone. Both Creators and Creator Circles." },
   { id: "circles", label: "Creator circles only." },
@@ -375,7 +418,7 @@ type FormState = {
   end_date: string;
   platforms: string[];
   objectives: ObjectiveId[];
-  category: string;
+  categories: string[];
   content_type: string;
   hashtags: string;
   mentions: string;
@@ -395,7 +438,7 @@ const initialForm: FormState = {
   end_date: "",
   platforms: ["TikTok"],
   objectives: [],
-  category: "",
+  categories: [],
   content_type: "short_form_video",
   hashtags: "",
   mentions: "",
@@ -462,6 +505,17 @@ function normalizeObjectives(form: {
   return draftObjectives(form.objective);
 }
 
+function normalizeCategories(form: {
+  categories?: string[];
+  category?: string;
+}): string[] {
+  if (Array.isArray(form.categories) && form.categories.length > 0) {
+    return form.categories.map((name) => name.trim()).filter(Boolean);
+  }
+  const single = form.category?.trim();
+  return single ? [single] : [];
+}
+
 function displayPlatform(value: string) {
   const platform = value.toLowerCase();
   if (platform === "tiktok") return "TikTok";
@@ -482,13 +536,13 @@ function formFromDraft(draft: ChallengeItem): FormState {
     ...initialForm,
     title: draft.title ?? "",
     description: draft.description ?? "",
-    objectives: draftObjectives(draft.campaign_objective),
+    objectives: objectiveValues(draft),
     submitter_type: draft.submission_eligibility ?? "anyone",
     start_date: isoDateInput(draft.start_date),
     end_date: isoDateInput(draft.end_date),
     platforms:
       draft.platforms?.map(displayPlatform) ?? ["TikTok"],
-    category: draft.category_name?.trim() || "",
+    categories: categoryNamesFromDraft(draft),
     hashtags: draft.required_hashtags?.join(" ") ?? "",
     mentions: draft.required_mentions?.join(" ") ?? "",
     posting_rules: draft.posting_rules ?? "",
@@ -513,6 +567,7 @@ function readLocalDraft(): LocalChallengeDraft | null {
       form: {
         ...mergedForm,
         objectives: normalizeObjectives(mergedForm),
+        categories: normalizeCategories(mergedForm),
       },
       media: parsed.media ?? [],
       document: parsed.document,
@@ -939,6 +994,7 @@ export default function CreateChallenge({
   draft?: ChallengeItem;
 } = {}) {
   const { close } = useModal();
+  const notice = useDashboardNotice();
   const createChallenge = useCreateChallenge();
   const updateChallenge = useUpdateChallenge();
   const fundChallenge = useFundChallenge();
@@ -958,7 +1014,11 @@ export default function CreateChallenge({
     if (draft) return formFromDraft(draft);
     const recovered = recoveredDraft?.form ?? {};
     const merged = { ...initialForm, ...recovered };
-    return { ...merged, objectives: normalizeObjectives(merged) };
+    return {
+      ...merged,
+      objectives: normalizeObjectives(merged),
+      categories: normalizeCategories(merged),
+    };
   });
   const [mediaItems, setMediaItems] = useState<MediaItem[]>(() => {
     if (draft?.media?.length) {
@@ -1003,15 +1063,15 @@ export default function CreateChallenge({
   const docInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (fieldText(form.category)) return;
+    if (form.categories.length > 0) return;
     const brandNiche = brandProfile?.niches?.find((niche) => niche?.trim());
     if (!brandNiche) return;
     setForm((prev) =>
-      fieldText(prev.category)
+      prev.categories.length > 0
         ? prev
-        : { ...prev, category: brandNiche.trim() }
+        : { ...prev, categories: [brandNiche.trim()] }
     );
-  }, [brandProfile, form.category]);
+  }, [brandProfile, form.categories.length]);
 
   useEffect(() => {
     if (draft || typeof window === "undefined") return;
@@ -1096,6 +1156,29 @@ export default function CreateChallenge({
     });
   };
 
+  const toggleCategory = (name: string) => {
+    const value = name.trim();
+    if (!value) return;
+    setForm((prev) => {
+      const exists = prev.categories.some(
+        (item) => item.toLowerCase() === value.toLowerCase()
+      );
+      return {
+        ...prev,
+        categories: exists
+          ? prev.categories.filter(
+              (item) => item.toLowerCase() !== value.toLowerCase()
+            )
+          : [...prev.categories, value],
+      };
+    });
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+      delete next.category;
+      return next;
+    });
+  };
+
   const validateStep = (current: number) => {
     const errors: Record<string, string> = {};
 
@@ -1118,8 +1201,8 @@ export default function CreateChallenge({
       if (form.objectives.length === 0) {
         errors.objective = "Select at least one campaign objective";
       }
-      if (fieldText(form.category).length < 2) {
-        errors.category = "Select a category for this challenge";
+      if (form.categories.length === 0) {
+        errors.category = "Select at least one category";
       }
     }
 
@@ -1133,15 +1216,15 @@ export default function CreateChallenge({
     // Step 3 — Brief, samples & guidelines
     if (current === 3) {
       if (mediaItems.some((m) => m.progress < 100 && !m.error)) {
-        toast.error("Please wait for media uploads to finish");
+        notice.error("Please wait for media uploads to finish");
         return false;
       }
       if (mediaItems.filter((m) => m.url).length === 0) {
-        toast.error("Add at least one sample image or video");
+        notice.error("Add at least one sample image or video");
         return false;
       }
       if (doc.status === "uploading") {
-        toast.error("Please wait for the document upload to finish");
+        notice.error("Please wait for the document upload to finish");
         return false;
       }
     }
@@ -1154,6 +1237,16 @@ export default function CreateChallenge({
       }
       if (form.prizes.some((p) => parseAmount(p.amount) <= 0)) {
         setRewardError("Every prize amount must be greater than 0");
+        return false;
+      }
+      const prizeAmountsOrdered = form.prizes.map((prize) =>
+        parseAmount(prize.amount)
+      );
+      const isDescending = prizeAmountsOrdered.every(
+        (amount, index) => index === 0 || prizeAmountsOrdered[index - 1] >= amount
+      );
+      if (!isDescending) {
+        setRewardError("Prize amounts must be in descending order");
         return false;
       }
       if (Math.abs(prizeSum - totalPool) > 0.01) {
@@ -1172,7 +1265,7 @@ export default function CreateChallenge({
 
     setFieldErrors(errors);
     if (Object.keys(errors).length > 0) {
-      toast.error(Object.values(errors)[0]);
+      notice.error(Object.values(errors)[0]);
       return false;
     }
     return true;
@@ -1200,7 +1293,7 @@ export default function CreateChallenge({
     const canSaveToServer =
       form.title.trim().length >= 3 &&
       form.description.trim().length >= 10 &&
-      fieldText(form.category).length >= 2 &&
+      form.categories.length > 0 &&
       Boolean(form.start_date) &&
       Boolean(form.end_date) &&
       form.start_date >= today &&
@@ -1242,7 +1335,7 @@ export default function CreateChallenge({
     }
 
     onLocalDraftSaved?.(form.title.trim() || "Untitled challenge");
-    toast.success("Draft saved");
+    notice.success("Draft saved");
     close();
   };
 
@@ -1439,7 +1532,8 @@ export default function CreateChallenge({
       .map((p) => p.toLowerCase())
       .map((p) => (p === "youtube" ? "youtube" : p));
 
-    const category = fieldText(form.category);
+    const categories = form.categories.map((name) => name.trim()).filter(Boolean);
+    const category = categories[0] ?? "";
 
     const briefUrl =
       doc.status === "success" ? doc.url : form.documents[0] || undefined;
@@ -1454,6 +1548,7 @@ export default function CreateChallenge({
       title: form.title.trim(),
       description: form.description.trim(),
       category,
+      categories,
       prize_pool: pool,
       prize_amounts: prizeAmounts,
       start_date: dates.start_date,
@@ -1468,20 +1563,21 @@ export default function CreateChallenge({
       brief_document_url: briefUrl,
       sample_media: sample_media.length ? sample_media : undefined,
       objective: scoringFromObjectives(form.objectives),
+      objectives: form.objectives,
     };
   };
 
   async function handlePublish(isDraft: boolean) {
     if (!isDraft && !validateStep(4)) return;
-    if (fieldText(form.category).length < 2) {
-      toast.error("Select a category for this challenge");
+    if (form.categories.length === 0) {
+      notice.error("Select at least one category for this challenge");
       setStep(1);
       return;
     }
 
     const uploadedMedia = mediaItems.filter((m) => m.url);
     if (!isDraft && uploadedMedia.length === 0) {
-      toast.error("Add at least one sample image or video to publish");
+      notice.error("Add at least one sample image or video to publish");
       return;
     }
 
@@ -1505,7 +1601,7 @@ export default function CreateChallenge({
       }
 
       if (isDraft) {
-        toast.success("Draft saved");
+        notice.success("Draft saved");
         close();
         return;
       }
@@ -1519,12 +1615,12 @@ export default function CreateChallenge({
             : undefined,
       });
 
-      toast.success("Redirecting to Flutterwave to fund & publish...");
+      notice.success("Redirecting to Flutterwave to fund & publish...");
       close();
       if (funded?.payment_url) {
         window.location.assign(funded.payment_url);
       } else {
-        toast.error("No payment link returned. Challenge saved as draft.");
+        notice.error("No payment link returned. Challenge saved as draft.");
       }
     } catch (err: unknown) {
       const detail = (err as { response?: { data?: { detail?: unknown } } })
@@ -1538,7 +1634,7 @@ export default function CreateChallenge({
                 .filter(Boolean)
                 .join(", ")
             : "Failed to save challenge";
-      toast.error(message || "Failed to save challenge");
+      notice.error(message || "Failed to save challenge");
     } finally {
       setLoading(false);
     }
@@ -1645,20 +1741,25 @@ export default function CreateChallenge({
               />
             </Field>
 
-            <Field label="Category" error={fieldErrors.category}>
+            <Field label="Categories" error={fieldErrors.category}>
+              <p className="mb-2.5 text-[12px] text-[#667085]">
+                Select all that apply. The first selected category is the primary one.
+              </p>
               <div className="flex flex-wrap gap-2">
                 {categories.length === 0 ? (
                   <p className="text-[13px] text-[#667085]">Loading categories...</p>
                 ) : (
                   categories.map((category) => {
-                    const active =
-                      fieldText(form.category).toLowerCase() ===
-                      fieldText(category.name).toLowerCase();
+                    const active = form.categories.some(
+                      (name) =>
+                        fieldText(name).toLowerCase() ===
+                        fieldText(category.name).toLowerCase()
+                    );
                     return (
                       <button
                         key={category.id}
                         type="button"
-                        onClick={() => update("category", category.name)}
+                        onClick={() => toggleCategory(category.name)}
                         className={`rounded-full border px-3 py-2 text-[12px] font-medium capitalize transition ${
                           active
                             ? "border-[#0033FF] bg-[#EEF3FF] text-[#0033FF]"
@@ -2123,8 +2224,8 @@ export default function CreateChallenge({
               <div className="divide-y divide-[#EEF0F4] border-y border-[#EEF0F4]">
                 <ReviewRow label="Title" value={form.title || "—"} />
                 <ReviewRow
-                  label="Category"
-                  value={form.category || "—"}
+                  label="Categories"
+                  value={form.categories.join(", ") || "—"}
                 />
                 <ReviewRow
                   label="Duration"

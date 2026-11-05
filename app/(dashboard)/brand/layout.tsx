@@ -7,6 +7,7 @@ import { HiOutlineBars3 } from "react-icons/hi2";
 import BrandSideBar from "@/components/(brand)/dashboard/BrandSideBar";
 import RightSideBar from "@/components/(brand)/dashboard/RightSideBar";
 import BrandNotificationDropdown from "@/components/(brand)/dashboard/BrandNotificationDropdown";
+import DashboardNotice from "@/components/(creator)/dashboard/DashboardNotice";
 import { DashboardSearchBoundary } from "@/components/dashboard/DashboardSearchProvider";
 
 const workSans = Work_Sans({
@@ -36,6 +37,7 @@ const BrandDashboardLayout = ({ children }: { children: React.ReactNode }) => {
     <main
       className={`${workSans.variable} h-screen overflow-hidden bg-[#fff] font-sans`}
     >
+      <DashboardNotice />
       <div className="flex h-full overflow-hidden">
         <BrandSideBar
           collapsed={leftCollapsed}
