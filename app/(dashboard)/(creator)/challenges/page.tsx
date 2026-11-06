@@ -124,6 +124,15 @@ const ChallengesPage = () => {
     enabled: activeTab === "Completed",
   });
 
+  const { data: joinedActiveForSaved } = useGetJoinedActiveChallenges(1, 50, {
+    enabled: activeTab === "Saved",
+  });
+  const { data: joinedCompletedForSaved } = useGetJoinedCompletedChallenges(
+    1,
+    50,
+    { enabled: activeTab === "Saved" }
+  );
+
   const {
     data: savedData,
     isLoading: savedLoading,
@@ -131,6 +140,22 @@ const ChallengesPage = () => {
   } = useGetSavedChallenges(page, PAGE_SIZE, {
     enabled: activeTab === "Saved",
   });
+
+  const joinedChallengeIds = useMemo(() => {
+    return new Set(
+      [
+        ...(joinedActiveForSaved?.items ?? []),
+        ...(joinedCompletedForSaved?.items ?? []),
+        ...(activeData?.items ?? []),
+        ...(completedData?.items ?? []),
+      ].map((item) => item.challenge_id)
+    );
+  }, [
+    activeData?.items,
+    completedData?.items,
+    joinedActiveForSaved?.items,
+    joinedCompletedForSaved?.items,
+  ]);
 
   const isLoading =
     activeTab === "Active"
@@ -177,16 +202,18 @@ const ChallengesPage = () => {
       }));
     }
 
-    return (savedData?.items ?? []).map((item) => ({
-      id: item.challenge_id,
-      title: item.title,
-      brand_name: item.brand_name,
-      brand_logo_url: item.brand_logo_url,
-      prize: prizeLabel(item),
-      status: "saved",
-      statusLabel: "Saved",
-    }));
-  }, [activeTab, activeData, completedData, savedData]);
+    return (savedData?.items ?? [])
+      .filter((item) => !joinedChallengeIds.has(item.challenge_id))
+      .map((item) => ({
+        id: item.challenge_id,
+        title: item.title,
+        brand_name: item.brand_name,
+        brand_logo_url: item.brand_logo_url,
+        prize: prizeLabel(item),
+        status: "saved",
+        statusLabel: "Saved",
+      }));
+  }, [activeTab, activeData, completedData, joinedChallengeIds, savedData]);
 
   const filteredChallenges = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -244,7 +271,10 @@ const ChallengesPage = () => {
         ? Math.ceil(currentPageData.total_items / PAGE_SIZE)
         : 1)
   );
-  const totalItems = currentPageData?.total_items ?? filteredChallenges.length;
+  const totalItems =
+    activeTab === "Saved"
+      ? filteredChallenges.length
+      : (currentPageData?.total_items ?? filteredChallenges.length);
   const pageItems = buildPageItems(page, totalPages);
 
   const handleTabChange = (tab: ChallengesTab) => {

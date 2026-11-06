@@ -134,6 +134,150 @@ function truthyFlag(value: unknown) {
   return value === true || value === 1 || value === "1" || value === "true";
 }
 
+function pickTrimmedString(...values: unknown[]): string | null {
+  for (const value of values) {
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  return null;
+}
+
+function looksLikeMediaUrl(value: string) {
+  const trimmed = value.trim();
+  return (
+    /^https?:\/\//i.test(trimmed) ||
+    trimmed.startsWith("/") ||
+    trimmed.startsWith("blob:") ||
+    trimmed.startsWith("data:")
+  );
+}
+
+function extractMediaUrl(value: unknown, depth = 0): string | null {
+  if (depth > 4 || value == null) return null;
+  if (typeof value === "string") {
+    return looksLikeMediaUrl(value) ? value.trim() : null;
+  }
+  if (Array.isArray(value)) {
+    for (const entry of value) {
+      const url = extractMediaUrl(entry, depth + 1);
+      if (url) return url;
+    }
+    return null;
+  }
+  if (typeof value !== "object") return null;
+  const item = value as Record<string, unknown>;
+  return (
+    pickTrimmedString(
+      item.media_url,
+      item.mediaUrl,
+      item.public_url,
+      item.publicUrl,
+      item.file_url,
+      item.fileUrl,
+      item.image_url,
+      item.imageUrl,
+      item.url,
+      item.src
+    ) ||
+    extractMediaUrl(item.media, depth + 1) ||
+    extractMediaUrl(item.file, depth + 1)
+  );
+}
+
+function mediaBucketToList(raw: unknown): unknown[] {
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === "string" && looksLikeMediaUrl(raw)) return [raw];
+  const item = asRecord(raw);
+  if (Array.isArray(item.items)) return item.items;
+  if (Array.isArray(item.results)) return item.results;
+  if (Array.isArray(item.data)) return item.data;
+  if (extractMediaUrl(raw)) return [raw];
+  return [];
+}
+
+function normalizeChallengeMediaList(raw: unknown): ChallengeMedia[] {
+  return mediaBucketToList(raw)
+    .map((entry, index) => {
+      const media_url = extractMediaUrl(entry);
+      if (!media_url) return null;
+      const item = asRecord(entry);
+      const mediaType = String(
+        item.media_type ?? item.mediaType ?? item.type ?? ""
+      ).toLowerCase();
+      return {
+        id: pickTrimmedString(item.id) ?? undefined,
+        media_url,
+        media_type:
+          mediaType.includes("video") || /\.(mp4|webm|mov)(\?|$)/i.test(media_url)
+            ? "video"
+            : mediaType.includes("image")
+              ? "image"
+              : "image",
+        display_order:
+          typeof item.display_order === "number"
+            ? item.display_order
+            : typeof item.displayOrder === "number"
+              ? item.displayOrder
+              : index,
+        original_filename: pickTrimmedString(
+          item.original_filename,
+          item.originalFilename,
+          item.filename,
+          item.name
+        ) ?? undefined,
+      } satisfies ChallengeMedia;
+    })
+    .filter((item): item is ChallengeMedia => Boolean(item));
+}
+
+function collectChallengeMedia(item: Record<string, unknown>): ChallengeMedia[] {
+  const seen = new Set<string>();
+  const media: ChallengeMedia[] = [];
+  const nested = asRecord(item.challenge);
+  const buckets = [
+    item.media,
+    item.sample_media,
+    item.sampleMedia,
+    item.sample_contents,
+    item.attachments,
+    item.images,
+    nested.media,
+    nested.sample_media,
+    nested.sampleMedia,
+  ];
+
+  for (const bucket of buckets) {
+    for (const entry of normalizeChallengeMediaList(bucket)) {
+      if (seen.has(entry.media_url)) continue;
+      seen.add(entry.media_url);
+      media.push(entry);
+    }
+  }
+
+  const banner = pickTrimmedString(item.banner_url, nested.banner_url);
+  if (banner && !seen.has(banner)) {
+    media.push({ media_url: banner, media_type: "image" });
+  }
+
+  return media;
+}
+
+function brandPictureFromChallenge(item: Record<string, unknown>): string | null {
+  const brand = asRecord(item.brand);
+  const brandProfile = asRecord(item.brand_profile);
+  return pickTrimmedString(
+    item.brand_profile_picture_url,
+    item.brand_logo_url,
+    item.brand_image_url,
+    item.logo_url,
+    brand.profile_picture_url,
+    brand.logo_url,
+    brand.logo,
+    brand.image_url,
+    brandProfile.profile_picture_url,
+    brandProfile.logo_url
+  );
+}
+
 export function hasJoinedChallengeFlags(
   challenge?: Pick<
     ChallengeItem,
@@ -173,15 +317,19 @@ function rowToChallengeItem(raw: unknown): ChallengeItem | null {
     ...(item as unknown as ChallengeItem),
     id,
     title: String(item.title ?? "Untitled challenge"),
-    brand_name: String(item.brand_name ?? ""),
-    brand_profile_picture_url:
-      (item.brand_profile_picture_url as string | null | undefined) ??
-      (item.brand_logo_url as string | null | undefined) ??
-      null,
+    brand_name:
+      pickTrimmedString(
+        item.brand_name,
+        asRecord(item.brand).name,
+        asRecord(item.brand).brand_name
+      ) ?? "",
+    brand_profile_picture_url: brandPictureFromChallenge(item),
+    media: collectChallengeMedia(item),
     prize_pool_display: String(
       item.prize_pool_display ?? item.prize_pool_formatted ?? ""
     ),
     is_published: Boolean(item.is_published ?? true),
+    is_saved: Boolean(item.is_saved),
     is_joined: joined,
     status: String(item.status ?? "active"),
   };
@@ -234,15 +382,39 @@ async function fetchChallengeFromDiscoverFeeds(
 
 function unwrapChallengeDetail(payload: unknown): ChallengeDetailResult {
   const root = asRecord(payload);
+  const candidates = [
+    root,
+    asRecord(root.data),
+    asRecord(root.challenge),
+    asRecord(asRecord(root.data).challenge),
+  ];
+  const withId = candidates.filter(
+    (item) =>
+      typeof item.id === "string" || typeof item.challenge_id === "string"
+  );
   const nested =
-    typeof root.id === "string"
-      ? root
-      : asRecord(root.data);
+    withId.find((item) => collectChallengeMedia(item).length > 0) ??
+    withId[0] ??
+    root;
   const normalized = rowToChallengeItem(nested);
   return {
     ...(nested as unknown as ChallengeDetailResult),
     ...(normalized ?? {}),
   };
+}
+
+function withFallbackMedia(
+  detail: ChallengeDetailResult,
+  extras: Array<ChallengeItem | null | undefined>
+): ChallengeDetailResult {
+  if ((detail.media?.length ?? 0) > 0) return detail;
+  for (const extra of extras) {
+    const media = extra?.media ?? collectChallengeMedia(asRecord(extra));
+    if (media.length > 0) {
+      return { ...detail, media };
+    }
+  }
+  return detail;
 }
 
 function buildPartialChallenge(
@@ -430,9 +602,11 @@ function unwrapChallengeList(payload: unknown): ChallengesResponse {
       : root.data && typeof root.data === "object"
         ? (root.data as Record<string, unknown>)
         : root;
-  const challenges = (nested.challenges ??
-    nested.items ??
-    []) as ChallengeItem[];
+  const challenges = (
+    (nested.challenges ?? nested.items ?? []) as unknown[]
+  )
+    .map(rowToChallengeItem)
+    .filter((item): item is ChallengeItem => Boolean(item));
   const totalValue = nested.total;
   const total =
     typeof totalValue === "number" ? totalValue : challenges.length;
@@ -486,7 +660,7 @@ export function useGetBrandChallenge(
       const { data } = await api.get<ChallengeItem>(
         `/brands/challenges/${challengeId}`
       );
-      return data;
+      return rowToChallengeItem(data) ?? data;
     },
     enabled: (options?.enabled ?? true) && Boolean(challengeId),
   });
@@ -506,7 +680,7 @@ export function useBrandChallengeDetails(
         const { data } = await api.get<ChallengeItem>(
           `/brands/challenges/${id}`
         );
-        return data;
+        return rowToChallengeItem(data) ?? data;
       },
       enabled: (options?.enabled ?? true) && Boolean(id),
       staleTime: 60_000,
@@ -699,16 +873,38 @@ function unwrapJoinedPage(
   };
 }
 
-function isCompletedChallengeStatus(status?: string) {
+function isFinishedJoinedStatus(status?: string) {
   const value = (status ?? "").toLowerCase();
   return (
     value === "completed" ||
     value === "closed" ||
-    value === "not_qualified" ||
     value === "ranked" ||
     value === "winner" ||
     value === "finalist"
   );
+}
+
+function isCompletedChallengeStatus(status?: string) {
+  const value = (status ?? "").toLowerCase();
+  return isFinishedJoinedStatus(value) || value === "not_qualified";
+}
+
+function excludeFinishedJoined(
+  page: JoinedChallengesResponse
+): JoinedChallengesResponse {
+  const items = page.items.filter(
+    (item) => !isFinishedJoinedStatus(item.status)
+  );
+  const removed = page.items.length - items.length;
+  if (removed === 0) return page;
+
+  const total_items = Math.max(0, page.total_items - removed);
+  return {
+    ...page,
+    items,
+    total_items,
+    total_pages: Math.max(1, Math.ceil(total_items / page.page_size) || 1),
+  };
 }
 
 async function fetchCompletedJoinedFallback(
@@ -733,21 +929,33 @@ async function fetchCompletedJoinedFallback(
   );
 }
 
+function clampJoinedPageSize(page_size: number) {
+  return Math.min(50, Math.max(1, page_size || 8));
+}
+
+function shouldRetryJoinedQuery(failureCount: number, error: unknown) {
+  const status = (error as { response?: { status?: number } })?.response?.status;
+  if (status === 401 || status === 403 || status === 422) return false;
+  return failureCount < 1;
+}
+
 export function useGetJoinedActiveChallenges(
   page: number = 1,
   page_size: number = 8,
   options?: { enabled?: boolean }
 ) {
+  const size = clampJoinedPageSize(page_size);
   return useQuery<JoinedChallengesResponse>({
-    queryKey: ["challenges", "joined", "active", page, page_size],
+    queryKey: ["challenges", "joined", "active", page, size],
     queryFn: async () => {
       const response = await api.get(
         "/challenges/joined/active",
-        { params: { page, page_size } }
+        { params: { page, page_size: size } }
       );
-      return unwrapJoinedPage(response.data, page, page_size);
+      return excludeFinishedJoined(unwrapJoinedPage(response.data, page, size));
     },
     enabled: options?.enabled ?? true,
+    retry: shouldRetryJoinedQuery,
   });
 }
 
@@ -756,24 +964,56 @@ export function useGetJoinedCompletedChallenges(
   page_size: number = 8,
   options?: { enabled?: boolean }
 ) {
+  const size = clampJoinedPageSize(page_size);
   return useQuery<JoinedChallengesResponse>({
-    queryKey: ["challenges", "joined", "completed", page, page_size],
+    queryKey: ["challenges", "joined", "completed", page, size],
     queryFn: async () => {
+      let pageData: JoinedChallengesResponse | null = null;
       try {
         const response = await api.get("/challenges/joined/completed", {
-          params: { page, page_size },
+          params: { page, page_size: size },
         });
-        const pageData = unwrapJoinedPage(response.data, page, page_size);
-        if (pageData.items.length > 0 || pageData.total_items > 0) {
-          return pageData;
-        }
+        pageData = unwrapJoinedPage(response.data, page, size);
       } catch {
-        // Fall through to GET /challenges/joined and keep completed/closed rows.
+        // Fall through after collecting any closed rows still listed as active.
       }
 
-      return fetchCompletedJoinedFallback(page, page_size);
+      let leaked: JoinedChallengeItem[] = [];
+      try {
+        const active = await api.get("/challenges/joined/active", {
+          params: { page, page_size: size },
+        });
+        leaked = unwrapJoinedPage(active.data, page, size).items.filter((item) =>
+          isFinishedJoinedStatus(item.status)
+        );
+      } catch {
+        leaked = [];
+      }
+
+      if (!pageData) {
+        if (leaked.length > 0) {
+          return paginateJoinedItems(leaked, page, size, leaked.length);
+        }
+        return fetchCompletedJoinedFallback(page, size);
+      }
+
+      const extra = leaked.filter(
+        (item) =>
+          !pageData.items.some((row) => row.challenge_id === item.challenge_id)
+      );
+      if (extra.length === 0) {
+        if (pageData.items.length > 0 || pageData.total_items > 0) return pageData;
+        return fetchCompletedJoinedFallback(page, size);
+      }
+
+      return {
+        ...pageData,
+        items: [...pageData.items, ...extra],
+        total_items: Math.max(pageData.total_items, pageData.items.length) + extra.length,
+      };
     },
     enabled: options?.enabled ?? true,
+    retry: shouldRetryJoinedQuery,
   });
 }
 
@@ -1220,6 +1460,21 @@ export type MessageResponse = {
   message: string;
 };
 
+export type ChallengeSaveResponse = {
+  is_saved: boolean;
+  save_count: number;
+};
+
+function unwrapSaveStatus(payload: unknown): ChallengeSaveResponse {
+  const root = asRecord(payload);
+  const nested = asRecord(root.data);
+  const source = typeof root.is_saved === "boolean" ? root : nested;
+  return {
+    is_saved: Boolean(source.is_saved),
+    save_count: Number(source.save_count ?? 0),
+  };
+}
+
 /**
  * POST /challenges/{challenge_id}/submit-entry
  * One content_url per platform required by the challenge.
@@ -1246,30 +1501,52 @@ export function useSubmitChallengeEntry() {
       queryClient.setQueryData(
         ["challenges", "detail", challengeId],
         (current: ChallengeDetailResult | null | undefined) =>
-          current ? { ...current, is_joined: true, has_submitted: true } : current
+          current
+            ? {
+                ...current,
+                is_joined: true,
+                has_submitted: true,
+                is_saved: false,
+              }
+            : current
       );
       queryClient.invalidateQueries({ queryKey: ["challenges", "joined"] });
+      queryClient.invalidateQueries({ queryKey: ["challenges", "saved"] });
       queryClient.invalidateQueries({ queryKey: ["challenges", "discover"] });
       queryClient.invalidateQueries({ queryKey: ["challenges", "detail"] });
       queryClient.invalidateQueries({ queryKey: ["circle-challenges"] });
       queryClient.invalidateQueries({ queryKey: ["circle-profile"] });
+
+      void (async () => {
+        try {
+          const { data } = await api.get(`/challenges/${challengeId}/save`);
+          if (!unwrapSaveStatus(data).is_saved) return;
+          const { data: toggled } = await api.post(
+            `/challenges/${challengeId}/save`
+          );
+          const status = unwrapSaveStatus(toggled);
+          queryClient.setQueryData(
+            ["challenges", "detail", challengeId],
+            (current: ChallengeDetailResult | null | undefined) =>
+              current
+                ? {
+                    ...current,
+                    is_saved: status.is_saved,
+                    save_count: status.save_count,
+                  }
+                : current
+          );
+          queryClient.setQueryData<ChallengeSaveResponse>(
+            ["challenges", "save", challengeId],
+            status
+          );
+          queryClient.invalidateQueries({ queryKey: ["challenges", "saved"] });
+        } catch {
+          queryClient.invalidateQueries({ queryKey: ["challenges", "saved"] });
+        }
+      })();
     },
   });
-}
-
-export type ChallengeSaveResponse = {
-  is_saved: boolean;
-  save_count: number;
-};
-
-function unwrapSaveStatus(payload: unknown): ChallengeSaveResponse {
-  const root = asRecord(payload);
-  const nested = asRecord(root.data);
-  const source = typeof root.is_saved === "boolean" ? root : nested;
-  return {
-    is_saved: Boolean(source.is_saved),
-    save_count: Number(source.save_count ?? 0),
-  };
 }
 
 export const useChallengeSaveStatus = (challengeId?: string) => {
@@ -1309,9 +1586,79 @@ export const useToggleChallengeSave = (challengeId: string) => {
       );
       queryClient.invalidateQueries({ queryKey: ["challenges", "saved"] });
       queryClient.invalidateQueries({ queryKey: ["challenges", "discover"] });
+      queryClient.invalidateQueries({ queryKey: ["challenges", "recommended"] });
+      queryClient.invalidateQueries({ queryKey: ["challenges", "trending"] });
+      patchCachedChallengeSave(queryClient, challengeId, data);
     },
   });
 };
+
+export type ChallengeShareResponse = {
+  share_url: string;
+  share_count: number;
+};
+
+function unwrapShareResponse(payload: unknown): ChallengeShareResponse {
+  const root = asRecord(payload);
+  const nested = asRecord(root.data);
+  const source = typeof root.share_url === "string" ? root : nested;
+  return {
+    share_url: String(source.share_url ?? ""),
+    share_count: Number(source.share_count ?? 0),
+  };
+}
+
+function patchCachedChallengeSave(
+  queryClient: ReturnType<typeof useQueryClient>,
+  challengeId: string,
+  data: ChallengeSaveResponse
+) {
+  const patchList = (current: unknown) => {
+    if (!current || typeof current !== "object") return current;
+    const record = current as { challenges?: ChallengeItem[] };
+    if (!Array.isArray(record.challenges)) return current;
+    return {
+      ...record,
+      challenges: record.challenges.map((item) =>
+        item.id === challengeId
+          ? { ...item, is_saved: data.is_saved, save_count: data.save_count }
+          : item
+      ),
+    };
+  };
+
+  queryClient.setQueriesData({ queryKey: ["challenges", "discover"] }, patchList);
+  queryClient.setQueriesData(
+    { queryKey: ["challenges", "recommended"] },
+    patchList
+  );
+  queryClient.setQueriesData({ queryKey: ["challenges", "trending"] }, patchList);
+}
+
+export function useShareChallenge() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      challengeId,
+      medium = "link",
+    }: {
+      challengeId: string;
+      medium?: string;
+    }) => {
+      const { data } = await api.post(`/challenges/${challengeId}/share`, {
+        medium,
+      });
+      return unwrapShareResponse(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["challenges", "discover"] });
+      queryClient.invalidateQueries({ queryKey: ["challenges", "recommended"] });
+      queryClient.invalidateQueries({ queryKey: ["challenges", "trending"] });
+      queryClient.invalidateQueries({ queryKey: ["challenges", "detail"] });
+    },
+  });
+}
 
 export const useGetChallengeById = (id: string) => {
   const queryClient = useQueryClient();
@@ -1326,7 +1673,16 @@ export const useGetChallengeById = (id: string) => {
         const { data } = await api.get(
           `/challenges/${challengeId}/detail`
         );
-        return unwrapChallengeDetail(data);
+        const detail = unwrapChallengeDetail(data);
+        if ((detail.media?.length ?? 0) > 0) return detail;
+
+        const cached = findChallengeInCache(queryClient, challengeId);
+        if ((cached?.media?.length ?? 0) > 0) {
+          return withFallbackMedia(detail, [cached]);
+        }
+
+        const fromFeed = await fetchChallengeFromDiscoverFeeds(challengeId);
+        return withFallbackMedia(detail, [cached, fromFeed]);
       } catch (error: unknown) {
         const parsed = parseApiError(
           error,

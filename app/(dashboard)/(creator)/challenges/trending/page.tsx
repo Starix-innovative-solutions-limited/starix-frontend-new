@@ -3,7 +3,8 @@
 
 import React, { Suspense } from "react";
 import Loader from "@/components/Loader";
-import { FiSearch, FiSliders, FiBarChart2, FiMail, FiClock, FiBookmark, FiShare2 } from "react-icons/fi";
+import { FiSearch, FiSliders, FiBarChart2, FiMail, FiClock } from "react-icons/fi";
+import ChallengeSaveShareActions from "@/components/(creator)/challenge/ChallengeSaveShareActions";
 import { MdVerified } from "react-icons/md";
 import { HiArrowRight, HiArrowLeft } from "react-icons/hi2";
 import Image from "next/image";
@@ -43,6 +44,7 @@ type TrendingCard = {
   desc?: string;
   views?: string;
   mail?: string;
+  isSaved?: boolean;
 };
 
 const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: boolean }) => {
@@ -101,6 +103,7 @@ const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: b
             : ["/left1.webp", "/right1.webp"],
         views: formatCompactCount(getChallengeViewCount(challenge)),
         mail: formatCompactCount(getChallengeApplicationCount(challenge)),
+        isSaved: Boolean(challenge.is_saved),
       };
     });
   }, [apiResponse, categories]);
@@ -322,10 +325,12 @@ const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: b
                     <span className="flex items-center gap-1"><FiMail size={14}/> {card.mail || "87"}</span>
                     <span className="flex items-center gap-1"><FiClock size={14}/> {card.deadline}</span>
                   </div>
-                  <div className="flex gap-3">
-                    <button className="hover:text-[#111827] transition-colors cursor-pointer"><FiBookmark size={16} /></button>
-                    <button className="hover:text-[#111827] transition-colors cursor-pointer"><FiShare2 size={16} /></button>
-                  </div>
+                  <ChallengeSaveShareActions
+                    challengeId={String(card.id)}
+                    title={card.title}
+                    isSaved={card.isSaved}
+                    iconSize={16}
+                  />
                 </div>
               </Link>
             ))

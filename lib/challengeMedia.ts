@@ -3,6 +3,12 @@ type ChallengeMediaSource = {
   banner_url?: string | null;
   media?: Array<{
     media_url?: string | null;
+    url?: string | null;
+    display_order?: number | null;
+  }> | null;
+  sample_media?: Array<{
+    media_url?: string | null;
+    url?: string | null;
     display_order?: number | null;
   }> | null;
 };
@@ -36,12 +42,14 @@ export function getChallengePreviewImages(
   challenge: ChallengeMediaSource,
   max = 4
 ): string[] {
-  const ordered = (challenge.media ?? [])
-    .filter((item) => Boolean(item.media_url?.trim()))
-    .sort(
-      (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0)
-    )
-    .map((item) => item.media_url!.trim());
+  const ordered = [...(challenge.media ?? []), ...(challenge.sample_media ?? [])]
+    .map((item) => ({
+      url: (item.media_url ?? item.url ?? "").trim(),
+      display_order: item.display_order ?? 0,
+    }))
+    .filter((item) => Boolean(item.url))
+    .sort((a, b) => a.display_order - b.display_order)
+    .map((item) => item.url);
 
   const picked =
     ordered.length > max

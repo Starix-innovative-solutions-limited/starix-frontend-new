@@ -37,6 +37,18 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "cdn.starixapp.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
   async rewrites() {

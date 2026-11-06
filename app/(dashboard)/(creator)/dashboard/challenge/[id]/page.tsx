@@ -3,12 +3,14 @@
 
 import React, { Suspense, useMemo, useState } from "react";
 import Loader from "@/components/Loader";
-import Image from "next/image";
 import { HiArrowLeft } from "react-icons/hi2";
 import { MdVerified } from "react-icons/md";
 import { FiBarChart2, FiMail, FiClock, FiFileText, FiDownload } from "react-icons/fi";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import SubmitEntryModal from "@/components/(creator)/dashboard/SubmitEntryModal";
+import BrandAvatar from "@/components/(brand)/BrandAvatar";
+import { displayMediaUrl } from "@/lib/displayMediaUrl";
+import { getChallengePreviewImages } from "@/lib/challengeMedia";
 import {
   getPartialChallengeMissingFields,
   hasJoinedChallengeFlags,
@@ -103,10 +105,10 @@ const ChallengeDetailPage = () => {
     isFetching,
     refetch,
   } = useGetChallengeById(challengeId);
-  const { data: joinedActive } = useGetJoinedActiveChallenges(1, 100, {
+  const { data: joinedActive } = useGetJoinedActiveChallenges(1, 50, {
     enabled: Boolean(challengeId),
   });
-  const { data: joinedCompleted } = useGetJoinedCompletedChallenges(1, 100, {
+  const { data: joinedCompleted } = useGetJoinedCompletedChallenges(1, 50, {
     enabled: Boolean(challengeId),
   });
   const { data: circleActive } = useGetCircleChallenges(
@@ -163,12 +165,19 @@ const ChallengeDetailPage = () => {
 
   const mediaItems = useMemo(() => {
     const media = challenge?.media ?? [];
-    return [...media]
+    const ordered = [...media]
       .sort(
         (a: any, b: any) => (a.display_order ?? 0) - (b.display_order ?? 0)
       )
-      .filter((m: any) => Boolean(m.media_url));
-  }, [challenge?.media]);
+      .filter((m: any) => Boolean(m.media_url?.trim()));
+    if (ordered.length > 0) return ordered;
+    return getChallengePreviewImages(challenge ?? {}, 8).map((url, index) => ({
+      id: `preview-${index}`,
+      media_url: url,
+      media_type: isVideoUrl(url) ? "video" : "image",
+      display_order: index,
+    }));
+  }, [challenge]);
 
   const requirements = useMemo(() => {
     if (!challenge) return [];
@@ -374,14 +383,12 @@ const ChallengeDetailPage = () => {
       </div>
 
       <div className="mb-4 flex items-center gap-4">
-        <div className="relative h-14 w-14 overflow-hidden rounded-full border border-gray-100 bg-gray-50">
-          <Image
-            src={challenge.brand_profile_picture_url || "/dash-logo.webp"}
-            alt={challenge.brand_name || "Brand"}
-            fill
-            className="object-cover"
-          />
-        </div>
+        <BrandAvatar
+          name={challenge.brand_name || "Brand"}
+          src={displayMediaUrl(challenge.brand_profile_picture_url)}
+          className="h-14 w-14 border border-gray-100"
+          letterClassName="text-lg"
+        />
         <div>
           <div className="flex items-center gap-1.5">
             <span className="text-[12px] font-semibold text-[#111827]">
@@ -477,10 +484,11 @@ const ChallengeDetailPage = () => {
           {mediaItems.length > 0 ? (
             <div className="no-scrollbar flex gap-4 overflow-x-auto">
               {mediaItems.map((item: any, i: number) => {
-                const url = item.media_url as string;
-                const video = isVideoUrl(url, item.media_type);
+                const originalUrl = String(item.media_url ?? "");
+                const video = isVideoUrl(originalUrl, item.media_type);
+                const url = video ? originalUrl : displayMediaUrl(originalUrl);
                 const filename = filenameFromMedia(
-                  url,
+                  originalUrl,
                   item.original_filename,
                   video ? "challenge-sample.mp4" : "challenge-sample.jpg"
                 );
@@ -502,13 +510,16 @@ const ChallengeDetailPage = () => {
                         src={url}
                         alt={item.original_filename || "Sample media"}
                         className="h-full w-full object-cover"
+                        onError={(event) => {
+                          event.currentTarget.style.display = "none";
+                        }}
                       />
                     )}
                     <button
                       type="button"
                       onClick={async () => {
                         try {
-                          await downloadFile(url, filename);
+                          await downloadFile(originalUrl, filename);
                         } catch {
                           notice.error("Couldn’t download this file");
                         }

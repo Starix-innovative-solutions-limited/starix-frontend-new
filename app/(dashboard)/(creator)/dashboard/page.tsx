@@ -6,7 +6,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { HiArrowRight, HiArrowLeft } from "react-icons/hi2";
 import { MdVerified } from "react-icons/md";
-import { FiBarChart2, FiMail, FiClock, FiBookmark, FiShare2 } from "react-icons/fi";
+import { FiBarChart2, FiMail, FiClock } from "react-icons/fi";
+import ChallengeSaveShareActions from "@/components/(creator)/challenge/ChallengeSaveShareActions";
 import { useGetMe } from "@/hooks/useAuth";
 import { formatCompactNaira } from "@/lib/formatMoney";
 import BrandAvatar from "@/components/(brand)/BrandAvatar";
@@ -86,6 +87,7 @@ const Page = () => {
         views: getChallengeViewCount(challenge),
         applications: getChallengeApplicationCount(challenge),
         thumbnails,
+        isSaved: Boolean(challenge.is_saved),
       };
     });
   }, [categories, openChallengesData]);
@@ -134,7 +136,16 @@ const Page = () => {
   };
 
   const activeChallenges = React.useMemo(() => {
-    const items = joinedData?.items ?? [];
+    const items = (joinedData?.items ?? []).filter((item) => {
+      const status = item.status?.toLowerCase();
+      return (
+        status !== "completed" &&
+        status !== "closed" &&
+        status !== "ranked" &&
+        status !== "winner" &&
+        status !== "finalist"
+      );
+    });
     return items.map((item) => ({
       id: item.challenge_id,
       title: item.title,
@@ -157,8 +168,7 @@ const Page = () => {
     [activeChallenges, query]
   );
 
-  const activeCount =
-    joinedData?.total_items ?? activeChallenges.length;
+  const activeCount = activeChallenges.length;
 
   return (
     <div className="min-h-screen w-full bg-white min-w-0 overflow-hidden">
@@ -323,10 +333,12 @@ const Page = () => {
                       {challenge.timeLeft ?? "—"}
                     </span>
                   </div>
-                  <div className="flex gap-2.5">
-                    <button onClick={(e) => e.preventDefault()} className="hover:text-[#111827] transition-colors"><FiBookmark size={15} /></button>
-                    <button onClick={(e) => e.preventDefault()} className="hover:text-[#111827] transition-colors"><FiShare2 size={15} /></button>
-                  </div>
+                  <ChallengeSaveShareActions
+                    challengeId={String(challenge.id)}
+                    title={challenge.title}
+                    isSaved={challenge.isSaved}
+                    iconSize={15}
+                  />
                 </div>
               </div>
             </Link>

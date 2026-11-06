@@ -8,6 +8,7 @@ import { toBlob, toJpeg, toPng } from "html-to-image";
 import { useGetMe } from "@/hooks/useAuth";
 import { useGetCreatorProfile } from "@/hooks/useProfile";
 import { useAuthStore } from "@/store/useAuthStore";
+import { displayMediaUrl } from "@/lib/displayMediaUrl";
 
 type SharePlatform = "instagram" | "tiktok" | "youtube";
 
@@ -122,10 +123,12 @@ function loadImage(src: string, cors = false): Promise<HTMLImageElement | null> 
 }
 
 async function urlToDataUrl(src: string): Promise<string | null> {
+  const requestUrl = displayMediaUrl(src) || src;
   try {
-    const response = await fetch(src, { mode: "cors", credentials: "omit" });
+    const response = await fetch(requestUrl, { mode: "cors", credentials: "omit" });
     if (response.ok) {
       const blob = await response.blob();
+      if (blob.size < 128) return null;
       return await new Promise((resolve) => {
         const reader = new FileReader();
         reader.onload = () => resolve(String(reader.result || ""));
@@ -134,11 +137,13 @@ async function urlToDataUrl(src: string): Promise<string | null> {
       });
     }
   } catch {
-    // Fall through to canvas draw with CORS.
+    return null;
   }
 
+  if (requestUrl === src) return null;
+
   try {
-    const img = await loadImage(src, true);
+    const img = await loadImage(requestUrl, true);
     if (!img) return null;
     const canvas = document.createElement("canvas");
     canvas.width = img.naturalWidth || img.width;
@@ -447,7 +452,7 @@ export default function ShareScoreModal({
   const possessive = toPossessive(name);
   const clampedScore = Math.min(100, Math.max(0, Math.round(score)));
   const shareText = `${possessive} Starix Score is ${clampedScore}. A real-time measure of creator performance, visibility, and brand readiness on Starix.`;
-  const visiblePhoto = embeddedPhoto || (!avatarFailed ? photo : null);
+  const visiblePhoto = embeddedPhoto;
 
   useEffect(() => {
     setAvatarFailed(false);

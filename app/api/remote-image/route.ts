@@ -6,7 +6,10 @@ export const dynamic = "force-dynamic";
 function isTrustedMediaHost(hostname: string) {
   return (
     hostname.endsWith(".blob.core.windows.net") ||
-    hostname.endsWith(".amazonaws.com")
+    hostname.endsWith(".amazonaws.com") ||
+    hostname === "cdn.starixapp.com" ||
+    hostname.endsWith(".starixapp.com") ||
+    hostname === "res.cloudinary.com"
   );
 }
 
@@ -37,13 +40,42 @@ export async function GET(request: Request) {
     return NextResponse.json({ detail: "Unsupported image host" }, { status: 400 });
   }
 
-  const upstream = await fetch(parsed.toString(), { cache: "force-cache" });
+  const emptyGif = Buffer.from(
+    "R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",
+    "base64"
+  );
+
+  let upstream: Response;
+  try {
+    upstream = await fetch(parsed.toString(), {
+      cache: "no-store",
+      redirect: "follow",
+    });
+  } catch {
+    return new NextResponse(emptyGif, {
+      status: 200,
+      headers: {
+        "Content-Type": "image/gif",
+        "Cache-Control": "no-store",
+      },
+    });
+  }
   if (!upstream.ok || !upstream.body) {
-    return NextResponse.json({ detail: "Image unavailable" }, { status: 502 });
+    return new NextResponse(emptyGif, {
+      status: 200,
+      headers: {
+        "Content-Type": "image/gif",
+        "Cache-Control": "no-store",
+      },
+    });
   }
 
   const contentType = upstream.headers.get("Content-Type") || "image/jpeg";
-  if (!contentType.startsWith("image/")) {
+  const looksLikeImage =
+    contentType.startsWith("image/") ||
+    contentType === "application/octet-stream" ||
+    contentType === "binary/octet-stream";
+  if (!looksLikeImage) {
     return NextResponse.json({ detail: "Not an image" }, { status: 400 });
   }
 

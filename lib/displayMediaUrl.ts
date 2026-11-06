@@ -1,9 +1,10 @@
-const BLOCKED_PATH = /banner|advert|doubleclick/i;
-
 function isTrustedMediaHost(hostname: string) {
   return (
     hostname.endsWith(".blob.core.windows.net") ||
-    hostname.endsWith(".amazonaws.com")
+    hostname.endsWith(".amazonaws.com") ||
+    hostname === "cdn.starixapp.com" ||
+    hostname.endsWith(".starixapp.com") ||
+    hostname === "res.cloudinary.com"
   );
 }
 
@@ -23,11 +24,7 @@ export function displayMediaUrl(url?: string | null) {
 
   try {
     const parsed = new URL(url);
-    if (
-      parsed.protocol === "https:" &&
-      isTrustedMediaHost(parsed.hostname) &&
-      BLOCKED_PATH.test(url)
-    ) {
+    if (parsed.protocol === "https:" && isTrustedMediaHost(parsed.hostname)) {
       return `/api/remote-image?k=${encodeMediaRef(url)}`;
     }
   } catch {
