@@ -195,38 +195,43 @@ function mediaBucketToList(raw: unknown): unknown[] {
 }
 
 function normalizeChallengeMediaList(raw: unknown): ChallengeMedia[] {
-  return mediaBucketToList(raw)
-    .map((entry, index) => {
-      const media_url = extractMediaUrl(entry);
-      if (!media_url) return null;
-      const item = asRecord(entry);
-      const mediaType = String(
-        item.media_type ?? item.mediaType ?? item.type ?? ""
-      ).toLowerCase();
-      return {
-        id: pickTrimmedString(item.id) ?? undefined,
-        media_url,
-        media_type:
-          mediaType.includes("video") || /\.(mp4|webm|mov)(\?|$)/i.test(media_url)
-            ? "video"
-            : mediaType.includes("image")
-              ? "image"
-              : "image",
-        display_order:
-          typeof item.display_order === "number"
-            ? item.display_order
-            : typeof item.displayOrder === "number"
-              ? item.displayOrder
-              : index,
-        original_filename: pickTrimmedString(
+  const media: ChallengeMedia[] = [];
+
+  mediaBucketToList(raw).forEach((entry, index) => {
+    const media_url = extractMediaUrl(entry);
+    if (!media_url) return;
+
+    const item = asRecord(entry);
+    const mediaType = String(
+      item.media_type ?? item.mediaType ?? item.type ?? ""
+    ).toLowerCase();
+
+    media.push({
+      id: pickTrimmedString(item.id) ?? undefined,
+      media_url,
+      media_type:
+        mediaType.includes("video") || /\.(mp4|webm|mov)(\?|$)/i.test(media_url)
+          ? "video"
+          : mediaType.includes("image")
+            ? "image"
+            : "image",
+      display_order:
+        typeof item.display_order === "number"
+          ? item.display_order
+          : typeof item.displayOrder === "number"
+            ? item.displayOrder
+            : index,
+      original_filename:
+        pickTrimmedString(
           item.original_filename,
           item.originalFilename,
           item.filename,
           item.name
         ) ?? undefined,
-      } satisfies ChallengeMedia;
-    })
-    .filter((item): item is ChallengeMedia => Boolean(item));
+    });
+  });
+
+  return media;
 }
 
 function collectChallengeMedia(item: Record<string, unknown>): ChallengeMedia[] {
