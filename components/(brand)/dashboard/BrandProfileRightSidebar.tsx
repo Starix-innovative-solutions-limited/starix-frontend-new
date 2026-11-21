@@ -6,8 +6,10 @@ import { FiArrowRight, FiHeart } from "react-icons/fi";
 import BrandAvatar from "@/components/(brand)/BrandAvatar";
 import {
   type ChallengeItem,
+  mergeBrandLeaderboardWithSubmissions,
   useGetBrandChallenge,
   useGetBrandChallengeLeaderboard,
+  useGetBrandChallengeSubmissions,
 } from "@/hooks/useChallenges";
 
 type BrandProfileRightSidebarProps = {
@@ -87,6 +89,17 @@ export default function BrandProfileRightSidebar({
       enabled: Boolean(challenge?.id),
       refetchInterval: 10_000,
     });
+  const { rows: submissionRows, isLoading: isSubmissionsLoading } =
+    useGetBrandChallengeSubmissions(challenge?.id, {
+      platform: "all",
+      limit: 100,
+      offset: 0,
+      refetchInterval: 10_000,
+    });
+  const joinedEntries = mergeBrandLeaderboardWithSubmissions(
+    leaderboard?.entries ?? [],
+    submissionRows
+  );
 
   if (isChallengesLoading) {
     return (
@@ -138,7 +151,8 @@ export default function BrandProfileRightSidebar({
     submission_eligibility?: string;
     platforms?: string[];
   };
-  const entries = (leaderboard?.entries ?? []).slice(0, 3);
+  const entries = joinedEntries.slice(0, 3);
+  const isLoadingEntries = isLeaderboardLoading && isSubmissionsLoading;
   const savedObjectives = Array.from(
     new Set(
       [
@@ -181,7 +195,7 @@ export default function BrandProfileRightSidebar({
           </div>
 
           <div className="mt-4 divide-y divide-[#EEF0F4]">
-            {isLeaderboardLoading ? (
+            {isLoadingEntries ? (
               <p className="py-8 text-center text-[13px] text-[#8B8D98]">
                 Loading leaderboard...
               </p>
@@ -192,7 +206,9 @@ export default function BrandProfileRightSidebar({
             ) : (
               entries.map((entry, index) => {
                 const score =
-                  entry.final_score ?? entry.challenge_score ?? 0;
+                  entry.final_score ?? entry.challenge_score;
+                const scorePending =
+                  score == null || entry.refresh_pending || !entry.rank;
                 const name =
                   entry.display_name || entry.username || "Creator";
                 return (
@@ -229,7 +245,7 @@ export default function BrandProfileRightSidebar({
                         <span className="h-2.5 w-2.5 rounded-full bg-[#D0D5DD]" />
                       )}
                       <span className="text-[16px] font-semibold tabular-nums text-[#1E1F24]">
-                        {Math.round(Number(score) || 0)}
+                        {scorePending ? "—" : Math.round(Number(score) || 0)}
                       </span>
                       <span className="relative h-5 w-5">
                         <Image

@@ -9,9 +9,11 @@ import BrandAvatar from "@/components/(brand)/BrandAvatar";
 import {
   type ChallengeItem,
   type ChallengeLeaderboardEntry,
+  mergeBrandLeaderboardWithSubmissions,
   submittedCount,
   useGetBrandChallenge,
   useGetBrandChallengeLeaderboard,
+  useGetBrandChallengeSubmissions,
 } from "@/hooks/useChallenges";
 import { formatCompactNaira } from "@/lib/formatMoney";
 import { useDashboardSearch } from "@/components/dashboard/DashboardSearchProvider";
@@ -113,6 +115,11 @@ function MetricCard({
 function entryPlatforms(entry: LeaderboardRow) {
   if (entry.platforms?.length) return entry.platforms;
   if (entry.selected_platform) return [entry.selected_platform];
+  if (entry.links?.length) {
+    return entry.links
+      .map((link) => link.platform)
+      .filter((value): value is string => Boolean(value));
+  }
   return [];
 }
 
@@ -149,12 +156,29 @@ export default function BrandChallengePerformancePage() {
     offset: 0,
     refetchInterval: 10_000,
   });
+  const {
+    rows: submissionRows,
+    isLoading: isLoadingSubmissions,
+    isError: isSubmissionsError,
+  } = useGetBrandChallengeSubmissions(challengeId, {
+    platform: "all",
+    limit: 100,
+    offset: 0,
+    refetchInterval: 10_000,
+  });
 
   const detail = challenge as ChallengeDetail | undefined;
   const rows = useMemo(
-    () => (leaderboard?.entries ?? []) as LeaderboardRow[],
-    [leaderboard?.entries]
+    () =>
+      mergeBrandLeaderboardWithSubmissions(
+        leaderboard?.entries ?? [],
+        submissionRows
+      ) as LeaderboardRow[],
+    [leaderboard?.entries, submissionRows]
   );
+  const isLoadingRows = isLoadingLeaderboard && isLoadingSubmissions;
+  const isRowsError =
+    isLeaderboardError && isSubmissionsError && rows.length === 0;
   const query = search.trim().toLowerCase();
   const filteredRows = useMemo(
     () =>
@@ -398,11 +422,11 @@ export default function BrandChallengePerformancePage() {
               <span className="text-right">Score</span>
             </div>
 
-            {isLoadingLeaderboard ? (
+            {isLoadingRows ? (
               <p className="py-12 text-center text-[13px] text-[#747682]">
                 Loading leaderboard...
               </p>
-            ) : isLeaderboardError ? (
+            ) : isRowsError ? (
               <p className="py-12 text-center text-[13px] text-[#D12B1F]">
                 Couldn’t load this leaderboard. Refresh and try again.
               </p>
@@ -417,7 +441,7 @@ export default function BrandChallengePerformancePage() {
                 const platforms = entryPlatforms(entry);
                 const score = entry.final_score ?? entry.challenge_score;
                 const scorePending =
-                  score == null || entry.refresh_pending;
+                  score == null || entry.refresh_pending || !entry.rank;
                 const name =
                   entry.display_name ||
                   entry.full_name ||
@@ -435,7 +459,7 @@ export default function BrandChallengePerformancePage() {
                     className="grid min-h-[80px] grid-cols-[72px_minmax(220px,1.4fr)_140px_140px_90px] items-center gap-4 border-b border-[#EEF0F4] px-1"
                   >
                     <span className="text-[14px] font-medium text-[#62636C]">
-                      #{entry.rank || (page - 1) * PAGE_SIZE + index + 1}
+                      {entry.rank ? `#${entry.rank}` : "—"}
                     </span>
                     <div className="flex min-w-0 items-center gap-3">
                       <BrandAvatar

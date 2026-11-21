@@ -18,8 +18,10 @@ type SubmissionPost = {
   contentUrl: string;
   coverImageUrl: string | null;
   creatorName: string;
+  creatorUsername: string | null;
   creatorAvatar: string | null;
   challengeTitle: string;
+  starixScore: number | null;
 };
 
 const TABS: { id: PlatformTab; label: string }[] = [
@@ -42,15 +44,6 @@ function platformFromUrl(url: string): string {
   if (value.includes("tiktok.com")) return "tiktok";
   if (value.includes("/shorts/")) return "youtube_shorts";
   if (value.includes("youtube.com") || value.includes("youtu.be")) return "youtube";
-  return "other";
-}
-
-function tabForPlatform(platform: string): PlatformTab | "other" {
-  const key = platform.toLowerCase();
-  if (key === "youtube_shorts") return "youtube";
-  if (key === "instagram" || key === "tiktok" || key === "youtube") {
-    return key;
-  }
   return "other";
 }
 
@@ -108,8 +101,11 @@ function postsFromRow(row: BrandSubmissionRow, index: number): SubmissionPost[] 
       contentUrl: link.content_url,
       coverImageUrl: row.cover_image_url ?? null,
       creatorName,
+      creatorUsername: row.username ?? null,
       creatorAvatar: row.profile_picture_url ?? null,
       challengeTitle: row.challenge_title || "Challenge",
+      starixScore:
+        typeof row.starix_score === "number" ? row.starix_score : null,
     };
   });
 }
@@ -167,14 +163,21 @@ function PostViewerModal({
               className="h-10 w-10"
               letterClassName="text-xs"
             />
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="truncate text-[15px] font-semibold text-[#1E1F24]">
                 {post.creatorName}
               </p>
               <p className="truncate text-[12px] text-[#747682]">
-                {post.challengeTitle}
+                {post.creatorUsername
+                  ? `@${post.creatorUsername}`
+                  : post.challengeTitle}
               </p>
             </div>
+            {post.starixScore != null ? (
+              <span className="shrink-0 text-[14px] font-semibold text-[#0033FF]">
+                {Math.round(post.starixScore)}
+              </span>
+            ) : null}
           </div>
           <a
             href={post.contentUrl}
@@ -197,10 +200,14 @@ export default function BrandSubmissionsGallery({
   challengeId?: string | null;
   query?: string;
 }) {
-  const { rows, isLoading, isError, totalSubmitted } =
-    useGetBrandChallengeSubmissions(challengeId);
   const [activeTab, setActiveTab] = useState<PlatformTab>("all");
   const [selected, setSelected] = useState<SubmissionPost | null>(null);
+  const { rows, isLoading, isError, totalSubmitted } =
+    useGetBrandChallengeSubmissions(challengeId, {
+      platform: activeTab,
+      limit: 100,
+      offset: 0,
+    });
   const search = query.trim().toLowerCase();
 
   const posts = useMemo(
@@ -211,16 +218,14 @@ export default function BrandSubmissionsGallery({
   const visiblePosts = useMemo(
     () =>
       posts.filter((post) => {
-        const matchesTab =
-          activeTab === "all" || tabForPlatform(post.platform) === activeTab;
         const matchesSearch =
           !search ||
-          `${post.creatorName} ${post.challengeTitle} ${post.platform}`
+          `${post.creatorName} ${post.creatorUsername ?? ""} ${post.challengeTitle} ${post.platform}`
             .toLowerCase()
             .includes(search);
-        return matchesTab && matchesSearch;
+        return matchesSearch;
       }),
-    [activeTab, posts, search]
+    [posts, search]
   );
 
   return (
@@ -313,14 +318,21 @@ export default function BrandSubmissionsGallery({
                       className="h-8 w-8"
                       letterClassName="text-[10px]"
                     />
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="truncate text-[13px] font-semibold text-[#1E1F24]">
                         {post.creatorName}
                       </p>
                       <p className="truncate text-[11px] text-[#747682]">
-                        {post.challengeTitle}
+                        {post.creatorUsername
+                          ? `@${post.creatorUsername}`
+                          : post.challengeTitle}
                       </p>
                     </div>
+                    {post.starixScore != null ? (
+                      <span className="shrink-0 text-[12px] font-semibold text-[#0033FF]">
+                        {Math.round(post.starixScore)}
+                      </span>
+                    ) : null}
                   </div>
                   <div className="flex gap-2">
                     <button

@@ -1046,6 +1046,7 @@ export interface ChallengeLeaderboardEntry {
   engagement_captured_at?: string | null;
   refresh_pending?: boolean;
   cover_image_url?: string | null;
+  starix_score?: number | null;
   links?: Array<{ content_url: string; platform?: string | null }>;
 }
 
@@ -1128,6 +1129,7 @@ function normalizeLeaderboardEntry(
       (evidence.cover_image_url as string | null) ??
       (item.cover_image_url as string | null) ??
       null,
+    starix_score: optionalNumber(item.starix_score),
     links: links.length ? links : undefined,
   };
 }
@@ -1341,6 +1343,13 @@ export type BrandSubmissionRow = ChallengeLeaderboardEntry & {
   challenge_title: string;
 };
 
+export type BrandSubmissionPlatform = "instagram" | "tiktok" | "youtube";
+
+type BrandSubmissionsPage = {
+  items: BrandSubmissionRow[];
+  total: number;
+};
+
 export function submittedCount(challenge?: ChallengeItem | null) {
   if (!challenge) return 0;
   return Math.max(
@@ -1351,7 +1360,232 @@ export function submittedCount(challenge?: ChallengeItem | null) {
   );
 }
 
-export function useGetBrandChallengeSubmissions(challengeId?: string | null) {
+function unwrapBrandSubmissionsPayload(payload: unknown): {
+  items: unknown[];
+  total: number;
+} {
+  const root = asRecord(payload);
+  const dataField = root.data;
+  const nested = asRecord(dataField);
+  const items = asLeaderboardEntries(
+    Array.isArray(payload)
+      ? payload
+      : Array.isArray(dataField)
+        ? dataField
+        : (root.submissions ??
+            root.entries ??
+            root.items ??
+            root.results ??
+            root.participants ??
+            root.creators ??
+            nested.submissions ??
+            nested.entries ??
+            nested.items ??
+            nested.results ??
+            nested.participants ??
+            nested.creators ??
+            [])
+  );
+  const total =
+    Number(
+      root.total ??
+        root.total_items ??
+        root.total_entries ??
+        nested.total ??
+        nested.total_items ??
+        nested.total_entries ??
+        items.length
+    ) || items.length;
+  return { items, total };
+}
+
+function submissionRowKey(entry: {
+  submission_id?: string | null;
+  entrant_id?: string | null;
+  user_id?: string | null;
+  circle_id?: string | null;
+  username?: string | null;
+}) {
+  return (
+    String(entry.submission_id ?? "").trim() ||
+    String(entry.entrant_id ?? "").trim() ||
+    String(entry.user_id ?? "").trim() ||
+    String(entry.circle_id ?? "").trim() ||
+    String(entry.username ?? "").trim()
+  );
+}
+
+export function mergeBrandLeaderboardWithSubmissions(
+  leaderboard: ChallengeLeaderboardEntry[],
+  submissions: BrandSubmissionRow[]
+): ChallengeLeaderboardEntry[] {
+  const ranked = new Map<string, ChallengeLeaderboardEntry>();
+  for (const entry of leaderboard) {
+    const key = submissionRowKey(entry);
+    if (key) ranked.set(key, entry);
+  }
+
+  const merged: ChallengeLeaderboardEntry[] = [];
+  const seen = new Set<string>();
+
+  for (const submission of submissions) {
+    const key = submissionRowKey(submission);
+    const scored = key ? ranked.get(key) : undefined;
+    if (key) seen.add(key);
+    const platforms =
+      (scored?.platforms?.length ? scored.platforms : submission.platforms) ??
+      (submission.links ?? [])
+        .map((link) => link.platform)
+        .filter((value): value is string => Boolean(value));
+
+    merged.push({
+      ...submission,
+      ...scored,
+      display_name:
+        scored?.display_name ||
+        submission.display_name ||
+        scored?.username ||
+        submission.username,
+      username: scored?.username || submission.username,
+      profile_picture_url:
+        scored?.profile_picture_url || submission.profile_picture_url,
+      platforms,
+      links: scored?.links?.length ? scored.links : submission.links,
+      content_url: scored?.content_url || submission.content_url,
+      selected_platform:
+        scored?.selected_platform || submission.selected_platform,
+      starix_score: scored?.starix_score ?? submission.starix_score,
+      total_engagement:
+        scored?.total_engagement ?? submission.total_engagement,
+      rank: scored?.rank || 0,
+      final_score: scored?.final_score ?? submission.final_score,
+      challenge_score: scored?.challenge_score ?? submission.challenge_score,
+      status: scored?.status || submission.status,
+      refresh_pending: scored?.refresh_pending ?? submission.refresh_pending,
+    });
+  }
+
+  for (const entry of leaderboard) {
+    const key = submissionRowKey(entry);
+    if (key && seen.has(key)) continue;
+    merged.push(entry);
+  }
+
+  return merged.sort((left, right) => {
+    const leftRank = left.rank || Number.MAX_SAFE_INTEGER;
+    const rightRank = right.rank || Number.MAX_SAFE_INTEGER;
+    if (leftRank !== rightRank) return leftRank - rightRank;
+    const leftName = left.display_name || left.username || "";
+    const rightName = right.display_name || right.username || "";
+    return leftName.localeCompare(rightName);
+  });
+}
+
+function mapSubmissionRows(
+  items: unknown[],
+  challengeId: string,
+  challengeTitle: string
+): BrandSubmissionRow[] {
+  return items.map((item, index) => {
+    const entry = normalizeLeaderboardEntry(item, index);
+    const raw = asRecord(item);
+    return {
+      ...entry,
+      challenge_id: String(raw.challenge_id ?? challengeId),
+      challenge_title: String(
+        raw.challenge_title ?? raw.title ?? challengeTitle
+      ),
+    };
+  });
+}
+
+async function fetchBrandChallengeSubmissionsPage(
+  challengeId: string,
+  challengeTitle: string,
+  options: {
+    platform?: "all" | BrandSubmissionPlatform;
+    limit: number;
+    offset: number;
+  }
+): Promise<BrandSubmissionsPage> {
+  const params: Record<string, string | number> = {
+    limit: options.limit,
+    offset: options.offset,
+  };
+  if (options.platform && options.platform !== "all") {
+    params.platform = options.platform;
+  }
+
+  try {
+    const { data } = await api.get(
+      `/brands/challenges/${challengeId}/submissions`,
+      { params }
+    );
+    const page = unwrapBrandSubmissionsPayload(data);
+    return {
+      items: mapSubmissionRows(page.items, challengeId, challengeTitle),
+      total: page.total,
+    };
+  } catch (error) {
+    const status = (error as { response?: { status?: number } })?.response
+      ?.status;
+    if (status !== 404) throw error;
+
+    const { data } = await api.get(
+      `/brands/challenges/${challengeId}/leaderboard`,
+      { params: { limit: options.limit, offset: options.offset } }
+    );
+    const board = normalizeBrandLeaderboard(data);
+    const platform = options.platform;
+    const items = board.entries
+      .map((entry) => {
+        if (!platform || platform === "all") return entry;
+        const links = (entry.links ?? []).filter(
+          (link) => (link.platform || "").toLowerCase() === platform
+        );
+        const selected = (entry.selected_platform || "").toLowerCase();
+        const platforms = (entry.platforms ?? []).map((value) =>
+          value.toLowerCase()
+        );
+        if (
+          links.length === 0 &&
+          selected !== platform &&
+          !platforms.includes(platform)
+        ) {
+          return null;
+        }
+        return {
+          ...entry,
+          links: links.length ? links : entry.links,
+        };
+      })
+      .filter((entry): entry is ChallengeLeaderboardEntry => Boolean(entry));
+
+    return {
+      items: items.map((entry) => ({
+        ...entry,
+        challenge_id: challengeId,
+        challenge_title: challengeTitle,
+      })),
+      total: items.length,
+    };
+  }
+}
+
+export function useGetBrandChallengeSubmissions(
+  challengeId?: string | null,
+  options?: {
+    platform?: "all" | BrandSubmissionPlatform;
+    limit?: number;
+    offset?: number;
+    refetchInterval?: number | false;
+  }
+) {
+  const limit = Math.min(100, Math.max(1, options?.limit ?? 50));
+  const offset = Math.max(0, options?.offset ?? 0);
+  const platform = options?.platform ?? "all";
+  const refetchInterval = options?.refetchInterval;
+
   const list = useGetBrandChallenges(
     { limit: 100, offset: 0 },
     { enabled: !challengeId }
@@ -1361,64 +1595,70 @@ export function useGetBrandChallengeSubmissions(challengeId?: string | null) {
   });
 
   const challenges: ChallengeItem[] = challengeId
-    ? single.data
-      ? [single.data]
-      : []
+    ? [single.data ?? ({ id: challengeId, title: "" } as ChallengeItem)]
     : (list.data?.challenges ?? []);
 
-  const boards = useQueries({
+  const pages = useQueries({
     queries: challenges.map((challenge) => ({
-      queryKey: ["brands", "challenges", "leaderboard", challenge.id, 100, 0],
-      queryFn: async () => {
-        const { data } = await api.get(
-          `/brands/challenges/${challenge.id}/leaderboard`,
-          { params: { limit: 100, offset: 0 } }
-        );
-        return normalizeBrandLeaderboard(data);
-      },
+      queryKey: [
+        "brands",
+        "challenges",
+        "submissions",
+        challenge.id,
+        platform,
+        limit,
+        offset,
+      ],
+      queryFn: () =>
+        fetchBrandChallengeSubmissionsPage(challenge.id, challenge.title, {
+          platform,
+          limit,
+          offset,
+        }),
       enabled: Boolean(challenge.id),
+      refetchInterval,
     })),
   });
 
-  const rows: BrandSubmissionRow[] = boards.flatMap((query, index) => {
+  const rows: BrandSubmissionRow[] = pages.flatMap((query, index) => {
     const challenge = challenges[index];
-    const entries = query.data?.entries ?? [];
-    if (!challenge || entries.length === 0) return [];
-    return entries.map((entry) => ({
+    const items = query.data?.items ?? [];
+    if (!challenge) return items;
+    return items.map((entry) => ({
       ...entry,
-      challenge_id: challenge.id,
-      challenge_title: challenge.title,
+      challenge_id: entry.challenge_id || challenge.id,
+      challenge_title: entry.challenge_title || challenge.title,
     }));
   });
 
-  const rankedByChallenge = new Map(
-    challenges.map((challenge, index) => {
-      const board = boards[index]?.data;
-      const ranked = board?.total_entries || board?.entries?.length || 0;
-      return [challenge.id, ranked] as const;
-    })
-  );
-
-  const totalSubmitted = challenges.reduce(
-    (sum, challenge) => sum + submittedCount(challenge),
-    0
-  );
-  const pendingCount = challenges.reduce((sum, challenge) => {
-    const ranked = rankedByChallenge.get(challenge.id) ?? 0;
-    return sum + Math.max(0, submittedCount(challenge) - ranked);
+  const totalSubmitted = pages.reduce((sum, query, index) => {
+    const reported = query.data?.total;
+    if (typeof reported === "number" && reported > 0) return sum + reported;
+    if (challengeId) return sum + rows.length;
+    return sum + submittedCount(challenges[index]);
   }, 0);
+
+  const pendingCount = rows.filter((row) => {
+    const status = (row.status ?? "").toLowerCase();
+    return (
+      status === "pending" ||
+      status === "awaiting_review" ||
+      status === "under_review" ||
+      status === "submitted"
+    );
+  }).length;
 
   return {
     rows,
     challenges,
     isLoading:
-      (challengeId ? single.isLoading : list.isLoading) ||
-      boards.some((query) => query.isLoading),
+      (challengeId ? false : list.isLoading) ||
+      pages.some((query) => query.isLoading),
     isError:
-      (challengeId ? single.isError : list.isError) ||
-      boards.some((query) => query.isError),
+      (challengeId ? false : list.isError) ||
+      pages.some((query) => query.isError),
     pendingCount,
-    totalSubmitted,
+    totalSubmitted: Math.max(totalSubmitted, rows.length),
   };
 }
 

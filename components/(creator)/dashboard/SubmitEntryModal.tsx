@@ -129,11 +129,10 @@ const SubmitEntryModal = ({
       Object.fromEntries(requiredPlatforms.map((platform) => [platform, false]))
     );
     setShowSuccess(false);
+    setSuccessMessage("Your entry has been successfully submitted.");
     submitEntry.reset();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- reset only when modal opens / challenge inputs change
-  }, [isOpen, challengeId, requirements, requiredPlatforms]);
-
-  if (!isOpen) return null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reset only when the modal is opened
+  }, [isOpen]);
 
   if (showSuccess) {
     return (
@@ -151,6 +150,8 @@ const SubmitEntryModal = ({
       />
     );
   }
+
+  if (!isOpen) return null;
 
   const handleInputChange = (platform: PlatformKey, value: string) => {
     setLinks((prev) => ({ ...prev, [platform]: value }));
@@ -199,9 +200,10 @@ const SubmitEntryModal = ({
           ...(circleId ? { circle_id: circleId } : {}),
         },
       });
-      setSuccessMessage(
-        data?.message || "Your entry has been successfully submitted."
-      );
+      const message =
+        data?.message || "Your entry has been successfully submitted.";
+      setSuccessMessage(message);
+      notice.success(message);
       onSubmitted?.();
       setShowSuccess(true);
     } catch (error) {
