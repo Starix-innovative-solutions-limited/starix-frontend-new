@@ -487,20 +487,29 @@ const CircleProfilePage = () => {
               Loading challenges...
             </div>
           ) : visibleChallenges.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <img src="/circle.svg" alt="" className="mb-6 h-[120px] w-[120px]" />
-              <h3 className="mb-2 text-[20px] font-semibold">No {activeTab} challenges</h3>
-              <p className="mb-8 max-w-[400px] text-[14px] text-[#62636C]">
+            <div className="flex min-h-[360px] flex-col items-center justify-center px-4 py-14 text-center">
+              <div className="mb-8 h-[116px] w-[116px] rounded-full bg-[#F2F4F7]" />
+              <h3 className="mb-2 text-[16px] font-semibold text-[#101828]">
+                {searchQuery
+                  ? `No ${activeTab} challenges found`
+                  : activeTab === "active"
+                    ? "Your circle has not joined any Challenges"
+                    : `No ${activeTab} challenges yet`}
+              </h3>
+              <p className="max-w-[390px] text-[13px] leading-relaxed text-[#667085]">
                 {searchQuery
                   ? `No matches for “${searchQuery}”.`
-                  : "Your team hasn't joined any challenges yet."}
+                  : activeTab === "active"
+                    ? "Your team hasn't joined any challenges yet. Pick a campaign and submit as a team for a chance to win."
+                    : `Your circle's ${activeTab} challenges will appear here.`}
               </p>
-              {!searchQuery && (
+              {!searchQuery && activeTab === "active" && (
                 <button
+                  type="button"
                   onClick={() =>
                     router.push(`/challenges/recommended?circle=${id}`)
                   }
-                  className="rounded-full bg-[#0033FF] px-6 py-3 font-semibold text-[#FAFAFA]"
+                  className="mt-6 rounded-full bg-[#0033FF] px-6 py-3 text-[13px] font-semibold text-white transition hover:bg-[#0029CC]"
                 >
                   Find Challenges
                 </button>

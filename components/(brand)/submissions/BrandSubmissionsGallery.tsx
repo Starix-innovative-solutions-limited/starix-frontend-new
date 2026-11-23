@@ -123,7 +123,12 @@ function PostViewerModal({
     window.matchMedia("(min-width: 1024px)").matches;
 
   return (
-    <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 px-4">
+    <div
+      className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 px-4"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
       <div className="relative w-full max-w-[560px] overflow-hidden rounded-[28px] bg-white shadow-2xl">
         <button
           type="button"

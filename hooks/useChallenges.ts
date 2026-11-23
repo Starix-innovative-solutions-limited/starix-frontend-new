@@ -570,7 +570,7 @@ export function useUpdateChallenge() {
 }
 
 /**
- * POST /brands/challenges/{id}/fund — start Flutterwave checkout to publish.
+ * POST /brands/challenges/{id}/fund — start checkout to publish.
  */
 export function useFundChallenge() {
   const queryClient = useQueryClient();

@@ -2,7 +2,7 @@
 
 import React, { Suspense, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import EditProfileModal from "@/components/(creator)/dashboard/EditProfileModal";
+import EditProfileModal from "@/components/(creator)/dashboard/EditProfileModalV2";
 import ConnectSocialsModal from "@/components/(creator)/dashboard/ConnectSocialsModal";
 import ViewPortfolioModal from "@/components/(creator)/dashboard/ViewPortfolioModal";
 import { FiSearch } from "react-icons/fi";
@@ -22,6 +22,10 @@ import {
 } from "@/hooks/useProfile";
 import { useGetMyCircle, type MyCircle } from "@/hooks/useCircles";
 import { hasSocialOAuthCallback } from "@/lib/socialOAuth";
+import {
+  useGetMyConnectedPlatforms,
+  type ConnectedPlatformAccount,
+} from "@/hooks/useSocials";
 import { useDashboardSearch } from "@/components/dashboard/DashboardSearchProvider";
 import { parseApiError } from "@/lib/apiError";
 import { useDashboardNotice } from "@/store/useDashboardNoticeStore";
@@ -84,6 +88,13 @@ const { data: viewedProfile, isLoading: isViewedProfileLoading } =
   useGetCreatorProfile(viewedUsername, {
     enabled: !!viewedUsername,
   });
+
+const myConnectedPlatforms = useGetMyConnectedPlatforms(isOwnProfile);
+const myPlatforms: ConnectedPlatformAccount[] = Array.isArray(
+  myConnectedPlatforms.data
+)
+  ? myConnectedPlatforms.data
+  : [];
 
 const { data: metricsData, isLoading: isMetricsLoading } = useGetCreatorMetrics(
   viewedUsername,
@@ -274,6 +285,34 @@ const canShowScore = typeof profile?.starix_score === "number";
   tiktok: { icon: "/tt.svg", label: "TikTok" },
 };
 
+function platformIconKey(value: string) {
+  const key = value.trim().toLowerCase().replace(/[\s-]+/g, "_");
+  if (key === "yt" || key.includes("youtube") || key === "google") return "youtube";
+  if (key === "ig" || key.includes("instagram")) return "instagram";
+  if (key === "tt" || key.includes("tiktok")) return "tiktok";
+  return key;
+}
+
+const connectedPlatforms = useMemo(() => {
+  const merged = new Map<string, { platform: string; username?: string | null }>();
+  const sources = isOwnProfile
+    ? [...(profile?.connected_platforms ?? []), ...myPlatforms]
+    : (profile?.connected_platforms ?? []);
+
+  for (const item of sources) {
+    const raw =
+      typeof item === "string"
+        ? item
+        : String(item?.platform ?? "");
+    const key = platformIconKey(raw);
+    if (!key || merged.has(key)) continue;
+    const username = typeof item === "string" ? null : item?.username;
+    merged.set(key, { platform: key, username });
+  }
+
+  return Array.from(merged.values());
+}, [isOwnProfile, myPlatforms, profile?.connected_platforms]);
+
 const ConnectedPlatformIcons = ({
   platforms,
 }: {
@@ -281,12 +320,10 @@ const ConnectedPlatformIcons = ({
 }) => {
   if (!platforms.length) return null;
 
-
-
   return (
     <div className="flex items-center gap-2">
       {platforms.map((item) => {
-        const platform = PLATFORM_ICON_MAP[item.platform.toLowerCase()];
+        const platform = PLATFORM_ICON_MAP[platformIconKey(item.platform)];
         if (!platform) return null;
 
         return (
@@ -393,9 +430,7 @@ const ConnectedPlatformIcons = ({
               </div>
 
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <ConnectedPlatformIcons
-                  platforms={profile?.connected_platforms ?? []}
-                />
+                <ConnectedPlatformIcons platforms={connectedPlatforms} />
 
                 {niches.map((niche) => (
                   <span

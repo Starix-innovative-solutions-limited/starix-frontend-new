@@ -27,6 +27,7 @@ import {
   useGetEarningDetail,
   useGetCircleMonthlyEarnings,
   useGetRecommendedChallenges,
+  useGetMyRequests,
   type DiscoverableCircle,
 } from "@/hooks/useCircles";
 import {
@@ -46,6 +47,11 @@ import {
   creatorProfileHref,
   profileUsernameFromPath,
 } from "@/lib/creatorProfilePath";
+import {
+  useGetMyConnectedPlatforms,
+  type ConnectedPlatformAccount,
+} from "@/hooks/useSocials";
+import { isStarixScoreRecalculationPending } from "@/lib/starixScoreRecalculation";
 
 function formatViewCount(count?: number) {
   const value = count ?? 0;
@@ -56,6 +62,18 @@ function formatViewCount(count?: number) {
     return `${(value / 1_000).toFixed(1).replace(/\.0$/, "")}k views`;
   }
   return `${value} view${value === 1 ? "" : "s"}`;
+}
+
+function formatRequestAge(value?: string) {
+  if (!value) return "Pending";
+  const timestamp = new Date(value).getTime();
+  if (!Number.isFinite(timestamp)) return "Pending";
+  const minutes = Math.floor(Math.max(0, Date.now() - timestamp) / 60_000);
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
 }
 
 function ScoreCalculatingMark() {
@@ -300,6 +318,8 @@ const RightSideBar = ({ className, collapsed }: any) => {
   const { data: creatorProfile } = useGetCreatorProfile(currentUsername ?? "", {
     enabled: Boolean(currentUsername),
   });
+  const { data: myConnectedPlatforms = [] } =
+    useGetMyConnectedPlatforms(Boolean(currentUsername));
   const { data: leaderboardData } = useGetGlobalLeaderboard(leaderboardUsername);
   const { data: activeAccount, isLoading: isLoadingAccount } = useGetWithdrawalAccount();
 
@@ -341,6 +361,9 @@ const RightSideBar = ({ className, collapsed }: any) => {
   const isCreatorCirclesPage =
     pathname === "/creator-circles" ||
     pathname.includes("/creator-circles/explore");
+
+  const { data: pendingCircleRequests = [], isLoading: pendingRequestsLoading } =
+    useGetMyRequests({ enabled: isCreatorCirclesPage });
 
  
  
@@ -398,16 +421,34 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
     creatorProfile?.connected_platforms ??
     userProfile?.connected_platforms ??
     [];
+  const authoritativeConnectedPlatforms: ConnectedPlatformAccount[] =
+    Array.isArray(myConnectedPlatforms)
+    ? (myConnectedPlatforms as ConnectedPlatformAccount[]).filter((account) => {
+        const status = account.connection_status?.toLowerCase();
+        return status !== "disconnected" && status !== "revoked";
+      })
+    : [];
+  const connectedPlatformCount = Math.max(
+    connectedPlatforms.length,
+    authoritativeConnectedPlatforms.length
+  );
   const hasConnectedSocials =
-    connectedPlatforms.length > 0 ||
+    connectedPlatformCount > 0 ||
     (scoreData?.connected_platforms_count ?? 0) > 0;
   const hasCalculatedScore = Boolean(scoreData?.last_calculated_at);
+  const scoreRecalculationPending = isStarixScoreRecalculationPending(
+    scoreData?.last_calculated_at
+  );
+  const scoreSnapshotMissingPlatforms =
+    connectedPlatformCount > (scoreData?.connected_platforms_count ?? 0);
   const scoreCardState: "unavailable" | "calculating" | "ready" =
     !hasConnectedSocials
       ? "unavailable"
-      : hasCalculatedScore
-        ? "ready"
-        : "calculating";
+      : !hasCalculatedScore ||
+          scoreRecalculationPending ||
+          scoreSnapshotMissingPlatforms
+        ? "calculating"
+        : "ready";
 
   const renderedLeaderboard = React.useMemo(() => {
     const viewerFallbackName = isPublicProfilePage
@@ -843,7 +884,58 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
 
         ) : isCreatorCirclesPage ? (
           /* ── Creator Circles listing page ── */
-          <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
+          <div className="space-y-6">
+            <div className="overflow-hidden rounded-[24px] border border-[#EFF0F3] bg-white shadow-xs">
+              <div className="border-b border-[#EFF0F3] px-5 py-5">
+                <h4 className="text-[16px] font-semibold text-[#1E1F24]">
+                  Pending Requests
+                </h4>
+              </div>
+              <div className="space-y-1 p-2">
+                {pendingRequestsLoading ? (
+                  <p className="p-4 text-center text-xs text-gray-400">
+                    Loading requests...
+                  </p>
+                ) : pendingCircleRequests.length > 0 ? (
+                  pendingCircleRequests.map((request) => (
+                    <div
+                      key={request.request_id}
+                      className="flex items-center gap-3 rounded-2xl p-3 hover:bg-gray-50"
+                    >
+                      <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[#F2F4F7]">
+                        {request.circle_profile_picture_url ? (
+                          <Image
+                            src={request.circle_profile_picture_url}
+                            fill
+                            sizes="40px"
+                            alt={request.circle_name}
+                            className="object-cover"
+                          />
+                        ) : (
+                          <span className="flex h-full w-full items-center justify-center text-[13px] font-semibold text-[#667085]">
+                            {request.circle_name.charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-[13px] font-semibold text-[#62636C]">
+                          {request.circle_name}
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-[#98A2B3]">
+                          {formatRequestAge(request.requested_at)}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="p-4 text-center text-xs text-gray-400">
+                    No pending requests.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-white border border-[#EFF0F3] rounded-[24px] overflow-hidden shadow-xs">
             <div className="flex items-center justify-between px-5 py-5 border-b border-[#EFF0F3]">
               <h4 className="font-semibold text-[#1E1F24] text-[16px]">Open Circles</h4>
               <Link href="/creator-circles/explore" className="flex items-center gap-1.5 text-[14px] font-semibold text-[#1E1F24] hover:text-blue-600 transition-all">
@@ -874,6 +966,7 @@ const { data: recommendedData } = useGetRecommendedChallenges(circleId ?? "", {
               ) : (
                 <p className="p-4 text-xs text-gray-400 text-center">No open circles found.</p>
               )}
+            </div>
             </div>
           </div>
 

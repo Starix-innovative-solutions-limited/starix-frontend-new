@@ -44,7 +44,12 @@ const JoinRequestModal = ({ isOpen, onClose, circleId, circleName, circleLogo }:
 };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
       <div className="bg-white w-full max-w-[580px] rounded-[60px] p-8 md:p-10 shadow-2xl flex flex-col md:flex-row items-center gap-8">
         
         <div className="w-[180px] h-[180px] bg-white rounded-[40px] shadow-xs border border-gray-50 flex items-center justify-center shrink-0 overflow-hidden p-6">

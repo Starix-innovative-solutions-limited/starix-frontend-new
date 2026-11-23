@@ -27,6 +27,24 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "api-dev.starixapp.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "starix-backend-uploads-dev.s3.us-east-1.amazonaws.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "starix-backend-uploads-dev.s3.amazonaws.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "starix-images.s3.eu-west-1.amazonaws.com",
         port: "",
         pathname: "/**",

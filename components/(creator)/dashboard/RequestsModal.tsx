@@ -12,7 +12,12 @@ export default function RequestsModal({ isOpen, onClose }: RequestsModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/20 backdrop-blur-sm p-4">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/20 backdrop-blur-sm p-4"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
       <div className="bg-white w-full max-w-[400px] rounded-[32px] p-2 shadow-2xl animate-in fade-in zoom-in duration-200">
         <div className="flex justify-end p-2">
           <button 

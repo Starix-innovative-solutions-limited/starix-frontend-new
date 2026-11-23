@@ -204,7 +204,7 @@ export default function Page() {
   const canFetchBrandChallenges =
     hasMounted && !meLoading && isBrand && emailVerified;
 
-  // Flutterwave (test/live) redirects here after checkout.
+  // Paystack redirects here after checkout.
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);

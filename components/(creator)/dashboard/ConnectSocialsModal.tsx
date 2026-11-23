@@ -20,6 +20,7 @@ import {
   readSocialOAuthCallback,
 } from "@/lib/socialOAuth";
 import { useDashboardNotice } from "@/store/useDashboardNoticeStore";
+import { markStarixScoreRecalculationRequested } from "@/lib/starixScoreRecalculation";
 
 interface ConnectSocialsModalProps {
   isOpen: boolean;
@@ -88,6 +89,7 @@ const ConnectSocialsModal = ({
       if (result.kind === "success") {
         const platformId = normalizePlatformId(result.platform);
         if (platformId) {
+          if (!circleId) markStarixScoreRecalculationRequested();
           setJustConnected((prev) => new Set(prev).add(platformId));
 
           if (!circleId && username) {
@@ -121,6 +123,7 @@ const ConnectSocialsModal = ({
         });
         if (!circleId) {
           queryClient.invalidateQueries({ queryKey: ["starix-score"] });
+          queryClient.invalidateQueries({ queryKey: ["platforms", "me"] });
           queryClient.invalidateQueries({ queryKey: ["me"] });
         }
       } else {
@@ -232,7 +235,12 @@ const ConnectSocialsModal = ({
   )?.name;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
       <div className="bg-white w-full max-w-[540px] rounded-[32px] overflow-hidden relative shadow-2xl p-8">
         <div className="flex items-start justify-between mb-2">
           <div>

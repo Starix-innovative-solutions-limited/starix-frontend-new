@@ -142,7 +142,12 @@ export default function CirclePhotosModal({
     : displayMediaUrl(coverPreview);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
       <div className="w-full max-w-[500px] overflow-hidden rounded-[24px] bg-white shadow-2xl">
         <div className="flex items-center justify-between px-6 pt-6 pb-4">
           <h2 className="text-[20px] font-semibold text-[#1E1F24]">

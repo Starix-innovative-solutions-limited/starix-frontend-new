@@ -104,7 +104,12 @@ const InviteMemberModal = ({ isOpen, onClose, circleId }: Props) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
       <div className="bg-white w-full max-w-[560px] rounded-[32px] p-6 shadow-xl">
         <div className="flex justify-between items-start mb-6">
           <div>

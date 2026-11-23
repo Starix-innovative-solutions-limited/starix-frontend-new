@@ -234,7 +234,12 @@ const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) =
   const isSubmitting = uploadMedia.isPending || createMutation.isPending;
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-2 bg-black/50 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-[110] flex items-center justify-center p-2 bg-black/50 backdrop-blur-sm"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
       <div className={`bg-white w-full ${step === "SUCCESS" ? "max-w-[520px]" : step === "INVITE" ? "max-w-[480px]" : "max-w-[560px]"} ${step === "INVITE" ? "p-6 md:p-8" : "p-4 md:p-6"} rounded-[32px] shadow-xl transition-all duration-300 overflow-y-auto max-h-[95vh] no-scrollbar`}>
         
         {step === "CREATE" && (

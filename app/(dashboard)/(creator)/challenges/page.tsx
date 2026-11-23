@@ -398,23 +398,23 @@ const ChallengesPage = () => {
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
-                className="w-full flex flex-col items-center justify-center py-16 px-4 text-center"
+                className="flex min-h-[430px] w-full flex-col items-center justify-center px-4 py-16 text-center"
               >
-                <Image
-                  src="/dashlogo.webp"
-                  alt="Logo"
-                  width={40}
-                  height={40}
-                  className="mb-4"
-                />
-                <h3 className="text-[#101828] text-[16px] font-semibold mb-1">
-                  No {activeTab} Challenges
+                <div className="mb-8 h-[116px] w-[116px] rounded-full bg-[#F2F4F7]" />
+                <h3 className="mb-2 text-[16px] font-semibold text-[#101828]">
+                  {searchQuery || activeFilterCount > 0
+                    ? `No ${activeTab} Challenges`
+                    : activeTab === "Active"
+                      ? "You have no Active Challenges"
+                      : activeTab === "Completed"
+                        ? "You have no Completed Challenges"
+                        : "You have no Saved Challenges"}
                 </h3>
-                <p className="text-[#667085] text-[13px] max-w-sm leading-relaxed">
+                <p className="max-w-[360px] text-[13px] leading-relaxed text-[#667085]">
                   {searchQuery || activeFilterCount > 0
                     ? "No matches for that search or filter. Try a different brand, status, or search."
                     : activeTab === "Active"
-                      ? "Join a challenge and submit an entry to see it here."
+                      ? "Find and submit to challenges to compete for rewards in campaign-based challenges."
                       : activeTab === "Completed"
                         ? "Completed challenges will show up here once judging finishes."
                         : "Save a challenge to keep it here for later."}
@@ -430,6 +430,13 @@ const ChallengesPage = () => {
                   >
                     Clear filters
                   </button>
+                ) : activeTab === "Active" ? (
+                  <Link
+                    href="/challenges/recommended"
+                    className="mt-6 inline-flex rounded-full bg-[#0033FF] px-6 py-3 text-[13px] font-semibold text-white transition hover:bg-[#0029CC]"
+                  >
+                    Find Challenges
+                  </Link>
                 ) : null}
               </motion.div>
             ) : (

@@ -32,7 +32,12 @@ const JoinCircleModal = ({ isOpen, onClose }: JoinCircleModalProps) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
       <div className="bg-white w-full max-w-[540px] rounded-[32px] p-8 shadow-2xl relative animate-in fade-in zoom-in duration-300">
         
         {/* Navigation / Close */}

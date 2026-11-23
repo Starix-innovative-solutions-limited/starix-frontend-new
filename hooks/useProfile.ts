@@ -4,6 +4,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { UserProfile } from "@/utils/type";
+import { isStarixScoreRecalculationPending } from "@/lib/starixScoreRecalculation";
 
 export interface CreatorProfile {
   first_name: string;
@@ -91,7 +92,12 @@ export const useGetMyStarixScore = () => {
     },
     enabled: !!useAuthStore.getState().token,
     refetchInterval: (query) =>
-      query.state.data?.last_calculated_at ? false : 12_000,
+      !query.state.data?.last_calculated_at ||
+      isStarixScoreRecalculationPending(
+        query.state.data?.last_calculated_at
+      )
+        ? 12_000
+        : false,
   });
 };
 
@@ -394,6 +400,32 @@ export type CreatorPortfolioItem = {
   platform_post_id: string;
   cover_image_url: string | null;
   created_at: string;
+  creator: {
+    display_name: string;
+    username: string;
+    profile_picture_url: string | null;
+    niches?: string[];
+  };
+  brand: {
+    brand_name: string;
+    profile_picture_url: string | null;
+    is_verified: boolean;
+  };
+  challenge: {
+    id: string;
+    title: string;
+    description: string;
+    category: string;
+    final_rank: number;
+    placement: number | null;
+    outcome: "winner" | "finalist" | "ranked";
+  };
+  engagement: {
+    views_count: number | null;
+    likes_count: number | null;
+    comments_count: number | null;
+    shares_count: number | null;
+  };
 };
 
 export type CreatorPortfolioResponse = {

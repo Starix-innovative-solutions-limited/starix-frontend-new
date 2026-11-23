@@ -125,9 +125,21 @@ const CreatorCircles = () => {
       {isLoading ? (
         <div className="py-20 text-center text-gray-400">Loading your circles...</div>
       ) : shouldShowEmpty ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <h3 className="text-[22px] font-semibold mb-3">No circles yet</h3>
-          <button onClick={() => setIsCreateModalOpen(true)} className="px-6 py-3 bg-[#0047FF] text-white rounded-full font-normal">Create Circle</button>
+        <div className="flex min-h-[360px] flex-col items-center justify-center px-4 py-14 text-center">
+          <div className="mb-8 h-[116px] w-[116px] rounded-full bg-[#F2F4F7]" />
+          <h3 className="mb-2 text-[16px] font-semibold text-[#101828]">
+            No circles yet
+          </h3>
+          <p className="max-w-[340px] text-[13px] leading-relaxed text-[#667085]">
+            Create a circle or join one to start collaborating with creators.
+          </p>
+          <button
+            type="button"
+            onClick={() => setIsCreateModalOpen(true)}
+            className="mt-6 rounded-full bg-[#0033FF] px-6 py-3 text-[13px] font-semibold text-white transition hover:bg-[#0029CC]"
+          >
+            Create Circle
+          </button>
         </div>
       ) : (
         <>

@@ -21,7 +21,12 @@ const SubmitSuccessModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+    <div
+      className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
       <div className="bg-white w-full max-w-[500px] rounded-[32px] overflow-hidden relative shadow-2xl animate-in fade-in zoom-in duration-300">
         <button
           type="button"

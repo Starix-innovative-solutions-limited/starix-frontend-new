@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {api} from "@/lib/api"; 
 
 export interface ConnectSocialPayload {
@@ -10,6 +10,51 @@ export interface ConnectSocialPayload {
 export interface ConnectSocialResponse {
   authorization_url: string;
   state: string;
+}
+
+export type ConnectedPlatformAccount = {
+  platform: string;
+  username?: string | null;
+  connection_status?: string | null;
+};
+
+export function useGetMyConnectedPlatforms(enabled = true) {
+  return useQuery<ConnectedPlatformAccount[]>({
+    queryKey: ["platforms", "me"],
+    queryFn: async () => {
+      const { data } = await api.get("/platforms/me");
+      const root =
+        data && typeof data === "object" ? (data as Record<string, unknown>) : {};
+      const nested =
+        root.data && typeof root.data === "object"
+          ? (root.data as Record<string, unknown>)
+          : {};
+      const list = (root.platforms ??
+        nested.platforms ??
+        root.items ??
+        nested.items ??
+        []) as unknown[];
+      return list
+        .map((item) => {
+          if (typeof item === "string") return { platform: item };
+          if (!item || typeof item !== "object") return null;
+          const record = item as Record<string, unknown>;
+          const platform = String(record.platform ?? record.name ?? "").trim();
+          if (!platform) return null;
+          return {
+            platform,
+            username:
+              (record.username as string | null | undefined) ??
+              (record.display_name as string | null | undefined) ??
+              null,
+            connection_status:
+              (record.connection_status as string | null | undefined) ?? null,
+          };
+        })
+        .filter((item): item is ConnectedPlatformAccount => Boolean(item));
+    },
+    enabled,
+  });
 }
 
 export const useInitiateSocialConnection = () => {
@@ -64,6 +109,7 @@ export const useDisconnectSocialConnection = () => {
         });
       } else {
         queryClient.invalidateQueries({ queryKey: ["creatorProfile"] });
+        queryClient.invalidateQueries({ queryKey: ["platforms", "me"] });
         queryClient.invalidateQueries({ queryKey: ["me"] });
         queryClient.invalidateQueries({ queryKey: ["starix-score"] });
       }

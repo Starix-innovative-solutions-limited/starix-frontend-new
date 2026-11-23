@@ -326,7 +326,7 @@ export interface MyJoinRequest {
   requested_at: string;
 }
 
-export const useGetMyRequests = () => {
+export const useGetMyRequests = (options?: { enabled?: boolean }) => {
   return useQuery<MyJoinRequest[]>({
     queryKey: ["my-pending-requests"],
     queryFn: async () => {
@@ -337,6 +337,7 @@ export const useGetMyRequests = () => {
       if (Array.isArray(data)) return data;
       return data?.items ?? [];
     },
+    enabled: options?.enabled ?? true,
   });
 };
 

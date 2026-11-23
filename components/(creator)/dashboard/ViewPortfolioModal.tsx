@@ -4,8 +4,17 @@ import React, { useMemo, useState } from "react";
 import Image from "next/image";
 import {
   useGetCreatorPortfolio,
+  type CreatorPortfolioItem,
   type PortfolioPlatform,
 } from "@/hooks/useProfile";
+import {
+  FiBarChart2,
+  FiHeart,
+  FiMessageSquare,
+  FiRepeat,
+  FiShare2,
+} from "react-icons/fi";
+import { GoCheckCircleFill } from "react-icons/go";
 
 interface ViewPortfolioModalProps {
   isOpen: boolean;
@@ -25,6 +34,26 @@ const tabToPlatform: Record<PortfolioTab, PortfolioPlatform> = {
 };
 
 const PAGE_SIZE = 10;
+
+function compactMetric(value: number | null) {
+  if (value == null) return "—";
+  return Intl.NumberFormat("en", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(value);
+}
+
+function outcomeLabel(outcome: CreatorPortfolioItem["challenge"]["outcome"]) {
+  if (outcome === "winner") return "Winner";
+  if (outcome === "finalist") return "Finalist";
+  return "Ranked";
+}
+
+function outcomeClass(outcome: CreatorPortfolioItem["challenge"]["outcome"]) {
+  if (outcome === "winner") return "bg-[#ECFDF3] text-[#027A48]";
+  if (outcome === "finalist") return "bg-[#EFF8FF] text-[#175CD3]";
+  return "bg-[#F2F4F7] text-[#475467]";
+}
 
 const ViewPortfolioModal = ({
   isOpen,
@@ -62,7 +91,12 @@ const ViewPortfolioModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
       <div className="relative flex max-h-[88vh] w-full max-w-[660px] flex-col overflow-hidden rounded-[24px] bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-150">
         <div className="shrink-0 px-6 pt-6">
           <div className="flex items-start justify-between gap-6">
@@ -136,18 +170,129 @@ const ViewPortfolioModal = ({
           ) : (
             <div className="space-y-4">
               {items.map((item) => (
-                <a
+                <article
                   key={item.id}
-                  href={item.content_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block overflow-hidden rounded-[16px] border border-[#EFF0F3] transition hover:border-[#C7CBD7]"
+                  className="overflow-hidden rounded-[20px] border border-[#E4E7EC] bg-white p-4"
                 >
-                  <div className="relative aspect-[4/5] max-h-[320px] w-full bg-[#F4F4F5]">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="relative h-11 w-11 shrink-0">
+                        <div className="absolute left-0 top-0 h-9 w-9 overflow-hidden rounded-full border border-white bg-[#F2F4F7]">
+                          {item.creator.profile_picture_url ? (
+                            <Image
+                              src={item.creator.profile_picture_url}
+                              alt={item.creator.display_name}
+                              fill
+                              sizes="36px"
+                              className="object-cover"
+                              unoptimized
+                            />
+                          ) : (
+                            <span className="flex h-full w-full items-center justify-center text-[12px] font-semibold text-[#667085]">
+                              {item.creator.display_name.charAt(0).toUpperCase()}
+                            </span>
+                          )}
+                        </div>
+                        <div className="absolute bottom-0 right-0 h-7 w-7 overflow-hidden rounded-full border-2 border-white bg-[#F2F4F7]">
+                          {item.brand.profile_picture_url ? (
+                            <Image
+                              src={item.brand.profile_picture_url}
+                              alt={item.brand.brand_name}
+                              fill
+                              sizes="28px"
+                              className="object-cover"
+                              unoptimized
+                            />
+                          ) : (
+                            <span className="flex h-full w-full items-center justify-center text-[9px] font-semibold text-[#667085]">
+                              {item.brand.brand_name.charAt(0).toUpperCase()}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="flex items-center gap-1 truncate text-[13px] font-semibold text-[#1E1F24]">
+                          <span className="truncate">{item.creator.display_name}</span>
+                          <span className="text-[#98A2B3]">·</span>
+                          <span className="truncate">{item.brand.brand_name}</span>
+                          {item.brand.is_verified && (
+                            <GoCheckCircleFill
+                              className="shrink-0 text-[#12B76A]"
+                              size={12}
+                            />
+                          )}
+                        </p>
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {(item.creator.niches ?? []).slice(0, 3).map((niche) => (
+                            <span
+                              key={niche}
+                              className="rounded-full border border-[#D7EAF2] px-2 py-0.5 text-[9px] capitalize text-[#4384A1]"
+                            >
+                              {niche}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex shrink-0 items-center gap-2">
+                      <a
+                        href={item.content_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-full border border-[#8B8D98] px-4 py-2 text-[11px] font-medium text-[#1E1F24] hover:bg-gray-50"
+                      >
+                        View
+                      </a>
+                      <button
+                        type="button"
+                        disabled
+                        title="Portfolio removal requires backend support"
+                        className="cursor-not-allowed rounded-full border border-[#8B8D98] px-4 py-2 text-[11px] font-medium text-[#1E1F24] opacity-50"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex items-center gap-2 text-[11px] text-[#667085]">
+                    <span>
+                      Ranked {item.challenge.final_rank}
+                      {item.challenge.final_rank === 1
+                        ? "st"
+                        : item.challenge.final_rank === 2
+                          ? "nd"
+                          : item.challenge.final_rank === 3
+                            ? "rd"
+                            : "th"}{" "}
+                      Globally
+                    </span>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${outcomeClass(
+                        item.challenge.outcome
+                      )}`}
+                    >
+                      {outcomeLabel(item.challenge.outcome)}
+                    </span>
+                  </div>
+
+                  <h4 className="mt-3 text-[13px] font-semibold text-[#344054]">
+                    {item.challenge.title}
+                  </h4>
+                  <p className="mt-1 line-clamp-2 text-[10px] leading-relaxed text-[#667085]">
+                    {item.challenge.description}
+                  </p>
+
+                  <a
+                    href={item.content_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative mt-4 block aspect-[16/9] max-h-[330px] w-full overflow-hidden rounded-[12px] bg-[#F4F4F5]"
+                  >
                     {item.cover_image_url ? (
                       <Image
                         src={item.cover_image_url}
-                        alt={`${item.platform} submission`}
+                        alt={`${item.creator.display_name}'s ${item.platform} challenge post`}
                         fill
                         className="object-cover"
                         unoptimized
@@ -157,21 +302,38 @@ const ViewPortfolioModal = ({
                         No preview
                       </div>
                     )}
-                  </div>
-                  <div className="flex items-center justify-between gap-3 px-4 py-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-[12px] font-semibold capitalize text-[#1E1F24]">
-                        {item.platform.replace("_", " ")} · {item.content_type}
-                      </p>
-                      <p className="truncate text-[11px] text-[#747682]">
-                        {new Date(item.created_at).toLocaleDateString()}
-                      </p>
+                  </a>
+
+                  <div className="mt-3 flex items-center justify-between text-[11px] text-[#667085]">
+                    <div className="flex items-center gap-5">
+                      <span className="flex items-center gap-1">
+                        <FiBarChart2 size={13} />
+                        {compactMetric(item.engagement.views_count)}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <FiHeart size={13} />
+                        {compactMetric(item.engagement.likes_count)}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <FiMessageSquare size={13} />
+                        {compactMetric(item.engagement.comments_count)}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <FiRepeat size={13} />
+                        {compactMetric(item.engagement.shares_count)}
+                      </span>
                     </div>
-                    <span className="shrink-0 rounded-full border border-[#8B8D98] px-4 py-1.5 text-[11px] font-semibold text-[#1E1F24]">
-                      View Content
-                    </span>
+                    <a
+                      href={item.content_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Share or open post"
+                      className="rounded-full p-1.5 hover:bg-[#F2F4F7]"
+                    >
+                      <FiShare2 size={14} />
+                    </a>
                   </div>
-                </a>
+                </article>
               ))}
             </div>
           )}

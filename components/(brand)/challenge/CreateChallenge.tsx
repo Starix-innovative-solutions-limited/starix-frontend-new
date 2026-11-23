@@ -471,9 +471,10 @@ type LocalChallengeDraft = {
 
 function isoDateInput(value?: string) {
   if (!value) return "";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
   const date = new Date(value);
   if (!Number.isFinite(date.getTime())) return "";
-  return date.toISOString().slice(0, 10);
+  return toIsoDate(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
 function draftObjectives(value?: string | null): ObjectiveId[] {
@@ -603,28 +604,19 @@ function parseLocalDay(dateStr: string, endOfDay = false) {
     : new Date(y, m - 1, d, 0, 0, 0, 0);
 }
 
-/**
- * Fund requires a *future* start_date. Discovery only lists ACTIVE challenges
- * (start already arrived). For publish we nudge start slightly ahead so Flutterwave
- * checkout can finish, then the webhook lands after start → status becomes active.
- */
-function resolveChallengeDates(
-  startStr: string,
-  endStr: string,
-  forPublish: boolean
-) {
+/** Keep start ahead of the API clock. "Today" is midnight, which is already past. */
+const START_LEAD_MS = 5 * 60 * 1000;
+
+function resolveChallengeDates(startStr: string, endStr: string) {
   let start = parseLocalDay(startStr, false);
   let end = parseLocalDay(endStr, true);
-  const now = Date.now();
+  const minStart = new Date(Date.now() + START_LEAD_MS);
 
-  if (forPublish) {
-    const minStart = new Date(now + 45_000);
-    if (!Number.isFinite(start.getTime()) || start.getTime() <= minStart.getTime()) {
-      start = minStart;
-    }
-    if (!Number.isFinite(end.getTime()) || end.getTime() <= start.getTime()) {
-      end = new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000);
-    }
+  if (!Number.isFinite(start.getTime()) || start.getTime() < minStart.getTime()) {
+    start = minStart;
+  }
+  if (!Number.isFinite(end.getTime()) || end.getTime() <= start.getTime()) {
+    end = new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000);
   }
 
   return {
@@ -1514,7 +1506,7 @@ export default function CreateChallenge({
     setRewardError(null);
   };
 
-  const buildPayload = (forPublish: boolean): CreateChallengePayload => {
+  const buildPayload = (): CreateChallengePayload => {
     const prizeAmounts = form.prizes.map((p) =>
       Number(parseAmount(p.amount).toFixed(2))
     );
@@ -1538,11 +1530,7 @@ export default function CreateChallenge({
     const briefUrl =
       doc.status === "success" ? doc.url : form.documents[0] || undefined;
 
-    const dates = resolveChallengeDates(
-      form.start_date,
-      form.end_date,
-      forPublish
-    );
+    const dates = resolveChallengeDates(form.start_date, form.end_date);
 
     return {
       title: form.title.trim(),
@@ -1583,7 +1571,7 @@ export default function CreateChallenge({
 
     setLoading(true);
     try {
-      const payload = buildPayload(!isDraft);
+      const payload = buildPayload();
       const saved = draft
         ? await updateChallenge.mutateAsync({
             challengeId: draft.id,
@@ -1606,7 +1594,7 @@ export default function CreateChallenge({
         return;
       }
 
-      // Publishing requires funding — redirect to Flutterwave (test or live) checkout
+      // Publishing requires funding — redirect to the checkout link from /fund
       const funded = await fundChallenge.mutateAsync({
         challengeId: saved.id,
         callbackUrl:
@@ -1615,7 +1603,7 @@ export default function CreateChallenge({
             : undefined,
       });
 
-      notice.success("Redirecting to Flutterwave to fund & publish...");
+      notice.success("Redirecting to Paystack to fund and publish...");
       close();
       if (funded?.payment_url) {
         window.location.assign(funded.payment_url);
