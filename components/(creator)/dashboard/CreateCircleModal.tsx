@@ -7,6 +7,7 @@ import { FiX, FiUploadCloud, FiPlus, FiChevronDown, FiCopy, FiCheck, FiRefreshCc
 import Image from "next/image";
 import { useDashboardNotice } from "@/store/useDashboardNoticeStore";
 import { useCreateCircle, useSendInvites } from "@/hooks/useCircles";
+import { readCircleInviteFailure } from "@/lib/circleInviteError";
 import { useUploadMedia } from "@/hooks/useMedia";
 
 type ModalStep = "CREATE" | "SUCCESS" | "INVITE";
@@ -165,10 +166,11 @@ const CreateCircleModal = ({ isOpen, onClose, initialStep = "CREATE" }: Props) =
       setInviteSuccess(true);
       notice.success("Invitations sent");
     } catch (err: unknown) {
-      const detail =
-        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
-        "Failed to send invitations.";
-      setInviteError(typeof detail === "string" ? detail : "Failed to send invitations.");
+      const failure = readCircleInviteFailure(
+        err,
+        activeInvites.map((invite) => invite.email)
+      );
+      setInviteError(failure.banner);
     }
   };
 

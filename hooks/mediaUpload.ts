@@ -89,18 +89,6 @@ function assertValidUpload(file: File, target: MediaUploadTarget) {
   }
 }
 
-function isAzureBlobUrl(value: string) {
-  try {
-    const url = new URL(value);
-    return (
-      url.protocol === "https:" &&
-      url.hostname.endsWith(".blob.core.windows.net")
-    );
-  } catch {
-    return false;
-  }
-}
-
 function safeUploadFilename(name: string) {
   const cleaned = name.replace(/banner/gi, "cover").replace(/[^\w.-]+/g, "-");
   return (cleaned || "image").slice(0, 255);
@@ -120,7 +108,7 @@ function resolveUploadHeaders(
 ): Record<string, string> {
   const headers: Record<string, string> = { ...(uploadHeaders ?? {}) };
 
-  // Never forward our API token to Azure.
+  // Upload URLs are capability URLs. Never attach the Starix Bearer token.
   for (const key of Object.keys(headers)) {
     if (key.toLowerCase() === "authorization") {
       delete headers[key];
@@ -131,15 +119,11 @@ function resolveUploadHeaders(
     headers["Content-Type"] = contentType;
   }
 
-  if (!Object.keys(headers).some((key) => key.toLowerCase() === "x-ms-blob-type")) {
-    headers["x-ms-blob-type"] = "BlockBlob";
-  }
-
   return headers;
 }
 
 /**
- * POST /media/upload-url — mint a single-use Azure PUT URL, headers, and public_url.
+ * POST /media/upload-url — mint a single-use PUT URL, headers, and public_url.
  * Does not persist the URL on any parent resource.
  */
 export async function requestMediaUploadUrl(
@@ -155,7 +139,7 @@ export async function requestMediaUploadUrl(
 
 /**
  * PUT raw file bytes to the returned upload_url.
- * Uses upload_headers from the API (Content-Type, x-ms-blob-type, etc.).
+ * Uses upload_headers from the API verbatim, with Content-Type as a fallback.
  * Never sends the API Bearer token.
  */
 export async function putFileToUploadUrl(
@@ -163,19 +147,11 @@ export async function putFileToUploadUrl(
   file: Blob,
   uploadHeaders: Record<string, string>
 ): Promise<void> {
-  const useSameOriginProxy =
-    typeof window !== "undefined" && isAzureBlobUrl(uploadUrl);
-
-  const uploadResponse = await fetch(
-    useSameOriginProxy ? "/api/blob-upload" : uploadUrl,
-    {
-      method: "PUT",
-      headers: useSameOriginProxy
-        ? { ...uploadHeaders, "x-starix-upload-url": uploadUrl }
-        : uploadHeaders,
-      body: file,
-    }
-  );
+  const uploadResponse = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: uploadHeaders,
+    body: file,
+  });
 
   const status = uploadResponse.status;
   if (status < 200 || status >= 300) {
@@ -187,7 +163,7 @@ export async function putFileToUploadUrl(
 export const putFileToPresignedUrl = putFileToUploadUrl;
 
 /**
- * Full client flow: validate → compress images → request URL → PUT to Azure → return public_url.
+ * Full client flow: validate → compress images → request URL → raw PUT → return public_url.
  * Caller must persist public_url on the parent resource via the relevant create/update endpoint.
  */
 export async function uploadMediaFile(

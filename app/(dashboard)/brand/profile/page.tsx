@@ -225,50 +225,50 @@ export default function Page() {
           </p>
 
           <div className="mt-8 grid gap-4 md:grid-cols-3">
-            <div className="rounded-[18px] bg-[#E8FBE9] p-5">
+            <Link
+              href="/brand/challenges"
+              className="block rounded-[18px] bg-[#E8FBE9] p-5 transition hover:brightness-[0.98]"
+            >
               <p className="text-[17px] font-semibold text-[#1E1F24]">
                 Total Challenges
               </p>
               <p className="mt-2 text-[36px] font-semibold leading-none tracking-[-0.03em] text-[#1E1F24]">
                 {formatMetric(totalChallenges)}
               </p>
-              <Link
-                href="/brand/challenges"
-                className="mt-4 inline-flex items-center gap-2 text-[14px] text-[#62636C] hover:text-[#0033FF]"
-              >
+              <span className="mt-4 inline-flex items-center gap-2 text-[14px] text-[#62636C]">
                 View All <span aria-hidden>→</span>
-              </Link>
-            </div>
+              </span>
+            </Link>
 
-            <div className="rounded-[18px] bg-[#FDECFB] p-5">
+            <Link
+              href="/brand"
+              className="block rounded-[18px] bg-[#FDECFB] p-5 transition hover:brightness-[0.98]"
+            >
               <p className="text-[17px] font-semibold text-[#1E1F24]">
                 Total Engagement
               </p>
               <p className="mt-2 text-[36px] font-semibold leading-none tracking-[-0.03em] text-[#1E1F24]">
                 {formatMetric(totalEngagement)}
               </p>
-              <Link
-                href="/brand"
-                className="mt-4 inline-flex items-center gap-2 text-[14px] text-[#62636C] hover:text-[#0033FF]"
-              >
+              <span className="mt-4 inline-flex items-center gap-2 text-[14px] text-[#62636C]">
                 View Analytics <span aria-hidden>→</span>
-              </Link>
-            </div>
+              </span>
+            </Link>
 
-            <div className="rounded-[18px] bg-[#E8FBE9] p-5">
+            <Link
+              href="/brand/submissions"
+              className="block rounded-[18px] bg-[#E8FBE9] p-5 transition hover:brightness-[0.98]"
+            >
               <p className="text-[17px] font-semibold text-[#1E1F24]">
                 Active Challenges
               </p>
               <p className="mt-2 text-[36px] font-semibold leading-none tracking-[-0.03em] text-[#1E1F24]">
                 {activeChallenges.length}
               </p>
-              <Link
-                href="/brand/challenges"
-                className="mt-4 inline-flex items-center gap-2 text-[14px] text-[#62636C] hover:text-[#0033FF]"
-              >
+              <span className="mt-4 inline-flex items-center gap-2 text-[14px] text-[#62636C]">
                 Track Submissions <span aria-hidden>→</span>
-              </Link>
-            </div>
+              </span>
+            </Link>
           </div>
         </div>
       </main>

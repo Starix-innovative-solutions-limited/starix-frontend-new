@@ -10,6 +10,7 @@ import {
   useDashboardNoticeStore,
 } from "@/store/useDashboardNoticeStore";
 import CreateChallenge, {
+  brandChallengeDraftKey,
   LOCAL_DRAFT_KEY,
 } from "@/components/(brand)/challenge/CreateChallenge";
 import ChallengeCreatedModal from "@/components/(brand)/challenge/ChallengeCreatedModal";
@@ -29,6 +30,7 @@ import { variants } from "@/constant";
 import { getChallengePreviewImages } from "@/lib/challengeMedia";
 import { formatCompactNaira } from "@/lib/formatMoney";
 import { useDashboardSearch } from "@/components/dashboard/DashboardSearchProvider";
+import { api } from "@/lib/api";
 
 const TABS = [
   { id: "active", label: "Active" },
@@ -44,10 +46,13 @@ type LocalDraftSummary = {
   images: string[];
 };
 
-function readLocalDraftSummary(): LocalDraftSummary | null {
+function readLocalDraftSummary(userId?: string | null): LocalDraftSummary | null {
   if (typeof window === "undefined") return null;
+  const key = brandChallengeDraftKey(userId);
+  if (!key) return null;
+  window.localStorage.removeItem(LOCAL_DRAFT_KEY);
   try {
-    const raw = window.localStorage.getItem(LOCAL_DRAFT_KEY);
+    const raw = window.localStorage.getItem(key);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as {
       form?: { title?: string; prize_pool?: string };
@@ -119,10 +124,12 @@ function tabFromChallenge(challenge: {
   if (
     value === "active" ||
     value === "published" ||
-    value === "publishing" ||
     value === "judging"
   ) {
     return "active";
+  }
+  if (value === "publishing") {
+    return challenge.is_funded ? "active" : "drafts";
   }
   if (challenge.is_published || challenge.is_funded) return "active";
   return "drafts";
@@ -173,21 +180,26 @@ export default function Page() {
   const { open } = useModal();
   const notice = useDashboardNotice();
   const queryClient = useQueryClient();
-  const { profile: storeProfile, userType } = useAuthStore();
+  const { profile: storeProfile, user: storeUser, userType } = useAuthStore();
   const { data: me, isLoading: meLoading } = useGetMe();
   const [hasMounted, setHasMounted] = useState(false);
   const [localDraft, setLocalDraft] = useState<LocalDraftSummary | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>("active");
   const { query: search, setQuery: setSearch, placeholder } = useDashboardSearch();
 
+  const brandUserId = me?.id ?? storeUser?.id ?? storeProfile?.id ?? null;
+
   useEffect(() => {
     setHasMounted(true);
-    setLocalDraft(readLocalDraftSummary());
     const requestedTab = new URLSearchParams(window.location.search).get("tab");
     if (TABS.some((tab) => tab.id === requestedTab)) {
       setActiveTab(requestedTab as TabId);
     }
   }, []);
+
+  useEffect(() => {
+    setLocalDraft(readLocalDraftSummary(brandUserId));
+  }, [brandUserId]);
 
   const profile = me ?? storeProfile;
   const logoUrl =
@@ -204,11 +216,11 @@ export default function Page() {
   const canFetchBrandChallenges =
     hasMounted && !meLoading && isBrand && emailVerified;
 
-  // Paystack redirects here after checkout.
+  // Paystack only redirects the browser here. Funding is confirmed exclusively
+  // by the backend after its signature-verified webhook has been processed.
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
-    const funded = params.get("funded");
     const challengeId = params.get("challenge_id") || undefined;
     const status = (
       params.get("status") ||
@@ -216,44 +228,106 @@ export default function Page() {
       ""
     ).toLowerCase();
 
-    const success =
-      funded === "1" ||
-      status === "successful" ||
-      status === "success" ||
-      status === "completed";
     const failed =
       status === "cancelled" ||
       status === "canceled" ||
       status === "failed";
 
-    if (!success && !failed) return;
+    if (!challengeId) return;
 
-    if (success) {
-      setActiveTab("active");
-      open(
-        <ChallengeCreatedModal challengeId={challengeId} />,
-        { bare: true }
-      );
-    } else {
+    const clearPaymentParams = () => {
+      const url = new URL(window.location.href);
+      [
+        "funded",
+        "challenge_id",
+        "status",
+        "payment_status",
+        "reference",
+        "trxref",
+        "tx_ref",
+        "transaction_id",
+      ].forEach((key) => url.searchParams.delete(key));
+      window.history.replaceState({}, "", url.pathname + url.search);
+    };
+
+    if (failed) {
       setActiveTab("drafts");
       useDashboardNoticeStore
         .getState()
         .show("error", "Payment was not completed. Challenge remains a draft.");
+      clearPaymentParams();
+      return;
     }
 
-    queryClient.invalidateQueries({ queryKey: ["brands", "challenges"] });
-    queryClient.invalidateQueries({ queryKey: ["challenges"] });
+    let stopped = false;
+    const verifyFunding = async () => {
+      const maxAttempts = 24;
 
-    const url = new URL(window.location.href);
-    [
-      "funded",
-      "challenge_id",
-      "status",
-      "payment_status",
-      "tx_ref",
-      "transaction_id",
-    ].forEach((key) => url.searchParams.delete(key));
-    window.history.replaceState({}, "", url.pathname + url.search);
+      for (let attempt = 0; attempt < maxAttempts && !stopped; attempt += 1) {
+        try {
+          const { data } = await api.get<ChallengeItem>(
+            `/brands/challenges/${challengeId}`
+          );
+          const challengeStatus = String(data.status ?? "").toLowerCase();
+
+          if (
+            data.is_funded === true &&
+            (challengeStatus === "published" || challengeStatus === "active")
+          ) {
+            setActiveTab("active");
+            await Promise.all([
+              queryClient.invalidateQueries({
+                queryKey: ["brands", "challenges"],
+              }),
+              queryClient.invalidateQueries({ queryKey: ["challenges"] }),
+            ]);
+            open(
+              <ChallengeCreatedModal challengeId={challengeId} />,
+              { bare: true }
+            );
+            clearPaymentParams();
+            return;
+          }
+
+          if (
+            attempt >= 2 &&
+            (challengeStatus === "draft" || challengeStatus === "closed")
+          ) {
+            setActiveTab("drafts");
+            useDashboardNoticeStore.getState().show(
+              "error",
+              "Payment was not confirmed. The challenge remains a draft."
+            );
+            await queryClient.invalidateQueries({
+              queryKey: ["brands", "challenges"],
+            });
+            clearPaymentParams();
+            return;
+          }
+        } catch {
+          // A transient detail failure should not turn a valid payment into a
+          // failed UI state; retry while the webhook is being processed.
+        }
+
+        await new Promise((resolve) => window.setTimeout(resolve, 2_500));
+      }
+
+      if (!stopped) {
+        useDashboardNoticeStore.getState().show(
+          "success",
+          "Payment is still being verified. Check the challenge again shortly."
+        );
+        await queryClient.invalidateQueries({
+          queryKey: ["brands", "challenges"],
+        });
+        clearPaymentParams();
+      }
+    };
+
+    void verifyFunding();
+    return () => {
+      stopped = true;
+    };
   }, [open, queryClient]);
 
   const {
@@ -366,7 +440,7 @@ export default function Page() {
       <CreateChallenge
         onLocalDraftSaved={(title) => {
           setLocalDraft(
-            readLocalDraftSummary() ?? { title, prizePool: 0, images: [] }
+            readLocalDraftSummary(brandUserId) ?? { title, prizePool: 0, images: [] }
           );
           selectTab("drafts");
           setSearch("");
@@ -395,7 +469,7 @@ export default function Page() {
       <CreateChallenge
         onLocalDraftSaved={(title) => {
           setLocalDraft(
-            readLocalDraftSummary() ?? { title, prizePool: 0, images: [] }
+            readLocalDraftSummary(brandUserId) ?? { title, prizePool: 0, images: [] }
           );
           selectTab("drafts");
         }}

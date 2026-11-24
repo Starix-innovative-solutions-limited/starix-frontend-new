@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { displayMediaUrl } from "@/lib/displayMediaUrl";
 
 type ChallengeMediaGridProps = {
   images: string[];
@@ -42,9 +43,10 @@ export default function ChallengeMediaGrid({
             }`}
           >
             <Image
-              src={img}
+              src={displayMediaUrl(img) || img}
               alt="Challenge sample"
               fill
+              unoptimized
               className="object-cover transition-transform duration-500"
             />
           </div>

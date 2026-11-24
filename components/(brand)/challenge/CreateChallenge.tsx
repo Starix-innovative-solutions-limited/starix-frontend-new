@@ -30,6 +30,7 @@ import {
 import { useUploadMedia } from "@/hooks/useMedia";
 import { useGetCategories } from "@/hooks/useCategories";
 import { useGetBrandProfile } from "@/hooks/useProfile";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const TOTAL_STEPS = 5;
 const MAX_MEDIA = 6;
@@ -389,7 +390,21 @@ const OPEN_TO_LABELS: Record<(typeof SUBMITTER_OPTIONS)[number]["id"], string> =
     creators: "Creators Only",
   };
 
-const PRIZE_ORDINALS = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th"];
+function prizeOrdinal(index: number) {
+  const n = index + 1;
+  const mod100 = n % 100;
+  if (mod100 >= 11 && mod100 <= 13) return `${n}th`;
+  switch (n % 10) {
+    case 1:
+      return `${n}st`;
+    case 2:
+      return `${n}nd`;
+    case 3:
+      return `${n}rd`;
+    default:
+      return `${n}th`;
+  }
+}
 
 type MediaItem = {
   id: string;
@@ -455,6 +470,16 @@ const initialForm: FormState = {
 };
 
 export const LOCAL_DRAFT_KEY = "starix:brand-challenge-draft";
+
+export function brandChallengeDraftKey(userId?: string | null) {
+  const id = userId?.trim();
+  return id ? `${LOCAL_DRAFT_KEY}:${id}` : null;
+}
+
+function currentBrandUserId() {
+  const { user, profile } = useAuthStore.getState();
+  return user?.id ?? profile?.id ?? null;
+}
 
 type LocalChallengeDraft = {
   step: number;
@@ -558,8 +583,11 @@ function formFromDraft(draft: ChallengeItem): FormState {
 
 function readLocalDraft(): LocalChallengeDraft | null {
   if (typeof window === "undefined") return null;
+  const key = brandChallengeDraftKey(currentBrandUserId());
+  if (!key) return null;
+  window.localStorage.removeItem(LOCAL_DRAFT_KEY);
   try {
-    const raw = window.localStorage.getItem(LOCAL_DRAFT_KEY);
+    const raw = window.localStorage.getItem(key);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<LocalChallengeDraft>;
     const mergedForm = { ...initialForm, ...(parsed.form ?? {}) };
@@ -604,8 +632,13 @@ function parseLocalDay(dateStr: string, endOfDay = false) {
     : new Date(y, m - 1, d, 0, 0, 0, 0);
 }
 
-/** Keep start ahead of the API clock. "Today" is midnight, which is already past. */
-const START_LEAD_MS = 5 * 60 * 1000;
+/**
+ * Creator feeds only list challenges whose start time has already arrived.
+ * Keep a same-day start just ahead of the API clock so funding can succeed,
+ * while a normal Paystack checkout finishes after that start and publishes
+ * the challenge as active.
+ */
+const START_LEAD_MS = 15_000;
 
 function resolveChallengeDates(startStr: string, endStr: string) {
   let start = parseLocalDay(startStr, false);
@@ -627,9 +660,9 @@ function resolveChallengeDates(startStr: string, endStr: string) {
 
 function isAllowedMedia(file: File) {
   return (
-    file.type.startsWith("image/") ||
-    file.type === "video/mp4" ||
-    file.type.startsWith("video/")
+    file.type === "image/jpeg" ||
+    file.type === "image/png" ||
+    file.type === "video/mp4"
   );
 }
 
@@ -1075,8 +1108,11 @@ export default function CreateChallenge({
       form.end_date ||
       mediaItems.some((item) => item.url);
 
+    const draftKey = brandChallengeDraftKey(currentBrandUserId());
+    if (!draftKey) return;
+
     if (!hasContent) {
-      window.localStorage.removeItem(LOCAL_DRAFT_KEY);
+      window.localStorage.removeItem(draftKey);
       return;
     }
 
@@ -1098,7 +1134,7 @@ export default function CreateChallenge({
           : undefined,
     };
 
-    window.localStorage.setItem(LOCAL_DRAFT_KEY, JSON.stringify(localDraft));
+    window.localStorage.setItem(draftKey, JSON.stringify(localDraft));
   }, [doc, draft, form, mediaItems, step]);
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
@@ -1300,7 +1336,8 @@ export default function CreateChallenge({
       return;
     }
 
-    if (typeof window !== "undefined") {
+    const draftKey = brandChallengeDraftKey(currentBrandUserId());
+    if (typeof window !== "undefined" && draftKey) {
       const localDraft: LocalChallengeDraft = {
         step,
         form,
@@ -1320,10 +1357,7 @@ export default function CreateChallenge({
             ? { name: doc.name, size: doc.size, url: doc.url }
             : undefined,
       };
-      window.localStorage.setItem(
-        LOCAL_DRAFT_KEY,
-        JSON.stringify(localDraft)
-      );
+      window.localStorage.setItem(draftKey, JSON.stringify(localDraft));
     }
 
     onLocalDraftSaved?.(form.title.trim() || "Untitled challenge");
@@ -1386,12 +1420,18 @@ export default function CreateChallenge({
             item.id === id ? { ...item, progress: 100, url: public_url } : item
           )
         );
-      } catch {
+      } catch (error) {
         clearInterval(tick);
-        // Keep local preview so user can still continue; mark complete
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Couldn’t upload file. Try again";
+        setMediaError(message);
         setMediaItems((prev) =>
           prev.map((item) =>
-            item.id === id ? { ...item, progress: 100 } : item
+            item.id === id
+              ? { ...item, progress: 100, error: message }
+              : item
           )
         );
       }
@@ -1486,7 +1526,6 @@ export default function CreateChallenge({
   };
 
   const addPrize = () => {
-    if (form.prizes.length >= 10) return;
     setForm((prev) => ({
       ...prev,
       prizes: [
@@ -1570,6 +1609,7 @@ export default function CreateChallenge({
     }
 
     setLoading(true);
+    let operation: "save" | "fund" = "save";
     try {
       const payload = buildPayload();
       const saved = draft
@@ -1584,8 +1624,9 @@ export default function CreateChallenge({
         status: saved.status ?? (isDraft ? "draft" : "publishing"),
       });
 
-      if (typeof window !== "undefined") {
-        window.localStorage.removeItem(LOCAL_DRAFT_KEY);
+      const draftKey = brandChallengeDraftKey(currentBrandUserId());
+      if (typeof window !== "undefined" && draftKey) {
+        window.localStorage.removeItem(draftKey);
       }
 
       if (isDraft) {
@@ -1595,11 +1636,12 @@ export default function CreateChallenge({
       }
 
       // Publishing requires funding — redirect to the checkout link from /fund
+      operation = "fund";
       const funded = await fundChallenge.mutateAsync({
         challengeId: saved.id,
         callbackUrl:
           typeof window !== "undefined"
-            ? `${window.location.origin}/brand/challenges?funded=1&challenge_id=${saved.id}`
+            ? `${window.location.origin}/brand/challenges?challenge_id=${saved.id}`
             : undefined,
       });
 
@@ -1621,8 +1663,15 @@ export default function CreateChallenge({
                 .map((d: { msg?: string }) => d?.msg)
                 .filter(Boolean)
                 .join(", ")
-            : "Failed to save challenge";
-      notice.error(message || "Failed to save challenge");
+            : operation === "fund"
+              ? "Challenge saved, but checkout could not be started"
+              : "Failed to save challenge";
+      notice.error(
+        message ||
+          (operation === "fund"
+            ? "Challenge saved, but checkout could not be started"
+            : "Failed to save challenge")
+      );
     } finally {
       setLoading(false);
     }
@@ -1869,7 +1918,7 @@ export default function CreateChallenge({
             </div>
 
             <Field
-              label="Who platform(s) should creators post their submissions?"
+              label="Which platform(s) should creators post their submissions?"
               error={fieldErrors.platforms}
             >
               <div className="space-y-3.5">
@@ -1922,7 +1971,7 @@ export default function CreateChallenge({
               <input
                 ref={mediaInputRef}
                 type="file"
-                accept="image/png,image/jpeg,image/jpg,image/webp,video/mp4,video/*"
+                accept="image/png,image/jpeg,image/jpg,video/mp4"
                 multiple
                 className="hidden"
                 onChange={(e) => {
@@ -2137,7 +2186,7 @@ export default function CreateChallenge({
                   return (
                     <div key={prize.id}>
                       <label className="mb-1.5 block text-[13px] font-medium text-[#344054]">
-                        {PRIZE_ORDINALS[index] || `${index + 1}th`} prize
+                        {prizeOrdinal(index)} prize
                       </label>
                       <div className="flex items-center gap-2">
                         <div className="relative flex-1">
@@ -2379,7 +2428,7 @@ export default function CreateChallenge({
                 {form.prizes.map((prize, index) => {
                   const bg =
                     PRIZE_CARD_COLORS[index] || "bg-[#F5F5F5]";
-                  const ordinal = PRIZE_ORDINALS[index] || `${index + 1}th`;
+                  const ordinal = prizeOrdinal(index);
                   return (
                     <div
                       key={prize.id}

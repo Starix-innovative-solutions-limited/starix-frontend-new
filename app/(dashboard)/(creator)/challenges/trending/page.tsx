@@ -22,6 +22,7 @@ import {
   getChallengeViewCount,
   parseChallengeTimestamp,
 } from "@/lib/challengeStats";
+import { displayMediaUrl } from "@/lib/displayMediaUrl";
 import { useDashboardSearch } from "@/components/dashboard/DashboardSearchProvider";
 import { matchesDashboardQuery } from "@/lib/dashboardSearch";
 import FilterModal, {
@@ -312,7 +313,13 @@ const TrendingChallenges = ({ isAnySidebarOpen = false }: { isAnySidebarOpen?: b
                         key={i} 
                         className={`relative w-full h-full overflow-hidden ${card.images.length === 3 && i === 0 ? 'row-span-2' : ''}`}
                       >
-                        <Image src={img} alt="Thumbnail" fill className="object-cover" />
+                        <Image
+                          src={displayMediaUrl(img) || img}
+                          alt="Thumbnail"
+                          fill
+                          unoptimized
+                          className="object-cover"
+                        />
                       </div>
                     ))}
                   </div>

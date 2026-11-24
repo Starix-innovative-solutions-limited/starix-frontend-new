@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FiX, FiChevronDown, FiAlertCircle, FiCheckCircle } from "react-icons/fi";
 import { useSendInvites } from "@/hooks/useCircles";
+import { readCircleInviteFailure } from "@/lib/circleInviteError";
 
 interface MemberInvite {
   email: string;
@@ -78,21 +79,19 @@ const InviteMemberModal = ({ isOpen, onClose, circleId }: Props) => {
 
     try {
       await sendInvitesMutation.mutateAsync(payload);
-      setIsSuccess(true); // Keep modal open and show success UI
-    } catch (err: any) {
-      const errorData = err.response?.data;
-      const batchErrors = errorData?.details?.errors;
-
-      if (batchErrors && Array.isArray(batchErrors)) {
-        setErrorMsg("Some invitations could not be sent. Review highlighted fields.");
-        const updatedInvites = invites.map(invite => {
-          const match = batchErrors.find((e: any) => e.email.toLowerCase() === invite.email.trim().toLowerCase());
-          return { ...invite, error: match ? match.reason : undefined };
-        });
-        setInvites(updatedInvites);
-      } else {
-        setErrorMsg(errorData?.detail || "Failed to send invitations.");
-      }
+      setIsSuccess(true);
+    } catch (err: unknown) {
+      const failure = readCircleInviteFailure(
+        err,
+        activeInvites.map((invite) => invite.email)
+      );
+      setErrorMsg(failure.banner);
+      setInvites((current) =>
+        current.map((invite) => ({
+          ...invite,
+          error: failure.byEmail.get(invite.email.trim().toLowerCase()),
+        }))
+      );
     }
   };
 

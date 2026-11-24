@@ -49,6 +49,10 @@ export function DashboardSearchProvider({
   const pathname = usePathname() ?? "";
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathnameRef = useRef(pathname);
+  const searchParamsRef = useRef(searchParams);
+  pathnameRef.current = pathname;
+  searchParamsRef.current = searchParams;
   const intent = useMemo(
     () => resolveDashboardSearch(pathname),
     [pathname]
@@ -62,14 +66,16 @@ export function DashboardSearchProvider({
   }, [urlQuery, pathname]);
 
   const commit = useCallback(
-    (value: string, href = pathname) => {
+    (value: string, href?: string) => {
+      const currentPath = pathnameRef.current;
+      const targetPath = href ?? currentPath;
       const target =
-        href === pathname
-          ? writeQueryParam(pathname, searchParams, value)
-          : writeQueryParam(href, new URLSearchParams(), value);
+        targetPath === currentPath
+          ? writeQueryParam(currentPath, searchParamsRef.current, value)
+          : writeQueryParam(targetPath, new URLSearchParams(), value);
       router.replace(target, { scroll: false });
     },
-    [pathname, router, searchParams]
+    [router]
   );
 
   const setQuery = useCallback(
@@ -94,7 +100,7 @@ export function DashboardSearchProvider({
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, []);
+  }, [pathname]);
 
   const value = useMemo(
     () => ({

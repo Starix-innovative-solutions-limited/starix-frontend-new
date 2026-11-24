@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { displayMediaUrl } from "@/lib/displayMediaUrl";
 import { FiHeart, FiPlay } from "react-icons/fi";
 import { BsFileEarmarkFill } from "react-icons/bs";
 import {
@@ -50,7 +51,21 @@ const platformIcons: Record<string, string> = {
   tiktok: "/tt.webp",
 };
 
-const ordinals = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th"];
+function prizeOrdinal(index: number) {
+  const n = index + 1;
+  const mod100 = n % 100;
+  if (mod100 >= 11 && mod100 <= 13) return `${n}th`;
+  switch (n % 10) {
+    case 1:
+      return `${n}st`;
+    case 2:
+      return `${n}nd`;
+    case 3:
+      return `${n}rd`;
+    default:
+      return `${n}th`;
+  }
+}
 
 function DetailRow({
   label,
@@ -103,7 +118,7 @@ function Sample({
     <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-[#F2F4F7]">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={media.media_url}
+        src={displayMediaUrl(media.media_url) || media.media_url}
         alt=""
         className="h-full w-full object-cover"
       />
@@ -291,7 +306,7 @@ export default function BrandChallengeDetailRightSidebar({
                 className="rounded-xl bg-[#F8F8FA] px-2.5 py-3"
               >
                 <p className="text-[12px] font-semibold text-[#62636C]">
-                  {ordinals[index] || `${index + 1}th`}
+                  {prizeOrdinal(index)}
                 </p>
                 <p className="mt-2 truncate text-[12px] font-medium text-[#62636C]">
                   {formatPrize(prize)}
