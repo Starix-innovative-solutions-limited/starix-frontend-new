@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { displayMediaUrl } from "@/lib/displayMediaUrl";
 
 type BrandAvatarProps = {
   name?: string | null;
@@ -22,7 +23,7 @@ export default function BrandAvatar({
   className = "h-10 w-10",
   letterClassName = "text-sm",
 }: BrandAvatarProps) {
-  const url = src?.trim() || "";
+  const url = displayMediaUrl(src) || src?.trim() || "";
   const [failed, setFailed] = useState(false);
   const showImage = Boolean(url) && !failed;
   const letter = brandInitial(name);

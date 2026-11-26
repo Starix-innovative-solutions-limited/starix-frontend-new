@@ -11,6 +11,7 @@ import BrandAvatar from "@/components/(brand)/BrandAvatar";
 import EditBrandProfileModal from "@/components/(brand)/profile/EditBrandProfileModal";
 import { useModal } from "@/hooks/useModal";
 import { useGetBrandOverview, useGetBrandProfile } from "@/hooks/useProfile";
+import { displayMediaUrl } from "@/lib/displayMediaUrl";
 
 const COMPLETED_STATUSES = new Set([
   "completed",
@@ -148,7 +149,7 @@ export default function Page() {
           {bannerUrl && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={bannerUrl}
+              src={displayMediaUrl(bannerUrl) || bannerUrl}
               alt=""
               className="h-full w-full object-cover"
             />

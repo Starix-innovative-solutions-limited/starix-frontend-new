@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF: process.env.VERCEL_GIT_COMMIT_REF ?? "",
   },
   images: {
+    loader: "custom",
+    loaderFile: "./lib/imageLoader.ts",
     formats: ["image/webp"],
     remotePatterns: [
       {
@@ -65,6 +67,26 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "cdn.starixapp.com",
         port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "**.starixapp.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "**.amazonaws.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "**.blob.core.windows.net",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "**.cloudinary.com",
         pathname: "/**",
       },
     ],
