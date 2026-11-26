@@ -34,24 +34,31 @@ export function useGetMyConnectedPlatforms(enabled = true) {
         root.items ??
         nested.items ??
         []) as unknown[];
-      return list
-        .map((item) => {
-          if (typeof item === "string") return { platform: item };
-          if (!item || typeof item !== "object") return null;
-          const record = item as Record<string, unknown>;
-          const platform = String(record.platform ?? record.name ?? "").trim();
-          if (!platform) return null;
-          return {
-            platform,
-            username:
-              (record.username as string | null | undefined) ??
-              (record.display_name as string | null | undefined) ??
-              null,
-            connection_status:
-              (record.connection_status as string | null | undefined) ?? null,
-          };
-        })
-        .filter((item): item is ConnectedPlatformAccount => Boolean(item));
+      const accounts: ConnectedPlatformAccount[] = [];
+
+      for (const item of list) {
+        if (typeof item === "string") {
+          const platform = item.trim();
+          if (platform) accounts.push({ platform });
+          continue;
+        }
+        if (!item || typeof item !== "object") continue;
+
+        const record = item as Record<string, unknown>;
+        const platform = String(record.platform ?? record.name ?? "").trim();
+        if (!platform) continue;
+
+        const username = record.username ?? record.display_name;
+        const connectionStatus = record.connection_status;
+        accounts.push({
+          platform,
+          username: typeof username === "string" ? username : null,
+          connection_status:
+            typeof connectionStatus === "string" ? connectionStatus : null,
+        });
+      }
+
+      return accounts;
     },
     enabled,
   });
