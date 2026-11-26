@@ -6,7 +6,7 @@ import { CircleMember } from "@/utils/type";
 import { api } from "@/lib/api";
 import { useGetCircle, useUpdateCircle, useRotateJoinCode, useApproveJoinRequest, useRejectJoinRequest, 
   useGetCurrentUser, useClearJoinCode, useUpdateMemberRole, useGetCircleMembers, useRemoveMember, 
-  useGetPendingInvitations, useRevokeInvitation, useGetCircleJoinRequests, useGetCirclePayouts, useApprovePayout, useUpdateCirclePayouts } from "@/hooks/useCircles";
+  useGetPendingInvitations, useRevokeInvitation, useGetCircleJoinRequests, useGetCirclePayouts, useApprovePayout, useUpdateCirclePayouts, readJoinCode } from "@/hooks/useCircles";
 import { useGetCategories } from "@/hooks/useCategories";
 
 const MAX_CIRCLE_NICHES = 3;
@@ -370,9 +370,21 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
     );
   };
 
+  const joinCode = readJoinCode(circle);
+  const circlePrivacy = (circle?.privacy ?? "").toLowerCase();
+  const mintJoinCode = rotateMutation.mutate;
+  const mintAttempted = useRef(false);
+
+  useEffect(() => {
+    if (!isOpen || isCircleLoading || !isAdmin || joinCode) return;
+    if (circlePrivacy !== "private" || mintAttempted.current) return;
+    mintAttempted.current = true;
+    mintJoinCode();
+  }, [circlePrivacy, isAdmin, isCircleLoading, isOpen, joinCode, mintJoinCode]);
+
   const handleCopyJoinCode = () => {
-    if (!circle?.join_code) return;
-    navigator.clipboard.writeText(circle.join_code);
+    if (!joinCode) return;
+    navigator.clipboard.writeText(joinCode);
     setJustCopied(true);
     setTimeout(() => setJustCopied(false), 1500);
   };
@@ -469,8 +481,17 @@ const updateRoleMutation = useUpdateMemberRole(circleId);
                   <div className="flex justify-between items-center">
                     <div>
                       <label className="text-[12px] font-semibold text-[#1E1F24] block mb-1">Circle Invitation Code</label>
-                      <p className="text-[14px] text-[#62636C] font-mono tracking-wider">
-                        {isCircleLoading ? "Loading..." : circle?.join_code ?? "—"}
+                      <p
+                        className={`text-[14px] text-[#62636C] ${
+                          joinCode ? "font-mono tracking-wider" : ""
+                        }`}
+                      >
+                        {isCircleLoading || (isAdmin && rotateMutation.isPending && !joinCode)
+                          ? "Loading..."
+                          : joinCode ??
+                            (circlePrivacy === "public"
+                              ? "Public circles use join requests instead of an invite code."
+                              : "No invite code yet")}
                       </p>
                     </div>
                     <div className="flex items-center gap-3">

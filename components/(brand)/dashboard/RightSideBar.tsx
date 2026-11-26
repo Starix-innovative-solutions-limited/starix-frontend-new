@@ -14,6 +14,7 @@ import BrandChallengeDetailRightSidebar from "./BrandChallengeDetailRightSidebar
 import DashboardSidebarFooter from "@/components/dashboard/DashboardSidebarFooter";
 import { DashboardSearchInput } from "@/components/dashboard/DashboardSearchProvider";
 import { useGetBrandChallenges } from "@/hooks/useChallenges";
+import BrandReviewQueue from "./BrandReviewQueue";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const QUICK_STATS = [
@@ -150,26 +151,7 @@ const RightSideBar = ({ className, collapsed }: any) => {
             </div>
           </div>
         ) : isSubmissions ? (
-          <div className="space-y-6">
-            <div>
-              <h3 className="mb-2 text-[20px] font-semibold text-[#1E1F24]">
-                Review Queue
-              </h3>
-              <p className="text-[13px] text-[#747682]">
-                Submissions waiting for your review.
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-2xl bg-[#F5F6F8] p-4">
-                <p className="text-[12px] text-[#747682]">Pending</p>
-                <p className="mt-1 text-[24px] font-semibold text-[#1E1F24]">48</p>
-              </div>
-              <div className="rounded-2xl bg-[#F5F6F8] p-4">
-                <p className="text-[12px] text-[#747682]">Approved</p>
-                <p className="mt-1 text-[24px] font-semibold text-[#1E1F24]">312</p>
-              </div>
-            </div>
-          </div>
+          <BrandReviewQueue />
         ) : isAnalytics ? (
           <div className="space-y-6">
             <div>

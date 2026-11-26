@@ -79,18 +79,79 @@ export interface CircleRecord {
   created_by_user_id?: string | null;
 }
 
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+export function readJoinCode(value: unknown): string | null {
+  const record = asRecord(value);
+  if (!record) return null;
+  const nested = asRecord(record.data) ?? asRecord(record.circle);
+  const raw =
+    record.join_code ??
+    record.joinCode ??
+    record.invite_code ??
+    record.invitation_code ??
+    nested?.join_code ??
+    nested?.joinCode ??
+    nested?.invite_code ??
+    nested?.invitation_code;
+  if (typeof raw !== "string") return null;
+  const code = raw.trim();
+  return code || null;
+}
+
+function normalizeCircleRecord(payload: unknown, circleId: string): CircleRecord {
+  const record = asRecord(payload) ?? {};
+  const nested = asRecord(record.data) ?? asRecord(record.circle);
+  const source =
+    nested &&
+    typeof record.name !== "string" &&
+    (typeof nested.name === "string" || readJoinCode(nested))
+      ? { ...nested, ...record }
+      : record;
+  const privacy =
+    typeof source.privacy === "string" ? source.privacy.toLowerCase() : undefined;
+
+  return {
+    ...(source as unknown as CircleRecord),
+    name: typeof source.name === "string" ? source.name : "",
+    description:
+      typeof source.description === "string" ? source.description : null,
+    privacy,
+    niches: Array.isArray(source.niches)
+      ? source.niches.filter((item): item is string => typeof item === "string")
+      : [],
+    circle_id: String(source.circle_id ?? source.id ?? circleId),
+    admin_id:
+      (typeof source.admin_id === "string" ? source.admin_id : null) ??
+      (typeof source.created_by_user_id === "string"
+        ? source.created_by_user_id
+        : null),
+    join_code: readJoinCode(source),
+  };
+}
+
+function writeCircleJoinCode(
+  queryClient: ReturnType<typeof useQueryClient>,
+  circleId: string,
+  joinCode: string | null
+) {
+  queryClient.setQueryData<CircleRecord>(["circle", circleId], (current) => ({
+    ...(current ?? { circle_id: circleId, name: "" }),
+    circle_id: current?.circle_id ?? circleId,
+    join_code: joinCode,
+  }));
+}
+
 export const useGetCircle = (circleId: string) => {
   return useQuery<CircleRecord>({
     queryKey: ["circle", circleId],
     queryFn: async () => {
-      const { data } = await api.get<CircleRecord & { id?: string }>(
-        `/circles/${circleId}`
-      );
-      return {
-        ...data,
-        circle_id: data.circle_id ?? data.id ?? circleId,
-        admin_id: data.admin_id ?? data.created_by_user_id ?? null,
-      };
+      const { data } = await api.get(`/circles/${circleId}`);
+      return normalizeCircleRecord(data, circleId);
     },
     enabled: !!circleId,
   });
@@ -553,11 +614,8 @@ export const useRotateJoinCode = (circleId: string) => {
       const { data } = await api.post(`/circles/${circleId}/join-code/rotate`);
       return data;
     },
-    onSuccess: () => {
-      // 1. Invalidate the raw circle record (used by SettingsModal)
-      queryClient.invalidateQueries({ queryKey: ["circle", circleId] });
-      
-      // 2. Invalidate the profile record (used by CircleProfilePage)
+    onSuccess: (data) => {
+      writeCircleJoinCode(queryClient, circleId, readJoinCode(data));
       queryClient.invalidateQueries({ queryKey: ["circle-profile", circleId] });
     },
   });
@@ -571,9 +629,8 @@ export const useClearJoinCode = (circleId: string) => {
       const { data } = await api.delete(`/circles/${circleId}/join-code`);
       return data;
     },
-    onSuccess: () => {
-      // Invalidate both keys to keep the UI in sync
-      queryClient.invalidateQueries({ queryKey: ["circle", circleId] });
+    onSuccess: (data) => {
+      writeCircleJoinCode(queryClient, circleId, readJoinCode(data));
       queryClient.invalidateQueries({ queryKey: ["circle-profile", circleId] });
     },
   });
